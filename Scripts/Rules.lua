@@ -1,12 +1,18 @@
--- Rule to include config files
-rule("Configs")
+-- Set include directory for config files
+rule("IncludeConfigs")
     on_config(function (target)
         local config_dir = "$(buildir)/Config"
-
         target:add("includedirs", config_dir, { public = true })
-        target:add("options", "loglevel")
-
         target:set("configdir", config_dir)
+    end)
+rule_end()
+
+-- Generate config files
+rule("GenConfigs")
+    add_deps("IncludeConfigs")
+
+    on_config(function (target)
+        target:add("options", "loglevel")
 
         if has_config("loglevel") then
             cprint(format("${cyan}%s log verbosity configured to: ${green}%s${clear}", target:name(), get_config("loglevel")))

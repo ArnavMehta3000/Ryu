@@ -1,5 +1,5 @@
 target("RyuTestbench")
-    add_rules("Configs")
+    add_rules("IncludeConfigs")
 
     set_default(true)
     set_kind("binary")
@@ -10,4 +10,5 @@ target("RyuTestbench")
     add_headerfiles("**.h")
 
     add_deps("RyuCore")
+    add_packages("fmt")
 target_end()

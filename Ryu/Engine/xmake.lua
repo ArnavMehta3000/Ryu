@@ -1,5 +1,5 @@
 target("RyuEngine")
-    add_rules("Configs")
+    add_rules("IncludeConfigs")
 
     set_default(false)
     set_kind("shared")
@@ -10,4 +10,5 @@ target("RyuEngine")
     add_headerfiles("**.h")
 
     add_defines("RYU_BUILD_DLL", "RYU_EXPORT")
+    add_packages("fmt")
 target_end()

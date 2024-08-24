@@ -1,4 +1,6 @@
 target("RyuTestbench")
+    add_rules("Configs")
+
     set_default(true)
     set_kind("binary")
     set_group("Ryu")
@@ -6,4 +8,6 @@ target("RyuTestbench")
     add_includedirs("..")
     add_files("**.cpp")
     add_headerfiles("**.h")
+
+    add_deps("RyuCore")
 target_end()

@@ -9,6 +9,10 @@ set_version("0.0.1")
 -- Set C/C++ language version
 set_languages("c17", "cxx23")
 
+-- Include other xmake scripts
+includes("Scripts/Options.lua")
+includes("Scripts/Rules.lua")
+
 -- Build debug mode by default
 set_defaultmode("debug")
 
@@ -24,7 +28,7 @@ set_warnings("all", "extra")
 set_policy("run.autobuild", true)
 
 -- Keep intermediate directories
-set_policy("build.intermediate_directory", false)
+set_policy("build.intermediate_directory", true)
 
 add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "WIN32_LEAN_AND_MEAN")
 add_links("user32.lib")
@@ -32,5 +36,5 @@ add_links("user32.lib")
 -- Add compilation success to all targets
 add_tests("CompileSuccess", {build_should_pass = true, group = "Compilation"})
 
- -- Include xmake projects
+-- Include xmake projects
 includes("**/xmake.lua")

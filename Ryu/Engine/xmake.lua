@@ -1,9 +1,13 @@
 target("RyuEngine")
+    add_rules("Configs")
+
     set_default(false)
     set_kind("shared")
     set_group("Ryu")
 
-    add_includedirs("..")
+    add_includedirs("..", { public = true })
     add_files("**.cpp")
     add_headerfiles("**.h")
+
+    add_defines("RYU_BUILD_DLL", "RYU_EXPORT")
 target_end()

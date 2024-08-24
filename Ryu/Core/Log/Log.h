@@ -1,5 +1,7 @@
 #pragma once
 #include <CoreLogDefines.h>
+#include <CoreVersion.h>
+#include <Core/Log/StackTrace.h>
 #include <spdlog/spdlog.h>
 
 namespace Ryu
@@ -43,4 +45,18 @@ namespace Ryu
 #define RYU_TRACE(...) spdlog::get(::Ryu::GetDefaultLoggerName())->trace(__VA_ARGS__);
 #else
 #define RYU_TRACE(...)
+#endif
+
+#if RYU_BUILD_DEBUG
+#define RYU_ASSERT(cond, message)                                                      \
+{                                                                                      \
+	if (!(cond))                                                                       \
+	{                                                                                  \
+		::Ryu::StackTrace st = ::Ryu::StackTrace();                                    \
+		RYU_FATAL("Assertiion failed: {}\nMessage:{}\n{}", #cond, message, st.Print());\
+		__debugbreak();                                                                \
+	}                                                                                  \
+}
+#else
+#define RYU_ASSERT(cond, message)
 #endif

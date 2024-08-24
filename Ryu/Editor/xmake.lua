@@ -1,5 +1,5 @@
 target("RyuEditor")
-    add_rules("IncludeConfigs")
+    add_rules("IncludeConfigs", "CommonPackages")
 
     set_default(false)
     set_kind("binary")
@@ -8,6 +8,4 @@ target("RyuEditor")
     add_includedirs("..")
     add_files("**.cpp")
     add_headerfiles("**.h")
-
-    add_packages("spdlog")
 target_end()

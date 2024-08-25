@@ -3,19 +3,12 @@
 
 namespace Ryu
 {
-	struct ApplicationConfig
+	class Application
 	{
-		i16 Width;
-		i16 Height;
-		std::string_view Title;
-	};
+	public:
+		RYU_DISABLE_COPY_AND_MOVE(Application);
 
-	struct ApplicationState
-	{
-		bool IsRunning;
-		bool IsSuspended;
-		i16 Width;
-		i16 Height;
-		f64 DeltaTime;
+		RYU_API Application() = default;
+		virtual RYU_API ~Application() = default;
 	};
 }

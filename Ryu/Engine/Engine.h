@@ -1,12 +1,11 @@
 #pragma once
+#include <Core/Includes.h>
 
 namespace Ryu
 {
-	class IGame
+	class Engine
 	{
 	public:
-		virtual ~IGame() = default;
-
 
 	};
 }

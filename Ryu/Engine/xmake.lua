@@ -1,5 +1,6 @@
 target("RyuEngine")
     add_rules("IncludeConfigs", "CommonPackages")
+    add_packages("libsdl")
 
     set_default(false)
     set_kind("shared")

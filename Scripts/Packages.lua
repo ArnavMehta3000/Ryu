@@ -3,3 +3,5 @@ add_requires("spdlog")
 
 -- Add backward-cpp package
 add_requires("backward-cpp", { debug = is_mode("debug") })
+
+add_requires("libsdl", { configs = { sdlmain = false }})

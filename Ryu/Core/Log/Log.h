@@ -47,7 +47,7 @@ namespace Ryu
 #define RYU_TRACE(...)
 #endif
 
-#if RYU_BUILD_DEBUG
+#if RYU_ASSERTIONS_ENABLED
 #define RYU_ASSERT(cond, message)                                                      \
 {                                                                                      \
 	if (!(cond))                                                                       \

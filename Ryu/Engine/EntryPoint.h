@@ -17,5 +17,5 @@ int WINAPI wWinMain(
 
 	Ryu::Logger::Shutdown();
 
-	return 0;
+	return EXIT_SUCCESS;
 }

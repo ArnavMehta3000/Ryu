@@ -5,6 +5,7 @@ rule("IncludeConfigs")
         target:add("includedirs", config_dir, { public = true })
         target:set("configdir", config_dir)
         target:add("options", "console")
+        target:add("options", "enable-assert")
     end)
 rule_end()
 
@@ -13,10 +14,11 @@ rule("GenConfigs")
     add_deps("IncludeConfigs")
 
     on_config(function (target)
-        target:add("options", "loglevel")
+        target:add("options", "log-level")
 
-        if has_config("loglevel") then
-            cprint(format("${cyan}%s log verbosity configured to: ${green}%s${clear}", target:name(), get_config("loglevel")))
+        -- Log level
+        if has_config("log-level") then
+            cprint(format("${cyan}%s log verbosity configured to: ${green}%s${clear}", target:name(), get_config("log-level")))
 
             local level = string.upper(get_config("loglevel"))
 
@@ -43,7 +45,7 @@ rule("GenConfigs")
             end
         else
             local level = is_mode("debug") and "trace" or "info"
-            cprint(format("${cyan}%s(loglevel)${clear} config not set. Setting log verbosity level to: ${green}%s", target:name(), level))
+            cprint(format("${cyan}%s(log-level)${clear} config not set. Defaulting log verbosity level to: ${green}%s", target:name(), level))
 
             -- Warning and info is always enabled if config is not set
             target:set("configvar", "HAS_LOG_WARN", 1)
@@ -60,6 +62,7 @@ rule("GenConfigs")
             end
         end
 
+        -- Log console
         if has_config("console") then
             if get_config("console") == true then
                 target:set("configvar", "HAS_CONSOLE_LOG", 1)
@@ -68,6 +71,17 @@ rule("GenConfigs")
         else
             cprint("Log console enabled: ${red}no")
             target:set("configvar", "HAS_CONSOLE_LOG", 0)
+        end
+        
+        -- Release mode assertions
+        if has_config("enable-assert") then
+            if get_config("enable-assert") == true then
+                target:set("configvar", "HAS_ASSERTS", 1)
+                cprint("Assertions enabled: ${green}yes")
+            end
+        else
+            cprint("Assertions enabled: ${red}no")
+            target:set("configvar", "HAS_ASSERTS", 0)
         end
 
         target:add("configfiles", path.join("$(projectdir)", "Config", "*.h.in"))

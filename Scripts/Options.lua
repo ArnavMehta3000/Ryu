@@ -1,5 +1,5 @@
 -- Defines the option to choose logging level
-option("loglevel")
+option("log-level")
 	set_description("Choose log verbosity level",
 					"- None",
 					"- Warn",
@@ -17,4 +17,11 @@ option("console")
 	set_description("Create log console")
 	set_showmenu(true)
 	set_category("Ryu")
+option_end()
+
+option("enable-assert")
+	set_description("Enable or disble assertions")
+	set_showmenu(true)
+	set_category("Ryu")
+	set_default(true)
 option_end()

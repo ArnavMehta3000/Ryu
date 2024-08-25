@@ -10,7 +10,7 @@
 
 namespace Ryu
 {
-	RYU_API void Logger::Initialize()
+	void Logger::Initialize()
 	{
 		std::vector<spdlog::sink_ptr> sinks;
 		const std::string pattern = "%^[%H:%M:%S.%e] [%l] %v%$";
@@ -34,7 +34,7 @@ namespace Ryu
 		spdlog::register_logger(logger);
 	}
 
-	RYU_API void Logger::Shutdown()
+	void Logger::Shutdown()
 	{
 		spdlog::shutdown();
 	}

@@ -1,5 +1,6 @@
 target("RyuEditor")
     add_rules("IncludeConfigs", "CommonPackages")
+    add_rules("win.sdk.application")
 
     set_default(false)
     set_kind("binary")
@@ -8,4 +9,7 @@ target("RyuEditor")
     add_includedirs("..")
     add_files("**.cpp")
     add_headerfiles("**.h")
+
+    add_deps("RyuCore", "RyuEngine")
+    add_links("RyuCore", "RyuEngine")
 target_end()

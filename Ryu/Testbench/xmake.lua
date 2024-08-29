@@ -12,5 +12,5 @@ target("RyuTestbench")
 	add_headerfiles("**.h")
 
 	add_deps("RyuCore", "RyuEngine")
-	add_links("RyuCore.lib", "RyuEngine.lib")
+	add_links("RyuCore", "RyuEngine")
 target_end()

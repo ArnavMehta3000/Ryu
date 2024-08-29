@@ -11,6 +11,6 @@ target("RyuEngine")
     add_headerfiles("**.h")
 
     add_deps("RyuCore")
-    add_links("RyuCore.lib")
+    add_links("RyuCore")
     add_defines("RYU_BUILD_DLL", "RYU_EXPORT")
 target_end()

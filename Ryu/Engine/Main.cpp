@@ -1,32 +1,36 @@
 #include <Windows.h>
+#include <Core/Log/Logger.h>
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+BOOL WINAPI DllMain(
+	_In_ HINSTANCE hinstDLL,
+	_In_ DWORD     fdwReason,
+	_In_ LPVOID    lpvReserved
+)
 {
 	UNREFERENCED_PARAMETER(hinstDLL);
 
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
-		// Initialize once for each new process.
-		// Return FALSE to fail DLL load.
+	{
+		Ryu::Logger::Initialize();
+		break;
+	}
+
+	case DLL_THREAD_ATTACH:  // Do thread-specific initialization.
 		break;
 
-	case DLL_THREAD_ATTACH:
-		// Do thread-specific initialization.
-		break;
-
-	case DLL_THREAD_DETACH:
-		// Do thread-specific cleanup.
+	case DLL_THREAD_DETACH:  // Do thread-specific cleanup.
 		break;
 
 	case DLL_PROCESS_DETACH:
 
 		if (lpvReserved != nullptr)
 		{
-			break; // do not do cleanup if process termination scenario
+			break; // Do not do cleanup if process termination scenario
 		}
 
-		// Perform any necessary cleanup.
+		Ryu::Logger::Shutdown();
 		break;
 	}
 	return TRUE;

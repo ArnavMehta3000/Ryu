@@ -17,6 +17,11 @@ namespace Ryu
 
 	NODISCARD bool Window::Create()
 	{
+		if (!m_config.Windowed && m_config.Borderless)
+		{
+			return false;
+		}
+
 		// ----- Create window class -----
 		WNDCLASSEX wc{};
 		ZeroMemory(&wc, sizeof(WNDCLASSEX));
@@ -49,6 +54,9 @@ namespace Ryu
 		}
 		else
 		{
+			m_config.Width = screenWidth;
+			m_config.Height = screenHeight;
+
 			// If full screen set the screen to maximum size of the users desktop and 32bit.
 			DEVMODE dmScreenSettings;
 			ZeroMemory(&dmScreenSettings, sizeof(DEVMODE));

@@ -9,7 +9,7 @@ namespace Ryu
 	class RYU_API Window
 	{
 	public:
-		struct Config
+		struct RYU_API Config
 		{
 			const wchar_t* Title = L"Ryu Window";
 			HICON Icon           = ::LoadIcon(NULL, IDI_WINLOGO);
@@ -29,6 +29,7 @@ namespace Ryu
 		virtual ~Window();
 		NODISCARD HWND GetHandle() const { return m_hWnd; }
 		NODISCARD bool IsOpen() const { return m_isOpen; }
+		NODISCARD bool HasFocus() const { return m_hasFocus; }
 		NODISCARD bool Create();
 		void Show();
 		void PumpMessages();

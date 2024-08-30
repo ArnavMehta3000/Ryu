@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/Log/Log.h>
+#include <Core/Log/Logger.h>
 
 #define RYU_ENGINE_FATAL(...)            RYU_CORE_LOG_FATAL(Engine, __VA_ARGS__)
 #define RYU_ENGINE_ERROR(...)            RYU_CORE_LOG_ERROR(Engine, __VA_ARGS__)

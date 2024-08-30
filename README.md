@@ -26,7 +26,7 @@ Before building you can configure certain compile time settings
 Using the following command you can override the log verbosity at compile time
 
 ```bash
-xmake f --loglevel=<none|warn|info|debug|trace>
+xmake f --log-level=<none|warn|info|debug|trace>
 ```
 
 Log verbosity defaults to `Trace` in debug builds and `Info` in release builds
@@ -52,7 +52,7 @@ xmake f -m <debug|release>
 This is an example command to configure to build project in release mode with log debug log verbosity with an attached console
 
 ```bash
-xmake f -m debug --loglevel=debug --console=y
+xmake f -m debug --log-level=debug --console=y
 ```
 
 # Building

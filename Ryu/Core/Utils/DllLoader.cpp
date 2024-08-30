@@ -1,5 +1,4 @@
 #include "DLLLoader.h"
-#include <string>
 
 namespace Ryu
 {

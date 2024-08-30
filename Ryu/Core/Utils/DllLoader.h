@@ -4,7 +4,7 @@
 #include <Core/Concepts.h>
 #include <Windows.h>
 #include <unordered_map>
-#include <string_view>
+#include <string>
 
 namespace Ryu
 {

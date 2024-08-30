@@ -4,6 +4,7 @@
 #include <Core/Utils/DllLoader.h>
 #include <Engine/Engine.h>
 #include <Engine/Globals.h>
+#include <Core/Application/Window.h>
 
 int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,
@@ -20,12 +21,15 @@ int WINAPI wWinMain(
 	// Test code
 	engine->Run();
 
+	Ryu::Window window;
+	std::ignore = window.Create();
+	window.Show();
 
-	RYU_CORE_LOG_TRACE(Testbench, "This is a trace message");
-	RYU_CORE_LOG_INFO(Testbench, "This is an info message");
-	RYU_CORE_LOG_WARN(Testbench, "This is a warning message");
-	RYU_CORE_LOG_ERROR(Testbench, "This is an error message");
-	RYU_CORE_LOG_FATAL(Testbench, "This is a fatal error message");
+	while (window.IsOpen())
+	{
+		window.PumpMessages();
+	}
+
 
 	return 0;
 }

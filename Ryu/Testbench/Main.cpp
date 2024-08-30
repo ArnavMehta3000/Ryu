@@ -5,10 +5,10 @@
 #include <Engine/Globals.h>
 
 int WINAPI wWinMain(
-	[[maybe_unused]] HINSTANCE hInstance,
-	[[maybe_unused]] HINSTANCE hPrevInstance,
-	[[maybe_unused]] LPWSTR pCmdLine,
-	[[maybe_unused]] int nCmdShow)
+	_In_     MAYBE_UNUSED HINSTANCE hInstance,
+	_In_opt_ MAYBE_UNUSED HINSTANCE hPrevInstance,
+	_In_     MAYBE_UNUSED LPWSTR    lpCmdLine,
+	_In_     MAYBE_UNUSED int       nCmdShow)
 {
 	Ryu::DllLoader dll;
 	bool dllResult = dll.LoadDLL("RyuEngine.dll");

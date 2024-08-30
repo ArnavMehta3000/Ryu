@@ -1,4 +1,5 @@
 #include "StackTrace.h"
+#include <Core/ObjectMacros.h>
 #include <sstream>
 #include <backward/backward.hpp>
 
@@ -14,12 +15,12 @@ namespace Ryu
 		m_trace->skip_n_firsts(2);
 	}
 
-	StackTrace::StackTrace([[maybe_unused]] const StackTrace& other)
+	StackTrace::StackTrace(MAYBE_UNUSED const StackTrace& other)
 		: m_trace(std::make_unique<bw::StackTrace>(*m_trace))
 	{
 	}
 
-	StackTrace& StackTrace::operator=([[maybe_unused]] const StackTrace& other)
+	StackTrace& StackTrace::operator=(MAYBE_UNUSED const StackTrace& other)
 	{
 		m_trace = std::make_unique<bw::StackTrace>(*m_trace);
 		return *this;

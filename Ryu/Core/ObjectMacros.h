@@ -14,3 +14,11 @@
 #define RYU_API_FUNC(ret, name, ...) \
 	extern "C" RYU_API ret name(__VA_ARGS__);\
 	using name##_f = decltype(&name)
+
+#define DEPRECATED [[deprecated]]
+#define NODISCARD [[nodiscard]]
+#define FALLTHROUGH [[fallthrough]]
+#define LIKELY [[likely]]
+#define UNLIKELY [[unlikely]]
+#define MAYBE_UNUSED [[maybe_unused]]
+#define NO_RETURN [[noreturn]]

@@ -1,6 +1,5 @@
 target("RyuEngine")
-    add_rules("IncludeConfigs", "CommonPackages")
-    add_packages("libsdl")
+    add_rules("IncludeConfigs", "CommonPackages", "BuildAsDLL")
 
     set_default(false)
     set_kind("shared")
@@ -12,5 +11,4 @@ target("RyuEngine")
 
     add_deps("RyuCore")
     add_links("RyuCore")
-    add_defines("RYU_BUILD_DLL", "RYU_EXPORT")
 target_end()

@@ -3,10 +3,4 @@
 
 namespace Ryu
 {
-	class Engine;
-
-	extern "C"
-	{
-		RYU_API extern Engine* g_engine;
-	}
 }

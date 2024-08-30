@@ -8,6 +8,7 @@ namespace Ryu
 {
 	class RYU_API IApplication
 	{
+		friend class Engine;
 	public:
 		RYU_DISABLE_COPY_AND_MOVE(IApplication);
 
@@ -18,7 +19,7 @@ namespace Ryu
 
 
 		virtual NODISCARD bool OnInit() = 0;
-		virtual void OnUpdate() = 0;
+		virtual void OnUpdate(const f32 dt) = 0;
 		virtual void OnRender() = 0;
 		virtual void OnShutdown() = 0;
 

@@ -183,6 +183,19 @@ namespace Ryu
 			m_config.Height = r.bottom - r.top;
 			break;
 		}
+
+		case WM_EXITSIZEMOVE:
+		{
+			if (wParam == SC_SIZE)
+			{
+				if (m_resizeCallback)
+				{
+					m_resizeCallback(m_config.Width, m_config.Height);
+				}
+			}
+
+			break;
+		}
 		}
 
 		return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);

@@ -28,31 +28,9 @@ namespace Ryu
 		return true;
 	}
 
-	void Application::Run()
+	void Application::OnUpdate(MAYBE_UNUSED const f32 dt)
 	{
-		if (!OnInit())
-		{
-			RYU_ENGINE_FATAL("Failed to initialize application!");
-			return;
-		}
-
-		RYU_ENGINE_DEBUG("Running application");
-		while (m_window.IsOpen())
-		{
-			m_window.PumpMessages();
-
-			OnUpdate();
-			OnRender();
-		}
-		RYU_ENGINE_DEBUG("Shutting down application");
-
-		OnShutdown();
-	}
-
-
-	void Application::OnUpdate()
-	{
-
+		RYU_ENGINE_TRACE("Delta time {} | FPS {}", dt, (1.0f / dt))
 	}
 
 	void Application::OnRender()

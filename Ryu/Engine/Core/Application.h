@@ -4,7 +4,7 @@
 
 namespace Ryu
 {
-	class RYU_API Application : IApplication
+	class RYU_API Application : public IApplication
 	{
 	public:
 		RYU_DISABLE_COPY_AND_MOVE(Application);
@@ -13,10 +13,8 @@ namespace Ryu
 		virtual ~Application() = default;
 
 		NODISCARD bool OnInit() override;
-		void OnUpdate() override;
+		void OnUpdate(MAYBE_UNUSED const f32 dt) override;
 		void OnRender() override;
 		void OnShutdown() override;
-
-		void Run();
 	};
 }

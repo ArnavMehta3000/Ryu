@@ -14,7 +14,7 @@ BOOL WINAPI DllMain(
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		Ryu::Logger::Initialize("Engine");
+		RYU_ENGINE_INITIALIZE_LOGGER("Engine");
 		break;
 	}
 
@@ -31,7 +31,7 @@ BOOL WINAPI DllMain(
 			break; // Do not do cleanup if process termination scenario
 		}
 
-		Ryu::Logger::Shutdown();
+		RYU_ENGINE_SHUTDOWN_LOGGER();
 		break;
 	}
 	return TRUE;

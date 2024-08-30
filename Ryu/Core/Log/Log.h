@@ -46,6 +46,8 @@
 #define RYU_CORE_LOG_TRACE(name, ...)
 #endif
 
+#define RYU_CORE_LOG_SHUTDOWN() ::Ryu::Logger::Shutdown()
+
 #if RYU_ASSERTIONS_ENABLED
 #define RYU_CORE_ASSERT(name, cond, message)                                                      \
 {                                                                                      \

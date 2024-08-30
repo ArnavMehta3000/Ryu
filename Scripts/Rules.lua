@@ -20,7 +20,7 @@ rule("GenConfigs")
         if has_config("log-level") then
             cprint(format("${cyan}%s log verbosity configured to: ${green}%s${clear}", target:name(), get_config("log-level")))
 
-            local level = string.upper(get_config("loglevel"))
+            local level = string.upper(get_config("log-level"))
 
             if level == "TRACE" then
                 target:set("configvar", "HAS_LOG_WARN", 1)

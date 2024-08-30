@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <Core/Log/Log.h>
+#include <Core/Log/Logger.h>
 #include <Core/Utils/DllLoader.h>
 #include <Engine/Engine.h>
 #include <Engine/Globals.h>
@@ -20,10 +21,11 @@ int WINAPI wWinMain(
 	engine->Run();
 
 
-	//RYU_TRACE("This is a trace message");
-	//RYU_INFO("This is an info message");
-	//RYU_WARN("This is a warning message");
-	//RYU_ERROR("This is an error message");
+	RYU_CORE_LOG_TRACE(Testbench, "This is a trace message");
+	RYU_CORE_LOG_INFO(Testbench, "This is an info message");
+	RYU_CORE_LOG_WARN(Testbench, "This is a warning message");
+	RYU_CORE_LOG_ERROR(Testbench, "This is an error message");
+	RYU_CORE_LOG_FATAL(Testbench, "This is a fatal error message");
 
 	return 0;
 }

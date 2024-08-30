@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <Core/Log/Logger.h>
+#include <Engine/Log.h>
 
 BOOL WINAPI DllMain(
 	_In_ HINSTANCE hinstDLL,
@@ -13,7 +14,13 @@ BOOL WINAPI DllMain(
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		Ryu::Logger::Initialize();
+		Ryu::Logger::Initialize("Engine");
+
+		RYU_ENGINE_TRACE("This is a trace message");
+		RYU_ENGINE_INFO("This is an info message");
+		RYU_ENGINE_WARN("This is a warning message");
+		RYU_ENGINE_ERROR("This is an error message");
+		RYU_ENGINE_FATAL("This is a fatal error message");
 		break;
 	}
 

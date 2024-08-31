@@ -1,13 +1,16 @@
 #pragma once
 #include <Core/Includes.h>
 #include <Engine/Core/Application.h>
+#include <Core/Plugin/PluginManager.h>
 #include <memory>
-#include <utility>
+#include <initializer_list>
 
 namespace Ryu
 {	
-	class RYU_API Engine
+	class RYU_API Engine final
 	{
+	public:
+		static constexpr std::string_view ENGINE_PLUGINS_PATH = "Plugins/Engine/";
 	public:
 		~Engine();
 
@@ -28,6 +31,7 @@ namespace Ryu
 			m_application = std::make_unique<T>(std::forward<Args>(args)...);
 		}
 
+		void AddPlugins(std::initializer_list<std::string> plugins);
 		void Run();
 
 	private:
@@ -36,9 +40,13 @@ namespace Ryu
 		bool Init();
 		bool PostInit();
 		void Tick(MAYBE_UNUSED const f32 dt);
+		void LoadPlugins();
+		void DestroyPlugins();
+		void Shutdown();
 
 	private:
 		std::unique_ptr<Application> m_application;
+		PluginManager m_pluginManager;
 	};
 
 	RYU_API_FUNC(Engine&, GetEngineInstance);

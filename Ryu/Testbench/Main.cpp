@@ -8,6 +8,7 @@ int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED LPWSTR    lpCmdLine,
 	_In_     MAYBE_UNUSED int       nCmdShow)
 {
+	// EXAMPLE
 	// --- If using DLL loader ---
 	// Ryu::DllLoader engineLoader;
 	// RYU_CORE_ASSERT(Testbench, engineLoader.LoadDLL("RyuEngine.dll"), "Failed to load RyuEngine.dll");
@@ -19,8 +20,14 @@ int WINAPI wWinMain(
 	// --- If using DLL loader ---
 
 
-	Ryu::Engine::Get().CreateApplication<TestApplication>();
-	Ryu::Engine::Get().Run();
+	Ryu::Engine& engine = Ryu::Engine::Get();
+	engine.AddPlugins(
+		{
+			"RyuInput"
+		});
+
+	engine.CreateApplication<TestApplication>();
+	engine.Run();
 
 	return 0;
 }

@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include <Engine/Log.h>
+#include <filesystem>
 #include <chrono>
 
 
@@ -27,7 +28,16 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Pre-initializing engine");
 
-		// TODO: Load pre-init plugins
+		LoadPlugins();
+
+		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
+		for (auto& [name, plugin] : map)
+		{
+			if (plugin.Plugin && plugin.Plugin->GetLoadOrder() == PluginLoadOrder::PreInit)
+			{
+				plugin.Plugin->Initialize();
+			}
+		}
 
 		RYU_ENGINE_TRACE("Finished pre-initializing engine");
 		return true;
@@ -51,15 +61,42 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Post-initializing engine");
 
-		// TODO: Load post-init plugins
+		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
+		for (auto& [name, plugin] : map)
+		{
+			if (plugin.Plugin && (plugin.Plugin->GetLoadOrder() == PluginLoadOrder::PostInit || plugin.Plugin->GetLoadOrder() == PluginLoadOrder::Default))
+			{
+				plugin.Plugin->Initialize();
+			}
+		}
 
 		RYU_ENGINE_TRACE("Finished post-initializing engine");
 		return true;
 	}
 
+	void Engine::AddPlugins(std::initializer_list<std::string> plugins)
+	{
+		for (auto& plugin : plugins)
+		{
+			// Add if plugin exists in engine plugins directory
+			std::filesystem::path path = std::filesystem::current_path();
+			path.append(ENGINE_PLUGINS_PATH).append(plugin + ".dll");
+
+			if (std::filesystem::exists(path))
+			{
+				m_pluginManager.AddPlugin(plugin, path.string());
+			}
+			else
+			{
+				RYU_ENGINE_ERROR("Plugin {{}} not found in directory {}", plugin, path.string());
+			}
+		}
+	}
+
 	void Engine::Run()
 	{
 		RYU_ENGINE_DEBUG("Running engine");
+
 
 		PreInit();
 		Init();
@@ -83,8 +120,7 @@ namespace Ryu
 			deltaTime = dt.count();
 		}
 
-		RYU_ENGINE_DEBUG("Shutting down engine");
-		m_application->OnShutdown();
+		Shutdown();
 	}
 
 	void Engine::Tick(MAYBE_UNUSED f32 dt)
@@ -93,5 +129,85 @@ namespace Ryu
 
 		m_application->OnUpdate(dt);
 		m_application->OnRender();
+	}
+
+	void Engine::Shutdown()
+	{
+		RYU_ENGINE_DEBUG("Shutting down engine");
+		DestroyPlugins();
+		m_application->OnShutdown();
+	}
+
+	void Engine::DestroyPlugins()
+	{
+		RYU_ENGINE_TRACE("Destroying plugins");
+
+		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
+		for (auto& [name, plugin] : map)
+		{
+			if (plugin.Plugin)
+			{
+				plugin.Plugin->Shutdown();
+			}
+
+
+			if (plugin.DestroyPluginFunc)
+			{
+				plugin.DestroyPluginFunc(plugin.Plugin);
+				plugin.DestroyPluginFunc = nullptr;
+				plugin.Plugin = nullptr;
+
+				RYU_ENGINE_DEBUG("Destroyed plugin: {}", name);
+			}
+		}
+
+		RYU_ENGINE_TRACE("Finished destroying plugins");
+	}
+
+	void Engine::LoadPlugins()
+	{
+		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
+		
+		for (auto& [name, plugin] : map)
+		{
+			// Create dll loader
+			if (!plugin.DLL)
+			{
+				RYU_ENGINE_TRACE("Creating DLL Loader for plugin: {}", name);
+				plugin.DLL = std::make_unique<DllLoader>();
+			}
+
+			// Load dll
+			if (plugin.DLL->LoadDLL(plugin.PluginPath))
+			{
+				RYU_ENGINE_DEBUG("Loaded plugin: {}", name);
+			}
+			else
+			{
+				RYU_ENGINE_ERROR("Failed to load plugin: {}", name);
+			}
+
+			// Create plugin
+			if (CreatePlugin_f createPlugin = plugin.DLL->GetProcAddressFunc<CreatePlugin_f>("CreatePlugin"))
+			{
+				plugin.Plugin = createPlugin();
+				RYU_ENGINE_DEBUG("Created plugin: {}", name);
+			}
+			else
+			{
+				RYU_ENGINE_ERROR("Failed to create plugin: {}", name);
+			}
+
+			// Get destroy plugin function
+			if (DestroyPlugin_f destroyPlugin = plugin.DLL->GetProcAddressFunc<DestroyPlugin_f>("DestroyPlugin"))
+			{
+				plugin.DestroyPluginFunc = destroyPlugin;
+				RYU_ENGINE_TRACE("Cached DestroyPlugin function for plugin: {}", name);
+			}
+			else
+			{
+				RYU_ENGINE_ERROR("Failed to destroy plugin: {}", name);
+			}
+		}
 	}
 }

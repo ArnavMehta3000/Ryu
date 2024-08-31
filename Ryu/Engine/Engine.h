@@ -32,6 +32,10 @@ namespace Ryu
 
 	private:
 		Engine();
+		bool PreInit();
+		bool Init();
+		bool PostInit();
+		void Tick(MAYBE_UNUSED const f32 dt);
 
 	private:
 		std::unique_ptr<Application> m_application;

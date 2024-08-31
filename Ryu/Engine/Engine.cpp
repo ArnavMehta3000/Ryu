@@ -13,23 +13,57 @@ namespace Ryu
 	Engine::Engine()
 		: m_application(nullptr)
 	{
-
+		RYU_ENGINE_TRACE("Engine constructed");
 	}
 
 	Engine::~Engine()
 	{
 		m_application.reset();
+
+		RYU_ENGINE_TRACE("Engine destructed");
+	}
+
+	bool Engine::PreInit()
+	{
+		RYU_ENGINE_DEBUG("Pre-initializing engine");
+
+		// TODO: Load pre-init plugins
+
+		RYU_ENGINE_TRACE("Finished pre-initializing engine");
+		return true;
+	}
+
+	bool Engine::Init()
+	{
+		RYU_ENGINE_DEBUG("Initializing engine");
+
+		if (!m_application->OnInit())
+		{
+			RYU_ENGINE_FATAL("Failed to initialize application!");
+			return false;
+		}
+
+		RYU_ENGINE_TRACE("Finished initializing engine");
+		return true;
+	}
+
+	bool Engine::PostInit()
+	{
+		RYU_ENGINE_DEBUG("Post-initializing engine");
+
+		// TODO: Load post-init plugins
+
+		RYU_ENGINE_TRACE("Finished post-initializing engine");
+		return true;
 	}
 
 	void Engine::Run()
 	{
-		if (!m_application->OnInit())
-		{
-			RYU_ENGINE_FATAL("Failed to initialize application!");
-			return;
-		}
+		RYU_ENGINE_DEBUG("Running engine");
 
-		RYU_ENGINE_DEBUG("Running application");
+		PreInit();
+		Init();
+		PostInit();
 
 		using ClockType = std::chrono::steady_clock;
 
@@ -41,10 +75,7 @@ namespace Ryu
 
 		while (m_application->m_window.IsOpen())
 		{
-			m_application->m_window.PumpMessages();
-
-			m_application->OnUpdate(deltaTime);
-			m_application->OnRender();
+			Tick(deltaTime);
 
 			timePoint2 = clock.now();
 			std::chrono::duration<f32> dt = timePoint2 - timePoint1;
@@ -52,7 +83,15 @@ namespace Ryu
 			deltaTime = dt.count();
 		}
 
-		RYU_ENGINE_DEBUG("Shutting down application");
+		RYU_ENGINE_DEBUG("Shutting down engine");
 		m_application->OnShutdown();
+	}
+
+	void Engine::Tick(MAYBE_UNUSED f32 dt)
+	{
+		m_application->m_window.PumpMessages();
+
+		m_application->OnUpdate(dt);
+		m_application->OnRender();
 	}
 }

@@ -30,7 +30,6 @@ namespace Ryu
 
 	void Application::OnUpdate(MAYBE_UNUSED const f32 dt)
 	{
-		RYU_ENGINE_TRACE("Delta time {} | FPS {}", dt, (1.0f / dt))
 	}
 
 	void Application::OnRender()

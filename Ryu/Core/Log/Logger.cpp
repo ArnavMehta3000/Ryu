@@ -22,13 +22,16 @@ namespace Ryu
 		
 #if RYU_LOG_CONSOLE
 		// Create a console window manually
-		AllocConsole();
+		if (::GetStdHandle(STD_OUTPUT_HANDLE) == INVALID_HANDLE_VALUE)
+		{
+			AllocConsole();
 
-		// Redirect standard input/output to the console
-		FILE* fp;
-		freopen_s(&fp, "CONOUT$", "w", stdout);  // Redirect stdout to the console
-		freopen_s(&fp, "CONOUT$", "w", stderr);  // Redirect stderr to the console
-		freopen_s(&fp, "CONIN$", "r", stdin);    // Redirect stdin to the console
+			// Redirect standard input/output to the console
+			FILE* fp;
+			freopen_s(&fp, "CONOUT$", "w", stdout);  // Redirect stdout to the console
+			freopen_s(&fp, "CONOUT$", "w", stderr);  // Redirect stderr to the console
+			freopen_s(&fp, "CONIN$", "r", stdin);    // Redirect stdin to the console
+		}
 		sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 #endif
 

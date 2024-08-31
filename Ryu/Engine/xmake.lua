@@ -1,14 +1,27 @@
+local engine_plugins =
+{
+	"RyuInput"
+}
+
 target("RyuEngine")
-    add_rules("IncludeConfigs", "CommonPackages", "BuildAsDLL")
+	on_config (function (target)
+		-- Add engine plugins
+		for i, plugin in ipairs(engine_plugins) do
+			cprintf("Add engine plugin dependency [%u]: ${blue}%s${clear}\n", i, plugin)
+			target:add("deps", plugin)
+		end
+	end)
 
-    set_default(false)
-    set_kind("shared")
-    set_group("Ryu")
+	add_rules("IncludeConfigs", "CommonPackages", "BuildAsDLL")
 
-    add_includedirs("..", { public = true })
-    add_files("**.cpp")
-    add_headerfiles("**.h")
+	set_default(false)
+	set_kind("shared")
+	set_group("Ryu")
 
-    add_deps("RyuCore")
-    add_links("RyuCore")
+	add_includedirs("..", { public = true })
+	add_files("**.cpp")
+	add_headerfiles("**.h")
+
+	add_deps("RyuCore")
+	add_links("RyuCore")
 target_end()

@@ -41,6 +41,7 @@ namespace Ryu
 		bool PostInit();
 		void Tick(MAYBE_UNUSED const f32 dt);
 		void LoadPlugins();
+		void InitializePlugins(Ryu::PluginLoadOrder order);
 		void DestroyPlugins();
 		void Shutdown();
 

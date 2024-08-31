@@ -3,7 +3,6 @@
 #include <filesystem>
 #include <chrono>
 
-
 namespace Ryu
 {
 	RYU_API Engine& GetEngineInstance()
@@ -30,14 +29,7 @@ namespace Ryu
 
 		LoadPlugins();
 
-		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
-		for (auto& [name, plugin] : map)
-		{
-			if (plugin.Plugin && plugin.Plugin->GetLoadOrder() == PluginLoadOrder::PreInit)
-			{
-				plugin.Plugin->Initialize();
-			}
-		}
+		InitializePlugins(PluginLoadOrder::PreInit);
 
 		RYU_ENGINE_TRACE("Finished pre-initializing engine");
 		return true;
@@ -61,14 +53,7 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Post-initializing engine");
 
-		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
-		for (auto& [name, plugin] : map)
-		{
-			if (plugin.Plugin && (plugin.Plugin->GetLoadOrder() == PluginLoadOrder::PostInit || plugin.Plugin->GetLoadOrder() == PluginLoadOrder::Default))
-			{
-				plugin.Plugin->Initialize();
-			}
-		}
+		InitializePlugins(PluginLoadOrder::PostInit);
 
 		RYU_ENGINE_TRACE("Finished post-initializing engine");
 		return true;
@@ -207,6 +192,23 @@ namespace Ryu
 			else
 			{
 				RYU_ENGINE_ERROR("Failed to destroy plugin: {}", name);
+			}
+		}
+	}
+
+	void Engine::InitializePlugins(Ryu::PluginLoadOrder order)
+	{
+		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
+		for (auto& [name, plugin] : map)
+		{
+			if (plugin.Plugin && plugin.Plugin->GetLoadOrder() == order)
+			{
+				PluginAPI api
+				{
+					.Window = m_application->GetWindow().GetHandle()
+				};
+
+				RYU_ENGINE_ASSERT(plugin.Plugin->Initialize(api), "Failed to initialize plugin: " + name);
 			}
 		}
 	}

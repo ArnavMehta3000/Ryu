@@ -21,7 +21,6 @@ rule("GenConfigs")
 
 	on_config(function (target)
 		target:add("options", "log-level")
-
 		-- Log level
 		if has_config("log-level") then
 			cprint(format("${cyan}%s log verbosity configured to: ${green}%s${clear}", target:name(), get_config("log-level")))
@@ -78,7 +77,7 @@ rule("GenConfigs")
 			cprint("Log console enabled: ${red}no")
 			target:set("configvar", "HAS_CONSOLE_LOG", 0)
 		end
-		
+
 		-- Release mode assertions
 		if has_config("enable-assert") then
 			if get_config("enable-assert") == true then

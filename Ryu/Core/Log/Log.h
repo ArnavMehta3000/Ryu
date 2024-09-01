@@ -1,9 +1,7 @@
 #pragma once
 #include <CoreLogDefines.h>
-#include <CoreVersion.h>
 #include <Core/Log/StackTrace.h>
 #include <spdlog/spdlog.h>
-
 
 #define RYU_CORE_GET_LOGGER(name) \
 	(spdlog::get(name) ? spdlog::get(name) : (Ryu::Logger::Initialize(name), spdlog::get(name)))

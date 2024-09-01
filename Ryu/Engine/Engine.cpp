@@ -95,6 +95,8 @@ namespace Ryu
 		auto timePoint2 = timePoint1;
 		f32 deltaTime = 0.001f;
 
+		RYU_ENGINE_INFO("Engine ready to run");
+
 		while (m_application->m_window.IsOpen())
 		{
 			Tick(deltaTime);
@@ -208,7 +210,10 @@ namespace Ryu
 					.Window = m_application->GetWindow().GetHandle()
 				};
 
-				RYU_ENGINE_ASSERT(plugin.Plugin->Initialize(api), "Failed to initialize plugin: " + name);
+				if (!plugin.Plugin->Initialize(api))
+				{
+					RYU_ENGINE_FATAL("Plugin initialization failed for: {}", name);
+				}
 			}
 		}
 	}

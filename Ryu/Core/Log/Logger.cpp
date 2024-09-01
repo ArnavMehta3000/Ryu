@@ -22,7 +22,7 @@ namespace Ryu
 		
 #if RYU_LOG_CONSOLE
 		// Create a console window manually
-		if (::GetStdHandle(STD_OUTPUT_HANDLE) == INVALID_HANDLE_VALUE)
+		if (!::GetStdHandle(STD_OUTPUT_HANDLE))
 		{
 			AllocConsole();
 
@@ -35,7 +35,7 @@ namespace Ryu
 		sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 #endif
 
-#if RYU_BUILD_DEBUG
+#if RYU_BUILD_DEBUG == 1
 		sinks.push_back(std::make_shared<spdlog::sinks::msvc_sink_mt>());
 #endif
 

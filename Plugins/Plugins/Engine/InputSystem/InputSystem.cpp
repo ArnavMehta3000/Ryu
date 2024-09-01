@@ -24,7 +24,7 @@ namespace Ryu
 		RYU_PLUGIN_ASSERT(m_hWnd != nullptr, "Invalid window handle");
 
 		s_originalWndProc = (WNDPROC)::SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)&InputSystem::InputWndProc);
-		return true;
+		return s_originalWndProc != nullptr;
 	}
 
 	void InputSystem::Shutdown()

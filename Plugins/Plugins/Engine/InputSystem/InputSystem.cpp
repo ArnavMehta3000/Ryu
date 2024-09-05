@@ -8,7 +8,6 @@ namespace Ryu
 	InputSystem::InputSystem() : IPlugin(PluginLoadOrder::PostInit)
 		, m_hWnd(nullptr)
 	{
-		RYU_PLUGIN_TRACE("Constructed InputSystem plugin");
 	}
 
 	InputSystem::~InputSystem()
@@ -18,7 +17,7 @@ namespace Ryu
 
 	bool InputSystem::Initialize(const PluginAPI& api)
 	{
-		RYU_PLUGIN_DEBUG("Initializing InputSystem plugin");
+		RYU_PLUGIN_INFO("Initializing InputSystem plugin");
 
 		m_hWnd = api.Window;
 		RYU_PLUGIN_ASSERT(m_hWnd != nullptr, "Invalid window handle");
@@ -40,10 +39,11 @@ namespace Ryu
 		{
 			case WM_KEYDOWN:
 			{
-				RYU_PLUGIN_INFO("Key pressed: {}", (char)wParam);
-				RYU_PLUGIN_WARN("Key pressed: {}", (char)wParam);
-				RYU_PLUGIN_DEBUG("Key pressed: {}", (char)wParam);
-				RYU_PLUGIN_TRACE("Key pressed: {}", (char)wParam);
+				// Check if esc is pressed
+				if (wParam == VK_ESCAPE)
+				{
+					::PostQuitMessage(0);
+				}
 			}
 		}
 

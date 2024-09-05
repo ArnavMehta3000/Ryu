@@ -1,7 +1,13 @@
 #include "TestApplication.h"
 
+Ryu::Window::Config cfg
+{
+	.Title = L"Test Application",
+	.Type = Ryu::Window::Type::Resizeable,
+};
+
 TestApplication::TestApplication() 
-	: Ryu::Application()  // TODO: Test bordeless
+	: Ryu::Application(cfg)
 {
 }
 

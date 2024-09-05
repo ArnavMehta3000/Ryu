@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <Testbench/Application/TestApplication.h>
+#include <Core/Application/SplashScreen.h>
 #include <Engine/Engine.h>
 
 int WINAPI wWinMain(
@@ -19,6 +20,13 @@ int WINAPI wWinMain(
 	// engine.Run();
 	// --- If using DLL loader ---
 
+
+	/*Ryu::SplashWindow s;
+	
+	while (s.IsOpen())
+	{
+
+	}*/
 
 	Ryu::Engine& engine = Ryu::Engine::Get();
 	engine.AddPlugins(

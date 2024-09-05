@@ -13,14 +13,11 @@ namespace Ryu
 	Engine::Engine()
 		: m_application(nullptr)
 	{
-		RYU_ENGINE_TRACE("Engine constructed");
 	}
 
 	Engine::~Engine()
 	{
 		m_application.reset();
-
-		RYU_ENGINE_TRACE("Engine destructed");
 	}
 
 	bool Engine::PreInit()
@@ -80,8 +77,7 @@ namespace Ryu
 
 	void Engine::Run()
 	{
-		RYU_ENGINE_DEBUG("Running engine");
-
+		RYU_ENGINE_INFO("Starting engine");
 
 		PreInit();
 		Init();
@@ -123,13 +119,15 @@ namespace Ryu
 		RYU_ENGINE_DEBUG("Shutting down engine");
 		DestroyPlugins();
 		m_application->OnShutdown();
+		RYU_ENGINE_TRACE("Finished shutting down engine");
 	}
 
 	void Engine::DestroyPlugins()
 	{
-		RYU_ENGINE_TRACE("Destroying plugins");
+		RYU_ENGINE_INFO("Unloading plugins");
 
 		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
+		const size_t count = map.size();
 		for (auto& [name, plugin] : map)
 		{
 			if (plugin.Plugin)
@@ -148,7 +146,7 @@ namespace Ryu
 			}
 		}
 
-		RYU_ENGINE_TRACE("Finished destroying plugins");
+		RYU_ENGINE_TRACE("Finished unloading {} plugins", count);
 	}
 
 	void Engine::LoadPlugins()
@@ -160,18 +158,17 @@ namespace Ryu
 			// Create dll loader
 			if (!plugin.DLL)
 			{
-				RYU_ENGINE_TRACE("Creating DLL Loader for plugin: {}", name);
 				plugin.DLL = std::make_unique<DllLoader>();
 			}
 
 			// Load dll
 			if (plugin.DLL->LoadDLL(plugin.PluginPath))
 			{
-				RYU_ENGINE_DEBUG("Loaded plugin: {}", name);
+				RYU_ENGINE_TRACE("Loaded plugin DLL: {}", name);
 			}
 			else
 			{
-				RYU_ENGINE_ERROR("Failed to load plugin: {}", name);
+				RYU_ENGINE_ERROR("Failed to load plugin DLL: {}", name);
 			}
 
 			// Create plugin
@@ -200,16 +197,16 @@ namespace Ryu
 
 	void Engine::InitializePlugins(Ryu::PluginLoadOrder order)
 	{
+		const PluginAPI api
+		{
+			.Window = m_application->GetWindow()
+		};
+
 		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
 		for (auto& [name, plugin] : map)
 		{
 			if (plugin.Plugin && plugin.Plugin->GetLoadOrder() == order)
 			{
-				PluginAPI api
-				{
-					.Window = m_application->GetWindow().GetHandle()
-				};
-
 				if (!plugin.Plugin->Initialize(api))
 				{
 					RYU_ENGINE_FATAL("Plugin initialization failed for: {}", name);

@@ -13,16 +13,14 @@ namespace Ryu
 	{
 		RYU_ENGINE_TRACE("Initializing application");
 
-		if (!m_window.Create())
+		if (!m_window.Init())
 		{
-			RYU_ENGINE_FATAL("Failed to create a window!");
+			RYU_ENGINE_ASSERT(m_window.GetHandle(), "Failed to create a window!");
 			return false;
 		}
 
-		RYU_ENGINE_TRACE("Created application window");
-
-		RYU_ENGINE_TRACE("Showing application window");
 		m_window.Show();
+		RYU_ENGINE_TRACE("Created application window");
 
 		RYU_ENGINE_TRACE("Finished initializing application");
 		return true;

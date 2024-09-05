@@ -44,10 +44,11 @@ namespace Ryu
 
 		logger->set_level(spdlog::level::trace);
 		logger->flush_on(spdlog::level::trace);
-
 		spdlog::register_logger(logger);
 
+#if RYU_LOG_TRACE_ENABLED
 		logger->trace("Registered \'{}\' logger", name);
+#endif
 	}
 
 	void Logger::Shutdown()

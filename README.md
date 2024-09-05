@@ -1,6 +1,9 @@
 # Ryu Engine
 
-Ryu Engine is an experimentation playground for making game engines
+Ryu Engine is an experimentation playground for making game engines<br>
+
+[![](https://tokei.rs/b1/github/ArnavMehta3000/Ryu?category=lines)](https://github.com/ArnavMehta3000/Ryu)
+[![](https://tokei.rs/b1/github/ArnavMehta3000/Ryu?category=code)](https://github.com/ArnavMehta3000/Ryu)
 
 # Building
 

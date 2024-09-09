@@ -7,8 +7,20 @@ target("RyuEngine")
 	on_config (function (target)
 		-- Add engine plugins
 		for i, plugin in ipairs(engine_plugins) do
-			cprintf("Add engine plugin dependency [%u]: ${blue}%s${clear}\n", i, plugin)
+			-- Get plugin directory
+			local prj_dir = "$(projectdir)";
+			local plugin_dir = path.join(prj_dir, "Plugins", "Plugins", "Engine", plugin)
+
+			-- Ensure plugin directory has xmake.lua file
+			local plugin_xmake = path.join(plugin_dir, "xmake.lua")
+			if not os.isfile(plugin_xmake) then
+				raise("Engine plugin file not found: " .. plugin_xmake)
+			end
+
+			-- Add plugin dependency
 			target:add("deps", plugin)
+
+			cprintf("Add engine plugin dependency [%u]: ${blue}%s (%s)${clear}\n", i, plugin, plugin_dir)
 		end
 	end)
 

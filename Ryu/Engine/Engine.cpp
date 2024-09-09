@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include <Engine/Log.h>
+#include <Plugins/Engine/RyuInput/InputSystem.h>
 #include <filesystem>
 #include <chrono>
 
@@ -51,9 +52,22 @@ namespace Ryu
 		RYU_ENGINE_DEBUG("Post-initializing engine");
 
 		InitializePlugins(PluginLoadOrder::PostInit);
+		SetInputCallbacks();
 
 		RYU_ENGINE_TRACE("Finished post-initializing engine");
 		return true;
+	}
+
+	void Engine::SetInputCallbacks()
+	{
+		if (Input::InputSystem* input = m_pluginManager.GetPlugin<Input::InputSystem>("RyuInput"))
+		{
+			Input::InputCallbacks callbacks;
+			callbacks.OnKeyDown = [this](const auto& event) {m_application->OnEvent(event); };
+			callbacks.OnKeyUp = [this](const auto& event) {m_application->OnEvent(event); };
+				
+			input->SetInputCallbacks(callbacks);
+		}
 	}
 
 	void Engine::AddPlugins(std::initializer_list<std::string> plugins)
@@ -126,7 +140,7 @@ namespace Ryu
 	{
 		RYU_ENGINE_INFO("Unloading plugins");
 
-		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
+		PluginManager::PluginMap& map = m_pluginManager.GetPluginsMap();
 		const size_t count = map.size();
 		for (auto& [name, plugin] : map)
 		{
@@ -151,7 +165,7 @@ namespace Ryu
 
 	void Engine::LoadPlugins()
 	{
-		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
+		PluginManager::PluginMap& map = m_pluginManager.GetPluginsMap();
 		
 		for (auto& [name, plugin] : map)
 		{
@@ -202,7 +216,7 @@ namespace Ryu
 			.Window = m_application->GetWindow()
 		};
 
-		PluginManager::PluginMap& map = m_pluginManager.GetPlugins();
+		PluginManager::PluginMap& map = m_pluginManager.GetPluginsMap();
 		for (auto& [name, plugin] : map)
 		{
 			if (plugin.Plugin && plugin.Plugin->GetLoadOrder() == order)

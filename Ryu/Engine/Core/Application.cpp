@@ -41,4 +41,14 @@ namespace Ryu
 
 		RYU_ENGINE_TRACE("Finished shutting down application");
 	}
+
+	void Application::OnEvent(const Input::Events::OnKeyDown& event)
+	{
+		RYU_ENGINE_TRACE("OnKeyDown event received");
+	}
+
+	void Application::OnEvent(const Input::Events::OnKeyUp& event)
+	{
+		RYU_ENGINE_TRACE("OnKeyUp event received");
+	}
 }

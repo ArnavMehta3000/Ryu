@@ -1,13 +1,19 @@
 #include "InputSystem.h"
-#include <Plugins/Engine/InputSystem/Log.h>
+#include <Plugins/Engine/RyuInput/Internal/Log.h>
 
-namespace Ryu
+namespace Ryu::Input
 {
-	WNDPROC InputSystem::s_originalWndProc{ nullptr };
-
+	namespace
+	{
+		WNDPROC s_originalWndProc{ nullptr };
+		InputSystem* s_instance = nullptr;
+	}
+	
 	InputSystem::InputSystem() : IPlugin(PluginLoadOrder::PostInit)
 		, m_hWnd(nullptr)
 	{
+		RYU_PLUGIN_TRACE("Constructed InputSystem plugin");
+		s_instance = this;
 	}
 
 	InputSystem::~InputSystem()
@@ -33,8 +39,20 @@ namespace Ryu
 		::SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)s_originalWndProc);
 	}
 
+	void InputSystem::SetInputCallbacks(const InputCallbacks& callbacks)
+	{
+		m_callbacks = callbacks;
+		RYU_PLUGIN_DEBUG("Input callbacks set");
+	}
+
+	const InputCallbacks& InputSystem::GetInputCallbacks() const
+	{
+		return m_callbacks;
+	}
+
 	LRESULT InputSystem::InputWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		const InputCallbacks& callbacks = s_instance->GetInputCallbacks();
 		switch (msg)
 		{
 			case WM_KEYDOWN:
@@ -44,9 +62,16 @@ namespace Ryu
 				{
 					::PostQuitMessage(0);
 				}
+
+				if (callbacks.OnKeyDown)
+				{
+					callbacks.OnKeyDown(Events::OnKeyDown{});
+				}
+
+				break;
 			}
 		}
 
-		return ::CallWindowProc(InputSystem::s_originalWndProc, hWnd, msg, wParam, lParam);
+		return ::CallWindowProc(s_originalWndProc, hWnd, msg, wParam, lParam);
 	}
 }

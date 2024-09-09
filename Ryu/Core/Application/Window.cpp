@@ -221,8 +221,10 @@ namespace Ryu
 	
 	void Window::OnNonClientCreate()
 	{
-		::SetUserObjectInformation(m_hWnd, UOI_TIMERPROC_EXCEPTION_SUPPRESSION, FALSE, sizeof(BOOL));
-		::SetTimer(m_hWnd, Caption::TIMER_ID, 100, (TIMERPROC)NULL);
+		BOOL flag = FALSE;
+		::SetUserObjectInformation(m_hWnd, UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &flag, sizeof(BOOL));
+
+		::SetTimer(m_hWnd, Caption::TIMER_ID, 50, (TIMERPROC)NULL);
 		::SetWindowTheme(m_hWnd, L"", L"");
 		ModifyClassStyle(0, CS_DROPSHADOW);
 
@@ -236,10 +238,8 @@ namespace Ryu
 
 	void Window::OnNonClientPaint(HRGN region)
 	{
-#ifndef DCX_USESTYLE
-#define RYU_DEFINED_USE_STYLE
-#define DCX_USESTYLE 0x00010000
-#endif
+		constexpr auto DCX_USESTYLE = 0x00010000;
+
 		HDC hdc = ::GetDCEx(m_hWnd, region, DCX_WINDOW | DCX_INTERSECTRGN | DCX_USESTYLE);
 
 		RECT rect;
@@ -267,12 +267,6 @@ namespace Ryu
 		::SelectObject(hdc, hOld);
 		::DeleteObject(hbmMem);
 		::ReleaseDC(m_hWnd, hdc);
-
-#ifdef RYU_DEFINED_USE_STYLE
-#undef RYU_DEFINED_USE_STYLE
-#undef DCX_USESTYLE
-#endif
-
 	}
 
 	void Window::OnNonClientActivate(bool active)

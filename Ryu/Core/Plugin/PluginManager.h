@@ -24,8 +24,18 @@ namespace Ryu
 		~PluginManager() = default;
 
 		void AddPlugin(const std::string& name, const std::string& path);
-		PluginMap& GetPlugins() { return m_plugins; }
+		NODISCARD PluginMap& GetPluginsMap() { return m_plugins; }
+		NODISCARD bool HasPlugin(const std::string& name) const;
+		NODISCARD const PluginEntry* GetPluginEntry(const std::string& pluginName) const;
+		
+		NODISCARD IPlugin* GetPlugin(const std::string& pluginName);
 
+		template <typename T>
+		NODISCARD T* GetPlugin(const std::string& pluginName)
+		{
+			IPlugin* plugin = GetPlugin(pluginName);
+			return plugin ? dynamic_cast<T*>(plugin) : nullptr;
+		}
 	private:
 		PluginMap m_plugins;
 	};

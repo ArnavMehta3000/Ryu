@@ -1,10 +1,9 @@
 #pragma once
-#include <InputSystem/InputSystem.h>
-#include <InputSystem/Log.h>
+#include <Plugins/Engine/RyuInput/InputSystem.h>
 
 Ryu::IPlugin* CreatePlugin()
 {
-	return new Ryu::InputSystem();
+	return new Ryu::Input::InputSystem();
 }
 
 void DestroyPlugin(Ryu::IPlugin* plugin)

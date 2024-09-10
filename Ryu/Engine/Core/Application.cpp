@@ -42,13 +42,18 @@ namespace Ryu
 		RYU_ENGINE_TRACE("Finished shutting down application");
 	}
 
-	void Application::OnEvent(const Input::Events::OnKeyDown& event)
+	void Application::OnEvent(MAYBE_UNUSED const Input::Events::OnKeyDown& event)
 	{
-		RYU_ENGINE_TRACE("OnKeyDown event received");
+		RYU_ENGINE_TRACE("OnKeyDown event received - {}", char(event.Key));
 	}
 
-	void Application::OnEvent(const Input::Events::OnKeyUp& event)
+	void Application::OnEvent(MAYBE_UNUSED const Input::Events::OnKeyUp& event)
 	{
-		RYU_ENGINE_TRACE("OnKeyUp event received");
+		RYU_ENGINE_TRACE("OnKeyUp event received - {}", char(event.Key));
+
+		if (event.Key == Input::KeyCode::Escape)
+		{
+			Quit();
+		}
 	}
 }

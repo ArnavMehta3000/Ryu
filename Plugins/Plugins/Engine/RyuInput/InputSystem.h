@@ -1,6 +1,8 @@
 #pragma once
 #include <Core/Plugin/PluginAPI.h>
 #include <Plugins/Engine/RyuInput/InputEvents.h>
+#include <Plugins/Engine/RyuInput/Devices/Keyboard.h>
+
 
 namespace Ryu::Input
 {
@@ -18,11 +20,8 @@ namespace Ryu::Input
 		static LRESULT CALLBACK InputWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 		
 	private:
-		void OnKeyUp();
-		void OnKeyDown();
-
-	private:
 		InputCallbacks m_callbacks;
+		Keyboard m_keyboard;
 		HWND m_hWnd;
 	};
 

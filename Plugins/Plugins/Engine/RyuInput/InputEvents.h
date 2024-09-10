@@ -1,4 +1,6 @@
 #pragma once
+#include <Core/ObjectMacros.h>
+#include <Plugins/Engine/RyuInput/KeyCode.h>
 #include <Core/Event/EventListener.h>
 #include <functional>
 
@@ -6,14 +8,28 @@ namespace Ryu::Input
 {
 	namespace Events
 	{
-		struct RYU_API OnKeyDown
+		namespace Internal
 		{
+			struct RYU_API OnKeyEvent
+			{
+				KeyCode Key;
+			};
+		}
 
+		struct RYU_API OnKeyDown : public Internal::OnKeyEvent 
+		{
+			explicit OnKeyDown(KeyCode key)
+			{
+				Key = key;
+			}
 		};
 
-		struct RYU_API OnKeyUp
+		struct RYU_API OnKeyUp : public Internal::OnKeyEvent
 		{
-
+			explicit OnKeyUp(KeyCode key)
+			{
+				Key = key;
+			}
 		};
 	}
 

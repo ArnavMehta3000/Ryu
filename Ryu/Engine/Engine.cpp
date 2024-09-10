@@ -93,6 +93,9 @@ namespace Ryu
 	{
 		RYU_ENGINE_INFO("Starting engine");
 
+		// Set application to be running
+		m_application->m_isRunning = true;
+
 		PreInit();
 		Init();
 		PostInit();
@@ -107,7 +110,7 @@ namespace Ryu
 
 		RYU_ENGINE_INFO("Engine ready to run");
 
-		while (m_application->m_window.IsOpen())
+		while (m_application->m_window.IsOpen() && m_application->IsRunning())
 		{
 			Tick(deltaTime);
 

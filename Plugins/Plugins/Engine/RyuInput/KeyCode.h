@@ -221,15 +221,16 @@ namespace Ryu::Input
 		RightAlt     = KeyCode::RightMenu
 	};
 
-	enum class RYU_API MouseButtons
+	enum class RYU_API MouseButton
 	{
 		None         = KeyCode::None,
 		LeftButton   = KeyCode::LeftMouseButton,
 		RightButton  = KeyCode::RightMouseButton,
 		MiddleButton = KeyCode::MiddleMouseButton,
-		X1Button     = KeyCode::Extra1MouseButton,
-		X2Button     = KeyCode::Extra2MouseButton
+		XButton1     = KeyCode::Extra1MouseButton,
+		XButton2     = KeyCode::Extra2MouseButton
 	};
 
 	std::expected<KeyCode, bool> IsValidKeyCodeValue(u32 value);
+	std::expected<MouseButton, bool> IsValidMouseButtonsValue(u32 value);
 }

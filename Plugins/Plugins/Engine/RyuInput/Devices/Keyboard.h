@@ -1,3 +1,4 @@
+#pragma once
 #include <Plugins/Engine/RyuInput/KeyCode.h>
 #include <unordered_map>
 
@@ -8,7 +9,7 @@ namespace Ryu::Input
 	class RYU_API Keyboard
 	{
 		friend class InputSystem;
-	public:
+	private:
 		struct KeyState
 		{
 			bool IsDown = false;
@@ -18,13 +19,14 @@ namespace Ryu::Input
 		using KeyMap = std::unordered_map<KeyCode, KeyState>;
 
 	private:
-		void Create(InputCallbacks* callbacks);
+		void Create(std::vector<InputCallbacks>* callbacks);
 		void Read(WPARAM wParam, LPARAM lParam);
 		void UpdateKeyState(KeyCode keyCode, bool isKeyReleased, bool wasKeyDown);
 		void OnKeyUp(KeyCode key);
 		void OnKeyDown(KeyCode key);
 
 	private:
-		InputCallbacks*   m_callbacks;
+		KeyMap m_keyStates;
+		std::vector<InputCallbacks>* m_callbacks;
 	};
 }

@@ -1,21 +1,10 @@
 #include "Keyboard.h"
 #include <Plugins/Engine/RyuInput/Internal/Log.h>
-#include <Plugins/Engine/RyuInput/KeyCode.h>
 #include <Plugins/Engine/RyuInput/InputEvents.h>
 
 namespace Ryu::Input
 {
-	namespace
-	{
-#define KEY_MAP(keycode) { KeyCode::keycode, Keyboard::KeyState{} }
-		// Constant mapping of keycodes to virtual keys.
-		static Keyboard::KeyMap s_keyStates =
-		{
-		};
-#undef KEY_MAP
-	}
-
-	void Keyboard::Create(InputCallbacks* inputCallbacks)
+	void Keyboard::Create(std::vector<InputCallbacks>* inputCallbacks)
 	{
 		RYU_PLUGIN_ASSERT(inputCallbacks, "InputCallbacks is nullptr");
 
@@ -70,9 +59,10 @@ namespace Ryu::Input
 
 	void Keyboard::UpdateKeyState(KeyCode keyCode, bool isKeyReleased, bool wasKeyDown)
 	{
-		KeyState& keyState = s_keyStates[keyCode];
-		keyState.IsDown = !isKeyReleased;
-		keyState.WasDown = wasKeyDown;
+		// This will also create the key state if it doesn't exist
+		KeyState& keyState = m_keyStates[keyCode];
+		keyState.IsDown    = !isKeyReleased;
+		keyState.WasDown   = wasKeyDown;
 
 		if (keyState.WasDown && !keyState.IsDown)
 		{
@@ -86,17 +76,24 @@ namespace Ryu::Input
 
 	void Keyboard::OnKeyUp(KeyCode key)
 	{
-		if (m_callbacks->OnKeyDown)
+		for (auto& callback : *m_callbacks)
 		{
-			m_callbacks->OnKeyDown(Events::OnKeyDown(key));
+			if (callback.OnKeyDown)
+			{
+				callback.OnKeyDown(Events::OnKeyDown(key));
+			}
 		}
+
 	}
 
 	void Keyboard::OnKeyDown(KeyCode key)
 	{
-		if (m_callbacks->OnKeyUp)
+		for (auto& callback : *m_callbacks)
 		{
-			m_callbacks->OnKeyUp(Events::OnKeyUp(key));
+			if (callback.OnKeyUp)
+			{
+				callback.OnKeyUp(Events::OnKeyUp(key));
+			}
 		}
 	}
 }

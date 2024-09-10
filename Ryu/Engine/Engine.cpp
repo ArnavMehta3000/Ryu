@@ -52,21 +52,24 @@ namespace Ryu
 		RYU_ENGINE_DEBUG("Post-initializing engine");
 
 		InitializePlugins(PluginLoadOrder::PostInit);
-		SetInputCallbacks();
+		AddInputCallbacks();
 
 		RYU_ENGINE_TRACE("Finished post-initializing engine");
 		return true;
 	}
 
-	void Engine::SetInputCallbacks()
+	void Engine::AddInputCallbacks()
 	{
 		if (Input::InputSystem* input = m_pluginManager.GetPlugin<Input::InputSystem>("RyuInput"))
 		{
 			Input::InputCallbacks callbacks;
-			callbacks.OnKeyDown = [this](const auto& event) {m_application->OnEvent(event); };
-			callbacks.OnKeyUp = [this](const auto& event) {m_application->OnEvent(event); };
+			callbacks.OnKeyDown         = [this](const auto& event) {m_application->OnEvent(event); };
+			callbacks.OnKeyUp           = [this](const auto& event) {m_application->OnEvent(event); };
+			callbacks.OnMouseButtonUp   = [this](const auto& event) {m_application->OnEvent(event); };
+			callbacks.OnMouseButtonDown = [this](const auto& event) {m_application->OnEvent(event); };
+			callbacks.OnMouseDblClick   = [this](const auto& event) {m_application->OnEvent(event); };
 				
-			input->SetInputCallbacks(callbacks);
+			input->AddInputCallbacks(callbacks);
 		}
 	}
 

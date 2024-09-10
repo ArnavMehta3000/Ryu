@@ -30,6 +30,7 @@ namespace Ryu::Input
 		RYU_PLUGIN_ASSERT(m_hWnd != nullptr, "Invalid window handle");
 
 		m_keyboard.Create(&m_callbacks);
+		m_mouse.Create(&m_callbacks);
 
 		s_originalWndProc = (WNDPROC)::SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)&InputSystem::InputWndProc);
 		return s_originalWndProc != nullptr;
@@ -42,16 +43,10 @@ namespace Ryu::Input
 		::SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)s_originalWndProc);
 	}
 
-	void InputSystem::SetInputCallbacks(const InputCallbacks& callbacks)
+	void InputSystem::AddInputCallbacks(const InputCallbacks& callbacks)
 	{
-		m_callbacks = callbacks;
-
+		m_callbacks.push_back(callbacks);
 		RYU_PLUGIN_DEBUG("Input callbacks set");
-	}
-
-	const InputCallbacks& InputSystem::GetInputCallbacks() const
-	{
-		return m_callbacks;
 	}
 
 	LRESULT InputSystem::InputWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -61,15 +56,83 @@ namespace Ryu::Input
 			return ::CallWindowProc(s_originalWndProc, hWnd, msg, wParam, lParam);
 		}
 
-		const InputCallbacks& callbacks = s_instance->GetInputCallbacks();
 		switch (msg)
 		{
+		// Keyboard messages
 		case WM_KEYDOWN:    FALLTHROUGH;
 		case WM_SYSKEYDOWN: FALLTHROUGH;
 		case WM_KEYUP:      FALLTHROUGH;
 		case WM_SYSKEYUP:
 		{
 			s_instance->m_keyboard.Read(wParam, lParam);
+			break;
+		}
+
+		// Mouse messages
+		case WM_MOUSEACTIVATE:
+			return MA_ACTIVATEANDEAT;
+		case WM_LBUTTONDOWN:
+		{
+			s_instance->m_mouse.OnClick(MouseButton::LeftButton, lParam, true);
+			break;
+		}
+
+		case WM_RBUTTONDOWN:
+		{
+			s_instance->m_mouse.OnClick(MouseButton::RightButton, lParam, true);
+			break;
+		}
+		case WM_MBUTTONDOWN:
+		{
+			s_instance->m_mouse.OnClick(MouseButton::MiddleButton, lParam, true);
+			break;
+		}
+		case WM_XBUTTONDOWN:
+		{
+			s_instance->m_mouse.OnClick(HIWORD(wParam) == XBUTTON1 ? 
+				MouseButton::XButton1 : MouseButton::XButton2, lParam, true);
+			break;
+		}
+		case WM_LBUTTONUP:
+		{
+			s_instance->m_mouse.OnClick(MouseButton::LeftButton, lParam, false);
+			break;
+		}
+		case WM_RBUTTONUP:
+		{
+			s_instance->m_mouse.OnClick(MouseButton::RightButton, lParam, false);
+			break;
+		}
+		case WM_MBUTTONUP:
+		{
+			s_instance->m_mouse.OnClick(MouseButton::MiddleButton, lParam, false);
+			break;
+		}
+		case WM_XBUTTONUP:
+		{
+			s_instance->m_mouse.OnClick(HIWORD(wParam) == XBUTTON1 ? 
+				MouseButton::XButton1 : MouseButton::XButton2, lParam, false);
+			break;
+		}
+		case WM_LBUTTONDBLCLK:
+		{
+			s_instance->m_mouse.OnDblClick(MouseButton::LeftButton, wParam, lParam);
+			break;
+		}
+		case WM_RBUTTONDBLCLK:
+		{
+			s_instance->m_mouse.OnDblClick(MouseButton::RightButton, wParam, lParam);
+			break;
+		}
+		case WM_MBUTTONDBLCLK:
+		{
+			s_instance->m_mouse.OnDblClick(MouseButton::MiddleButton, wParam, lParam);
+			break;
+		}
+		case WM_XBUTTONDBLCLK:
+		{
+			s_instance->m_mouse.OnDblClick(HIWORD(wParam) == XBUTTON1 ?
+				MouseButton::XButton1 : MouseButton::XButton2, wParam, lParam);
 			break;
 		}
 		}

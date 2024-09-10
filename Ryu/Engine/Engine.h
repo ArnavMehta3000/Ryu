@@ -39,7 +39,7 @@ namespace Ryu
 		bool PreInit();
 		bool Init();
 		bool PostInit();
-		void SetInputCallbacks();
+		void AddInputCallbacks();
 		void Tick(MAYBE_UNUSED const f32 dt);
 		void LoadPlugins();
 		void InitializePlugins(Ryu::PluginLoadOrder order);

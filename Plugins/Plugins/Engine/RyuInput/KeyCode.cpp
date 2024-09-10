@@ -145,13 +145,37 @@ namespace Ryu::Input
 		case OpenSquareBracket:  FALLTHROUGH;
 		case BackSlash:          FALLTHROUGH;
 		case CloseSquareBracket: FALLTHROUGH;
-		case Quote:              FALLTHROUGH;
+		case Quote:
 			return keyCode;
 		default:
 			RYU_PLUGIN_ERROR("Unknown KeyCode: {}", value);
 			return std::unexpected(false);
 		}
+	}
+	std::expected<MouseButton, bool> IsValidMouseButtonsValue(u32 value)
+	{
+		// First check if it is a valid KeyCode
+		// Since keycodes include mouse buttons
+		auto result = IsValidKeyCodeValue(value);
+		if (!result)
+		{
+			return std::unexpected(false);
+		}
 
-		return std::unexpected(false);
+		MouseButton btn = static_cast<MouseButton>(value);
+		
+		switch (btn)
+		{
+			using enum MouseButton;
+		case LeftButton:   FALLTHROUGH;
+		case RightButton:  FALLTHROUGH;
+		case MiddleButton: FALLTHROUGH;
+		case XButton1:     FALLTHROUGH;
+		case XButton2:
+			return btn;
+		default:
+			RYU_PLUGIN_ERROR("Unknown mouse button: {}", value);
+			return std::unexpected(false);
+		}
 	}
 }

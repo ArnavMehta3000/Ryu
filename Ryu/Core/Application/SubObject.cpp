@@ -46,7 +46,7 @@ namespace Ryu
 		ZeroMemory(&wc, sizeof(WNDCLASSEX));
 
 		wc.cbSize        = sizeof(WNDCLASSEX);
-		wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+		wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
 		wc.lpfnWndProc   = &SetupMessageHandler;
 		wc.cbClsExtra    = 0;
 		wc.cbWndExtra    = 0;

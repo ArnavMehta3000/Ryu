@@ -7,7 +7,7 @@ namespace Ryu
 {
 	class RYU_API Application 
 		: public IApplication
-		, Input::InputListener
+		, Input::InputEventListener
 	{
 	public:
 		RYU_DISABLE_COPY_AND_MOVE(Application);
@@ -22,5 +22,8 @@ namespace Ryu
 
 		void OnEvent(const Input::Events::OnKeyDown& event) override;
 		void OnEvent(const Input::Events::OnKeyUp& event) override;
+		void OnEvent(const Input::Events::OnMouseButtonUp& event) override;
+		void OnEvent(const Input::Events::OnMouseButtonDown& event) override;
+		void OnEvent(const Input::Events::OnMouseDblClick& event) override;
 	};
 }

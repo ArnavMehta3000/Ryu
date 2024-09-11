@@ -4,7 +4,7 @@ set_allowedmodes("debug", "release")
 
 -- Project name and version
 set_project("Ryu")
-set_version("0.0.1")
+set_version("0.0.2")
 
 -- Set C/C++ language version
 set_languages("c17", "cxx23")

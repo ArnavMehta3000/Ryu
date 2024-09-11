@@ -68,6 +68,39 @@ namespace Ryu::Input
 				PosY = y;
 			}
 		};
+
+		struct RYU_API OnMouseMove: public Internal::OnMouseEvent
+		{
+			explicit OnMouseMove(MouseButton button, i32 x, i32 y)
+			{
+				Button = button;
+				PosX = x;
+				PosY = y;
+			}
+		};
+
+		struct RYU_API OnMouseMoveRaw : public Internal::OnMouseEvent
+		{
+			explicit OnMouseMoveRaw(MouseButton button, i32 x, i32 y)
+			{
+				Button = button;
+				PosX = x;
+				PosY = y;
+			}
+		};
+
+		struct RYU_API OnMouseWheel : public Internal::OnMouseEvent
+		{
+			i32 Delta;
+			
+			explicit OnMouseWheel(MouseButton button, i32 delta, i32 x, i32 y)
+			{
+				Button = button;
+				Delta = delta;
+				PosX = x;
+				PosY = y;
+			}
+		};
 	}
 
 	using OnKeyDownCallback         = std::function<void(const Events::OnKeyDown&)>;
@@ -75,7 +108,9 @@ namespace Ryu::Input
 	using OnMouseButtonUpCallback   = std::function<void(const Events::OnMouseButtonUp&)>;
 	using OnMouseButtonDownCallback = std::function<void(const Events::OnMouseButtonDown&)>;
 	using OnMouseDblClickCallback   = std::function<void(const Events::OnMouseDblClick&)>;
-
+	using OnMouseMoveCallback       = std::function<void(const Events::OnMouseMove&)>;
+	using OnMouseMoveRawCallback    = std::function<void(const Events::OnMouseMoveRaw&)>;
+	using OnMouseWheelCallback      = std::function<void(const Events::OnMouseWheel&)>;
 
 	struct RYU_API InputCallbacks
 	{
@@ -84,6 +119,9 @@ namespace Ryu::Input
 		OnMouseButtonUpCallback OnMouseButtonUp;
 		OnMouseButtonDownCallback OnMouseButtonDown;
 		OnMouseDblClickCallback OnMouseDblClick;
+		OnMouseMoveCallback OnMouseMove;
+		OnMouseMoveRawCallback OnMouseMoveRaw;
+		OnMouseWheelCallback OnMouseWheel;
 
 		InputCallbacks() = default;
 		~InputCallbacks() = default;
@@ -105,11 +143,17 @@ namespace Ryu::Input
 		: public EventListener<Input::Events::OnMouseButtonUp>
 		, public EventListener<Input::Events::OnMouseButtonDown>
 		, public EventListener<Input::Events::OnMouseDblClick>
+		, public EventListener<Input::Events::OnMouseMove>
+		, public EventListener<Input::Events::OnMouseMoveRaw>
+		, public EventListener<Input::Events::OnMouseWheel>
 	{
 	protected:
 		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseButtonUp& event) {}
 		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseButtonDown& event) {}
 		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseDblClick& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMove& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMoveRaw& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseWheel& event) {}
 	};
 
 	// Base class that listens to all input devices events

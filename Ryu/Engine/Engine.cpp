@@ -63,12 +63,16 @@ namespace Ryu
 		if (Input::InputSystem* input = m_pluginManager.GetPlugin<Input::InputSystem>("RyuInput"))
 		{
 			Input::InputCallbacks callbacks;
-			callbacks.OnKeyDown         = [this](const auto& event) {m_application->OnEvent(event); };
-			callbacks.OnKeyUp           = [this](const auto& event) {m_application->OnEvent(event); };
-			callbacks.OnMouseButtonUp   = [this](const auto& event) {m_application->OnEvent(event); };
-			callbacks.OnMouseButtonDown = [this](const auto& event) {m_application->OnEvent(event); };
-			callbacks.OnMouseDblClick   = [this](const auto& event) {m_application->OnEvent(event); };
+			callbacks.OnKeyDown         = [this](const auto& event) { m_application->OnEvent(event); };
+			callbacks.OnKeyUp           = [this](const auto& event) { m_application->OnEvent(event); };
+			callbacks.OnMouseButtonUp   = [this](const auto& event) { m_application->OnEvent(event); };
+			callbacks.OnMouseButtonDown = [this](const auto& event) { m_application->OnEvent(event); };
+			callbacks.OnMouseDblClick   = [this](const auto& event) { m_application->OnEvent(event); };
+			callbacks.OnMouseMove       = [this](const auto& event) { m_application->OnEvent(event); };
+			callbacks.OnMouseMoveRaw    = [this](const auto& event) { m_application->OnEvent(event); };
+			callbacks.OnMouseWheel      = [this](const auto& event) { m_application->OnEvent(event); };
 				
+			// Add application callbacks to input system
 			input->AddInputCallbacks(callbacks);
 		}
 	}

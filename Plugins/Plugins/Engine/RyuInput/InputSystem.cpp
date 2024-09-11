@@ -11,6 +11,8 @@ namespace Ryu::Input
 	}
 	
 	InputSystem::InputSystem() : IPlugin(PluginLoadOrder::PostInit)
+		, m_keyboard()
+		, m_mouse()
 		, m_hWnd(nullptr)
 	{
 		RYU_PLUGIN_TRACE("Constructed InputSystem plugin");
@@ -71,6 +73,7 @@ namespace Ryu::Input
 		// Mouse messages
 		case WM_MOUSEACTIVATE:
 			return MA_ACTIVATEANDEAT;
+
 		case WM_LBUTTONDOWN:
 		{
 			s_instance->m_mouse.OnClick(MouseButton::LeftButton, lParam, true);
@@ -133,6 +136,17 @@ namespace Ryu::Input
 		{
 			s_instance->m_mouse.OnDblClick(HIWORD(wParam) == XBUTTON1 ?
 				MouseButton::XButton1 : MouseButton::XButton2, wParam, lParam);
+			break;
+		}
+		case WM_MOUSEMOVE:
+		{
+			s_instance->m_mouse.OnMove(wParam, lParam);
+			break;
+		}
+
+		case WM_MOUSEWHEEL:
+		{
+			s_instance->m_mouse.OnWheel(wParam, lParam);
 			break;
 		}
 		}

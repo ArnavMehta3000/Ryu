@@ -7,7 +7,7 @@ Ryu Engine is an experimentation playground for making game engines<br>
 
 # Building
 
-> [!CAUTION]
+> [!NOTE]
 > Ryu Engine only builds on Windows x64 and has only been tested with MSVC/Visual Studio 2022
 
 ## Requirements
@@ -19,10 +19,17 @@ Ryu Engine is an experimentation playground for making game engines<br>
 
 - [spdlog](https://github.com/gabime/spdlog)
 - [backward-cpp](https://github.com/bombela/backward-cpp)
+- [toml++](https://marzer.github.io/tomlplusplus/)
 
 ## Configuration
 
-Before building you can configure certain compile time settings
+Before building you can configure certain compile time settings.
+
+### Engine Configuration
+
+The `EngineConfig.toml` file is located in the [Config](/Config/EngineConfig.toml) folder. Here you can modify engine plugins. See the file itself on how to do that.
+
+[OPTIONAL] If you choose to add a new plugin that is used by the engine. Make sure to add the same plugin name to the [engine `xmake.lua` file](/Ryu/Engine/xmake.lua) in the `engine_plugins` table to add that plugin. This will ensure the plugin directory is added to the engine include directory along with it being a build dependency (does not link the DLL). Otherwise you'll have to manually compile your plugin (to ensure the DLL is up to date).
 
 ### Log Verbosity
 
@@ -39,7 +46,7 @@ Log verbosity defaults to `Trace` in debug builds and `Info` in release builds
 Using the following command you can enable or disable the creation of a log console. 
 
 ```bash
-xmake f --console=<y|n>
+xmake f --console=<true|false>
 ```
 
 ### Mode
@@ -55,7 +62,7 @@ xmake f -m <debug|release>
 This is an example command to configure to build project in release mode with log debug log verbosity with an attached console
 
 ```bash
-xmake f -m debug --log-level=debug --console=y
+xmake f -m debug --log-level=debug --console=true
 ```
 
 # Building

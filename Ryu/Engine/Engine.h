@@ -31,7 +31,6 @@ namespace Ryu
 			m_application = std::make_unique<T>(std::forward<Args>(args)...);
 		}
 
-		void AddPlugins(std::initializer_list<std::string> plugins);
 		void Run();
 
 	private:
@@ -41,6 +40,8 @@ namespace Ryu
 		bool PostInit();
 		void AddInputCallbacks();
 		void Tick(MAYBE_UNUSED const f32 dt);
+		void LoadConfig();
+		void AddPlugins(const std::string& name, PluginEntry& entry);
 		void LoadPlugins();
 		void InitializePlugins(Ryu::PluginLoadOrder order);
 		void DestroyPlugins();

@@ -44,12 +44,12 @@ namespace Ryu
 
 	void Application::OnEvent(MAYBE_UNUSED const Input::Events::OnKeyDown& event)
 	{
-		//RYU_ENGINE_TRACE("OnKeyDown event received - {}", char(event.Key));
+		RYU_ENGINE_TRACE("OnKeyDown event received - {}", char(event.Key));
 	}
 
 	void Application::OnEvent(MAYBE_UNUSED const Input::Events::OnKeyUp& event)
 	{
-		//RYU_ENGINE_TRACE("OnKeyUp event received - {}", char(event.Key));
+		RYU_ENGINE_TRACE("OnKeyUp event received - {}", char(event.Key));
 
 		// TODO: Remove quick exit
 		if (event.Key == Input::KeyCode::Escape)

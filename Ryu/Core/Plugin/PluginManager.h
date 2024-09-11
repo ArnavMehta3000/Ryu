@@ -9,8 +9,11 @@ namespace Ryu
 	struct PluginEntry
 	{
 		std::string PluginPath;
+		PluginLoadOrder LoadOrder = PluginLoadOrder::Default;
+		PluginTickOrder TickOrder = PluginTickOrder::None;
+		PluginRenderOrder RenderOrder = PluginRenderOrder::None;
 		IPlugin* Plugin{ nullptr };
-		std::unique_ptr<DllLoader> DLL{ nullptr };
+		DllLoader DLL;
 		DestroyPlugin_f DestroyPluginFunc{ nullptr };
 	};
 
@@ -23,7 +26,7 @@ namespace Ryu
 		PluginManager() = default;
 		~PluginManager() = default;
 
-		void AddPlugin(const std::string& name, const std::string& path);
+		void AddPlugin(const std::string& name, const PluginEntry& entry);
 		NODISCARD PluginMap& GetPluginsMap() { return m_plugins; }
 		NODISCARD bool HasPlugin(const std::string& name) const;
 		NODISCARD const PluginEntry* GetPluginEntry(const std::string& pluginName) const;

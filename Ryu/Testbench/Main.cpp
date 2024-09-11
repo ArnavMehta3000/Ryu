@@ -29,10 +29,6 @@ int WINAPI wWinMain(
 	}*/
 
 	Ryu::Engine& engine = Ryu::Engine::Get();
-	engine.AddPlugins(
-		{
-			"RyuInput"
-		});
 
 	engine.CreateApplication<TestApplication>();
 	engine.Run();

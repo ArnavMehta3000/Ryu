@@ -10,7 +10,7 @@ namespace Ryu::Input
 		InputSystem* s_instance{ nullptr };
 	}
 	
-	InputSystem::InputSystem() : IPlugin(PluginLoadOrder::PostInit)
+	InputSystem::InputSystem() : IPlugin()
 		, m_keyboard()
 		, m_mouse()
 		, m_hWnd(nullptr)
@@ -28,7 +28,7 @@ namespace Ryu::Input
 	{
 		RYU_PLUGIN_INFO("Initializing InputSystem plugin");
 
-		m_hWnd = api.Window;
+		m_hWnd = api.App->GetWindow();
 		RYU_PLUGIN_ASSERT(m_hWnd != nullptr, "Invalid window handle");
 
 		m_keyboard.Create(&m_callbacks);

@@ -22,9 +22,19 @@ target("RyuEngine")
 
 			cprintf("Add engine plugin dependency [%u]: ${blue}%s (%s)${clear}\n", i, plugin, plugin_dir)
 		end
+
+		-- Add engine config toml
+		local config_dir = path.join("$(projectdir)", "Config", "EngineConfig.toml")
+		target:add("files", config_dir)
 	end)
 
-	add_rules("IncludeConfigs", "CommonPackages", "BuildAsDLL")
+	-- Embed engine config
+	add_rules("utils.bin2c", {extensions = {".toml"}})
+
+	add_rules(
+		"IncludeConfigs",
+		"CommonPackages",
+		"BuildAsDLL")
 
 	set_default(false)
 	set_kind("shared")

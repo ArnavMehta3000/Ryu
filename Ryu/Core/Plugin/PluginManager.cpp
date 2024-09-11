@@ -2,9 +2,9 @@
 
 namespace Ryu
 {
-	void PluginManager::AddPlugin(const std::string& name, const std::string& path)
+	void PluginManager::AddPlugin(const std::string& name, const PluginEntry& entry)
 	{
-		m_plugins[name] = PluginEntry{ .PluginPath = path };
+		m_plugins.insert_or_assign(name, entry);
 	}
 
 	bool PluginManager::HasPlugin(const std::string& name) const 

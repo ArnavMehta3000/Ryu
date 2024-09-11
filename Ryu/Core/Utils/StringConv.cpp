@@ -24,4 +24,9 @@ namespace Ryu
 
 		return narrowStr;
 	}
+
+	std::string_view StringFromBytes(const byte* data, size_t size)
+	{
+		return std::string_view(reinterpret_cast<const char*>(data), size);
+	}
 }

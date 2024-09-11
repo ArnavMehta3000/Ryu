@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include <Core/Utils/TomlParser.h>
 #include <Engine/Log.h>
 #include <Plugins/Engine/RyuInput/InputSystem.h>
 #include <filesystem>
@@ -6,6 +7,14 @@
 
 namespace Ryu
 {
+	namespace
+	{
+		static constexpr byte s_engineConfigData[] =
+		{
+			#include <EngineConfig.toml.h>
+		};
+	}
+
 	RYU_API Engine& GetEngineInstance()
 	{
 		return Engine::Get();
@@ -25,6 +34,7 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Pre-initializing engine");
 
+		LoadConfig();
 		LoadPlugins();
 
 		InitializePlugins(PluginLoadOrder::PreInit);
@@ -77,22 +87,20 @@ namespace Ryu
 		}
 	}
 
-	void Engine::AddPlugins(std::initializer_list<std::string> plugins)
+	void Engine::AddPlugins(const std::string& name, PluginEntry& entry)
 	{
-		for (auto& plugin : plugins)
-		{
-			// Add if plugin exists in engine plugins directory
-			std::filesystem::path path = std::filesystem::current_path();
-			path.append(ENGINE_PLUGINS_PATH).append(plugin + ".dll");
+		// Add if plugin exists in engine plugins directory
+		std::filesystem::path path = std::filesystem::current_path();
+		path.append(ENGINE_PLUGINS_PATH).append(name + ".dll");
+		entry.PluginPath = path.string();
 
-			if (std::filesystem::exists(path))
-			{
-				m_pluginManager.AddPlugin(plugin, path.string());
-			}
-			else
-			{
-				RYU_ENGINE_ERROR("Plugin {{}} not found in directory {}", plugin, path.string());
-			}
+		if (std::filesystem::exists(path))
+		{
+			m_pluginManager.AddPlugin(name, entry);
+		}
+		else
+		{
+			RYU_ENGINE_ERROR("Plugin {{}} not found in directory {}", name, path.string());
 		}
 	}
 
@@ -173,20 +181,72 @@ namespace Ryu
 		RYU_ENGINE_TRACE("Finished unloading {} plugins", count);
 	}
 
+	void Engine::LoadConfig()
+	{
+		RYU_ENGINE_DEBUG("Loading engine configuration");
+		const std::string_view configData = StringFromBytes(s_engineConfigData, sizeof(s_engineConfigData) + 1);
+
+		TomlParser parser;
+		TomlParser::ParseResult result = parser.ReadFromMemory(configData.data());
+		if (!result.has_value())
+		{
+			RYU_ENGINE_FATAL("Failed to load engine configuration. Error: {}", result.error());
+			return;
+		}
+
+		TomlParser::Table& table = result.value();
+
+		// Load plugins		
+		if (auto plugins = table["Plugins"].as_array())
+		{
+			for (const auto& plugin : *plugins)
+			{
+				PluginEntry entry;
+
+				auto data = *plugin.as_table();
+				std::string name = data["Name"].value_or("");
+				if (name.empty())
+				{
+					RYU_ENGINE_FATAL("Plugin name not specified");
+					continue;
+				}
+
+				std::string loadOrder = data["LoadOrder"].value_or("Default");
+				std::string tickOrder = data["TickOrder"].value_or("None");
+				std::string renderOrder = data["RenderOrder"].value_or("None");
+
+				if (loadOrder == "PreInit")
+					entry.LoadOrder = PluginLoadOrder::PreInit;
+				else if (loadOrder == "PostInit" || loadOrder == "Default")
+					entry.LoadOrder = PluginLoadOrder::PostInit;
+
+				if (tickOrder == "None")
+					entry.TickOrder = PluginTickOrder::None;
+				else if (tickOrder == "PreUpdate")
+					entry.TickOrder = PluginTickOrder::PreUpdate;
+				else if (tickOrder == "PostUpdate" || tickOrder == "Default")
+					entry.TickOrder = PluginTickOrder::PostUpdate;
+
+				if (renderOrder == "None")
+					entry.RenderOrder = PluginRenderOrder::None;
+				else if (renderOrder == "PreRender")
+					entry.RenderOrder = PluginRenderOrder::PreRender;
+				else if (renderOrder == "PostRender" || renderOrder == "Default")
+					entry.RenderOrder = PluginRenderOrder::PostRender;
+				
+				AddPlugins(name, entry);
+			}
+		}
+	}
+
 	void Engine::LoadPlugins()
 	{
 		PluginManager::PluginMap& map = m_pluginManager.GetPluginsMap();
 		
 		for (auto& [name, plugin] : map)
 		{
-			// Create dll loader
-			if (!plugin.DLL)
-			{
-				plugin.DLL = std::make_unique<DllLoader>();
-			}
-
 			// Load dll
-			if (plugin.DLL->LoadDLL(plugin.PluginPath))
+			if (plugin.DLL.LoadDLL(plugin.PluginPath))
 			{
 				RYU_ENGINE_TRACE("Loaded plugin DLL: {}", name);
 			}
@@ -196,7 +256,7 @@ namespace Ryu
 			}
 
 			// Create plugin
-			if (CreatePlugin_f createPlugin = plugin.DLL->GetProcAddressFunc<CreatePlugin_f>("CreatePlugin"))
+			if (CreatePlugin_f createPlugin = plugin.DLL.GetProcAddressFunc<CreatePlugin_f>("CreatePlugin"))
 			{
 				plugin.Plugin = createPlugin();
 				RYU_ENGINE_DEBUG("Created plugin: {}", name);
@@ -207,7 +267,7 @@ namespace Ryu
 			}
 
 			// Get destroy plugin function
-			if (DestroyPlugin_f destroyPlugin = plugin.DLL->GetProcAddressFunc<DestroyPlugin_f>("DestroyPlugin"))
+			if (DestroyPlugin_f destroyPlugin = plugin.DLL.GetProcAddressFunc<DestroyPlugin_f>("DestroyPlugin"))
 			{
 				plugin.DestroyPluginFunc = destroyPlugin;
 				RYU_ENGINE_TRACE("Cached DestroyPlugin function for plugin: {}", name);
@@ -223,13 +283,13 @@ namespace Ryu
 	{
 		const PluginAPI api
 		{
-			.Window = m_application->GetWindow()
+			.App = m_application.get(),
 		};
 
 		PluginManager::PluginMap& map = m_pluginManager.GetPluginsMap();
 		for (auto& [name, plugin] : map)
 		{
-			if (plugin.Plugin && plugin.Plugin->GetLoadOrder() == order)
+			if (plugin.Plugin && plugin.LoadOrder == order)
 			{
 				if (!plugin.Plugin->Initialize(api))
 				{

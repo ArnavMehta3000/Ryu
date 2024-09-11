@@ -98,6 +98,7 @@ rule("CommonPackages")
 	on_load(function (target)
 		target:add("packages", "spdlog")
 		target:add("packages", "backward-cpp")
+		target:add("packages", "toml++")
 	end)
 rule_end()
 

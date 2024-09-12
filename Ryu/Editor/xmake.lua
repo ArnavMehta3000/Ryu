@@ -1,5 +1,5 @@
 -- Editor uses imgui
-add_requires("imgui", { configs= { dx11 = true, win32 = true }})
+add_requires("imgui docking", { configs= { dx11 = true, win32 = true }})
 
 target("RyuEditor")
     add_rules("IncludeConfigs", "CommonPackages")

@@ -9,6 +9,7 @@ target("RyuTestCoreUtils")
 		{
 			files = testfile,
 			remove_files = "Main.cpp",
+			group = "CoreTests"
 		})
 	 end
 

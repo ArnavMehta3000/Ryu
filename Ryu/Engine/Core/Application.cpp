@@ -3,10 +3,25 @@
 
 namespace Ryu
 {
+	Application* Application::s_instance = nullptr;
+
+	Application* Application::Get()
+	{
+		if (s_instance == nullptr)
+		{
+			RYU_ENGINE_WARN("Application::Get() - Application instance is nullptr");
+		}
+		return s_instance;
+	}
+
 	Application::Application(const Window::Config& wndConfig)
 		: IApplication(wndConfig)
 	{
-		RYU_ENGINE_TRACE("Application constructed");
+		RYU_ENGINE_TRACE("Application instance constructed");
+
+		RYU_ENGINE_ASSERT(!s_instance, "Application instance already exists!");
+
+		s_instance = this;
 	}
 
 	NODISCARD bool Application::OnInit()
@@ -15,7 +30,7 @@ namespace Ryu
 
 		if (!m_window.Init())
 		{
-			RYU_ENGINE_ASSERT(m_window.GetHandle(), "Failed to create a window!");
+			RYU_ENGINE_ASSERT(m_window.GetHandle(), "Failed to create a window! Handle is nullptr!");
 			return false;
 		}
 
@@ -30,16 +45,14 @@ namespace Ryu
 	{
 	}
 
-	void Application::OnRender()
+	void Application::OnRender(MAYBE_UNUSED const f32 dt)
 	{
 
 	}
 
 	void Application::OnShutdown()
 	{
-		RYU_ENGINE_TRACE("Starting application shutdown");
-
-		RYU_ENGINE_TRACE("Finished shutting down application");
+		RYU_ENGINE_TRACE("Shutting down Application");
 	}
 
 	void Application::OnEvent(MAYBE_UNUSED const Input::Events::OnKeyDown& event)

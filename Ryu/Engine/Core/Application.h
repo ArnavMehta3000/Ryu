@@ -12,13 +12,15 @@ namespace Ryu
 	public:
 		RYU_DISABLE_COPY_AND_MOVE(Application);
 
+		static Application* Get();
+
 		Application(const Window::Config& wndConfig = Window::Config());
 		virtual ~Application() = default;
 
-		NODISCARD bool OnInit() override;
-		void OnUpdate(MAYBE_UNUSED const f32 dt) override;
-		void OnRender() override;
-		void OnShutdown() override;
+		virtual NODISCARD bool OnInit() override;
+		virtual void OnUpdate(const f32 dt) override;
+		virtual void OnRender(const f32 dt) override;
+		virtual void OnShutdown() override;
 
 		virtual void OnEvent(const Input::Events::OnKeyDown& event) override;
 		virtual void OnEvent(const Input::Events::OnKeyUp& event) override;
@@ -28,5 +30,8 @@ namespace Ryu
 		virtual void OnEvent(const Input::Events::OnMouseMove& event) override;
 		virtual void OnEvent(const Input::Events::OnMouseMoveRaw& event) override;
 		virtual void OnEvent(const Input::Events::OnMouseWheel& event) override;
+
+	private:
+		static Application* s_instance;
 	};
 }

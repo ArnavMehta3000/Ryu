@@ -11,9 +11,13 @@ namespace Ryu::Editor
 		~EditorApp();
 
 		bool OnInit() override final;
+		void OnShutdown() override final;
+		void OnRender(f32 dt) override final;
 		static LRESULT CALLBACK EditorWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	private:
 		bool RouteWndProc();
+		void InitImGui();
+		void ShutdownImGui();
 	};
 }

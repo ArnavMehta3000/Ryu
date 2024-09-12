@@ -21,7 +21,7 @@ namespace Ryu
 
 		virtual NODISCARD bool OnInit() = 0;
 		virtual void OnUpdate(const f32 dt) = 0;
-		virtual void OnRender() = 0;
+		virtual void OnRender(const f32 dt) = 0;
 		virtual void OnShutdown() = 0;
 
 	protected:

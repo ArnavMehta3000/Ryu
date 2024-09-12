@@ -140,15 +140,18 @@ namespace Ryu
 		m_application->m_window.PumpMessages();
 
 		m_application->OnUpdate(dt);
-		m_application->OnRender();
+		m_application->OnRender(dt);
 	}
 
 	void Engine::Shutdown()
 	{
 		RYU_ENGINE_DEBUG("Shutting down engine");
+
 		DestroyPlugins();
+
 		m_application->OnShutdown();
 		m_application.reset();
+		
 		RYU_ENGINE_TRACE("Finished shutting down engine");
 	}
 

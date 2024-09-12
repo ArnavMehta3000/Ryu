@@ -1,5 +1,5 @@
 #include "Application.h"
-#include <Engine/Log.h>
+#include <Engine/Internal/Log.h>
 
 namespace Ryu
 {

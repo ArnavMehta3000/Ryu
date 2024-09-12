@@ -1,4 +1,5 @@
 #include "Logger.h"
+#include <CoreVersion.h>
 #include <Core/Log/Log.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #if RYU_LOG_CONSOLE
@@ -35,7 +36,7 @@ namespace Ryu
 		sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 #endif
 
-#if RYU_BUILD_DEBUG == 1
+#if RYU_BUILD_DEBUG
 		sinks.push_back(std::make_shared<spdlog::sinks::msvc_sink_mt>());
 #endif
 

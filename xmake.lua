@@ -31,11 +31,19 @@ set_policy("run.autobuild", true)
 -- Keep intermediate directories
 set_policy("build.intermediate_directory", true)
 
+-- Always update config files (fixes issues with CoreLogDefines.h)
+set_policy("build.always_update_configfiles", true)
+
+-- Enable preprocessor markers in debug mode
+if is_mode("debug") then
+	set_policy("preprocessor.linemarkers", true)
+end
+
 add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "WIN32_LEAN_AND_MEAN")
 add_links("user32.lib")
 
 -- Add compilation success to all targets
-add_tests("CompileSuccess", {build_should_pass = true, group = "Compilation"})
+add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 
 -- Include xmake projects
 includes("**/xmake.lua")

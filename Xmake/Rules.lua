@@ -13,6 +13,10 @@ rule("IncludeConfigs")
 		local plugins_dir = path.join("$(projectdir)", "Plugins")
 		target:add("includedirs", plugins_dir, { public = true })
 	end)
+
+	after_build(function (target)
+		cprint(format("${cyan}Built: %s${clear}", target:targetfile()))
+	end)
 rule_end()
 
 -- Generate config files
@@ -111,18 +115,7 @@ rule("BuildAsDLL")
 	end)
 rule_end()
 
-rule("EnginePlugin")
+-- Wrapper for building as DLL
+rule("RyuPlugin")
 	add_deps("BuildAsDLL")
-	on_config(function (target)
-		local plugin_dir = path.join(target:targetdir(), "Plugins", "Engine")
-		target:add("targetdir", plugin_dir)
-	end)
-rule_end()
-
-rule("EditorPlugin")
-	add_deps("BuildAsDLL")
-	on_config(function (target)
-		local plugin_dir = path.join(target:targetdir(), "Plugins", "Editor")
-		target:add("targetdir", plugin_dir)
-	end)
 rule_end()

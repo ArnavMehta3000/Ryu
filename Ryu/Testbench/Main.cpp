@@ -1,6 +1,5 @@
 #include <Windows.h>
 #include <Testbench/Application/TestApplication.h>
-#include <Core/Application/SplashScreen.h>
 #include <Engine/Engine.h>
 
 int WINAPI wWinMain(

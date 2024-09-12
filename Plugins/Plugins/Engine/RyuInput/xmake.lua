@@ -1,5 +1,5 @@
 target("RyuInput")
-	add_rules("IncludeConfigs", "CommonPackages", "EnginePlugin")
+	add_rules("IncludeConfigs", "CommonPackages", "RyuPlugin")
 
 	set_default(true)
 	set_kind("shared")

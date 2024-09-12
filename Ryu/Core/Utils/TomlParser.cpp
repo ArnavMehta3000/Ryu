@@ -1,12 +1,23 @@
 #include "TomlParser.h"
 #include <Core/ObjectMacros.h>
 #include <sstream>
+
 namespace Ryu
 {
 	TomlParser::ParseResult TomlParser::ReadFromFile(MAYBE_UNUSED std::string_view filePath)
 	{
-		// TODO: Not implemented yet
-		return std::unexpected("TomlParser::ReadFromFile not implemented yet");
+		try
+		{
+			m_table = toml::parse(filePath);
+		}
+		catch (const toml::parse_error& err)
+		{
+			std::stringstream ss;
+			ss << err;
+			return std::unexpected(ss.str());
+		}
+
+		return m_table;
 	}
 	
 	TomlParser::ParseResult TomlParser::ReadFromMemory(const byte* data, size_t size)

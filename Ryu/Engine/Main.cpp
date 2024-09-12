@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include <Core/Log/Logger.h>
-#include <Engine/Log.h>
+#include <Engine/Internal/Log.h>
 
 BOOL WINAPI DllMain(
 	_In_ HINSTANCE hinstDLL,

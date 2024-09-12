@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include <Core/Utils/TomlParser.h>
-#include <Engine/Log.h>
+#include <Engine/Internal/Log.h>
 #include <Plugins/Engine/RyuInput/InputSystem.h>
 #include <filesystem>
 #include <chrono>
@@ -25,10 +25,7 @@ namespace Ryu
 	{
 	}
 
-	Engine::~Engine()
-	{
-		m_application.reset();
-	}
+	Engine::~Engine() = default;
 
 	bool Engine::PreInit()
 	{
@@ -91,7 +88,7 @@ namespace Ryu
 	{
 		// Add if plugin exists in engine plugins directory
 		std::filesystem::path path = std::filesystem::current_path();
-		path.append(ENGINE_PLUGINS_PATH).append(name + ".dll");
+		path.append(name + ".dll");
 		entry.PluginPath = path.string();
 
 		if (std::filesystem::exists(path))
@@ -151,6 +148,7 @@ namespace Ryu
 		RYU_ENGINE_DEBUG("Shutting down engine");
 		DestroyPlugins();
 		m_application->OnShutdown();
+		m_application.reset();
 		RYU_ENGINE_TRACE("Finished shutting down engine");
 	}
 

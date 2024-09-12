@@ -10,8 +10,6 @@ namespace Ryu
 	class RYU_API Engine final
 	{
 	public:
-		static constexpr std::string_view ENGINE_PLUGINS_PATH = "Plugins/Engine/";
-	public:
 		~Engine();
 
 		static Engine& Get()
@@ -30,6 +28,8 @@ namespace Ryu
 
 			m_application = std::make_unique<T>(std::forward<Args>(args)...);
 		}
+
+		inline Application* GetApplication() const { return m_application.get(); }
 
 		void Run();
 

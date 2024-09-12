@@ -9,5 +9,11 @@ namespace Ryu::Editor
 	public:
 		EditorApp(HINSTANCE hInst);
 		~EditorApp();
+
+		bool OnInit() override final;
+		static LRESULT CALLBACK EditorWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	private:
+		bool RouteWndProc();
 	};
 }

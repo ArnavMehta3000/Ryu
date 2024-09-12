@@ -4,6 +4,7 @@ add_requires("imgui", { configs= { dx11 = true, win32 = true }})
 target("RyuEditor")
     add_rules("IncludeConfigs", "CommonPackages")
     add_rules("win.sdk.application")
+    add_packages("imgui")
 
     set_default(true)
     set_kind("binary")

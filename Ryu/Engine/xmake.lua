@@ -9,7 +9,7 @@ target("RyuEngine")
 		for i, plugin in ipairs(engine_plugins) do
 			-- Get plugin directory
 			local prj_dir = "$(projectdir)";
-			local plugin_dir = path.join(prj_dir, "Plugins", "Plugins", "Engine", plugin)
+			local plugin_dir = path.join(prj_dir, "Ryu", "Plugins", "Engine", plugin)
 
 			-- Ensure plugin directory has xmake.lua file
 			local plugin_xmake = path.join(plugin_dir, "xmake.lua")

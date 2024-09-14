@@ -8,11 +8,6 @@ rule("IncludeConfigs")
 		target:add("options", "enable-assert")
 
 	end)
-
-	on_load(function (target)
-		local plugins_dir = path.join("$(projectdir)", "Plugins")
-		target:add("includedirs", plugins_dir, { public = true })
-	end)
 rule_end()
 
 -- Generate config files

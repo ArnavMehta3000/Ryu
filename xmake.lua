@@ -21,6 +21,9 @@ set_defaultmode("debug")
 set_allowedplats("windows")
 set_allowedarchs("windows|x64")
 
+-- Only allow MSVC
+set_toolchains("msvc")
+
 -- Enable all warnings and handle them as compilation errors
 set_policy("build.warning", true)
 set_warnings("all", "extra")

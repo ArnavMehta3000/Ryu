@@ -13,10 +13,6 @@ rule("IncludeConfigs")
 		local plugins_dir = path.join("$(projectdir)", "Plugins")
 		target:add("includedirs", plugins_dir, { public = true })
 	end)
-
-	after_build(function (target)
-		cprint(format("${cyan}Built: %s${clear}", target:targetfile()))
-	end)
 rule_end()
 
 -- Generate config files

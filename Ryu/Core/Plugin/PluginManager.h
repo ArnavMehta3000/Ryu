@@ -9,9 +9,6 @@ namespace Ryu
 	struct PluginEntry
 	{
 		std::string PluginPath;
-		PluginLoadOrder LoadOrder = PluginLoadOrder::Default;
-		PluginTickOrder TickOrder = PluginTickOrder::None;
-		PluginRenderOrder RenderOrder = PluginRenderOrder::None;
 		IPlugin* Plugin{ nullptr };
 		DllLoader DLL;
 		DestroyPlugin_f DestroyPluginFunc{ nullptr };

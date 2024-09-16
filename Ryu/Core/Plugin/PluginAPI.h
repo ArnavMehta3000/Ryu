@@ -1,7 +1,6 @@
 #pragma once
-#include <CoreDLLDefines.h>
+#include <Core/Includes.h>
 #include <Core/Plugin/IPlugin.h>
-#include <Core/ObjectMacros.h>
 
 #define PLUGIN_API RYU_API
 

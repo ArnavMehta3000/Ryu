@@ -3,7 +3,6 @@
 #include <Engine/Core/Application.h>
 #include <Core/Plugin/PluginManager.h>
 #include <memory>
-#include <initializer_list>
 
 namespace Ryu
 {	
@@ -41,7 +40,7 @@ namespace Ryu
 		void AddInputCallbacks();
 		void Tick(MAYBE_UNUSED const f32 dt);
 		void LoadConfig();
-		void AddPlugins(const std::string& name, PluginEntry& entry);
+		void AddPlugins(const std::string& name);
 		void LoadPlugins();
 		void InitializePlugins(Ryu::PluginLoadOrder order);
 		void DestroyPlugins();

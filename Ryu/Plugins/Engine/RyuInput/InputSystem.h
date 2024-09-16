@@ -6,7 +6,7 @@
 
 namespace Ryu::Input
 {
-	class PLUGIN_API InputSystem : public IPlugin
+	class PLUGIN_API InputSystem : public PluginBase<InputSystem>
 	{
 	public:
 		InputSystem();
@@ -18,6 +18,7 @@ namespace Ryu::Input
 		static LRESULT CALLBACK InputWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 		
 	private:
+		WNDPROC                     m_originalWndProc;
 		std::vector<InputCallbacks> m_callbacks;
 		Keyboard                    m_keyboard;
 		Mouse                       m_mouse;

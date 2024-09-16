@@ -1,17 +1,19 @@
 #include "Engine.h"
-#include <Core/Utils/TomlParser.h>
+
 #include <Engine/Internal/Log.h>
+#include <Core/Utils/StringConv.h>
 #include <Plugins/Engine/RyuInput/InputSystem.h>
 #include <filesystem>
 #include <chrono>
+#include <nlohmann/json.hpp>
 
 namespace Ryu
 {
 	namespace
 	{
-		static constexpr byte s_engineConfigData[] =
+		static constexpr byte g_engineConfig[] =
 		{
-			#include <EngineConfig.toml.h>
+			#include <EngineConfig.json.h>
 		};
 	}
 
@@ -84,11 +86,13 @@ namespace Ryu
 		}
 	}
 
-	void Engine::AddPlugins(const std::string& name, PluginEntry& entry)
+	void Engine::AddPlugins(const std::string& name)
 	{
 		// Add if plugin exists in engine plugins directory
 		std::filesystem::path path = std::filesystem::current_path();
 		path.append(name + ".dll");
+
+		PluginEntry entry;
 		entry.PluginPath = path.string();
 
 		if (std::filesystem::exists(path))
@@ -185,58 +189,20 @@ namespace Ryu
 	void Engine::LoadConfig()
 	{
 		RYU_ENGINE_DEBUG("Loading engine configuration");
-		const std::string_view configData = StringFromBytes(s_engineConfigData, sizeof(s_engineConfigData) + 1);
+		using json = nlohmann::json;
+		
+		// We do not validate EngineConfig.json since that will be validated
+		// by xmake at build time during configuration
 
-		TomlParser parser;
-		TomlParser::ParseResult result = parser.ReadFromMemory(configData.data());
-		if (!result.has_value())
+		const std::string_view engineConfig = StringFromBytes(g_engineConfig, sizeof(g_engineConfig));
+
+		json j = json::parse(engineConfig.data());
+		const auto& pluginsConfig = j["PluginsConfig"];
+		const auto& plugins = pluginsConfig["Plugins"];
+
+		for (auto& plugin : plugins)
 		{
-			RYU_ENGINE_FATAL("Failed to load engine configuration. Error: {}", result.error());
-			return;
-		}
-
-		TomlParser::Table& table = result.value();
-
-		// Load plugins		
-		if (auto plugins = table["Plugins"].as_array())
-		{
-			for (const auto& plugin : *plugins)
-			{
-				PluginEntry entry;
-
-				auto data = *plugin.as_table();
-				std::string name = data["Name"].value_or("");
-				if (name.empty())
-				{
-					RYU_ENGINE_FATAL("Plugin name not specified");
-					continue;
-				}
-
-				std::string loadOrder = data["LoadOrder"].value_or("Default");
-				std::string tickOrder = data["TickOrder"].value_or("None");
-				std::string renderOrder = data["RenderOrder"].value_or("None");
-
-				if (loadOrder == "PreInit")
-					entry.LoadOrder = PluginLoadOrder::PreInit;
-				else if (loadOrder == "PostInit" || loadOrder == "Default")
-					entry.LoadOrder = PluginLoadOrder::PostInit;
-
-				if (tickOrder == "None")
-					entry.TickOrder = PluginTickOrder::None;
-				else if (tickOrder == "PreUpdate")
-					entry.TickOrder = PluginTickOrder::PreUpdate;
-				else if (tickOrder == "PostUpdate" || tickOrder == "Default")
-					entry.TickOrder = PluginTickOrder::PostUpdate;
-
-				if (renderOrder == "None")
-					entry.RenderOrder = PluginRenderOrder::None;
-				else if (renderOrder == "PreRender")
-					entry.RenderOrder = PluginRenderOrder::PreRender;
-				else if (renderOrder == "PostRender" || renderOrder == "Default")
-					entry.RenderOrder = PluginRenderOrder::PostRender;
-				
-				AddPlugins(name, entry);
-			}
+			AddPlugins(plugin);
 		}
 	}
 
@@ -290,13 +256,13 @@ namespace Ryu
 		PluginManager::PluginMap& map = m_pluginManager.GetPluginsMap();
 		for (auto& [name, plugin] : map)
 		{
-			if (plugin.Plugin && plugin.LoadOrder == order)
+			/*if (plugin.Plugin && plugin.LoadOrder == order)
 			{
 				if (!plugin.Plugin->Initialize(api))
 				{
 					RYU_ENGINE_FATAL("Plugin initialization failed for: {}", name);
 				}
-			}
+			}*/
 		}
 	}
 }

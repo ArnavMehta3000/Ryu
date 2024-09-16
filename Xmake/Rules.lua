@@ -84,7 +84,7 @@ rule("GenConfigs")
 			target:set("configvar", "HAS_ASSERTS", 0)
 		end
 
-		target:add("configfiles", path.join("$(projectdir)", "Config", "Templates", "*.h.in"))
+		target:add("configfiles", path.join("$(projectdir)", "Config", "Templates", "Core", "*.h.in"))
 	end)
 rule_end()
 
@@ -93,7 +93,7 @@ rule("CommonPackages")
 	on_load(function (target)
 		target:add("packages", "spdlog")
 		target:add("packages", "backward-cpp")
-		target:add("packages", "toml++")
+		target:add("packages", "nlohmann_json")
 	end)
 rule_end()
 
@@ -107,7 +107,59 @@ rule("BuildAsDLL")
 	end)
 rule_end()
 
--- Wrapper for building as DLL
+-- Builds as DLL and sets config variables
 rule("RyuPlugin")
 	add_deps("BuildAsDLL")
+
+	on_load(function (target)
+		import("core.base.json")
+		local plugin_dir = target:scriptdir()
+		local plugin_file = path.join(plugin_dir, ".ryuplugin")
+		if not os.exists(plugin_file) then
+			raise("Plugin config file not found: " .. plugin_file)
+		end
+
+		local plugin_config_data = json.loadfile(plugin_file)
+			
+		local plugin_config       = plugin_config_data["Plugin"]
+		local plugin_version      = plugin_config["Version"]
+		local plugin_name         = plugin_config["Name"]
+		local plugin_load_order   = plugin_config["LoadOrder"]
+		local plugin_tick_order   = plugin_config["TickOrder"]
+		local plugin_render_order = plugin_config["RenderOrder"]
+		
+		target:set("configvar", "PLUGIN_VERSION", plugin_version)
+		target:set("configvar", "PLUGIN_NAME", plugin_name)
+
+		local load_order = ""
+		if plugin_load_order == "PreInit" then
+			load_order = "Ryu::PluginLoadOrder::PreInit"
+		elseif plugin_load_order == nil or plugin_load_order == "Default" or plugin_load_order == "PostInit" then
+			load_order = "Ryu::PluginLoadOrder::Default"
+		end
+
+		local tick_order = ""
+		if plugin_tick_order == "None" then
+			tick_order = "Ryu::PluginTickOrder::None"
+		elseif plugin_tick_order == "PreUpdate" then
+			tick_order = "Ryu::PluginTickOrder::PreUpdate"
+		elseif plugin_tick_order == nil or plugin_tick_order == "Default" or plugin_tick_order == "PostUpdate" then
+			tick_order = "Ryu::PluginTickOrder::Default"
+		end
+
+		local render_order = ""
+		if plugin_render_order == "None" then
+			render_order = "Ryu::PluginRenderOrder::None"
+		elseif plugin_render_order == "PreRender" then
+			render_order = "Ryu::PluginRenderOrder::PreRender"
+		elseif plugin_render_order == nil or plugin_render_order == "Default" or plugin_render_order == "PostRender" then
+			render_order = "Ryu::PluginRenderOrder::Default"
+		end
+
+		target:set("configvar", "PLUGIN_LOAD_ORDER", load_order, { quote = false })
+		target:set("configvar", "PLUGIN_TICK_ORDER", tick_order, { quote = false })
+		target:set("configvar", "PLUGIN_RENDER_ORDER", render_order, { quote = false })
+
+		target:add("configfiles", path.join("$(projectdir)", "Config", "Templates", "Plugin", "*.h.in"))
+	end)
 rule_end()

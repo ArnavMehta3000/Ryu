@@ -4,5 +4,5 @@ add_requires("spdlog")
 -- Add backward-cpp package
 add_requires("backward-cpp", { debug = is_mode("debug") })
 
--- Add toml++ package
-add_requires("toml++")
+-- Add nlohmann_json package
+add_requires("nlohmann_json")

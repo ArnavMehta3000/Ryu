@@ -1,4 +1,4 @@
-set_xmakever("2.9.4")
+set_xmakever("2.9.5")
 add_rules("mode.debug", "mode.release")
 set_allowedmodes("debug", "release")
 
@@ -38,7 +38,7 @@ set_policy("build.intermediate_directory", true)
 set_policy("build.always_update_configfiles", true)
 
 if is_mode("debug") then
-    -- Enable preprocessor markers in debug mode
+	-- Enable preprocessor markers in debug mode
 	set_policy("preprocessor.linemarkers", true)
 
 	-- Enable hot reloading

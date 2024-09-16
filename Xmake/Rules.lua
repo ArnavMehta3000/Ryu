@@ -84,7 +84,7 @@ rule("GenConfigs")
 			target:set("configvar", "HAS_ASSERTS", 0)
 		end
 
-		target:add("configfiles", path.join("$(projectdir)", "Config", "*.h.in"))
+		target:add("configfiles", path.join("$(projectdir)", "Config", "Templates", "*.h.in"))
 	end)
 rule_end()
 
@@ -100,6 +100,7 @@ rule_end()
 -- Rule to build target as DLL
 rule("BuildAsDLL")
 	on_config(function (target)
+		target:set("kind", "shared")
 		target:add("defines", "RYU_BUILD_DLL")
 		target:add("defines", "RYU_EXPORT")
 		target:add("cxflags", "/wd4251")  -- Disable C4251 warning: 'X' needs to have dll-interface

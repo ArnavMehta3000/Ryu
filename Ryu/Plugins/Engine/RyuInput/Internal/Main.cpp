@@ -13,7 +13,7 @@ BOOL WINAPI DllMain(
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		Ryu::Logger::Initialize("InputSystem");
+		Ryu::Logger::Initialize("RyuInput");
 		break;
 	}
 

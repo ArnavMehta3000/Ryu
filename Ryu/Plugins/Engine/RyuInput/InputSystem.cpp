@@ -2,15 +2,7 @@
 #include <PluginData.h>
 #include <Plugins/Engine/RyuInput/Internal/Log.h>
 
-Ryu::IPlugin* CreatePlugin() {
-	return new Ryu::Input::InputSystem();
-} void DestroyPlugin(Ryu::IPlugin* plugin) {
-	if (plugin) {
-		delete plugin; plugin = nullptr;
-	}
-} void RegisterPlugin() {
-	Ryu::Input::InputSystem::RegisterStaticPlugin();
-}
+RYU_REGISTER_PLUGIN(Ryu::Input::InputSystem)
 
 namespace Ryu::Input
 {

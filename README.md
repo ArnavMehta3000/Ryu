@@ -19,7 +19,7 @@ Ryu Engine is an experimentation playground for making game engines<br>
 
 - [spdlog](https://github.com/gabime/spdlog)
 - [backward-cpp](https://github.com/bombela/backward-cpp)
-- [toml++](https://marzer.github.io/tomlplusplus/)
+- [nlohmann-json](https://github.com/nlohmann/json)
 
 ## Configuration
 

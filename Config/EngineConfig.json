@@ -2,7 +2,8 @@
   "PluginsConfig":{
     "PluginsPath": "Ryu/Plugins/Engine/",
     "Plugins": [
-      "RyuInput"
+      "RyuInput",
+      "RyuTest"
     ]
   }
 }

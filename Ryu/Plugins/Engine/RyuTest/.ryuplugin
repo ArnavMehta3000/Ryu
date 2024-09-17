@@ -1,0 +1,16 @@
+{
+  "Plugin": {
+    "Version": "1.0.0",
+    "Group" : "Ryu/Engine/Plugins",
+    "Name": "RyuTest",
+    "LoadOrder": "PostInit",
+    "TickOrder": "PreUpdate",
+    "RenderOrder": "PostRender",
+    "Dependencies": [
+      {
+        "Name": "RyuCore",
+        "CreateLink" : true
+      }
+    ]
+  }
+}

@@ -45,6 +45,11 @@ if is_mode("debug") then
 	set_symbols("debug", "edit")
 end
 
+if is_mode("release") then
+	set_symbols("hidden")
+	set_strip("all")
+end
+
 add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "WIN32_LEAN_AND_MEAN")
 add_links("user32.lib")
 

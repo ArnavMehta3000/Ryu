@@ -54,7 +54,7 @@ namespace Ryu
 	};
 
 	// Auto generated function
-	inline const PluginData* GetGeneratedPluginData();
+	const RYU_API PluginData* GetGeneratedPluginData();
 
 	template<typename T>
 	class RYU_API PluginBase : public IPlugin

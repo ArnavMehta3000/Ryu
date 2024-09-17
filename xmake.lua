@@ -10,6 +10,7 @@ set_version("0.0.2")
 set_languages("c17", "cxx23")
 
 -- Include other xmake scripts
+add_moduledirs("Xmake/Modules")
 includes("Xmake/Packages.lua")
 includes("Xmake/Options.lua")
 includes("Xmake/Rules.lua")

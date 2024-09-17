@@ -1,7 +1,8 @@
 target("RyuTest")
-	add_rules("IncludeConfigs", "CommonPackages", "RyuPlugin")
-	
+	add_rules("IncludeConfigs", "CommonPackages")
+	add_rules("RyuPlugin", { built_for = "Engine" })
 	add_includedirs("..", { public = true })
 	add_files("**.cpp")
 	add_headerfiles("**.h")
+	set_policy("build.fence", true)
 target_end()

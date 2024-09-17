@@ -1,5 +1,5 @@
 #include "InputSystem.h"
-#include <PluginData.h>
+#include <Plugins/Engine/RyuInput/Generated/PluginData.h>
 #include <Plugins/Engine/RyuInput/Internal/Log.h>
 
 RYU_REGISTER_PLUGIN(Ryu::Input::InputSystem)

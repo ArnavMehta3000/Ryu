@@ -2,8 +2,8 @@
 rule("IncludeConfigs")
 	on_config(function (target)
 		local config_dir = "$(buildir)/Config"
-		target:add("includedirs", config_dir, { public = true })
 		target:set("configdir", config_dir)
+		target:add("includedirs", config_dir, { public = true })
 		target:add("options", "console")
 		target:add("options", "enable-assert")
 
@@ -108,59 +108,36 @@ rule_end()
 
 -- Builds as DLL and sets config variables
 rule("RyuPlugin")
+	set_extensions(".ryuplugin")
 	add_deps("BuildAsDLL")
 
-	on_load(function (target)
-		import("core.base.json")
-		local plugin_dir = target:scriptdir()
-		local plugin_file = path.join(plugin_dir, ".ryuplugin")
-		if not os.exists(plugin_file) then
-			raise("Plugin config file not found: " .. plugin_file)
+	on_config(function (target)
+		-- What is this plugin being built for? (Editor or Engine) -> decides where to put generated files
+		local plugin_for = target:extraconf("rules", "RyuPlugin", "built_for")
+		if plugin_for == nil then
+			raise("Plugin built_for not specified! Valid values: Editor, Engine")
 		end
-
-		local plugin_config_data = json.loadfile(plugin_file)
-			
-		local plugin_config       = plugin_config_data["Plugin"]
-		local plugin_version      = plugin_config["Version"]
-		local plugin_name         = plugin_config["Name"]
-		local plugin_load_order   = plugin_config["LoadOrder"]
-		local plugin_tick_order   = plugin_config["TickOrder"]
-		local plugin_render_order = plugin_config["RenderOrder"]
 		
-		target:set("configvar", "PLUGIN_VERSION", plugin_version)
-		target:set("configvar", "PLUGIN_NAME", plugin_name)
-
-		local load_order = ""
-		if plugin_load_order == "PreInit" then
-			load_order = "Ryu::PluginLoadOrder::PreInit"
-		elseif plugin_load_order == nil or plugin_load_order == "Default" or plugin_load_order == "PostInit" then
-			load_order = "Ryu::PluginLoadOrder::Default"
+		if string.upper(plugin_for) ~= "EDITOR" and string.upper(plugin_for) ~= "ENGINE" then
+			raise("Invalid plugin built for specified! Valid values: Editor, Engine")
 		end
 
-		local tick_order = ""
-		if plugin_tick_order == "None" then
-			tick_order = "Ryu::PluginTickOrder::None"
-		elseif plugin_tick_order == "PreUpdate" then
-			tick_order = "Ryu::PluginTickOrder::PreUpdate"
-		elseif plugin_tick_order == nil or plugin_tick_order == "Default" or plugin_tick_order == "PostUpdate" then
-			tick_order = "Ryu::PluginTickOrder::Default"
-		end
+		cprint(format("${green}[RyuPlugin]${clear} Configuring ${cyan}%s${clear} as ${magenta}%s${clear} plugin", target:name(), plugin_for))
 
-		local render_order = ""
-		if plugin_render_order == "None" then
-			render_order = "Ryu::PluginRenderOrder::None"
-		elseif plugin_render_order == "PreRender" then
-			render_order = "Ryu::PluginRenderOrder::PreRender"
-		elseif plugin_render_order == nil or plugin_render_order == "Default" or plugin_render_order == "PreRender" then
-			render_order = "Ryu::PluginRenderOrder::Default"
-		end
+		target:add("files", path.join(target:scriptdir(), ".ryuplugin"))
+		local plugin_reader = import("PluginReader")
+		local plugin_config = plugin_reader.parse_ryuplugin(target:name())
+		local plugin_template = path.join(os.projectdir(), "Config", "Templates", "Plugin", "PluginData.h.in")
+		local gen_file_name = path.join("Plugins", plugin_for, target:name(), "Generated", "PluginData.h")
 
-		target:set("configvar", "PLUGIN_LOAD_ORDER", load_order, { quote = false })
-		target:set("configvar", "PLUGIN_TICK_ORDER", tick_order, { quote = false })
-		target:set("configvar", "PLUGIN_RENDER_ORDER", render_order, { quote = false })
-
-		target:add("configfiles", path.join("$(projectdir)", "Config", "Templates", "Plugin", "*.h.in"))
-
+		target:add("configfiles", plugin_template, { onlycopy = false, filename = gen_file_name })
+				
+		target:set("configvar", "PLUGIN_VERSION",      plugin_config["Version"])
+		target:set("configvar", "PLUGIN_NAME",         plugin_config["Name"])
+		target:set("configvar", "PLUGIN_LOAD_ORDER",   plugin_config["LoadOrder"], { quote = false })
+		target:set("configvar", "PLUGIN_TICK_ORDER",   plugin_config["TickOrder"], { quote = false })
+		target:set("configvar", "PLUGIN_RENDER_ORDER", plugin_config["RenderOrder"], { quote = false })
+		
 
 		-- Configure dependencies
 		local plugin_deps = plugin_config["Dependencies"]
@@ -171,9 +148,9 @@ rule("RyuPlugin")
 			target:add("deps", name)
 			
 			if create_link == true then
-				target:add("links")
+				target:add("links", name)
 			end
-		end		
+		end
 
 		-- Set target group
 		local group = plugin_config["Group"]

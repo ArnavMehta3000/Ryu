@@ -1,5 +1,5 @@
 #include "Test.h"
-#include <PluginData.h>
+#include <Plugins/Engine/RyuTest/Generated/PluginData.h>
 #include <Plugins/Engine/RyuTest/Internal/Log.h>
 
 RYU_REGISTER_PLUGIN(RyuTest)

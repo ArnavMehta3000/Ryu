@@ -31,7 +31,7 @@ target("RyuEngine")
 			-- Add include directory
 			target:add("includedirs", plugin_dir)
 
-			print(format("Configured engine plugin [%u] - %s ", i, plugin_name))
+			cprint(format("${green}[Engine]${clear} Using plugin [%u] - ${cyan}%s${clear}", i, plugin_name))
 		end
 
 		-- Add engine config file to target

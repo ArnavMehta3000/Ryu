@@ -35,8 +35,8 @@ set_policy("run.autobuild", true)
 -- Keep intermediate directories
 set_policy("build.intermediate_directory", true)
 
--- Always update config files
-set_policy("build.always_update_configfiles", true)
+-- Do not update config files
+set_policy("build.always_update_configfiles", false)
 
 if is_mode("debug") then
 	-- Enable preprocessor markers in debug mode

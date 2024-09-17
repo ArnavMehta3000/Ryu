@@ -16,7 +16,7 @@ namespace Ryu
 		None,
 		PreUpdate,
 		PostUpdate,
-		Default = PostUpdate
+		Default = None
 	};
 
 	enum class PluginRenderOrder
@@ -24,7 +24,7 @@ namespace Ryu
 		None,
 		PreRender,
 		PostRender,
-		Default = PostRender
+		Default = None
 	};
 
 	struct RYU_API PluginAPI

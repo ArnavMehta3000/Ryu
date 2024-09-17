@@ -152,7 +152,7 @@ rule("RyuPlugin")
 			render_order = "Ryu::PluginRenderOrder::None"
 		elseif plugin_render_order == "PreRender" then
 			render_order = "Ryu::PluginRenderOrder::PreRender"
-		elseif plugin_render_order == nil or plugin_render_order == "Default" or plugin_render_order == "PostRender" then
+		elseif plugin_render_order == nil or plugin_render_order == "Default" or plugin_render_order == "PreRender" then
 			render_order = "Ryu::PluginRenderOrder::Default"
 		end
 
@@ -161,5 +161,27 @@ rule("RyuPlugin")
 		target:set("configvar", "PLUGIN_RENDER_ORDER", render_order, { quote = false })
 
 		target:add("configfiles", path.join("$(projectdir)", "Config", "Templates", "Plugin", "*.h.in"))
+
+
+		-- Configure dependencies
+		local plugin_deps = plugin_config["Dependencies"]
+		for _, dep in ipairs(plugin_deps) do
+			local name = dep["Name"]
+			local create_link = dep["CreateLink"]
+			
+			target:add("deps", name)
+			
+			if create_link == true then
+				target:add("links")
+			end
+		end		
+
+		-- Set target group
+		local group = plugin_config["Group"]
+		if group == nil or group == "" then
+			target:set("group", "Plugins")
+		else
+			target:set("group", group)
+		end
 	end)
 rule_end()

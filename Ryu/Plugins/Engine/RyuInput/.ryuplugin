@@ -1,9 +1,16 @@
 {
   "Plugin": {
     "Version": "1.0.0",
+    "Group" : "Ryu/Engine/Plugins",
     "Name": "RyuInput",
     "LoadOrder": "PostInit",
     "TickOrder": "None",
-    "RenderOrder": "None"
+    "RenderOrder": "None",
+    "Dependencies": [
+      {
+        "Name": "RyuCore",
+        "CreateLink" : true
+      }
+    ]
   }
 }

@@ -18,8 +18,6 @@ rule("GenConfigs")
 		target:add("options", "log-level")
 		-- Log level
 		if has_config("log-level") then
-			cprint(format("${cyan}%s log verbosity configured to: ${green}%s${clear}", target:name(), get_config("log-level")))
-
 			local level = string.upper(get_config("log-level"))
 
 			if level == "TRACE" then
@@ -101,6 +99,7 @@ rule_end()
 rule("BuildAsDLL")
 	on_config(function (target)
 		target:set("kind", "shared")
+		target:set("enabled", true)
 		target:add("defines", "RYU_BUILD_DLL")
 		target:add("defines", "RYU_EXPORT")
 		target:add("cxflags", "/wd4251")  -- Disable C4251 warning: 'X' needs to have dll-interface

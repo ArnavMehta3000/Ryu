@@ -222,6 +222,17 @@ namespace Ryu
 				RYU_ENGINE_ERROR("Failed to load plugin DLL: {}", name);
 			}
 
+			// Register plugin
+			if (RegisterPlugin_f registerPlugin = plugin.DLL.GetProcAddressFunc<RegisterPlugin_f>("RegisterPlugin"))
+			{
+				registerPlugin();
+				RYU_ENGINE_INFO("Registered plugin: {}", name);
+			}
+			else
+			{
+				RYU_ENGINE_ERROR("Failed to register plugin: {}", name);
+			}
+
 			// Create plugin
 			if (CreatePlugin_f createPlugin = plugin.DLL.GetProcAddressFunc<CreatePlugin_f>("CreatePlugin"))
 			{
@@ -256,13 +267,13 @@ namespace Ryu
 		PluginManager::PluginMap& map = m_pluginManager.GetPluginsMap();
 		for (auto& [name, plugin] : map)
 		{
-			/*if (plugin.Plugin && plugin.LoadOrder == order)
+			if (plugin.Plugin && plugin.Plugin->GetPluginData().LoadOrder == order)
 			{
 				if (!plugin.Plugin->Initialize(api))
 				{
 					RYU_ENGINE_FATAL("Plugin initialization failed for: {}", name);
 				}
-			}*/
+			}
 		}
 	}
 }

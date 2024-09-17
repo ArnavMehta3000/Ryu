@@ -50,6 +50,7 @@ namespace Ryu
 		virtual void OnUpdate(MAYBE_UNUSED const f32 dt) {};
 		virtual void OnRender(MAYBE_UNUSED const f32 dt) {};
 		virtual void Shutdown() = 0;
+		virtual const PluginData& GetPluginData() const = 0;
 	};
 
 	// Auto generated function
@@ -64,12 +65,20 @@ namespace Ryu
 		static T* GetInstance() { return s_instance; }
 		static const PluginData& GetData() { return *s_data; }
 
-	protected:
-		static void ConstructPlugin(T* instance, const PluginData* data = GetGeneratedPluginData())
+		static void RegisterStaticPlugin()
 		{
-			s_instance = instance;
-			s_data = data;
+			ConstructPlugin();
 		}
+
+		const PluginData& GetPluginData() const override final
+		{
+			return GetData();
+		}
+
+	protected:
+		static inline void ConstructPlugin(const PluginData* data = GetGeneratedPluginData()) { s_data = data; }
+		static inline void SetPluginInstance(T* instance) { s_instance = instance; }
+
 	private:
 		static const PluginData* s_data;
 		static T* s_instance;

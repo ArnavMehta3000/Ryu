@@ -2,10 +2,20 @@
 #include <PluginData.h>
 #include <Plugins/Engine/RyuInput/Internal/Log.h>
 
+Ryu::IPlugin* CreatePlugin() {
+	return new Ryu::Input::InputSystem();
+} void DestroyPlugin(Ryu::IPlugin* plugin) {
+	if (plugin) {
+		delete plugin; plugin = nullptr;
+	}
+} void RegisterPlugin() {
+	Ryu::Input::InputSystem::RegisterStaticPlugin();
+}
 
 namespace Ryu::Input
 {
 	InputSystem::InputSystem() : PluginBase()
+		, m_originalWndProc(nullptr)
 		, m_keyboard()
 		, m_mouse()
 		, m_hWnd(nullptr)
@@ -14,7 +24,7 @@ namespace Ryu::Input
 
 		if (!GetInstance())
 		{
-			ConstructPlugin(this);
+			SetPluginInstance(this);
 		}
 	}
 
@@ -55,7 +65,7 @@ namespace Ryu::Input
 		InputSystem* instance = GetInstance();
 		if (!instance)
 		{
-			return ::CallWindowProc(instance->m_originalWndProc, hWnd, msg, wParam, lParam);
+			return ::DefWindowProc(hWnd, msg, wParam, lParam);
 		}
 
 

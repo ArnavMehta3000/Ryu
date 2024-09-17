@@ -112,6 +112,8 @@ rule("RyuPlugin")
 	add_deps("BuildAsDLL")
 
 	on_config(function (target)
+		target:set("policy", "build.fence", false)	
+
 		-- What is this plugin being built for? (Editor or Engine) -> decides where to put generated files
 		local plugin_for = target:extraconf("rules", "RyuPlugin", "built_for")
 		if plugin_for == nil then
@@ -138,6 +140,7 @@ rule("RyuPlugin")
 		target:set("configvar", "PLUGIN_TICK_ORDER",   plugin_config["TickOrder"], { quote = false })
 		target:set("configvar", "PLUGIN_RENDER_ORDER", plugin_config["RenderOrder"], { quote = false })
 		
+		cprint(format("${dim green}[RyuPlugin]${clear} ${dim}Generated plugin data file: %s${clear}", path.join(target:get("configdir"), gen_file_name)))
 
 		-- Configure dependencies
 		local plugin_deps = plugin_config["Dependencies"]

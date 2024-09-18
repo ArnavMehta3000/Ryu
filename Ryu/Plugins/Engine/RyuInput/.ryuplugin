@@ -1,7 +1,7 @@
 {
   "Plugin": {
     "Version": "1.0.0",
-    "Group" : "Ryu/Engine/Plugins",
+    "Group" : "Ryu/Plugins/Engine",
     "Name": "RyuInput",
     "LoadOrder": "PostInit",
     "TickOrder": "None",

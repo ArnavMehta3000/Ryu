@@ -82,7 +82,7 @@ rule("GenConfigs")
 			target:set("configvar", "HAS_ASSERTS", 0)
 		end
 
-		target:add("configfiles", path.join("$(projectdir)", "Config", "Templates", "Core", "*.h.in"))
+		target:add("configfiles", path.join("$(projectdir)", "Xmake", "Templates", "Core", "*.h.in"))
 	end)
 rule_end()
 
@@ -129,10 +129,15 @@ rule("RyuPlugin")
 		target:add("files", path.join(target:scriptdir(), ".ryuplugin"))
 		local plugin_reader = import("PluginReader")
 		local plugin_config = plugin_reader.parse_ryuplugin(target:name())
-		local plugin_template = path.join(os.projectdir(), "Config", "Templates", "Plugin", "PluginData.h.in")
+		local plugin_template = path.join(os.projectdir(), "Xmake", "Templates", "Plugin", "PluginData.h.in")
 		local gen_file_name = path.join("Plugins", plugin_for, target:name(), "Generated", "PluginData.h")
 
+		-- Add config files
 		target:add("configfiles", plugin_template, { onlycopy = false, filename = gen_file_name })
+
+		local log_template = path.join(os.projectdir(), "Xmake", "Templates", "Plugin", "PluginLog.h.in")
+		local log_file_name = path.join("Plugins", plugin_for, target:name(), "Generated", plugin_config["Name"] .. "Log.h")
+		target:add("configfiles", log_template, { onlycopy = false, filename = log_file_name })
 				
 		target:set("configvar", "PLUGIN_VERSION",      plugin_config["Version"])
 		target:set("configvar", "PLUGIN_NAME",         plugin_config["Name"])
@@ -140,7 +145,7 @@ rule("RyuPlugin")
 		target:set("configvar", "PLUGIN_TICK_ORDER",   plugin_config["TickOrder"], { quote = false })
 		target:set("configvar", "PLUGIN_RENDER_ORDER", plugin_config["RenderOrder"], { quote = false })
 		
-		cprint(format("${dim green}[RyuPlugin]${clear} ${dim}Generated plugin data file: %s${clear}", path.join(target:get("configdir"), gen_file_name)))
+		cprint(format("${dim green}[RyuPlugin]${clear} ${dim}Auto generated plugin files for: %s${clear}", plugin_config["Name"]))
 
 		-- Configure dependencies
 		local plugin_deps = plugin_config["Dependencies"]

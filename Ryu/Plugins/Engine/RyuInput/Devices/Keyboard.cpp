@@ -1,12 +1,12 @@
 #include "Keyboard.h"
-#include <Plugins/Engine/RyuInput/Internal/Log.h>
+#include <Plugins/Engine/RyuInput/Generated/RyuInputLog.h>
 #include <Plugins/Engine/RyuInput/InputEvents.h>
 
 namespace Ryu::Input
 {
 	void Keyboard::Create(std::vector<InputCallbacks>* inputCallbacks)
 	{
-		RYU_PLUGIN_ASSERT(inputCallbacks, "InputCallbacks is nullptr");
+		PLUGIN_ASSERT(inputCallbacks, "InputCallbacks is nullptr");
 
 		m_callbacks = inputCallbacks;
 	}

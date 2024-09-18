@@ -1,6 +1,6 @@
 #include "InputSystem.h"
 #include <Plugins/Engine/RyuInput/Generated/PluginData.h>
-#include <Plugins/Engine/RyuInput/Internal/Log.h>
+#include <Plugins/Engine/RyuInput/Generated/RyuInputLog.h>
 
 RYU_REGISTER_PLUGIN(Ryu::Input::InputSystem)
 
@@ -12,7 +12,7 @@ namespace Ryu::Input
 		, m_mouse()
 		, m_hWnd(nullptr)
 	{
-		RYU_PLUGIN_TRACE("Constructed RyuInput plugin");
+		PLUGIN_TRACE("Constructed RyuInput plugin");
 
 		if (!GetInstance())
 		{
@@ -22,15 +22,15 @@ namespace Ryu::Input
 
 	InputSystem::~InputSystem()
 	{
-		RYU_PLUGIN_TRACE("Destructed RyuInput plugin");
+		PLUGIN_TRACE("Destructed RyuInput plugin");
 	}
 
 	bool InputSystem::Initialize(const PluginAPI& api)
 	{
-		RYU_PLUGIN_INFO("Initializing RyuInput plugin");
+		PLUGIN_INFO("Initializing RyuInput plugin");
 
 		m_hWnd = api.App->GetWindow();
-		RYU_PLUGIN_ASSERT(m_hWnd != nullptr, "Invalid window handle");
+		PLUGIN_ASSERT(m_hWnd != nullptr, "Invalid window handle");
 
 		m_keyboard.Create(&m_callbacks);
 		m_mouse.Create(&m_callbacks);
@@ -41,7 +41,7 @@ namespace Ryu::Input
 
 	void InputSystem::Shutdown()
 	{
-		RYU_PLUGIN_DEBUG("Shutting down RyuInput plugin");
+		PLUGIN_DEBUG("Shutting down RyuInput plugin");
 		// Restore original WndProc
 		::SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, (LONG_PTR)m_originalWndProc);
 	}
@@ -49,7 +49,7 @@ namespace Ryu::Input
 	void InputSystem::AddInputCallbacks(const InputCallbacks& callbacks)
 	{
 		m_callbacks.push_back(callbacks);
-		RYU_PLUGIN_DEBUG("Input callbacks set");
+		PLUGIN_DEBUG("Input callbacks set");
 	}
 
 	LRESULT InputSystem::InputWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

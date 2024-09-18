@@ -1,5 +1,5 @@
 #include "Mouse.h"
-#include <Plugins/Engine/RyuInput/Internal/Log.h>
+#include <Plugins/Engine/RyuInput/Generated/RyuInputLog.h>
 #include <Plugins/Engine/RyuInput/InputEvents.h>
 #include <windowsx.h>
 
@@ -43,7 +43,7 @@ namespace Ryu::Input
 	{
 		if (button == MouseButton::None)
 		{
-			RYU_PLUGIN_ERROR("Unknown mouse (OnClick) button: {} (isDown: {})", (u32)button, isDown);
+			PLUGIN_ERROR("Unknown mouse (OnClick) button: {} (isDown: {})", (u32)button, isDown);
 			return;
 		}
 
@@ -82,7 +82,7 @@ namespace Ryu::Input
 	{
 		if (button == MouseButton::None)
 		{
-			RYU_PLUGIN_ERROR("Unknown mouse (OnDblClick) button: {}", (u32)button);
+			PLUGIN_ERROR("Unknown mouse (OnDblClick) button: {}", (u32)button);
 			return;
 		}
 

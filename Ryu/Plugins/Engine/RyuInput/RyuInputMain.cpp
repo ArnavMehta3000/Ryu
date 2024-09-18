@@ -1,5 +1,5 @@
 #include <Windows.h>
-#include <RyuInput/Internal/Log.h>
+#include <Plugins/Engine/RyuInput/Generated/RyuInputLog.h>
 
 BOOL WINAPI DllMain(
 	_In_ HINSTANCE hinstDLL,

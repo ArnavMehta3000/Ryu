@@ -1,5 +1,5 @@
 #include "KeyCode.h"
-#include <Plugins/Engine/RyuInput/Internal/Log.h>
+#include <Plugins/Engine/RyuInput/Generated/RyuInputLog.h>
 
 namespace Ryu::Input
 {
@@ -148,7 +148,7 @@ namespace Ryu::Input
 		case Quote:
 			return keyCode;
 		default:
-			RYU_PLUGIN_ERROR("Unknown KeyCode: {}", value);
+			PLUGIN_ERROR("Unknown KeyCode: {}", value);
 			return std::unexpected(false);
 		}
 	}
@@ -174,7 +174,7 @@ namespace Ryu::Input
 		case XButton2:
 			return btn;
 		default:
-			RYU_PLUGIN_ERROR("Unknown mouse button: {}", value);
+			PLUGIN_ERROR("Unknown mouse button: {}", value);
 			return std::unexpected(false);
 		}
 	}

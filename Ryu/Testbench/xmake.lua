@@ -3,7 +3,6 @@ target("RyuTestbench")
 	add_rules("IncludeConfigs", "CommonPackages")
 	add_rules("win.sdk.application")
 
-	set_default(true)
 	set_kind("binary")
 	set_group("Ryu")
 

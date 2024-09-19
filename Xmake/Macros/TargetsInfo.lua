@@ -1,5 +1,5 @@
 function PrintHeaders(header)
-    print("\n\n----- " .. header .. " -----")
+	print("\n\n----- " .. header .. " -----")
 end
 
 function main(argv)

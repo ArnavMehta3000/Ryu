@@ -2,6 +2,7 @@
 
 [[workspace]]
 # These directories and files will be scanned when a workspace is opened so that search etc. works.
+../Ryu/
 
 [allow]
 *.ryuplugin
@@ -12,10 +13,8 @@
 [[build commands]]
 build_working_dir: %PROJECT_CONFIG_DIR%
 open_panel_on_build: true
-close_panel_on_success: true
+close_panel_on_success: false
 clear_build_output_before_running: true
-error_regex: ^(?P<file>.*)\((?P<line>\d+),?(?P<col>\d+)?\)[ ]?: (?P<type>error|warning) (?P<msg>.*)$
-# auto_jump_to_error:     false
 
 [Build Debug And Run]   # <- command name. Can be arbitrary
 build_command: xmake f -m debug --console=true --log-level=trace -y
@@ -26,6 +25,8 @@ key_binding: F5
 [Build Debug]
 build_command: xmake f -m debug --console=true --log-level=trace -y
 build_working_dir: %PROJECT_CONFIG_DIR%
+run_command: xmake
+run_working_dir: %PROJECT_CONFIG_DIR%
 key_binding: Ctrl-Shift-B
 
 [Clean Project]

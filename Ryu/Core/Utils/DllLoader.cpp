@@ -30,7 +30,7 @@ namespace Ryu
 		if (!proc)
 			return false;
 
-		m_funcMap[std::string(funcName)] = proc;
+		m_dataMap[std::string(funcName)] = proc;
 		return true;
 	}
 

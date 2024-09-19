@@ -38,7 +38,9 @@ namespace Ryu
 		bool Init();
 		bool PostInit();
 		void AddInputCallbacks();
-		void Tick(MAYBE_UNUSED const f32 dt);
+		void Tick(const f32 dt);
+		void TickPlugins(PluginTickOrder order, const f32 dt);
+		void RenderPlugins(PluginRenderOrder order, const f32 dt);
 		void LoadConfig();
 		void AddPlugins(const std::string& name);
 		void LoadPlugins();

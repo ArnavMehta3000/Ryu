@@ -1,5 +1,4 @@
 #include "Engine.h"
-
 #include <Engine/Internal/Log.h>
 #include <Core/Utils/StringConv.h>
 #include <Plugins/Engine/RyuInput/InputSystem.h>
@@ -138,13 +137,42 @@ namespace Ryu
 
 		Shutdown();
 	}
-
-	void Engine::Tick(MAYBE_UNUSED f32 dt)
+	
+	void Engine::Tick(MAYBE_UNUSED const f32 dt)
 	{
 		m_application->m_window.PumpMessages();
 
+		TickPlugins(PluginTickOrder::PreUpdate, dt);
 		m_application->OnUpdate(dt);
+		TickPlugins(PluginTickOrder::PostUpdate, dt);
+
+		RenderPlugins(PluginRenderOrder::PreRender, dt);
 		m_application->OnRender(dt);
+		RenderPlugins(PluginRenderOrder::PostRender, dt);
+	}
+
+	void Engine::TickPlugins(PluginTickOrder order, MAYBE_UNUSED const f32 dt)
+	{
+		auto& map = m_pluginManager.GetPluginsMap();
+		for (auto& [name, plugin] : map)
+		{
+			if (plugin.Plugin && plugin.Plugin->GetPluginData().TickOrder == order)
+			{
+				plugin.Plugin->OnUpdate(dt);
+			}
+		}
+	}
+
+	void Engine::RenderPlugins(PluginRenderOrder order, MAYBE_UNUSED const f32 dt)
+	{
+		auto& map = m_pluginManager.GetPluginsMap();
+		for (auto& [name, plugin] : map)
+		{
+			if (plugin.Plugin && plugin.Plugin->GetPluginData().RenderOrder == order)
+			{
+				plugin.Plugin->OnRender(dt);
+			}
+		}
 	}
 
 	void Engine::Shutdown()
@@ -181,6 +209,8 @@ namespace Ryu
 
 				RYU_ENGINE_DEBUG("Destroyed plugin: {}", name);
 			}
+
+			plugin.DLL.UnloadDLL();
 		}
 
 		RYU_ENGINE_TRACE("Finished unloading {} plugins", count);

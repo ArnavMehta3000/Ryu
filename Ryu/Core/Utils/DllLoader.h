@@ -1,6 +1,5 @@
 #pragma once
 #include <CoreDLLDefines.h>
-#include <Core/ObjectMacros.h>
 #include <Core/Concepts.h>
 #include <Windows.h>
 #include <unordered_map>
@@ -43,36 +42,36 @@ namespace Ryu
 		template <typename T> requires IsFuncPtr<T> && (!IsDllPointer<T>)
 		T GetProcAddressFunc(std::string_view funcName)
 		{
-			if (m_funcMap.find(funcName.data()) == m_funcMap.end())
+			if (m_dataMap.find(funcName.data()) == m_dataMap.end())
 			{
 				// Proc address not found. Try loading it
 				if (LoadProcAddress(funcName)) 
 				{
 					// Proc address loaded. Return it
-					return reinterpret_cast<T>(m_funcMap[funcName.data()]);
+					return reinterpret_cast<T>(m_dataMap[funcName.data()]);
 				}
 				return nullptr;
 			}
 			
-			return reinterpret_cast<T>(m_funcMap[funcName.data()]);
+			return reinterpret_cast<T>(m_dataMap[funcName.data()]);
 		}
 
 		template <typename T> requires (!IsPtr<T>)
 		DllPointer<T> GetProcAddressPtr(std::string ptrName)
 		{
-			if (m_funcMap.find(ptrName.data()) == m_funcMap.end())
+			if (m_dataMap.find(ptrName.data()) == m_dataMap.end())
 			{
 				// Proc address not found. Try loading it
 				if (LoadProcAddress(ptrName))
 				{
 					// Proc address loaded. Return it
-					FARPROC address = m_funcMap[ptrName.data()];
+					FARPROC address = m_dataMap[ptrName.data()];
 					return DllPointer<T>(*reinterpret_cast<typename DllPointer<T>::PointerType*>(address));
 				}
 				return DllPointer<T>();
 			}
 
-			FARPROC address = m_funcMap[ptrName.data()];
+			FARPROC address = m_dataMap[ptrName.data()];
 			return DllPointer<T>(*reinterpret_cast<typename DllPointer<T>::PointerType*>(address));
 		}
 
@@ -81,6 +80,6 @@ namespace Ryu
 
 	private:
 		HMODULE m_hModule{ nullptr };
-		std::unordered_map<std::string, FARPROC> m_funcMap;
+		std::unordered_map<std::string, FARPROC> m_dataMap;
 	};	
 }

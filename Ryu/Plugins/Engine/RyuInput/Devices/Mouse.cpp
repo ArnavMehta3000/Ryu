@@ -1,6 +1,6 @@
 #include "Mouse.h"
 #include <Plugins/Engine/RyuInput/Generated/RyuInputLog.h>
-#include <Plugins/Engine/RyuInput/InputEvents.h>
+#include <RyuInput/InputEvents.h>
 #include <windowsx.h>
 
 namespace Ryu::Input

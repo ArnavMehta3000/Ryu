@@ -18,7 +18,7 @@ void DestroyPlugin(Ryu::IPlugin* plugin)  \
 {                                         \
 	if (plugin)                           \
 	{                                     \
-		delete plugin;                    \
+		delete (Plugin*)plugin;           \
 		plugin = nullptr;                 \
 	}                                     \
 }                                         \

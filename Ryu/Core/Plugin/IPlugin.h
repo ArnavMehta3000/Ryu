@@ -47,8 +47,8 @@ namespace Ryu
 		IPlugin() = default;
 		virtual ~IPlugin() = default;
 		virtual bool Initialize(const PluginAPI& api) = 0;
-		virtual void OnUpdate(MAYBE_UNUSED const f32 dt) {};
-		virtual void OnRender(MAYBE_UNUSED const f32 dt) {};
+		virtual void OnUpdate(MAYBE_UNUSED const f32 dt) {}
+		virtual void OnRender(MAYBE_UNUSED const f32 dt) {}
 		virtual void Shutdown() = 0;
 		virtual const PluginData& GetPluginData() const = 0;
 	};

@@ -1,5 +1,5 @@
 #pragma once
-#include <Plugins/Engine/RyuInput/KeyCode.h>
+#include <RyuInput/KeyCode.h>
 #include <unordered_map>
 
 namespace Ryu::Input

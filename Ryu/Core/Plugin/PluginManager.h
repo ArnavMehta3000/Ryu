@@ -31,11 +31,12 @@ namespace Ryu
 		NODISCARD IPlugin* GetPlugin(const std::string& pluginName);
 
 		template <typename T>
-		NODISCARD T* GetPlugin(const std::string& pluginName)
+		NODISCARD T GetPlugin(const std::string& pluginName)
 		{
 			IPlugin* plugin = GetPlugin(pluginName);
-			return plugin ? dynamic_cast<T*>(plugin) : nullptr;
+			return plugin ? dynamic_cast<T>(plugin) : nullptr;
 		}
+
 	private:
 		PluginMap m_plugins;
 	};

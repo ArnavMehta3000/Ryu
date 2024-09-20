@@ -3,4 +3,8 @@
 
 namespace Ryu
 {
+	class RYU_API Entity
+	{
+
+	};
 }

@@ -1,6 +1,6 @@
 #include "Keyboard.h"
 #include <Plugins/Engine/RyuInput/Generated/RyuInputLog.h>
-#include <Plugins/Engine/RyuInput/InputEvents.h>
+#include <RyuInput/InputEvents.h>
 
 namespace Ryu::Input
 {

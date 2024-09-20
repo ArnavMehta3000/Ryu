@@ -1,7 +1,7 @@
 #include "Engine.h"
 #include <Engine/Internal/Log.h>
 #include <Core/Utils/StringConv.h>
-#include <Plugins/Engine/RyuInput/InputSystem.h>
+#include <Core/Application/IInputInterface.h>
 #include <filesystem>
 #include <chrono>
 #include <nlohmann/json.hpp>
@@ -68,7 +68,7 @@ namespace Ryu
 
 	void Engine::AddInputCallbacks()
 	{
-		if (Input::InputSystem* input = m_pluginManager.GetPlugin<Input::InputSystem>("RyuInput"))
+		if (Input::IInputInterface* input = m_pluginManager.GetPlugin<Input::IInputInterface*>("RyuInput"))
 		{
 			Input::InputCallbacks callbacks;
 			callbacks.OnKeyDown         = [this](const auto& event) { m_application->OnEvent(event); };
@@ -213,7 +213,7 @@ namespace Ryu
 			plugin.DLL.UnloadDLL();
 		}
 
-		RYU_ENGINE_TRACE("Finished unloading {} plugins", count);
+		RYU_ENGINE_INFO("Finished unloading {} plugins", count);
 	}
 
 	void Engine::LoadConfig()

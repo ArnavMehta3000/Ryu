@@ -6,10 +6,10 @@ function parse_ryuplugin(targetname)
 	local plugin_file = path.join(t:scriptdir(), ".ryuplugin")
 	
 	if not os.exists(plugin_file) then
-		raise("[PluginReader] Plugin config file not found: " .. plugin_file)
+		raise("[RyuPluginReader] Plugin config file not found: " .. plugin_file)
 	end
 
-	cprint(format("${dim green}[PluginReader]${clear} ${dim}Parsing plugin file: ${dim}%s${clear}", plugin_file))
+	cprint(format("${dim green}[RyuPluginReader]${clear} ${dim}Parsing plugin file: ${dim}%s${clear}", plugin_file))
 	local plugin_config_data  = json.loadfile(plugin_file)
 			
 	local plugin_config       = plugin_config_data["Plugin"]

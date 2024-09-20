@@ -9,7 +9,7 @@
     "Dependencies": [
       {
         "Name": "RyuCore",
-        "CreateLink" : true
+        "CreateLink": true
       }
     ]
   }

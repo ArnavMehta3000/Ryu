@@ -1,11 +1,19 @@
 target("RyuEngine")
-	on_config (function (target)
+	add_rules("utils.bin2c", { extensions = { ".json" } })
+
+	add_rules(
+		"IncludeConfigs",
+		"CommonPackages",
+		"BuildAsDLL")
+
+
+	on_config(function (target)
 		import("core.base.json")
 		
 		-- Load engine config
 		local config_file = path.join(os.projectdir(), "Config", "EngineConfig.json")		
 		if not os.exists(config_file) then
-			raise("Engine config file not found: " .. config_file)
+			raise("[RyuEngine] Engine config file not found: " .. config_file)
 		end
 
 		-- Load engine config JSON
@@ -13,6 +21,18 @@ target("RyuEngine")
 		local plugins_config = engine_config["PluginsConfig"]
 		local plugins_path   = plugins_config["PluginsPath"]
 		local plugins        = plugins_config["Plugins"]
+
+		-- On config may be call multiple times, so we need to remove duplicates (Engine plugins)
+		function add_unique(tbl, value)
+			if not tbl.seen then
+				tbl.seen = {}
+			end
+
+			if not tbl.seen[value] then
+				table.insert(tbl, value)
+				tbl.seen[value] = true
+			end
+		end
 
 		-- Add engine plugins
 		for i, plugin_name in ipairs(plugins) do
@@ -22,7 +42,7 @@ target("RyuEngine")
 			-- Ensure plugin is valid (check for '.ryuplugin' file)
 			local ryu_plugin_file = path.join(plugin_dir, ".ryuplugin")
 			if not os.exists(ryu_plugin_file) then
-				raise("Plugin file not found: " .. ryu_plugin_file)
+				raise("[RyuEngine] Plugin file not found: " .. ryu_plugin_file)
 			end
 
 			-- Add target dependency
@@ -31,19 +51,12 @@ target("RyuEngine")
 			-- Add include directory
 			target:add("includedirs", plugin_dir)
 
-			cprint(format("${green}[Engine]${clear} Using plugin [%u] - ${cyan}%s${clear}", i, plugin_name))
+			cprint(format("${green}[RyuEngine]${clear} Using plugin [%u] - ${cyan}%s${clear}", i, plugin_name))
 		end
 
 		-- Add engine config file to target
 		target:add("files", config_file)
 	end)
-	
-	add_rules("utils.bin2c", {extensions = {".json"}})
-
-	add_rules(
-		"IncludeConfigs",
-		"CommonPackages",
-		"BuildAsDLL")
 
 	set_default(false)
 	set_group("Ryu")

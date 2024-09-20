@@ -1,5 +1,4 @@
 target("RyuTestbench")
-	set_default(true)
 	add_rules("IncludeConfigs", "CommonPackages")
 	add_rules("win.sdk.application")
 

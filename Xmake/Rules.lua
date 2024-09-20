@@ -112,8 +112,6 @@ rule("RyuPlugin")
 	add_deps("BuildAsDLL")
 
 	on_config(function (target)
-		target:set("policy", "build.fence", false)	
-
 		-- What is this plugin being built for? (Editor or Engine) -> decides where to put generated files
 		local plugin_for = target:extraconf("rules", "RyuPlugin", "built_for")
 		if plugin_for == nil then
@@ -152,9 +150,12 @@ rule("RyuPlugin")
 		for _, dep in ipairs(plugin_deps) do
 			local name = dep["Name"]
 			local create_link = dep["CreateLink"]
-			
+
+			if name == "RyuEngine" then
+				raise(format("[RyuPlugin] \'RyuEngine\' cannot be a dependency of a plugin! Remove it from the plugin (%s) config file.", plugin_config["Name"]))
+			end
+
 			target:add("deps", name)
-			
 			if create_link == true then
 				target:add("links", name)
 			end

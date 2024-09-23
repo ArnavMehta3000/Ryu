@@ -4,6 +4,13 @@
 # These directories and files will be scanned when a workspace is opened so that search etc. works.
 ../Ryu/
 
+[ignore]
+.xmake
+.vs
+build
+vsxmake2022
+RyuLog.txt
+
 [allow]
 *.ryuplugin
 
@@ -36,27 +43,3 @@ build_working_dir: %PROJECT_CONFIG_DIR%
 [Clean All]
 build_command: xmake clean -a
 build_working_dir: %PROJECT_CONFIG_DIR%
-
-
-# Example error regexes:
-# For jai:    ^(?P<file>.*):(?P<line>\d+),(?P<col>\d+): (?P<type>Error|Warning|Info|...):* (?P<msg>.*)|^(?P<msg1>.*error LNK.*)
-# For msvc:   ^(?P<file>.*)\((?P<line>\d+),?(?P<col>\d+)?\)[ ]?: (?P<type>error|warning) (?P<msg>.*)$
-# For golang: ^(?P<file>.*):(?P<line>\d+):(?P<col>\d+): (?P<msg>.*)$
-# For gcc:    ^(?P<file>.*):(?P<line>\d+):(?P<col>\d+): (?P<type>error|warning): (?P<msg>.*) (\[(?P<msg1>.*)\])?$
-# ... let us know what regex works for you and we'll add it here
-
-# NOTE:
-# You can use the following variables in build_command or run_command:
-# %FILE%      - full path to currenly active file
-# %FILE_DIR%  - the directory of the currently active file
-# %FILE_NAME% - current file name, with extension
-# %FILE_NAME_NO_EXTENSION% - current file name, without extension
-# %BUILD_WORKING_DIR% - working dir of the build command
-# %RUN_WORKING_DIR%   - working dir of the run command
-
-
-
-# NOTE: You can override any section from the global config in your project and it will be used when your project is active.
-#       Some sections, such as [[workspace]] or [[build commands]], will completely replace those in the global config,
-#       while other sections such as [[keymap]] or [[style]] will try to merge with the corresponding sections in the global
-#       config, allowing to override only some of the keys or colors.

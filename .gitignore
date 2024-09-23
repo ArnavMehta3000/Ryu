@@ -1,4 +1,5 @@
 .xmake
+.vs
 vsxmake2022
 build
 RyuLog.txt

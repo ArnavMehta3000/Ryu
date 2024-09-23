@@ -6,3 +6,6 @@ add_requires("backward-cpp", { debug = is_mode("debug") })
 
 -- Add nlohmann_json package
 add_requires("nlohmann_json")
+
+-- Add dx12 headers
+add_requires("directx-headers")

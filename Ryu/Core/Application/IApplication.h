@@ -15,8 +15,8 @@ namespace Ryu
 		IApplication(const Window::Config& wndConfig = Window::Config()) : m_window(wndConfig) {}
 		virtual ~IApplication() = default;
 
-		NODISCARD inline const Window& GetWindow() const { return m_window; }
-		NODISCARD inline bool IsRunning() const { return m_isRunning; }
+		inline NODISCARD const Window& GetWindow() const { return m_window; }
+		inline NODISCARD bool IsRunning() const { return m_isRunning; }
 		inline void Quit() { m_isRunning = false; }
 
 		virtual NODISCARD bool OnInit() = 0;

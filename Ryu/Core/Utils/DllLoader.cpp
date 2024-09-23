@@ -1,4 +1,4 @@
-#include "DLLLoader.h"
+#include "DllLoader.h"
 
 namespace Ryu
 {

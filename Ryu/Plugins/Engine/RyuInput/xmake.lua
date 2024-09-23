@@ -1,4 +1,5 @@
 target("RyuInput")
+	set_default(true)
 	add_rules("IncludeConfigs", "CommonPackages")
 	add_rules("RyuPlugin", { built_for = "Engine" })
 	add_includedirs("..", { public = true })

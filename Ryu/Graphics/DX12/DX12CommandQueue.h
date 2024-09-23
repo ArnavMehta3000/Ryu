@@ -3,6 +3,8 @@
 
 namespace Ryu::Graphics
 {
+	class DX12Device;
+
 	class DX12CommandQueue : ComPtr<ID3D12CommandQueue>
 	{
 	public:
@@ -13,7 +15,7 @@ namespace Ryu::Graphics
 		inline u64 GetCurrentFenceValue() const noexcept { return m_currentFenceValue; }
 
 		void Create(
-			ID3D12Device6* device, 
+			const DX12Device& device,
 			D3D12_COMMAND_QUEUE_PRIORITY priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
 			D3D12_COMMAND_LIST_TYPE type = D3D12_COMMAND_LIST_TYPE_DIRECT);
 		void Release();

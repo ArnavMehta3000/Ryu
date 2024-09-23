@@ -8,13 +8,11 @@
 namespace Ryu::Graphics
 {
 	RenderAPI::RenderAPI()
-		: m_device(nullptr)
 	{
 	}
 	
 	RenderAPI::~RenderAPI()
 	{
-		m_device.reset();
 	}
 
 	bool RenderAPI::Initialize(HWND hWnd)
@@ -31,8 +29,9 @@ namespace Ryu::Graphics
 			RYU_GFX_DEBUG("Selected adapter: {} | Vendor Id: {}", name, desc.VendorId);
 		}
 
-		m_device = std::make_unique<DX12Device>(adapter);
-		m_commandQueue.Create(m_device->Get(), D3D12_COMMAND_QUEUE_PRIORITY_HIGH);
+		m_device.Create(adapter);
+		m_commandQueue.Create(m_device, D3D12_COMMAND_QUEUE_PRIORITY_HIGH);
+		m_commandList.Create(m_device);
 
 		RYU_GFX_TRACE("Finished initializing RenderAPI");
 		return true;
@@ -40,7 +39,8 @@ namespace Ryu::Graphics
 
 	void RenderAPI::Shutdown()
 	{
+		m_commandList.Release();
 		m_commandQueue.Release();
-		m_device->Release();
+		m_device.Release();
 	}
 }

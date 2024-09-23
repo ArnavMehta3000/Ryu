@@ -1,4 +1,5 @@
 #include "DX12CommandQueue.h"
+#include <Graphics/DX12/DX12Device.h>
 
 namespace Ryu::Graphics
 {
@@ -7,9 +8,9 @@ namespace Ryu::Graphics
 		Release();
 	}
 
-	void DX12CommandQueue::Create(ID3D12Device6* device, D3D12_COMMAND_QUEUE_PRIORITY priority, D3D12_COMMAND_LIST_TYPE type)
+	void DX12CommandQueue::Create(const DX12Device& device, D3D12_COMMAND_QUEUE_PRIORITY priority, D3D12_COMMAND_LIST_TYPE type)
 	{
-		RYU_GFX_ASSERT(device, "Trying to create DX12CommandQueue with nullptr ID3D12Device6");
+		RYU_GFX_ASSERT(device, "Trying to create DX12CommandQueue with invalid DX12Device");
 
 		D3D12_COMMAND_QUEUE_DESC desc = {};
 		desc.NodeMask = 0;

@@ -4,7 +4,7 @@
 
 namespace Ryu::Graphics
 {
-	DX12Device::DX12Device(DXGIAdapter adapter)
+	void DX12Device::Create(DXGIAdapter adapter)
 	{
 		if (adapter == nullptr)
 		{
@@ -30,10 +30,7 @@ namespace Ryu::Graphics
 
 	DX12Device::~DX12Device()
 	{
-		if (Get())
-		{
-			Release();
-		}
+		Release();
 	}
 
 	DX12DebugDevice DX12Device::GetDebugDevice() const
@@ -43,16 +40,18 @@ namespace Ryu::Graphics
 
 	void DX12Device::Release()
 	{
-#if defined(RYU_BUILD_DEBUG)
+		if (Get())
 		{
-			ComPtr<ID3D12InfoQueue> infoQueue;
-			if (SUCCEEDED(As(&infoQueue)))
+#if defined(RYU_BUILD_DEBUG)
 			{
-				infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, FALSE);
-				infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
-				infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, FALSE);
+				ComPtr<ID3D12InfoQueue> infoQueue;
+				if (SUCCEEDED(As(&infoQueue)))
+				{
+					infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, FALSE);
+					infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
+					infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, FALSE);
+				}
 			}
-		}
 
 		DX12DebugDevice dbg = GetDebugDevice();
 		Reset();
@@ -60,6 +59,7 @@ namespace Ryu::Graphics
 #endif
 
 		Reset();
+		}
 	}
 }
 

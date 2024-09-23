@@ -10,9 +10,9 @@ namespace Ryu::Graphics
 	{
 	public:
 		DX12Device() = default;
-		explicit DX12Device(DXGIAdapter adapter);
 		~DX12Device();
 
+		void Create(DXGIAdapter adapter);
 		DX12DebugDevice GetDebugDevice() const;
 		void Release();
 	};

@@ -72,7 +72,7 @@ namespace Ryu
 
 	void Engine::AddInputCallbacks()
 	{
-		if (auto input = m_engineServices->ResolveService<Internal::IInputService>())
+		if (auto input = m_engineServices->ResolveService<IInputService>())
 		{
 			InputCallbacks callbacks;
 			callbacks.OnKeyDown         = [this](const auto& event) { m_application->OnEvent(event); };
@@ -155,7 +155,7 @@ namespace Ryu
 		RenderPlugins(PluginRenderOrder::PostRender, dt);
 	}
 
-	void Engine::TickPlugins(PluginTickOrder order, MAYBE_UNUSED const f32 dt)
+	void Engine::TickPlugins(PluginTickOrder order, const f32 dt)
 	{
 		auto& map = m_pluginManager.GetPluginsMap();
 		for (auto& [name, plugin] : map)
@@ -167,7 +167,7 @@ namespace Ryu
 		}
 	}
 
-	void Engine::RenderPlugins(PluginRenderOrder order, MAYBE_UNUSED const f32 dt)
+	void Engine::RenderPlugins(PluginRenderOrder order, const f32 dt)
 	{
 		auto& map = m_pluginManager.GetPluginsMap();
 		for (auto& [name, plugin] : map)

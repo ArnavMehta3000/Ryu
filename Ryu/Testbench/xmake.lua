@@ -3,7 +3,7 @@ target("RyuTestbench")
 	add_rules("win.sdk.application")
 
 	set_kind("binary")
-	set_group("Ryu")
+	set_group("Ryu/Tests")
 
 	add_includedirs("..")
 	add_files("**.cpp")

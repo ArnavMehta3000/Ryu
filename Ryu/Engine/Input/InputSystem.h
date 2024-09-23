@@ -6,17 +6,14 @@
 
 namespace Ryu
 {
-	namespace Internal
+	class RYU_API IInputService : public IService
 	{
-		class RYU_API IInputService : public IService
-		{
-		public:
-			virtual ~IInputService() = default;
-			virtual void AddInputCallbacks(const InputCallbacks& callbacks) = 0;
-		};
-	}
-
-	class RYU_API InputSystem : public ServiceBase<Internal::IInputService>
+	public:
+		virtual ~IInputService() = default;
+		virtual void AddInputCallbacks(const InputCallbacks& callbacks) = 0;
+	};
+	
+	class RYU_API InputSystem : public ServiceBase<IInputService>
 	{
 	public:
 		InputSystem(HWND window);

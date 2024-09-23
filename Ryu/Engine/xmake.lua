@@ -65,6 +65,6 @@ target("RyuEngine")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
 
-	add_deps("RyuCore")
-	add_links("RyuCore")
+	add_deps("RyuCore", "RyuGraphics")
+	add_links("RyuCore", "RyuGraphics")
 target_end()

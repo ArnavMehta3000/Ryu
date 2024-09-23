@@ -4,7 +4,7 @@
 #include <Core/Service/ServiceLocator.h>
 #include <Engine/Core/Application.h>
 #include <Engine/Input/InputSystem.h>
-#include <memory>
+#include <Graphics/RenderAPI.h>
 
 namespace Ryu
 {	
@@ -59,6 +59,7 @@ namespace Ryu
 	private:
 		std::unique_ptr<Application> m_application;
 		std::shared_ptr<ServiceLocator> m_engineServices;
+		std::unique_ptr<Graphics::RenderAPI> m_renderAPI;
 		PluginManager m_pluginManager;
 	};
 

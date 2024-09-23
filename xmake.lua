@@ -56,6 +56,7 @@ end
 
 add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "WIN32_LEAN_AND_MEAN")
 add_links("user32.lib")
+set_runtimes(is_mode("debug") and "MDd" or "MD")
 
 -- Add compilation success to all targets
 add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })

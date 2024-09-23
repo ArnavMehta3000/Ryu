@@ -25,6 +25,7 @@ namespace Ryu
 		: m_application(nullptr)
 		, m_engineServices(nullptr)
 	{
+		m_engineServices = std::make_shared<ServiceLocator>();
 	}
 
 	Engine::~Engine() = default;
@@ -46,8 +47,6 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Initializing engine");
 
-		m_engineServices = std::make_shared<ServiceLocator>();
-
 		if (!m_application->OnInit())
 		{
 			RYU_ENGINE_FATAL("Failed to initialize application!");
@@ -62,7 +61,6 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Post-initializing engine");
 
-		// Register input system
 		m_engineServices->RegisterService(std::make_shared<InputSystem>(m_application->GetWindow()));
 
 		InitializePlugins(PluginLoadOrder::PostInit);

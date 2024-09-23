@@ -4,6 +4,7 @@
 #include <Engine/Internal/Log.h>
 #include <filesystem>
 #include <chrono>
+#include <future>
 #include <nlohmann/json.hpp>
 
 namespace Ryu
@@ -23,6 +24,7 @@ namespace Ryu
 
 	Engine::Engine()
 		: m_application(nullptr)
+		, m_renderAPI(nullptr)
 		, m_engineServices(nullptr)
 	{
 		m_engineServices = std::make_shared<ServiceLocator>();
@@ -60,11 +62,17 @@ namespace Ryu
 	bool Engine::PostInit()
 	{
 		RYU_ENGINE_DEBUG("Post-initializing engine");
-
-		m_engineServices->RegisterService(std::make_shared<InputSystem>(m_application->GetWindow()));
+		
+		HWND hWnd = m_application->GetWindow();
+		m_renderAPI = std::make_unique<Graphics::RenderAPI>();
+		//auto gfxInit = std::async(std::launch::async, [this, hWnd]() { return m_renderAPI->Initialize(hWnd); });
+		m_renderAPI->Initialize(hWnd);
+		m_engineServices->RegisterService(std::make_shared<InputSystem>(hWnd));
 
 		InitializePlugins(PluginLoadOrder::PostInit);
 		AddInputCallbacks();
+
+		//RYU_ENGINE_ASSERT(gfxInit.get(), "Failed to initialize render API");
 
 		RYU_ENGINE_TRACE("Finished post-initializing engine");
 		return true;
@@ -184,6 +192,11 @@ namespace Ryu
 		RYU_ENGINE_DEBUG("Shutting down engine");
 
 		DestroyPlugins();
+
+		if (m_renderAPI)
+		{
+			m_renderAPI->Shutdown();
+		}
 
 		m_application->OnShutdown();
 		m_application.reset();

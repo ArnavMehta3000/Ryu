@@ -11,5 +11,5 @@ target("RyuGraphics")
 	add_headerfiles("**.h")
 
 	add_deps("RyuCore")
-	add_links("RyuCore")
+	add_links("RyuCore", "d3d12", "dxgi", "dxguid")
 target_end()

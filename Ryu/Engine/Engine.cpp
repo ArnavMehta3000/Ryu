@@ -1,7 +1,7 @@
 #include "Engine.h"
-#include <Engine/Internal/Log.h>
 #include <Core/Utils/StringConv.h>
-#include <Core/Application/IInputInterface.h>
+#include <Engine/Input/InputSystem.h>
+#include <Engine/Internal/Log.h>
 #include <filesystem>
 #include <chrono>
 #include <nlohmann/json.hpp>
@@ -23,6 +23,7 @@ namespace Ryu
 
 	Engine::Engine()
 		: m_application(nullptr)
+		, m_engineServices(nullptr)
 	{
 	}
 
@@ -45,6 +46,8 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Initializing engine");
 
+		m_engineServices = std::make_shared<ServiceLocator>();
+
 		if (!m_application->OnInit())
 		{
 			RYU_ENGINE_FATAL("Failed to initialize application!");
@@ -59,6 +62,9 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Post-initializing engine");
 
+		// Register input system
+		m_engineServices->RegisterService(std::make_shared<InputSystem>(m_application->GetWindow()));
+
 		InitializePlugins(PluginLoadOrder::PostInit);
 		AddInputCallbacks();
 
@@ -68,9 +74,9 @@ namespace Ryu
 
 	void Engine::AddInputCallbacks()
 	{
-		if (Input::IInputInterface* input = m_pluginManager.GetPlugin<Input::IInputInterface*>("RyuInput"))
+		if (auto input = m_engineServices->ResolveService<Internal::IInputService>())
 		{
-			Input::InputCallbacks callbacks;
+			InputCallbacks callbacks;
 			callbacks.OnKeyDown         = [this](const auto& event) { m_application->OnEvent(event); };
 			callbacks.OnKeyUp           = [this](const auto& event) { m_application->OnEvent(event); };
 			callbacks.OnMouseButtonUp   = [this](const auto& event) { m_application->OnEvent(event); };

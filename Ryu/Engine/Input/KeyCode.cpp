@@ -1,7 +1,7 @@
 #include "KeyCode.h"
-#include <Plugins/Engine/RyuInput/Generated/RyuInputLog.h>
+#include <Engine/Internal/Log.h>
 
-namespace Ryu::Input
+namespace Ryu
 {
 	std::expected<KeyCode, bool> IsValidKeyCodeValue(u32 value)
 	{
@@ -148,7 +148,7 @@ namespace Ryu::Input
 		case Quote:
 			return keyCode;
 		default:
-			PLUGIN_ERROR("Unknown KeyCode: {}", value);
+			RYU_ENGINE_ERROR("Unknown KeyCode: {}", value);
 			return std::unexpected(false);
 		}
 	}
@@ -174,7 +174,7 @@ namespace Ryu::Input
 		case XButton2:
 			return btn;
 		default:
-			PLUGIN_ERROR("Unknown mouse button: {}", value);
+			RYU_ENGINE_ERROR("Unknown mouse button: {}", value);
 			return std::unexpected(false);
 		}
 	}

@@ -1,8 +1,8 @@
 #pragma once
-#include <RyuInput/KeyCode.h>
+#include <Engine/Input/KeyCode.h>
 #include <unordered_map>
 
-namespace Ryu::Input
+namespace Ryu
 {
 	struct InputCallbacks;
 

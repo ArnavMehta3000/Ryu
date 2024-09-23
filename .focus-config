@@ -5,6 +5,7 @@
 ../Ryu/
 
 [ignore]
+.git
 .xmake
 .vs
 build

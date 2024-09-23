@@ -1,10 +1,10 @@
 #pragma once
 #include <Core/ObjectMacros.h>
-#include <Plugins/Engine/RyuInput/KeyCode.h>
 #include <Core/Event/EventListener.h>
+#include <Engine/Input/KeyCode.h>
 #include <functional>
 
-namespace Ryu::Input
+namespace Ryu
 {
 	namespace Events
 	{
@@ -130,30 +130,30 @@ namespace Ryu::Input
 
 	// Base class that only listens to keyboard events
 	class RYU_API KeyboardEventListener
-		: public EventListener<Input::Events::OnKeyDown>
-		, public EventListener<Input::Events::OnKeyUp>
+		: public EventListener<Events::OnKeyDown>
+		, public EventListener<Events::OnKeyUp>
 	{
 	protected:
-		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnKeyDown& event) {}
-		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnKeyUp& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Events::OnKeyDown& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Events::OnKeyUp& event) {}
 	};
 
 	// Base class that only listens to mouse events
 	class RYU_API MouseEventListener
-		: public EventListener<Input::Events::OnMouseButtonUp>
-		, public EventListener<Input::Events::OnMouseButtonDown>
-		, public EventListener<Input::Events::OnMouseDblClick>
-		, public EventListener<Input::Events::OnMouseMove>
-		, public EventListener<Input::Events::OnMouseMoveRaw>
-		, public EventListener<Input::Events::OnMouseWheel>
+		: public EventListener<Events::OnMouseButtonUp>
+		, public EventListener<Events::OnMouseButtonDown>
+		, public EventListener<Events::OnMouseDblClick>
+		, public EventListener<Events::OnMouseMove>
+		, public EventListener<Events::OnMouseMoveRaw>
+		, public EventListener<Events::OnMouseWheel>
 	{
 	protected:
-		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseButtonUp& event) {}
-		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseButtonDown& event) {}
-		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseDblClick& event) {}
-		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMove& event) {}
-		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMoveRaw& event) {}
-		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseWheel& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Events::OnMouseButtonUp& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Events::OnMouseButtonDown& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Events::OnMouseDblClick& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Events::OnMouseMove& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Events::OnMouseMoveRaw& event) {}
+		virtual void OnEvent(MAYBE_UNUSED const Events::OnMouseWheel& event) {}
 	};
 
 	// Base class that listens to all input devices events

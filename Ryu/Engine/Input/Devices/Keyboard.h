@@ -1,11 +1,10 @@
 #pragma once
-#include <RyuInput/KeyCode.h>
+#include <Engine/Input/KeyCode.h>
+#include <Engine/Input/InputEvents.h>
 #include <unordered_map>
 
-namespace Ryu::Input
+namespace Ryu
 {
-	struct InputCallbacks;
-
 	class RYU_API Keyboard
 	{
 		friend class InputSystem;

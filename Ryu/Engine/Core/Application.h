@@ -1,13 +1,13 @@
 #pragma once
 #include <Core/Includes.h>
 #include <Core/Application/IApplication.h>
-#include <Plugins/Engine/RyuInput/InputEvents.h>
+#include <Engine/Input/InputEvents.h>
 
 namespace Ryu
 {
 	class RYU_API Application 
 		: public IApplication
-		, Input::InputEventListener
+		, public InputEventListener
 	{
 	public:
 		RYU_DISABLE_COPY_AND_MOVE(Application);
@@ -22,14 +22,14 @@ namespace Ryu
 		virtual void OnRender(const f32 dt) override;
 		virtual void OnShutdown() override;
 
-		virtual void OnEvent(const Input::Events::OnKeyDown& event) override;
-		virtual void OnEvent(const Input::Events::OnKeyUp& event) override;
-		virtual void OnEvent(const Input::Events::OnMouseButtonUp& event) override;
-		virtual void OnEvent(const Input::Events::OnMouseButtonDown& event) override;
-		virtual void OnEvent(const Input::Events::OnMouseDblClick& event) override;
-		virtual void OnEvent(const Input::Events::OnMouseMove& event) override;
-		virtual void OnEvent(const Input::Events::OnMouseMoveRaw& event) override;
-		virtual void OnEvent(const Input::Events::OnMouseWheel& event) override;
+		virtual void OnEvent(const Events::OnKeyDown& event) override;
+		virtual void OnEvent(const Events::OnKeyUp& event) override;
+		virtual void OnEvent(const Events::OnMouseButtonUp& event) override;
+		virtual void OnEvent(const Events::OnMouseButtonDown& event) override;
+		virtual void OnEvent(const Events::OnMouseDblClick& event) override;
+		virtual void OnEvent(const Events::OnMouseMove& event) override;
+		virtual void OnEvent(const Events::OnMouseMoveRaw& event) override;
+		virtual void OnEvent(const Events::OnMouseWheel& event) override;
 
 	private:
 		static Application* s_instance;

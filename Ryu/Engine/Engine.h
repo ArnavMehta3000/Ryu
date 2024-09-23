@@ -1,7 +1,9 @@
 #pragma once
 #include <Core/Includes.h>
-#include <Engine/Core/Application.h>
 #include <Core/Plugin/PluginManager.h>
+#include <Core/Service/ServiceLocator.h>
+#include <Engine/Core/Application.h>
+#include <Engine/Input/InputSystem.h>
 #include <memory>
 
 namespace Ryu
@@ -28,6 +30,12 @@ namespace Ryu
 			m_application = std::make_unique<T>(std::forward<Args>(args)...);
 		}
 
+		template <typename T>
+		std::shared_ptr<T> GetService() const
+		{
+			return m_engineServices->ResolveService<T>();
+		}
+
 		inline Application* GetApplication() const { return m_application.get(); }
 
 		void Run();
@@ -50,6 +58,7 @@ namespace Ryu
 
 	private:
 		std::unique_ptr<Application> m_application;
+		std::shared_ptr<ServiceLocator> m_engineServices;
 		PluginManager m_pluginManager;
 	};
 

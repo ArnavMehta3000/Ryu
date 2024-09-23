@@ -3,7 +3,7 @@
 #include <expected>
 #include <Windows.h>
 
-namespace Ryu::Input
+namespace Ryu
 {
 	enum class RYU_API KeyCode : u32
 	{

@@ -87,9 +87,9 @@ namespace Ryu::Graphics
 	{
 		if (Get())
 		{
-			Reset();
 			ReleaseBuffers();
 			m_rtvHeap.Reset();
+			Reset();
 		}
 	}
 
@@ -110,7 +110,7 @@ namespace Ryu::Graphics
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC desc{};
 		desc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		desc.NumDescriptors = m_renderTargets.size();
+		desc.NumDescriptors = u32(m_renderTargets.size());
 		desc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		desc.NodeMask       = 0;
 
@@ -129,7 +129,7 @@ namespace Ryu::Graphics
 			auto& rt = m_renderTargets[i];
 			
 			rt.Reset();
-			RYU_GFX_ASSERTHR(hr = Get()->GetBuffer(i, IID_PPV_ARGS(rt.ReleaseAndGetAddressOf())), "Failed to create DXGISwapChain buffer at index {}", i);
+			RYU_GFX_ASSERTHR(hr = Get()->GetBuffer(i, IID_PPV_ARGS(rt.ReleaseAndGetAddressOf())), ("Failed to create DXGISwapChain buffer at index {}", i));
 		
 			CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), i, m_heapIncrement);
 			m_device->CreateRenderTargetView(rt.Get(), 0, cpuHandle);

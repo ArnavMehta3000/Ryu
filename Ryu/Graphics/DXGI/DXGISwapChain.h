@@ -20,6 +20,8 @@ namespace Ryu::Graphics
 		void Present();
 		void Release();
 
+		CD3DX12_CPU_DESCRIPTOR_HANDLE GetCurrentRTVHandle() const;
+
 	private:
 		void ReleaseBuffers();
 		void CreateDescriptorHeaps();

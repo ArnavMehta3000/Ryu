@@ -22,6 +22,7 @@ namespace Ryu::Graphics
 				infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
 				infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
 			}
+			
 #endif
 
 			Get()->SetName(L"DX12Device");

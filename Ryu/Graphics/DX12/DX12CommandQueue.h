@@ -5,7 +5,7 @@ namespace Ryu::Graphics
 {
 	class DX12Device;
 
-	class DX12CommandQueue : ComPtr<ID3D12CommandQueue>
+	class DX12CommandQueue : public ComPtr<ID3D12CommandQueue>
 	{
 	public:
 		DX12CommandQueue() = default;

@@ -4,7 +4,6 @@
 #include <Engine/Internal/Log.h>
 #include <filesystem>
 #include <chrono>
-#include <future>
 #include <nlohmann/json.hpp>
 
 namespace Ryu
@@ -64,15 +63,15 @@ namespace Ryu
 		RYU_ENGINE_DEBUG("Post-initializing engine");
 		
 		HWND hWnd = m_application->GetWindow();
+		const Window::Config& config = m_application->GetWindow().GetConfig();
+
 		m_renderAPI = std::make_unique<Graphics::RenderAPI>();
-		//auto gfxInit = std::async(std::launch::async, [this, hWnd]() { return m_renderAPI->Initialize(hWnd); });
-		m_renderAPI->Initialize(hWnd);
+		m_renderAPI->Initialize(hWnd, config.Width, config.Height);
+		
 		m_engineServices->RegisterService(std::make_shared<InputSystem>(hWnd));
 
 		InitializePlugins(PluginLoadOrder::PostInit);
 		AddInputCallbacks();
-
-		//RYU_ENGINE_ASSERT(gfxInit.get(), "Failed to initialize render API");
 
 		RYU_ENGINE_TRACE("Finished post-initializing engine");
 		return true;

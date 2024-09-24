@@ -10,6 +10,6 @@ namespace Ryu::Graphics
 	public:
 		DXGIFactory();
 		DXGIAdapter GetAdapter();
-		bool HasTearingSupport();
+		bool HasTearingSupport() const;
 	};
 }

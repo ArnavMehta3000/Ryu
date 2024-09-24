@@ -10,4 +10,4 @@
 #define RYU_ENGINE_INFO(...)               RYU_CORE_LOG_INFO(Engine, __VA_ARGS__)
 #define RYU_ENGINE_DEBUG(...)              RYU_CORE_LOG_DEBUG(Engine, __VA_ARGS__)
 #define RYU_ENGINE_TRACE(...)              RYU_CORE_LOG_TRACE(Engine, __VA_ARGS__)
-#define RYU_ENGINE_ASSERT(cond, message)   RYU_CORE_ASSERT(Engine, cond, message)
+#define RYU_ENGINE_ASSERT(cond, ...)       RYU_CORE_ASSERT(Engine, cond, __VA_ARGS__)

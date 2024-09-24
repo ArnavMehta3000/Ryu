@@ -41,6 +41,7 @@ namespace Ryu
 		virtual ~Window();
 		NODISCARD inline HWND GetHandle() const { return m_hWnd; }
 		NODISCARD inline bool IsOpen() const { return m_isOpen; }
+		NODISCARD inline const Window::Config& GetConfig() const { return m_config; }
 		NODISCARD inline bool IsActivated() const { return m_activated; }
 		virtual bool Init() override;
 		void Show();

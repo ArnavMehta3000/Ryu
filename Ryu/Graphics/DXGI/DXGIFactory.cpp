@@ -31,7 +31,7 @@ namespace Ryu::Graphics
 		return DXGIAdapter(adapter.Get());
 	}
 
-	bool DXGIFactory::HasTearingSupport()
+	bool DXGIFactory::HasTearingSupport() const
 	{
 		BOOL allowTearing = FALSE;
 		if (SUCCEEDED(Get()->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing))))

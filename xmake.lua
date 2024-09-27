@@ -18,6 +18,7 @@ includes("Xmake/Rules/GenConfigs.lua")
 includes("Xmake/Rules/CommonPackages.lua")
 includes("Xmake/Rules/BuildAsDLL.lua")
 includes("Xmake/Rules/RyuPlugin.lua")
+includes("Xmake/Rules/RadDebug.lua")
 
 -- Build debug mode by default
 set_defaultmode("debug")

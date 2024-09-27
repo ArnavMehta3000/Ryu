@@ -1,8 +1,5 @@
--- Editor uses imgui
-add_requires("imgui docking", { configs= { dx11 = true, win32 = true }})
-
 target("RyuEditor")
-	add_rules("IncludeConfigs", "CommonPackages")
+	add_rules("IncludeConfigs", "CommonPackages", "RadDebug")
 	add_rules("win.sdk.application")
 	add_packages("imgui")
 
@@ -16,4 +13,18 @@ target("RyuEditor")
 
 	add_deps("RyuEngine", { inherit = true })
 	add_links("RyuEngine")
+
+	on_run(function (target)
+		local run_editor = function (t)
+			os.exec(target:targetfile())
+		end
+
+		if has_config("use-raddbg") then
+			local rad_path = get_config("raddbg-path")
+			print("Running Rad Debugger")
+			os.execv(rad_path, { target:targetfile() })
+		else
+			os.exec(target:targetfile())
+		end
+	end)
 target_end()

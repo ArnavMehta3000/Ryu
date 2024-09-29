@@ -4,29 +4,35 @@
 
 namespace Ryu::Graphics
 {
-	void DX12Device::Create(DXGIAdapter adapter)
+	CreateResult<DX12Device::InterfaceType*> DX12Device::Create(const DXGIAdapter& adapter)
 	{
-		if (adapter == nullptr)
-		{
-			RYU_GFX_WARN("Trying to create DX12Device with nullptr DXGIAdapter");
-			return;
-		}
+		RYU_GFX_ASSERT(adapter, "Trying to create DX12Device with invalid DXGIAdapter");
 
-		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(ReleaseAndGetAddressOf()))))
+		ComPtr<DX12Device::InterfaceType> outDevice;
+		HRESULT hr = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&outDevice));
+		if (SUCCEEDED(hr))
 		{
 #if defined(RYU_BUILD_DEBUG)
 			ComPtr<ID3D12InfoQueue> infoQueue;
-			if (SUCCEEDED(As(&infoQueue)))
+			if (SUCCEEDED(outDevice.As(&infoQueue)))
 			{
 				infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
 				infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
 				infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
 			}
-			
 #endif
-
-			Get()->SetName(L"DX12Device");
+			outDevice->SetName(L"DX12Device");
+			RYU_GFX_DEBUG("Created DX12Device");
+			
+			return outDevice.Detach();
 		}
+
+		return std::unexpected(hr);
+	}
+
+	DX12Device::DX12Device(InterfaceType* ptr)
+		: ComPtr(ptr)
+	{
 	}
 
 	DX12Device::~DX12Device()
@@ -44,7 +50,7 @@ namespace Ryu::Graphics
 		if (Get())
 		{
 #if defined(RYU_BUILD_DEBUG)
-			{
+			{  // Revert breakpoint changes
 				ComPtr<ID3D12InfoQueue> infoQueue;
 				if (SUCCEEDED(As(&infoQueue)))
 				{
@@ -54,12 +60,11 @@ namespace Ryu::Graphics
 				}
 			}
 
-		DX12DebugDevice dbg = GetDebugDevice();
-		Reset();
-		dbg->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+			DX12DebugDevice dbg(Get());
+			Reset();
+			dbg->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
 #endif
-
-		Reset();
+			Reset();
 		}
 	}
 }

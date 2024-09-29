@@ -16,7 +16,7 @@ namespace Ryu::Editor
 			{ 
 				.Title = L"Ryu Editor",
 				.Instance = hInst,
-				.Type = Window::Type::Resizeable,
+				.Type = Window::Type::Static,
 				.Width = 1280,
 				.Height = 720,
 			})

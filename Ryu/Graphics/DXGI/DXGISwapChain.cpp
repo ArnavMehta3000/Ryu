@@ -75,6 +75,8 @@ namespace Ryu::Graphics
 
 		RYU_GFX_ASSERTHR(hr = sc->QueryInterface(IID_PPV_ARGS(ReleaseAndGetAddressOf())), "Failed to convert to IDXGISwapChain4");
 		CreateBuffers();
+
+		RYU_GFX_DEBUG("Created DXGISwapChain");
 	}
 
 	void DXGISwapChain::Present()
@@ -95,7 +97,7 @@ namespace Ryu::Graphics
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE DXGISwapChain::GetCurrentRTVHandle() const
 	{
-		return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_currentBuffer, m_heapIncrement);
+		return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
 	void DXGISwapChain::ReleaseBuffers()
@@ -131,7 +133,7 @@ namespace Ryu::Graphics
 			rt.Reset();
 			RYU_GFX_ASSERTHR(hr = Get()->GetBuffer(i, IID_PPV_ARGS(rt.ReleaseAndGetAddressOf())), ("Failed to create DXGISwapChain buffer at index {}", i));
 		
-			CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), i, m_heapIncrement);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 			m_device->CreateRenderTargetView(rt.Get(), 0, cpuHandle);
 		}
 	}

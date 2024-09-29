@@ -8,7 +8,7 @@
 namespace Ryu
 {
 	template <class Base, class... Args>
-	class RYU_API Factory
+	class Factory
 	{
 		friend Base;
 	public:
@@ -35,7 +35,7 @@ namespace Ryu
 	private:
 		class Key
 		{
-			Key();
+			Key() {}
 			template <class T> friend struct Registrar;
 		};
 

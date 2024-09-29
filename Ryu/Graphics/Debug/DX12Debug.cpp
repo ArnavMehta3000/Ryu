@@ -2,10 +2,21 @@
 
 namespace Ryu::Graphics
 {
-	DX12Debug::DX12Debug()
+	DX12Debug::DX12Debug(InterfaceType* ptr)
+		: ComPtr(ptr) 
 	{
-		ComPtr<ID3D12Debug> debugInterface;
-		HRESULT hr = S_OK;
-		RYU_GFX_ASSERTHR(hr = D3D12GetDebugInterface(IID_PPV_ARGS(GetAddressOf())), "Failed to get ID3D12Debug interface");
+	}
+
+	CreateResult<DX12Debug::InterfaceType*> DX12Debug::Create()
+	{
+		DX12Debug::InterfaceType* debug;
+		HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
+		
+		if (FAILED(hr))
+		{
+			return std::unexpected(hr);
+		}
+
+		return debug;
 	}
 }

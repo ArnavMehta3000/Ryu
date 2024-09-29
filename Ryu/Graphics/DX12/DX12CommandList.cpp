@@ -3,12 +3,17 @@
 
 namespace Ryu::Graphics
 {
+	DX12CommandList::DX12CommandList(InterfaceType* ptr)
+		: ComPtr(ptr)
+	{
+	}
+
 	DX12CommandList::~DX12CommandList()
 	{
 		Release();
 	}
 
-	void DX12CommandList::Create(const DX12Device& device, D3D12_COMMAND_LIST_TYPE type)
+	CreateResult<DX12CommandList::InterfaceType*> DX12CommandList::Create(const DX12Device& device, D3D12_COMMAND_LIST_TYPE type)
 	{
 		RYU_GFX_ASSERT(device, "Trying to create DX12CommandList with invalid DX12Device");
 		
@@ -18,6 +23,16 @@ namespace Ryu::Graphics
 	
 		Get()->SetName(L"DX12CommandList");
 		m_allocator->SetName(L"DX12CommandAllocator");
+	}
+
+	void DX12CommandList::Init(const DX12Device& device)
+	{
+	}
+
+	void DX12CommandList::ResetCommandList()
+	{
+		m_allocator.Get()->Reset();
+		GetGFXCmdList()->Reset(m_allocator.Get(), nullptr);
 	}
 
 	void DX12CommandList::Release()

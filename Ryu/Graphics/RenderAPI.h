@@ -13,6 +13,7 @@ namespace Ryu::Graphics
 		~RenderAPI();
 		bool Initialize(HWND hWnd, u32 width, u32 height);
 		void Shutdown();
+		void Render();
 
 	private:
 		DX12Device m_device;

@@ -9,10 +9,11 @@ namespace Ryu::Graphics
 	class DX12Device : public ComPtr<ID3D12Device6>
 	{
 	public:
-		DX12Device() = default;
+		explicit DX12Device(InterfaceType* ptr);
 		~DX12Device();
 
-		void Create(DXGIAdapter adapter);
+		static NODISCARD CreateResult<InterfaceType*> Create(const DXGIAdapter& adapter);
+		
 		DX12DebugDevice GetDebugDevice() const;
 		void Release();
 	};

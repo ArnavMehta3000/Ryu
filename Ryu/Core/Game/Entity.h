@@ -1,10 +1,7 @@
 #pragma once
 #include <CoreDLLDefines.h>
+#include "Scripting/ScriptRegistry.h"
 
 namespace Ryu
 {
-	class RYU_API Entity
-	{
-
-	};
 }

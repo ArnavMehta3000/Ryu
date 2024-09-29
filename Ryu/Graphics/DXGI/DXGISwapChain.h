@@ -16,11 +16,14 @@ namespace Ryu::Graphics
 		DXGISwapChain();
 		~DXGISwapChain();
 
-		void Create(HWND hWnd, const DX12Device& device, const DXGIFactory& factory, const DX12CommandQueue& cmdQueue, u32 width, u32 height, DXGI_FORMAT format);
+		void Create(HWND hWnd, const DX12Device& device, const DXGIFactory& factory, 
+					const DX12CommandQueue& cmdQueue, u32 width, u32 height, 
+					DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM);
 		void Present();
 		void Release();
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE GetCurrentRTVHandle() const;
+		inline ID3D12Resource* GetCurrentRenderTarget() const { return m_renderTargets[m_currentBuffer].Get(); }
 
 	private:
 		void ReleaseBuffers();

@@ -4,35 +4,45 @@
 
 namespace Ryu::Graphics
 {
-	DXGIFactory::DXGIFactory()
+#define CHECK_FACTORY() if (!Get()) { RYU_GFX_ERROR("DXGIFactory is invalid"); }
+	
+	DXGIFactory::DXGIFactory(InterfaceType* ptr)
+		: ComPtr(ptr)
 	{
+	}
+
+	CreateResult<DXGIFactory::InterfaceType*> DXGIFactory::Create()
+	{
+		DXGIFactory::InterfaceType* outFactory;
+
 		u32 flags = 0;
 
 #if defined(RYU_BUILD_DEBUG)
 		flags |= DXGI_CREATE_FACTORY_DEBUG;
-		{
-			DX12Debug debug;
-			debug->EnableDebugLayer();
-		}
 #endif
 
-		RYU_GFX_ASSERTHR(CreateDXGIFactory2(flags, IID_PPV_ARGS(ReleaseAndGetAddressOf())), "Failed to create DXGI factory");
+		HRESULT hr = CreateDXGIFactory2(flags, IID_PPV_ARGS(&outFactory));
+		if (FAILED(hr))
+		{
+			return std::unexpected(hr);
+		}
+
+		return outFactory;
 	}
 
-	DXGIAdapter DXGIFactory::GetAdapter()
+	void DXGIFactory::GetAdapter(DXGIAdapter& outAdapter)
 	{
+		CHECK_FACTORY()
+
 		HRESULT hr S_OK;
-
-		ComPtr<IDXGIAdapter4> adapter;
-
-		hr = Get()->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter));
+		hr = Get()->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(outAdapter.ReleaseAndGetAddressOf()));
 		RYU_GFX_ASSERTHR(hr, "Failed to enumerate DXGI adapter by GPU preference (high performance)");
-
-		return DXGIAdapter(adapter.Get());
 	}
 
 	bool DXGIFactory::HasTearingSupport() const
 	{
+		CHECK_FACTORY()
+
 		BOOL allowTearing = FALSE;
 		if (SUCCEEDED(Get()->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing))))
 		{
@@ -41,4 +51,5 @@ namespace Ryu::Graphics
 
 		return allowTearing == TRUE;
 	}
+#undef CHECK_FACTORY
 }

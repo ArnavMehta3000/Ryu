@@ -8,8 +8,11 @@ namespace Ryu::Graphics
 	class DXGIFactory : public ComPtr<IDXGIFactory7>
 	{
 	public:
-		DXGIFactory();
-		DXGIAdapter GetAdapter();
+		DXGIFactory() = default;
+		explicit DXGIFactory(InterfaceType* ptr);
+		static NODISCARD CreateResult<InterfaceType*> Create();
+
+		void GetAdapter(DXGIAdapter& outAdapter);
 		bool HasTearingSupport() const;
 	};
 }

@@ -15,8 +15,8 @@ namespace Ryu
 	public:
 		enum class Type : DWORD
 		{
-			Static     = WS_OVERLAPPED,
-			Resizeable = WS_SIZEBOX,
+			Static     = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX,
+			Resizeable = WS_OVERLAPPEDWINDOW,
 			PopUp      = WS_POPUP
 		};
 
@@ -57,15 +57,8 @@ namespace Ryu
 
 	protected:
 		LRESULT MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
-		virtual void RedrawWindow();
-		virtual void OnNonClientCreate();
-		virtual void OnNonClientPaint(HRGN region);
-		virtual void OnNonClientActivate(bool active);
-		virtual void PaintCaption(HDC hdc);
-		virtual void OnNonClientLeftMouseButtonDown();
 		virtual void OnGetMinMaxInfo(MINMAXINFO* minmax);
 		virtual void OnExitSizeMove();
-		virtual void OnPaint();
 
 	private:
 		ResizeCallback m_resizeCallback;

@@ -6,6 +6,7 @@ namespace Ryu::Graphics
 	class DX12Debug : public ComPtr<ID3D12Debug5>
 	{
 	public:
-		DX12Debug();
+		explicit DX12Debug(InterfaceType* ptr);
+		static CreateResult<InterfaceType*> Create();
 	};
 }

@@ -7,8 +7,8 @@ namespace Ryu::Graphics
 	{
 	public:
 		DXGIAdapter() = default;
-		explicit DXGIAdapter(IDXGIAdapter4* adapter)
-			: ComPtr<IDXGIAdapter4>(adapter)
+		explicit DXGIAdapter(InterfaceType* adapter)
+			: ComPtr(adapter)
 		{
 		}
 	};

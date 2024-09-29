@@ -1,5 +1,6 @@
 #include "StringConv.h"
 #include <Windows.h>
+#include <comdef.h>
 
 namespace Ryu
 {
@@ -28,5 +29,12 @@ namespace Ryu
 	std::string_view StringFromBytes(const byte* data, size_t size)
 	{
 		return std::string_view(reinterpret_cast<const char*>(data), size);
+	}
+
+	std::string RYU_API HRToString(long hr)
+	{
+		HRESULT hres = static_cast<HRESULT>(hr);
+		_com_error err(hres);
+		return ToNarrowStr(err.ErrorMessage());
 	}
 }

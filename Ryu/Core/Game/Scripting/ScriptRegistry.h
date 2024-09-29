@@ -3,7 +3,7 @@
 
 namespace Ryu
 {
-	class NativeScript : public Factory<NativeScript, std::string_view>
+	class RYU_API NativeScript : public Factory<NativeScript, std::string_view>
 	{
 	public:
 		NativeScript(Key) {}
@@ -14,7 +14,7 @@ namespace Ryu
 }
 
 // TEST CODE
-class MyScript : public Ryu::NativeScript::Registrar<MyScript>
+class RYU_API MyScript : public Ryu::NativeScript::Registrar<MyScript>
 {
 public:
 	MyScript(std::string_view sv) : m_str(sv) {}
@@ -28,7 +28,7 @@ private:
 	std::string m_str;
 };
 
-void ExampleUse()
+inline void RYU_API ExampleUse()
 {
 	auto script = Ryu::NativeScript::Create(MyScript::GetStaticName(), "Hello World");
 	script->OnCreate();

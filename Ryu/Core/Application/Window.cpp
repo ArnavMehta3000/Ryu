@@ -87,7 +87,7 @@ namespace Ryu
 		WINDOWPLACEMENT wPos{};
 		::GetWindowPlacement(m_hWnd, &wPos);
 		::ShowWindow(m_hWnd, (wPos.showCmd == SW_MAXIMIZE) ? SW_NORMAL : SW_MAXIMIZE);
-		RYU_CORE_LOG_DEBUG(Core, "Toggled window to {}", (wPos.showCmd == SW_MAXIMIZE) ? "normal" : "maximized");
+		RYU_CORE_LOG_TRACE(Core, "Toggled window to {}", (wPos.showCmd == SW_MAXIMIZE) ? "normal" : "maximized");
 	}
 
 	void Window::PumpMessages()
@@ -102,11 +102,6 @@ namespace Ryu
 			if (msg.message == WM_QUIT)
 			{
 				m_isOpen = false;
-			}
-			
-			if (msg.message == WM_TIMER)
-			{
-				RedrawWindow();
 			}
 		}
 	}
@@ -149,54 +144,13 @@ namespace Ryu
 		case WM_ERASEBKGND:
 			return 0;
 
-		case WM_NCCREATE:
-		{
-			OnNonClientCreate();
-			return TRUE;
-		}
-
-		case WM_NCACTIVATE:
-		{
-			OnNonClientActivate(LOWORD(wParam) != WA_INACTIVE);
-			return 0;
-		}
-
-		case WM_NCPAINT:
-		{
-			OnNonClientPaint((HRGN)wParam);
-			return 0;
-		}
-
-		case WM_PAINT:
-		{
-			OnPaint();
-			return 0;
-		}
-
 		case WM_CLOSE: FALLTHROUGH;
 		case WM_DESTROY:
 		{
-			::KillTimer(hWnd, Caption::TIMER_ID);
 			m_isOpen = false;
 			return 0;
 		}
 
-		case WM_NCLBUTTONDOWN:
-		{
-			OnNonClientLeftMouseButtonDown();
-			break;
-		}
-
-		case WM_NCLBUTTONDBLCLK:
-		{
-			// Double clicked non-client region, toggle maximize if resizeable
-			if (m_config.Type == Type::Resizeable)
-			{
-				ToggleMaximize();
-				return 0;
-			}
-			break;
-		}
 		case WM_GETMINMAXINFO:
 		{
 			OnGetMinMaxInfo((MINMAXINFO*)(lParam));
@@ -208,189 +162,26 @@ namespace Ryu
 			OnExitSizeMove();
 			break;
 		}
+
+		case WM_SYSCOMMAND:
+		{
+			if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+				return 0;
+			break;
+		}
 		}
 
 		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
-	
-	void Window::RedrawWindow()
-	{
-		::SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_DRAWFRAME | SWP_FRAMECHANGED); // reset window
-		::SendMessage(m_hWnd, WM_PAINT, 0, 0);
-	}
-	
-	void Window::OnNonClientCreate()
-	{
-		BOOL flag = FALSE;
-		::SetUserObjectInformation(m_hWnd, UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &flag, sizeof(BOOL));
-
-		::SetTimer(m_hWnd, Caption::TIMER_ID, 50, (TIMERPROC)NULL);
-		::SetWindowTheme(m_hWnd, L"", L"");
-		ModifyClassStyle(0, CS_DROPSHADOW);
-
-		Caption::AddButton(Caption::Button(L"X", Caption::CLOSE));
-		if (m_config.Type != Type::Static)
-		{
-			Caption::AddButton(Caption::Button(L"🗖", Caption::MAXIMIZE));
-		}
-		Caption::AddButton(Caption::Button(L"🗕", Caption::MINIMIZE));
-	}	
-
-	void Window::OnNonClientPaint(HRGN region)
-	{
-		constexpr auto DCX_USESTYLE = 0x00010000;
-
-		HDC hdc = ::GetDCEx(m_hWnd, region, DCX_WINDOW | DCX_INTERSECTRGN | DCX_USESTYLE);
-
-		RECT rect;
-		::GetWindowRect(m_hWnd, &rect);
-		SIZE size = SIZE{ rect.right - rect.left, rect.bottom - rect.top };
-
-		const HBITMAP hbmMem = ::CreateCompatibleBitmap(hdc, size.cx, size.cy);
-		const HANDLE hOld    = ::SelectObject(hdc, hbmMem);
-		HBRUSH brush         = ::CreateSolidBrush(RGB(46, 46, 46));
-		const RECT newRect   = RECT{ 0, 0, size.cx, size.cy };
-
-		FillRect(hdc, &newRect, brush);
-
-		if (m_activated && !IsMaximized()) 
-		{
-			brush = ::CreateSolidBrush(RGB(0, 100, 150));
-			::FrameRect(hdc, &newRect, brush);
-		}
-
-		PaintCaption(hdc);
-		::DeleteObject(brush);
-
-		::BitBlt(hdc, 0, 0, size.cx, size.cy, hdc, 0, 0, SRCCOPY);
-
-		::SelectObject(hdc, hOld);
-		::DeleteObject(hbmMem);
-		::ReleaseDC(m_hWnd, hdc);
-	}
-
-	void Window::OnNonClientActivate(bool active)
-	{
-		m_activated = active;
-	}
-	
-	void Window::PaintCaption(HDC hdc)
-	{
-		RECT rect;
-		::GetWindowRect(m_hWnd, &rect);
-
-		SIZE size = SIZE{ rect.right - rect.left, rect.bottom - rect.top };
-
-		// Draw title
-		if (Caption::CanShowTitle()) 
-		{
-			rect = RECT{ 0, 0, size.cx, 30 };
-
-			SetBkMode(hdc, TRANSPARENT);
-			SetTextColor(hdc, m_activated ? RGB(255, 255, 255) : RGB(92, 92, 92));
-
-			DrawText(hdc, m_title.c_str(), u32(wcslen(m_title.c_str())), &rect, u32(DT_SINGLELINE | DT_VCENTER | DT_CENTER));
-		}
-
-
-		POINT pt;
-		u32 spacing = 0;
-		::GetCursorPos(&pt);
-		::GetWindowRect(m_hWnd, &rect);
-
-		pt.x -= rect.left;
-		pt.y -= rect.top;
-
 		
-		// Draw captions buttons
-		for (Ryu::Caption::Button& button : Caption::GetButtons())
-		{
-			spacing += button.Width;
-			button.Rect = RECT
-			{
-				size.cx - LONG(spacing),
-				0, 
-				size.cx - LONG(spacing)+ button.Width,
-				30
-			};
-
-			if (button.Rect.left < pt.x
-				&& button.Rect.right > pt.x
-				&& button.Rect.top < pt.y
-				&& button.Rect.bottom > pt.y) 
-			{
-
-				HBRUSH brush = ::CreateSolidBrush(RGB(92, 92, 92));
-				::FillRect(hdc, &button.Rect, brush);
-				::DeleteObject(brush);
-			}
-
-			if (button.Text.compare(L"🗖") == 0 && IsMaximized())
-{
-				button.Text = L"🗗";
-			}
-			else if (button.Text.compare(L"🗗") == 0 && !IsMaximized())
-			{
-				button.Text = L"🗖";
-			}
-
-			DrawText(hdc, button.Text.c_str(), u32(wcslen(button.Text.c_str())), &button.Rect, u32(DT_SINGLELINE | DT_VCENTER | DT_CENTER));
-		}
-	}
-	
-	void Window::OnNonClientLeftMouseButtonDown()
-	{
-		POINT pt;
-		RECT rect;
-		::GetCursorPos(&pt);
-		::GetWindowRect(m_hWnd, &rect);
-
-		pt.x -= rect.left;
-		pt.y -= rect.top;
-
-
-		for (Ryu::Caption::Button& button : Caption::GetButtons())
-		{
-			if (button.Rect.left < pt.x
-				&& button.Rect.right > pt.x
-				&& button.Rect.top < pt.y
-				&& button.Rect.bottom > pt.y)
-			{
-
-				switch (button.Command) 
-				{
-				case Caption::CLOSE:    { ::SendMessage(m_hWnd, WM_CLOSE, 0, 0); } break;
-				case Caption::MINIMIZE: { ::ShowWindow(m_hWnd, SW_MINIMIZE);     } break;
-				case Caption::MAXIMIZE: { ToggleMaximize();                      } break;
-				}
-			}
-
-		}
-	}
-	
 	void Window::OnGetMinMaxInfo(MINMAXINFO* minmax)
 	{
-		RECT WorkArea; ::SystemParametersInfo(SPI_GETWORKAREA, 0, &WorkArea, 0);
-		minmax->ptMaxSize.x      = (WorkArea.right - WorkArea.left);
-		minmax->ptMaxSize.y      = (WorkArea.bottom - WorkArea.top);
-		minmax->ptMaxPosition.x  = WorkArea.left;
-		minmax->ptMaxPosition.y  = WorkArea.top;
 		minmax->ptMinTrackSize.x = 400;
 		minmax->ptMinTrackSize.y = 300;
 	}
 	
 	void Window::OnExitSizeMove()
 	{
-		RECT rect;
-		::GetWindowRect(m_hWnd, &rect);
-		RECT WorkArea;
-		::SystemParametersInfo(SPI_GETWORKAREA, 0, &WorkArea, 0);
-		if (rect.top < WorkArea.top + 10 && !IsMaximized())
-		{
-			ToggleMaximize();
-		}
-
-		// Capture window size
 		RECT r{};
 		::GetClientRect(m_hWnd, &r);
 		m_config.Width = r.right - r.left;
@@ -404,18 +195,4 @@ namespace Ryu
 		}
 	}
 	
-	void Window::OnPaint()
-	{
-		PAINTSTRUCT ps;
-		RECT rc;
-
-		const HDC hdc = ::BeginPaint(m_hWnd, &ps);
-		::GetClientRect(m_hWnd, &rc);
-
-		const HBRUSH brush = ::CreateSolidBrush(RGB(36, 36, 36));
-
-		::FillRect(hdc, &rc, brush);
-		::DeleteObject(brush);
-		::EndPaint(m_hWnd, &ps);
-	}
 }

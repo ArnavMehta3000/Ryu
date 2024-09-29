@@ -61,13 +61,13 @@ namespace Ryu
 	bool Engine::PostInit()
 	{
 		RYU_ENGINE_DEBUG("Post-initializing engine");
-		
+
 		HWND hWnd = m_application->GetWindow();
 		const Window::Config& config = m_application->GetWindow().GetConfig();
 
 		m_renderAPI = std::make_unique<Graphics::RenderAPI>();
 		m_renderAPI->Initialize(hWnd, config.Width, config.Height);
-		
+
 		m_engineServices->RegisterService(std::make_shared<InputSystem>(hWnd));
 
 		InitializePlugins(PluginLoadOrder::PostInit);
@@ -90,7 +90,7 @@ namespace Ryu
 			callbacks.OnMouseMove       = [this](const auto& event) { m_application->OnEvent(event); };
 			callbacks.OnMouseMoveRaw    = [this](const auto& event) { m_application->OnEvent(event); };
 			callbacks.OnMouseWheel      = [this](const auto& event) { m_application->OnEvent(event); };
-				
+
 			// Add application callbacks to input system
 			input->AddInputCallbacks(callbacks);
 		}
@@ -148,7 +148,7 @@ namespace Ryu
 
 		Shutdown();
 	}
-	
+
 	void Engine::Tick(MAYBE_UNUSED const f32 dt)
 	{
 		m_application->m_window.PumpMessages();
@@ -159,6 +159,7 @@ namespace Ryu
 
 		RenderPlugins(PluginRenderOrder::PreRender, dt);
 		m_application->OnRender(dt);
+		m_renderAPI->Render();
 		RenderPlugins(PluginRenderOrder::PostRender, dt);
 	}
 
@@ -199,7 +200,7 @@ namespace Ryu
 
 		m_application->OnShutdown();
 		m_application.reset();
-		
+
 		RYU_ENGINE_TRACE("Finished shutting down engine");
 	}
 
@@ -236,7 +237,7 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Loading engine configuration");
 		using json = nlohmann::json;
-		
+
 		// We do not validate EngineConfig.json since that will be validated
 		// by xmake at build time during configuration
 
@@ -255,7 +256,7 @@ namespace Ryu
 	void Engine::LoadPlugins()
 	{
 		PluginManager::PluginMap& map = m_pluginManager.GetPluginsMap();
-		
+
 		for (auto& [name, plugin] : map)
 		{
 			// Load dll

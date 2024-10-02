@@ -12,6 +12,8 @@ namespace Ryu
 {
 	class RYU_API Window : public SubObject, public Caption
 	{
+		friend class Engine;
+
 	public:
 		enum class Type : DWORD
 		{
@@ -47,7 +49,6 @@ namespace Ryu
 		void Show();
 		void ToggleMaximize();
 		void PumpMessages();
-		inline void SetResizeCallback(ResizeCallback callback) { m_resizeCallback = std::move(callback); }
 		bool IsMaximized();
 		bool HasStyle(DWORD style); 
 		void SetStyle(DWORD flagsToDisable, DWORD flagsToEnable);
@@ -60,6 +61,9 @@ namespace Ryu
 		virtual void OnGetMinMaxInfo(MINMAXINFO* minmax);
 		virtual void OnExitSizeMove();
 
+	private:
+		inline void SetResizeCallback(ResizeCallback callback) { m_resizeCallback = std::move(callback); }
+	
 	private:
 		ResizeCallback m_resizeCallback;
 		Window::Config m_config;

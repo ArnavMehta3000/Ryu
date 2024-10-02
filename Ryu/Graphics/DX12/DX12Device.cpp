@@ -4,11 +4,11 @@
 
 namespace Ryu::Graphics
 {
-	CreateResult<DX12Device::InterfaceType*> DX12Device::Create(const DXGIAdapter& adapter)
+	CreateResult<DX12Device> DX12Device::Create(const DXGIAdapter& adapter)
 	{
 		RYU_GFX_ASSERT(adapter, "Trying to create DX12Device with invalid DXGIAdapter");
 
-		ComPtr<DX12Device::InterfaceType> outDevice;
+		DX12Device outDevice;
 		HRESULT hr = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&outDevice));
 		if (SUCCEEDED(hr))
 		{
@@ -24,25 +24,25 @@ namespace Ryu::Graphics
 			outDevice->SetName(L"DX12Device");
 			RYU_GFX_DEBUG("Created DX12Device");
 			
-			return outDevice.Detach();
+			return outDevice;
 		}
 
 		return std::unexpected(hr);
 	}
 
-	DX12Device::DX12Device(InterfaceType* ptr)
-		: ComPtr(ptr)
-	{
-	}
-
-	DX12Device::~DX12Device()
-	{
-		Release();
-	}
-
 	DX12DebugDevice DX12Device::GetDebugDevice() const
 	{
-		return DX12DebugDevice(Get());
+		return DX12DebugDevice(*this);
+	}
+
+	DescriptorSizes DX12Device::GetDescriptorSizes() const
+	{
+		return DescriptorSizes
+		{
+			.RtvDescriptorSize = Get()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV),
+			.DsvDescriptorSize = Get()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV),
+			.CbvSrvUavDescriptorSize = Get()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV),
+		};
 	}
 
 	void DX12Device::Release()
@@ -60,7 +60,7 @@ namespace Ryu::Graphics
 				}
 			}
 
-			DX12DebugDevice dbg(Get());
+			DX12DebugDevice dbg(*this);
 			Reset();
 			dbg->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
 #endif

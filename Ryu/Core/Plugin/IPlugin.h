@@ -61,7 +61,7 @@ namespace Ryu
 	{
 	public:
 		virtual ~PluginBase() = default;
-		
+
 		static T* GetInstance() { return s_instance; }
 		static const PluginData& GetData() { return *s_data; }
 

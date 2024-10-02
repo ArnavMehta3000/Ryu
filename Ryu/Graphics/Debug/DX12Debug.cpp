@@ -7,9 +7,9 @@ namespace Ryu::Graphics
 	{
 	}
 
-	CreateResult<DX12Debug::InterfaceType*> DX12Debug::Create()
+	CreateResult<DX12Debug> DX12Debug::Create()
 	{
-		DX12Debug::InterfaceType* debug;
+		DX12Debug debug;
 		HRESULT hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
 		
 		if (FAILED(hr))

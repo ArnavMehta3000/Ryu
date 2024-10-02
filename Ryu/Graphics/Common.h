@@ -2,6 +2,8 @@
 
 #include <Core/Includes.h>
 #include <Graphics/Internal/Log.h>
+#include <Graphics/Types.h>
+
 
 #include <Windows.h>
 #include <directx/d3dx12.h>

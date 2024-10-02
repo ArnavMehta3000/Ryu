@@ -49,6 +49,7 @@ namespace Ryu
 		void Tick(const f32 dt);
 		void TickPlugins(PluginTickOrder order, const f32 dt);
 		void RenderPlugins(PluginRenderOrder order, const f32 dt);
+		void OnResize(const i32 width, const i32 height);
 		void LoadConfig();
 		void AddPlugins(const std::string& name);
 		void LoadPlugins();

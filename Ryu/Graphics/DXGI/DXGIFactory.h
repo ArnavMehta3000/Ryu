@@ -9,10 +9,11 @@ namespace Ryu::Graphics
 	{
 	public:
 		DXGIFactory() = default;
-		explicit DXGIFactory(InterfaceType* ptr);
-		static NODISCARD CreateResult<InterfaceType*> Create();
+		DXGIFactory(InterfaceType* ptr);
+		
+		static NODISCARD CreateResult<DXGIFactory> Create();
 
-		void GetAdapter(DXGIAdapter& outAdapter);
+		DXGIAdapter GetAdapter() const;
 		bool HasTearingSupport() const;
 	};
 }

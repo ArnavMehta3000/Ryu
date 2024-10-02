@@ -3,9 +3,11 @@
 
 namespace Ryu::Graphics
 {
+	class DX12Device;
+
 	class DX12DebugDevice : public ComPtr<ID3D12DebugDevice2>
 	{
 	public:
-		explicit DX12DebugDevice(ID3D12Device6* device);
+		explicit DX12DebugDevice(const DX12Device& device);
 	};
 }

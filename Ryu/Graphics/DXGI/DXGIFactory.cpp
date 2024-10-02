@@ -1,6 +1,5 @@
 #include "DXGIFactory.h"
 #include <Graphics/DXGI/DXGIAdapter.h>
-#include <Graphics/Debug/DX12Debug.h>
 
 namespace Ryu::Graphics
 {
@@ -11,9 +10,9 @@ namespace Ryu::Graphics
 	{
 	}
 
-	CreateResult<DXGIFactory::InterfaceType*> DXGIFactory::Create()
+	CreateResult<DXGIFactory> DXGIFactory::Create()
 	{
-		DXGIFactory::InterfaceType* outFactory;
+		DXGIFactory outFactory;
 
 		u32 flags = 0;
 
@@ -21,7 +20,7 @@ namespace Ryu::Graphics
 		flags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-		HRESULT hr = CreateDXGIFactory2(flags, IID_PPV_ARGS(&outFactory));
+		HRESULT hr = CreateDXGIFactory2(flags, IID_PPV_ARGS(outFactory.ReleaseAndGetAddressOf()));
 		if (FAILED(hr))
 		{
 			return std::unexpected(hr);
@@ -30,13 +29,16 @@ namespace Ryu::Graphics
 		return outFactory;
 	}
 
-	void DXGIFactory::GetAdapter(DXGIAdapter& outAdapter)
+	DXGIAdapter DXGIFactory::GetAdapter() const
 	{
 		CHECK_FACTORY()
 
+		DXGIAdapter outAdapter;
 		HRESULT hr S_OK;
 		hr = Get()->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(outAdapter.ReleaseAndGetAddressOf()));
 		RYU_GFX_ASSERTHR(hr, "Failed to enumerate DXGI adapter by GPU preference (high performance)");
+
+		return outAdapter;
 	}
 
 	bool DXGIFactory::HasTearingSupport() const

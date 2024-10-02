@@ -184,12 +184,21 @@ namespace Ryu
 	{
 		RECT r{};
 		::GetClientRect(m_hWnd, &r);
-		m_config.Width = r.right - r.left;
-		m_config.Height = r.bottom - r.top;
 
-		RYU_CORE_LOG_TRACE(Core, "Window client resized to: {}x{}", m_config.Width, m_config.Height);
+		i32 newWidth = r.right - r.left;
+		i32 newHeight = r.bottom - r.top;
+		
+		// Only update if size has changed
+		bool update = false;
+		if (m_config.Width != newWidth || m_config.Height != newHeight)
+		{
+			update = true;
+			m_config.Width = newWidth;
+			m_config.Height = newHeight;
+		}
 
-		if (m_resizeCallback)
+
+		if (m_resizeCallback && update)
 		{
 			m_resizeCallback(m_config.Width, m_config.Height);
 		}

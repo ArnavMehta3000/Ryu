@@ -35,6 +35,13 @@ namespace Ryu
 	{
 		RYU_ENGINE_DEBUG("Pre-initializing engine");
 
+		// Set resize callback
+		m_application->m_window.SetResizeCallback(
+			[this](i32 width, i32 height)
+			{
+				OnResize(width, height);
+			});
+
 		LoadConfig();
 		LoadPlugins();
 
@@ -159,8 +166,8 @@ namespace Ryu
 
 		RenderPlugins(PluginRenderOrder::PreRender, dt);
 		m_application->OnRender(dt);
-		m_renderAPI->Render();
 		RenderPlugins(PluginRenderOrder::PostRender, dt);
+		m_renderAPI->Present();
 	}
 
 	void Engine::TickPlugins(PluginTickOrder order, const f32 dt)
@@ -187,20 +194,28 @@ namespace Ryu
 		}
 	}
 
+	void Engine::OnResize(const i32 width, const i32 height)
+	{
+		if (m_renderAPI)
+		{
+			RYU_ENGINE_INFO("Resizing render API to {}x{}", width, height);
+			m_renderAPI->OnResize(width, height);
+		}
+	}
+
 	void Engine::Shutdown()
 	{
 		RYU_ENGINE_DEBUG("Shutting down engine");
 
 		DestroyPlugins();
-
-		if (m_renderAPI)
-		{
-			m_renderAPI->Shutdown();
-		}
-
 		m_application->OnShutdown();
 		m_application.reset();
 
+		if (m_renderAPI)
+		{
+			RYU_ENGINE_INFO("Shutting down renderer");
+			m_renderAPI->Shutdown();
+		}
 		RYU_ENGINE_TRACE("Finished shutting down engine");
 	}
 

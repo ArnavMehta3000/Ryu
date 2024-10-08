@@ -25,13 +25,13 @@ close_panel_on_success: false
 clear_build_output_before_running: true
 
 [Build Debug And Run]   # <- command name. Can be arbitrary
-build_command: xmake f -m debug --console=true --log-level=trace -y
+build_command: xmake f -m debug
 run_command: xmake run RyuEditor
 run_working_dir: %PROJECT_CONFIG_DIR%
 key_binding: F5
 
 [Build Debug]
-build_command: xmake f -m debug --console=true --log-level=trace -y
+build_command: xmake f -m debug
 build_working_dir: %PROJECT_CONFIG_DIR%
 run_command: xmake
 run_working_dir: %PROJECT_CONFIG_DIR%

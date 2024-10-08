@@ -1,6 +1,18 @@
 #include <Windows.h>
-#include <Testbench/Application/TestApplication.h>
-#include <Engine/Engine.h>
+#include "App/Application.h"
+//#include "Engine/Engine.h"
+#include "Logger/Logger.h"
+#include "Logger/Sinks/DebugSink.h"
+#include "Logger/Sinks/ConsoleSink.h"
+#include "Utils/MessageBox.h"
+#include "libassert/assert.hpp"
+
+class TestApp : public Ryu::App::Application
+{
+public:
+	LOG_CATEGORY(TestApp);
+};
+
 
 int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,
@@ -8,29 +20,39 @@ int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED LPWSTR    lpCmdLine,
 	_In_     MAYBE_UNUSED int       nCmdShow)
 {
-	// EXAMPLE
-	// --- If using DLL loader ---
-	// Ryu::DllLoader engineLoader;
-	// RYU_CORE_ASSERT(Testbench, engineLoader.LoadDLL("RyuEngine.dll"), "Failed to load RyuEngine.dll");
-	// RYU_CORE_ASSERT(Testbench, engineLoader.LoadProcAddress("GetEngineInstance"), "Failed to load GetEngineInstance function");
-	// auto getEngineInstance = engineLoader.GetProcAddressFunc<Ryu::GetEngineInstance_f>("GetEngineInstance");
-	// Ryu::Engine& engine = getEngineInstance();
-	// engine.CreateApplication<TestApplication>();
-	// engine.Run();
-	// --- If using DLL loader ---
+	using namespace Ryu;
 
-
-	/*Ryu::SplashWindow s;
 	
-	while (s.IsOpen())
-	{
+	auto& logger = Logging::Logger::Get();
+	logger.AddSink(std::make_unique<Logging::DebugSink>());
+	logger.AddSink(std::make_unique<Logging::ConsoleSink>());
+	logger.SetOnFatalCallback([](Logging::LogLevel level, const std::string& message)
+		{
+			Utils::MessageBoxDesc desc;
+			desc.Title        = Logging::ToString(level);
+			desc.Title       += " Error";
 
-	}*/
+			desc.Text         = message;
+			desc.Flags.Button = Utils::MessagBoxButton::Ok;
+			desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
 
-	Ryu::Engine& engine = Ryu::Engine::Get();
+			Utils::ShowMessageBox(desc);
+			std::exit(-1);
+		});
 
-	engine.CreateApplication<TestApplication>();
-	engine.Run();
+
+	LOG_TRACE(TestApp::TestAppLog, "This is the {} {} {}", 1, "trace", "test");
+	LOG_DEBUG(TestApp::TestAppLog, "This is the {} {} {}", 2, "debug", "test");
+	LOG_INFO(TestApp::TestAppLog, "This is the {} {} {}", 3, "debug", "test");
+	LOG_WARN(TestApp::TestAppLog, "This is the {} {} {}", 4, "warn", "test");
+	LOG_ERROR(TestApp::TestAppLog, "This is the {} {} {}", 5, "error", "test");
+	LOG_FATAL(TestApp::TestAppLog, "This is the {} {} {}", 6, "fatal", "test");
+	
+	TestApp app;
+
+	/*Engine::Engine::Get()
+		.SetApp(app.shared_from_this())
+		.Run();*/
 
 	return 0;
 }

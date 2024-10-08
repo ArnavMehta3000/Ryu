@@ -1,33 +1,3 @@
--- Defines the option to choose logging level
-option("log-level")
-	set_description("Choose log verbosity level",
-					"- None",
-					"- Warn",
-					"- Info",
-					"- Debug",
-					"- Trace")
-
-	set_values("None", "Warn", "Info", "Debug", "Trace")
-
-	set_showmenu(true)
-	set_category("Ryu")
-option_end()
-
--- Defines an option to enable log console
-option("console")
-	set_description("Create log console")
-	set_showmenu(true)
-	set_category("Ryu")
-option_end()
-
--- Defines an option to allow assertions
-option("enable-assert")
-	set_description("Enable or disble assertions")
-	set_showmenu(true)
-	set_category("Ryu")
-	set_default(true)
-option_end()
-
 -- Defines an option to set the path of the Rad Debugger locally
 option("raddbg-path")
 	set_description("Path to the Rad Debugger")
@@ -55,5 +25,5 @@ option("use-raddbg")
 				end
 			end
 		end
-    end)
+	end)
 option_end()

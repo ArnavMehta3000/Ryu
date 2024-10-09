@@ -29,3 +29,15 @@
 #define RYU_EMIT_COMPILER_MESSAGE_PREFACE(type) __FILE__ "(" RYU_EMIT_COMPILER_WARNING_STRINGIFY1(__LINE__) "): " type ": "
 #define RYU_EMIT_COMPILER_WARNING_COMPOSE(x) message(RYU_EMIT_COMPILER_MESSAGE_PREFACE("warning RYU0000") x)
 #define RYU_EMIT_WARNING(x) _Pragma(RYU_EMIT_COMPILER_WARNING_STRINGIFY1(RYU_EMIT_COMPILER_WARNING_COMPOSE(x)))
+
+#define RYU_CONCAT_IMPL(x, y) x##y
+#define RYU_CONCAT(x, y) RYU_CONCAT_IMPL(x, y)
+
+#define RYU_STRING_IMPL(x) #x
+#define RYU_STRING(x) RYU_STRING_IMPL(x)
+
+// Checks if a function exists for a given class
+#define RYU_FUNCTION_CHECK(NAME, ...) namespace Ryu { template<typename T> class HasFunction_##NAME {                        \
+	template<typename U> constexpr static auto Check(int) -> decltype(std::declval<U>().__VA_ARGS__, bool()) { return true; }\
+	template<typename> constexpr static bool Check(...) { return false; } public:                                            \
+	static constexpr bool Value = Check<T>(0); }; }

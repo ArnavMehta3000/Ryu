@@ -10,6 +10,9 @@ namespace Ryu::App
 		, m_width(width)
 		, m_height(height)
 		, m_name(name)
+		, m_minimized(false)
+		, m_maximized(false)
+		, m_resizing(false)
 	{
 	}
 
@@ -120,6 +123,12 @@ namespace Ryu::App
 			break;
 		}
 
+		case WM_ENTERSIZEMOVE:
+		{
+			m_resizing = true;
+			break;
+		}
+
 		case WM_SIZE:
 		{
 			// Contains client dimensions
@@ -128,12 +137,70 @@ namespace Ryu::App
 
 			Events::OnWindowStateChange e;
 			e.Window = this;
-			e.State = (wParam == SIZE_MAXIMIZED) ? WindowState::Maximized : 
-					  (wParam == SIZE_MINIMIZED) ? WindowState::Minimized : WindowState::Restored;
 			e.Width = m_width;
 			e.Height = m_height;
 
+			bool shouldResize = false;
+
+			if (wParam == SIZE_MINIMIZED)
+			{
+				m_minimized = true;
+				m_maximized = false;
+				e.State = WindowState::Minimized;
+			}
+			else if (wParam == SIZE_MAXIMIZED)
+			{
+				m_minimized = false;
+				m_maximized = true;
+				shouldResize = true;
+				e.State = WindowState::Maximized;
+			}
+			else if (wParam == SIZE_RESTORED)
+			{
+				// Restoring from minimized state?
+				if (m_minimized)
+				{
+					m_minimized = false;
+					shouldResize = true;
+				}
+				// Restoring from maximized state?
+				else if (m_maximized)
+				{
+					m_maximized = false;
+					shouldResize = true;
+				}
+				else if (m_resizing)
+				{
+					// If user is dragging the resize bars, we do not resize
+					// the buffers here because as the user continuously
+					// drags the resize bars, a stream of WM_SIZE messages are
+					// sent to the window, and it would be pointless (and slow)
+					// to resize for each WM_SIZE message received from dragging
+					// the resize bars.  So instead, we reset after the user is
+					// done resizing the window and releases the resize bars, which
+					// sends a WM_EXITSIZEMOVE message.
+				}
+				// API call such as SetWindowPos or IDXGISwapChain::SetFullscreenState
+				else
+				{
+					shouldResize = true;
+				}
+
+				e.State = WindowState::Restored;
+			}
+
 			SendEvent(e);
+
+			// Send resize event if needed
+			if (shouldResize)
+			{
+				Events::OnWindowResize resize;
+				resize.Window = this;
+				resize.Width  = e.Width;
+				resize.Height = e.Height;
+
+				SendEvent(resize);
+			}
 			break;
 		}
 
@@ -141,6 +208,7 @@ namespace Ryu::App
 		{
 			// Send window resize event after the resize id done
 			// We already know the new size (cached during WM_SIZE)
+			m_resizing = false;
 
 			Events::OnWindowResize e;
 			e.Window = this;

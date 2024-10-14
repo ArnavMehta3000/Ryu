@@ -8,5 +8,6 @@ namespace Ryu::Logging
 	{
 	public:
 		void Log(LogLevel level, const std::string& message) const override;
+		std::string_view GetName() const override;
 	};
 }

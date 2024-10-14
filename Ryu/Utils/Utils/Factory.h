@@ -11,6 +11,8 @@ namespace Ryu::Utils
 	{
 		friend Base;
 	public:
+		using FuncType = std::unique_ptr<Base>(*)(Args...);
+
 		template <class T>
 		struct Registrar : Base
 		{
@@ -18,11 +20,12 @@ namespace Ryu::Utils
 		public:
 			static bool Register()
 			{
-				const std::string name(T::GetStaticName());
-				Factory::GetData()[name] = [](Args... args) -> std::unique_ptr<Base>
-					{
-						return std::make_unique<T>(std::forward<Args>(args)...);
-					};
+				std::string name(T::GetStaticName());
+				
+				Factory::GetStaticData()[name] = [](Args... args) -> std::unique_ptr<Base>
+				{
+					return std::make_unique<T>(std::forward<Args>(args)...);
+				};
 				return true;
 			}
 			static bool s_registered;
@@ -43,14 +46,18 @@ namespace Ryu::Utils
 		static std::unique_ptr<Base> Create(const std::string_view name, T&&... args)
 		{
 			std::string nameStr(name);
-			return GetData().at(nameStr)(std::forward<T>(args)...);
+			return GetStaticData().at(nameStr)(std::forward<T>(args)...);
+		}
+
+		const static std::unordered_map<std::string, FuncType>& GetData()
+		{
+			return GetStaticData();
 		}
 
 	private:
-		using FuncType = std::unique_ptr<Base>(*)(Args...);
 		Factory() = default;
 
-		static std::unordered_map<std::string, FuncType>& GetData()
+		static std::unordered_map<std::string, FuncType>& GetStaticData()
 		{
 			static std::unordered_map<std::string, FuncType> data;
 			return data;

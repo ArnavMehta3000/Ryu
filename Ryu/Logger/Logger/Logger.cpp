@@ -2,7 +2,6 @@
 #include <fmt/core.h>
 #include <fmt/chrono.h>
 
-
 namespace Ryu::Logging
 {
 	Logger& Logger::Get()
@@ -30,7 +29,7 @@ namespace Ryu::Logging
 		std::string formattedMessage = fmt::format("[{}] [{}] [{}]: {}\n", 
 			timeStr,
 			category.Name,
-			ToString(level),
+			EnumToString(level),
 			message);
 
 		std::lock_guard<std::mutex> lock(m_mutex);

@@ -35,6 +35,11 @@ namespace Ryu::Logging
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), m_defaultConsoleAttributes);
 	}
 
+	std::string_view ConsoleSink::GetName() const
+	{
+		return "Console";
+	}
+
 	WORD ConsoleSink::GetDefaultConsoleAttributes() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO info;

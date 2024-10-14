@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include "App/Application.h"
 //#include "Engine/Engine.h"
+#include "Reflection/MetaClass.h"
 #include "Logger/Logger.h"
 #include "Logger/Sinks/DebugSink.h"
 #include "Logger/Sinks/ConsoleSink.h"
@@ -29,9 +30,8 @@ int WINAPI wWinMain(
 	logger.SetOnFatalCallback([](Logging::LogLevel level, const std::string& message)
 		{
 			Utils::MessageBoxDesc desc;
-			desc.Title        = Logging::ToString(level);
+			desc.Title        = EnumToString(level);
 			desc.Title       += " Error";
-
 			desc.Text         = message;
 			desc.Flags.Button = Utils::MessagBoxButton::Ok;
 			desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
@@ -41,14 +41,13 @@ int WINAPI wWinMain(
 		});
 
 
-	LOG_TRACE(TestApp::TestAppLog, "This is the {} {} {}", 1, "trace", "test");
-	LOG_DEBUG(TestApp::TestAppLog, "This is the {} {} {}", 2, "debug", "test");
-	LOG_INFO(TestApp::TestAppLog, "This is the {} {} {}", 3, "debug", "test");
-	LOG_WARN(TestApp::TestAppLog, "This is the {} {} {}", 4, "warn", "test");
-	LOG_ERROR(TestApp::TestAppLog, "This is the {} {} {}", 5, "error", "test");
-	LOG_FATAL(TestApp::TestAppLog, "This is the {} {} {}", 6, "fatal", "test");
+	{
+		LOG_TRACE(TestApp::TestAppLog, "This is the {} {} {}", 1, "trace", "test");
+		LOG_DEBUG(TestApp::TestAppLog, "This is the {} {} {}", 2, "debug", "test");
+		LOG_INFO(TestApp::TestAppLog, "This is the {} {} {}", 3, "debug", "test");
+		LOG_WARN(TestApp::TestAppLog, "This is the {} {} {}", 4, "warn", "test");
+		LOG_ERROR(TestApp::TestAppLog, "This is the {} {} {}", 5, "error", "test");
 	
-	TestApp app;
 
 	/*Engine::Engine::Get()
 		.SetApp(app.shared_from_this())

@@ -9,3 +9,5 @@ add_requires("imgui docking", { configs = { dx11 = true, dx12 = true, win32 = tr
 add_requires("libassert")
 
 add_requires("uuid_v4")
+
+add_requires("entt")

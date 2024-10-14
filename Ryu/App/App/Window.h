@@ -36,5 +36,8 @@ namespace Ryu::App
 		u32 m_width;
 		u32 m_height;
 		std::wstring m_name;
+		bool m_minimized;
+		bool m_maximized;
+		bool m_resizing;
 	};
 }

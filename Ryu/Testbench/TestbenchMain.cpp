@@ -1,7 +1,6 @@
 #include <Windows.h>
 #include "App/Application.h"
 //#include "Engine/Engine.h"
-#include "Reflection/MetaClass.h"
 #include "Logger/Logger.h"
 #include "Logger/Sinks/DebugSink.h"
 #include "Logger/Sinks/ConsoleSink.h"
@@ -47,7 +46,7 @@ int WINAPI wWinMain(
 		LOG_INFO(TestApp::TestAppLog, "This is the {} {} {}", 3, "debug", "test");
 		LOG_WARN(TestApp::TestAppLog, "This is the {} {} {}", 4, "warn", "test");
 		LOG_ERROR(TestApp::TestAppLog, "This is the {} {} {}", 5, "error", "test");
-	
+	}
 
 	/*Engine::Engine::Get()
 		.SetApp(app.shared_from_this())

@@ -8,4 +8,9 @@ namespace Ryu::Logging
 	{
 		::OutputDebugStringA(message.c_str());
 	}
+
+	std::string_view DebugSink::GetName() const
+	{
+		return "Debug";
+	}
 }

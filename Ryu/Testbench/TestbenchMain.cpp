@@ -6,11 +6,18 @@
 #include "Logger/Sinks/ConsoleSink.h"
 #include "Utils/MessageBox.h"
 #include "libassert/assert.hpp"
+#include "Config/Config.h"
 
 class TestApp : public Ryu::App::Application
 {
 public:
 	LOG_CATEGORY(TestApp);
+};
+
+struct MyConfig : public Ryu::Config::IConfig<MyConfig>
+{
+	int x = 3;
+	int y = 5;
 };
 
 
@@ -27,17 +34,19 @@ int WINAPI wWinMain(
 	logger.AddSink(std::make_unique<Logging::DebugSink>());
 	logger.AddSink(std::make_unique<Logging::ConsoleSink>());
 	logger.SetOnFatalCallback([](Logging::LogLevel level, const std::string& message)
-		{
-			Utils::MessageBoxDesc desc;
-			desc.Title        = EnumToString(level);
-			desc.Title       += " Error";
-			desc.Text         = message;
-			desc.Flags.Button = Utils::MessagBoxButton::Ok;
-			desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
+	{
+		Utils::MessageBoxDesc desc;
+		desc.Title        = EnumToString(level);
+		desc.Title       += " Error";
+		desc.Text         = message;
+		desc.Flags.Button = Utils::MessagBoxButton::Ok;
+		desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
 
-			Utils::ShowMessageBox(desc);
-			std::exit(-1);
-		});
+		Utils::ShowMessageBox(desc);
+		std::exit(-1);
+	});
+
+	MyConfig::Get()
 
 
 	{

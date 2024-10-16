@@ -9,6 +9,7 @@ target("RyuCore")
 		"RyuUtils",
 		"RyuLogger",
 		"RyuEvents",
+		"RyuConfig",
 		"RyuInput",
 		"RyuApp",
 		{ public = true }

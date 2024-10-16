@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include "App/Application.h"
-//#include "Engine/Engine.h"
+#include "Engine/Engine.h"
 #include "Logger/Logger.h"
 #include "Logger/Sinks/DebugSink.h"
 #include "Logger/Sinks/ConsoleSink.h"
@@ -46,9 +46,7 @@ int WINAPI wWinMain(
 		std::exit(-1);
 	});
 
-	MyConfig::Get()
-
-
+	 
 	{
 		LOG_TRACE(TestApp::TestAppLog, "This is the {} {} {}", 1, "trace", "test");
 		LOG_DEBUG(TestApp::TestAppLog, "This is the {} {} {}", 2, "debug", "test");
@@ -57,9 +55,9 @@ int WINAPI wWinMain(
 		LOG_ERROR(TestApp::TestAppLog, "This is the {} {} {}", 5, "error", "test");
 	}
 
-	/*Engine::Engine::Get()
-		.SetApp(app.shared_from_this())
-		.Run();*/
+	Engine::Engine::Get()
+		.SetCommandLine(lpCmdLine)
+		.Run();
 
 	return 0;
 }

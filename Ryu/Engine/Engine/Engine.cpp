@@ -28,6 +28,12 @@ namespace Ryu::Engine
 		m_app->Shutdown();
 	}
 
+	Engine& Engine::SetCommandLine(LPWSTR cmdLine)
+	{
+		m_cmdLine = Config::CommandLine(cmdLine);
+		return *this;
+	}
+
 	f64 Engine::GetEngineUpTime() const
 	{
 		return s_timer.GetTotalSeconds();

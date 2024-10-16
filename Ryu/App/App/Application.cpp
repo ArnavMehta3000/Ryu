@@ -31,9 +31,29 @@ namespace Ryu::App
 		::CoUninitialize();
 	}
 
-	void Application::OnUpdate(MAYBE_UNUSED const f64 dt)
+	void Application::OnTick(MAYBE_UNUSED const f64 dt)
 	{
 	}
+
+#pragma region WindowEvents
+	void Application::OnEvent(MAYBE_UNUSED const App::Events::OnWindowClose& event)
+	{
+		m_isRunning = false;
+	}
+
+	void Application::OnEvent(MAYBE_UNUSED const App::Events::OnWindowStateChange& event)
+	{
+	}
+
+	void Application::OnEvent(MAYBE_UNUSED const App::Events::OnWindowResize& event)
+	{
+	}
+
+	void Application::OnEvent(MAYBE_UNUSED const App::Events::OnWindowFocusChange& event)
+	{
+		m_hasFocus = event.Focus == WindowFocus::Gained ? true : false;
+	}
+#pragma endregion
 
 #pragma region InputEvents
 	void Application::OnEvent(MAYBE_UNUSED const Input::Events::OnKeyDown& event)
@@ -66,26 +86,6 @@ namespace Ryu::App
 
 	void Application::OnEvent(MAYBE_UNUSED const Input::Events::OnMouseWheel& event)
 	{
-	}
-#pragma endregion
-
-#pragma region WindowEvents
-	void Application::OnEvent(MAYBE_UNUSED const App::Events::OnWindowClose& event)
-	{
-		m_isRunning = false;
-	}
-
-	void Application::OnEvent(MAYBE_UNUSED const App::Events::OnWindowStateChange& event)
-	{
-	}
-
-	void Application::OnEvent(MAYBE_UNUSED const App::Events::OnWindowResize& event)
-	{
-	}
-
-	void Application::OnEvent(MAYBE_UNUSED const App::Events::OnWindowFocusChange& event)
-	{
-		m_hasFocus = event.Focus == WindowFocus::Gained ? true : false;
 	}
 #pragma endregion
 }

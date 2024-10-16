@@ -1,5 +1,6 @@
 #pragma once
 #include <type_traits>
+#include <concepts>
 
 namespace Ryu
 {
@@ -17,4 +18,10 @@ namespace Ryu
 
 	template <typename T, typename U>
 	concept IsSame = std::is_same_v<T, U>;
+
+	template <typename T>
+	concept IsTickable = requires(T* t)
+	{
+		{ t->OnTick(double()) } -> std::same_as<void>;
+	};
 }

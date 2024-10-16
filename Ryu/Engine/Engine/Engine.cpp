@@ -59,7 +59,7 @@ namespace Ryu::Engine
 
 	void Engine::DoFrame(MAYBE_UNUSED f64 dt)
 	{
-		m_app->OnUpdate(dt);
+		m_app->OnTick(dt);
 		//m_app->OnRender();
 	}
 }

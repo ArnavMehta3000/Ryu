@@ -6,8 +6,9 @@
 namespace Ryu::App
 {
 	class Application
-		: public Input::IInputEventListener
-		, public IWindowEventListener
+		: public IWindowEventListener
+		, public Input::IInputEventListener
+		, public ITickable<Application>
 		, public std::enable_shared_from_this<Application>
 	{
 	public:
@@ -17,13 +18,19 @@ namespace Ryu::App
 		bool Init();
 		void Shutdown();
 
-		void OnUpdate(MAYBE_UNUSED const f64 dt);
+		void OnTick(MAYBE_UNUSED f64 dt);
 
 		inline NODISCARD std::shared_ptr<Window> GetWindow() const { return m_window; }
 		inline NODISCARD bool IsRunning() const { return m_isRunning; }
 
 
 	private:
+		// Inherited via IWindowEventListener
+		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowClose& event) override;
+		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowStateChange& event) override;
+		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowResize& event) override;
+		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowFocusChange& event) override;
+
 		// Inherited via IInputEventListener
 		void OnEvent(MAYBE_UNUSED const Input::Events::OnKeyDown& event) override;
 		void OnEvent(MAYBE_UNUSED const Input::Events::OnKeyUp& event) override;
@@ -33,12 +40,6 @@ namespace Ryu::App
 		void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMove& event) override;
 		void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMoveRaw& event) override;
 		void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseWheel& event) override;
-
-		// Inherited via IWindowEventListener
-		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowClose& event) override;
-		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowStateChange& event) override;
-		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowResize& event) override;
-		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowFocusChange& event) override;
 
 	private:
 		std::unique_ptr<Input::InputSystem> m_inputSystem;

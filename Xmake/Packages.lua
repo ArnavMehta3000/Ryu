@@ -1,5 +1,7 @@
 add_requires("nlohmann_json")
 
+add_requires("toml++")
+
 add_requires("fmt", { configs = { unicode = true }})
 
 add_requires("directx-headers")

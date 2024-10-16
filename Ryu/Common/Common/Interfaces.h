@@ -8,7 +8,7 @@ namespace Ryu
 	{
 		ITickable()
 		{
-			static_assert(IsTickable<T>, "T must satisfy IsTickable to be used with ITickable.");
+			static_assert(IsTickable<T>, "T must satisfy IsTickable concept to be used with ITickable interface");
 		}
 	};
 }

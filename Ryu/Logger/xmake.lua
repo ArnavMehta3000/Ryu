@@ -8,7 +8,5 @@ target("RyuLogger")
 	add_packages("fmt", { public = true })
 	add_packages("libassert", { public = true })
 
-	add_deps(
-		"RyuCommon"
-	)
+	add_deps("RyuCommon")
 target_end()

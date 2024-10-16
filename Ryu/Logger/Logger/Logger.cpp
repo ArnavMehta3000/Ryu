@@ -16,7 +16,7 @@ namespace Ryu::Logging
 		m_sinks.push_back(std::move(sink));
 	}
 
-	void Logger::Log(const LogCategory& category, LogLevel level, const std::string& message) const
+	void Logger::Log(const LogCategory& category, LogLevel level, const LogMessage& message) const
 	{
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
@@ -26,16 +26,23 @@ namespace Ryu::Logging
 
 		std::string timeStr = fmt::format("{:%Y-%m-%d %H:%M:%S}", timeInfo);
 
-		std::string formattedMessage = fmt::format("[{}] [{}] [{}]: {}\n", 
+		std::string formattedMessage = fmt::format("[{}] [{}] [{}]: {}", 
 			timeStr,
 			category.Name,
 			EnumToString(level),
-			message);
+			message.Message);
+
+		// Add stacktrace if needed
+		if (level == LogLevel::Fatal || level == LogLevel::Error)
+		{
+			auto entry = *message.Stacktrace.begin();
+			formattedMessage = fmt::format("{}\n{}({}):{}", formattedMessage, entry.source_file(), entry.source_line(), entry.description());
+		}
 
 		std::lock_guard<std::mutex> lock(m_mutex);
 		for (const auto& sink : m_sinks)
 		{
-			sink->Log(level, formattedMessage);
+			sink->Log(level, LogMessage{ formattedMessage, message.Stacktrace });
 		}
 
 		// Check if fatal error

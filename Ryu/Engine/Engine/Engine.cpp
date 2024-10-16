@@ -28,7 +28,7 @@ namespace Ryu::Engine
 		m_app->Shutdown();
 	}
 
-	Engine& Engine::SetCommandLine(LPWSTR cmdLine)
+	Engine& Engine::SetCommandLine(std::wstring_view cmdLine)
 	{
 		m_cmdLine = Config::CommandLine(cmdLine);
 		return *this;

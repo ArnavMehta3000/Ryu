@@ -33,12 +33,12 @@ int WINAPI wWinMain(
 	auto& logger = Logging::Logger::Get();
 	logger.AddSink(std::make_unique<Logging::DebugSink>());
 	logger.AddSink(std::make_unique<Logging::ConsoleSink>());
-	logger.SetOnFatalCallback([](Logging::LogLevel level, const std::string& message)
+	logger.SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
 	{
 		Utils::MessageBoxDesc desc;
 		desc.Title        = EnumToString(level);
 		desc.Title       += " Error";
-		desc.Text         = message;
+		desc.Text         = message.Message;
 		desc.Flags.Button = Utils::MessagBoxButton::Ok;
 		desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
 
@@ -53,6 +53,7 @@ int WINAPI wWinMain(
 		LOG_INFO(TestApp::TestAppLog, "This is the {} {} {}", 3, "debug", "test");
 		LOG_WARN(TestApp::TestAppLog, "This is the {} {} {}", 4, "warn", "test");
 		LOG_ERROR(TestApp::TestAppLog, "This is the {} {} {}", 5, "error", "test");
+		LOG_FATAL(TestApp::TestAppLog, "This is the {} {} {}", 6, "fatal", "test");
 	}
 
 	Engine::Engine::Get()

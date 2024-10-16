@@ -7,12 +7,12 @@ namespace Ryu::Logging
 	class CallbackSink : public ILogSink
 	{
 	public:
-		explicit CallbackSink(std::function<void(LogLevel, const std::string&)> callback);
+		explicit CallbackSink(std::function<void(LogLevel, const LogMessage&)> callback);
 		
-		void Log(LogLevel level, const std::string& message) const override;
+		void Log(LogLevel level, const LogMessage& message) const override;
 		std::string_view GetName() const override;
 
 	private:
-		std::function<void(LogLevel, const std::string&)> m_callback;
+		std::function<void(LogLevel, const LogMessage&)> m_callback;
 	};
 }

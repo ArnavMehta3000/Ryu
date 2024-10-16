@@ -9,11 +9,11 @@ namespace Ryu::Logging
 	{
 	}
 
-	void FileSink::Log(MAYBE_UNUSED LogLevel level, const std::string& message) const
+	void FileSink::Log(MAYBE_UNUSED LogLevel level, const LogMessage& message) const
 	{
 		if (m_file)
 		{
-			m_file << message;
+			m_file << message.Message;
 			m_file.flush();
 		}
 	}

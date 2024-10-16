@@ -26,10 +26,10 @@ namespace Ryu::Logging
 		}
 	}
 
-	void ConsoleSink::Log(LogLevel level, const std::string& message) const
+	void ConsoleSink::Log(LogLevel level, const LogMessage& message) const
 	{
 		SetConsoleColor(level);
-		std::print(stdout, "{}", message);
+		std::println(stdout, "{}", message.Message);
 
 		// Reset to default color
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), m_defaultConsoleAttributes);

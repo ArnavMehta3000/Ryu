@@ -17,7 +17,7 @@ namespace Ryu::Engine
 		~Engine() = default;
 
 		Engine& SetApp(std::shared_ptr<App::Application> app) { m_app = std::move(app); return Engine::Get(); }
-		Engine& SetCommandLine(LPWSTR cmdLine);
+		Engine& SetCommandLine(std::wstring_view cmdLine);
 		
 		inline std::shared_ptr<App::Application> GetApp() const { return m_app; }
 		inline const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }

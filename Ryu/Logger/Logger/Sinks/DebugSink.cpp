@@ -4,9 +4,9 @@
 
 namespace Ryu::Logging
 {
-	void DebugSink::Log(MAYBE_UNUSED LogLevel level, const std::string& message) const
+	void DebugSink::Log(MAYBE_UNUSED LogLevel level, const LogMessage& message) const
 	{
-		::OutputDebugStringA(message.c_str());
+		::OutputDebugStringA((message.Message + "\n").c_str());
 	}
 
 	std::string_view DebugSink::GetName() const

@@ -7,7 +7,7 @@ namespace Ryu::Logging
 	class DebugSink : public ILogSink
 	{
 	public:
-		void Log(LogLevel level, const std::string& message) const override;
+		void Log(LogLevel level, const LogMessage& message) const override;
 		std::string_view GetName() const override;
 	};
 }

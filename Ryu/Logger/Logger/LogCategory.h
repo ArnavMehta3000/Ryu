@@ -1,5 +1,6 @@
 #pragma once
 #include <string_view>
+#include "Common/ObjectMacros.h"
 
 namespace Ryu::Logging
 {
@@ -11,4 +12,6 @@ namespace Ryu::Logging
 	};
 }
 
-#define LOG_CATEGORY(CategoryName) static constexpr ::Ryu::Logging::LogCategory CategoryName##Log{ #CategoryName }
+#define LOG_CATEGORY(CategoryName) static constexpr ::Ryu::Logging::LogCategory RYU_CONCAT(CategoryName, Log){ #CategoryName }
+
+#define USE_LOG_CATEGORY(CategoryName) RYU_CONCAT(CategoryName, Log)

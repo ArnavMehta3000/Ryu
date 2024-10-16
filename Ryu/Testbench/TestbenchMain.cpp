@@ -43,7 +43,7 @@ int WINAPI wWinMain(
 		desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
 
 		Utils::ShowMessageBox(desc);
-		std::exit(-1);
+		PANIC("FATAL PROBLEMO");
 	});
 
 	 

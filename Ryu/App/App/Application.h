@@ -9,7 +9,6 @@ namespace Ryu::App
 		: public IWindowEventListener
 		, public Input::IInputEventListener
 		, public ITickable<Application>
-		, public std::enable_shared_from_this<Application>
 	{
 	public:
 		Application();

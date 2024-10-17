@@ -12,7 +12,8 @@ target("RyuGFX")
 		"RyuUtils",
 		"RyuConfig",
 		"RyuEvents",
-		"RyuLogger"
+		"RyuLogger",
+		"RyuApp"
 	)
 	add_links("d3d12", "dxgi", "dxguid")
 target_end()

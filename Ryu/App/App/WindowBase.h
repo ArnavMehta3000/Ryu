@@ -16,12 +16,17 @@ namespace Ryu::App
 
 		// Returns the window's HINSTANCE
 		inline HINSTANCE GetHInstance() const { return m_hInstance; }
+		inline HWND GetHWND() const { return m_hWnd; }
+
 
 		// Returns the window's class name
 		inline const std::wstring& GetBaseName() const { return m_className; }
 
 	private:
 		void RegisterWindowClass();
+	
+	protected:
+		HWND m_hWnd;
 
 	private:
 		HINSTANCE    m_hInstance;

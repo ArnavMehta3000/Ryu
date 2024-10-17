@@ -16,3 +16,12 @@ void Ryu::Graphics::Internal::LogHResultError(HRESULT hr, std::string_view funct
 	LOG_ERROR(USE_LOG_CATEGORY(GraphicsPanic), "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, err);
 #endif
 }
+
+void Ryu::Graphics::Internal::SetNameDX12(ID3D12Object* obj, std::wstring name)
+{
+	if (obj != nullptr)
+	{
+		LOG_DEBUG(USE_LOG_CATEGORY(GraphicsDebug), "DX12 object named: {}", Utils::ToNarrowStr(name));
+		obj->SetName(name.c_str());
+	}
+}

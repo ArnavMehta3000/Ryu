@@ -14,7 +14,6 @@ namespace Ryu::App
 		void PumpMessages();
 
 		inline void SetEventListener(IWindowEventListener* eventListener) { m_eventListener = eventListener; }
-		NODISCARD inline HWND GetHandle() const { return m_hWnd; }
 		inline operator HWND() const { return m_hWnd; }
 
 	private:
@@ -31,7 +30,6 @@ namespace Ryu::App
 		LRESULT MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 
 	private:
-		HWND m_hWnd;
 		IWindowEventListener* m_eventListener;
 		u32 m_width;
 		u32 m_height;

@@ -5,8 +5,9 @@
 #include "Logger/Sinks/DebugSink.h"
 #include "Logger/Sinks/ConsoleSink.h"
 #include "Utils/MessageBox.h"
-#include "libassert/assert.hpp"
+#include <libassert/assert.hpp>
 #include "Config/Config.h"
+#include "Graphics/Renderer.h"
 
 class TestApp : public Ryu::App::Application
 {
@@ -46,19 +47,14 @@ int WINAPI wWinMain(
 		PANIC("FATAL PROBLEMO");
 	});
 
-	 
-	{
-		LOG_TRACE(TestApp::TestAppLog, "This is the {} {} {}", 1, "trace", "test");
-		LOG_DEBUG(TestApp::TestAppLog, "This is the {} {} {}", 2, "debug", "test");
-		LOG_INFO(TestApp::TestAppLog, "This is the {} {} {}", 3, "debug", "test");
-		LOG_WARN(TestApp::TestAppLog, "This is the {} {} {}", 4, "warn", "test");
-		LOG_ERROR(TestApp::TestAppLog, "This is the {} {} {}", 5, "error", "test");
-		LOG_FATAL(TestApp::TestAppLog, "This is the {} {} {}", 6, "fatal", "test");
-	}
+	Ryu::Graphics::Init(Ryu::Graphics::API::DirectX12);
 
 	Engine::Engine::Get()
 		.SetCommandLine(lpCmdLine)
+		.SetApp(std::make_shared<TestApp>())
 		.Run();
+
+	Ryu::Graphics::Shutdown();
 
 	return 0;
 }

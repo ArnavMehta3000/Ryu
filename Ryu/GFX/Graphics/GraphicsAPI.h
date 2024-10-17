@@ -8,5 +8,6 @@ namespace Ryu::Graphics
 	{
 		bool(*Init)(void);
 		void(*Shutdown)(void);
+		void(*Render)(void);
 	};
 }

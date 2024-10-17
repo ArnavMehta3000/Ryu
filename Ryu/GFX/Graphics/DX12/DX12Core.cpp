@@ -1,5 +1,6 @@
 #include "DX12Core.h"
-#include "Graphics/Common.h"
+#include "Graphics/Config.h"
+#include "Graphics/DX12/DX12Command.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::DX12::Core
@@ -12,6 +13,7 @@ namespace Ryu::Graphics::DX12::Core
 
 		ID3D12Device8* g_device{ nullptr };
 		IDXGIFactory7* g_dxgiFactory{ nullptr };
+		DX12Command    g_gfxCommand;
 
 		bool InitializationFailed()
 		{
@@ -58,40 +60,47 @@ namespace Ryu::Graphics::DX12::Core
 			return InitializationFailed();
 		}
 
-
+		const GraphicsConfig& config = GraphicsConfig::Get();
+		
 		u32 dxgiCreationFlags = 0;
-#if defined(RYU_BUILD_DEBUG)
-		// Enable debug layer
+		if (config.EnableDebugLayer)
 		{
-			ComPtr<ID3D12Debug> debugController;
+			LOG_DEBUG(USE_LOG_CATEGORY(DX12Core), "Enabling graphics debug layer");
+			dxgiCreationFlags |= DXGI_CREATE_FACTORY_DEBUG;
+
+			ComPtr<ID3D12Debug6> debugController;
 			DXCall(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
 
 			debugController->EnableDebugLayer();
 
-			dxgiCreationFlags |= DXGI_CREATE_FACTORY_DEBUG;
+			if (config.EnableGPUBasedValidation)
+			{
+				LOG_DEBUG(USE_LOG_CATEGORY(DX12Core), "Enabling GPU-based validation");
+				debugController->SetEnableGPUBasedValidation(TRUE);
+			}
 		}
-#endif
 
 		DXCall(CreateDXGIFactory2(dxgiCreationFlags, IID_PPV_ARGS(&g_dxgiFactory)));
 
+		// Get main adapter
 		ComPtr<IDXGIAdapter4> adapter;
 		adapter.Attach(GetMainAdapter());
 		
 		DEBUG_ASSERT(adapter, "Failed to get main adapter");
 		if (!adapter) return InitializationFailed();
 
+		//  Get max feature level
 		const D3D_FEATURE_LEVEL maxFeatureLevel = GetMaxFeatureLevel(adapter.Get());
-
 		DEBUG_ASSERT(maxFeatureLevel >= MIN_FEATURE_LEVEL);
 		if (maxFeatureLevel < MIN_FEATURE_LEVEL) return InitializationFailed();
 
+		// Create device
 		DXCall(D3D12CreateDevice(adapter.Get(), maxFeatureLevel, IID_PPV_ARGS(&g_device)));
-
 		DEBUG_ASSERT(g_device, "Failed to create device");
-
 		DX12_NAME_OBJECT(g_device, L"Main Device");
 
-#if defined(RYU_BUILD_DEBUG)
+
+		if (config.EnableDebugLayer)
 		{
 			ComPtr<ID3D12InfoQueue> infoQueue;
 			DXCall(g_device->QueryInterface(IID_PPV_ARGS(&infoQueue)));
@@ -100,7 +109,9 @@ namespace Ryu::Graphics::DX12::Core
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 		}
-#endif
+
+		new (&g_gfxCommand) DX12Command(g_device, D3D12_COMMAND_LIST_TYPE_DIRECT);
+		if (!g_gfxCommand.GetCommandQueue()) return InitializationFailed();
 
 		LOG_TRACE(USE_LOG_CATEGORY(DX12Core), "Initialized DX12");
 
@@ -111,10 +122,10 @@ namespace Ryu::Graphics::DX12::Core
 	{
 		LOG_INFO(USE_LOG_CATEGORY(DX12Core), "Shutting down DX12");
 
+		g_gfxCommand.Release();
 		Release(g_dxgiFactory);
 
-#if defined(RYU_BUILD_DEBUG)
-		// Reset debug state
+		if (const GraphicsConfig& config = GraphicsConfig::Get(); config.EnableDebugLayer)
 		{
 			{
 				ComPtr<ID3D12InfoQueue> infoQueue;
@@ -132,10 +143,19 @@ namespace Ryu::Graphics::DX12::Core
 
 			DXCall(debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_SUMMARY | D3D12_RLDO_IGNORE_INTERNAL));
 		}
-#endif
 
 		Release(g_device);
 
 		LOG_TRACE(USE_LOG_CATEGORY(DX12Core), "Shutdown DX12");
+	}
+
+	void Render()
+	{
+		g_gfxCommand.BeginFrame();
+
+		// Record commands
+		ID3D12GraphicsCommandList6* cmdList{ g_gfxCommand.GetCommandList() };
+
+		g_gfxCommand.EndFrame();
 	}
 }

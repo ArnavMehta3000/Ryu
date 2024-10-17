@@ -31,4 +31,9 @@ namespace Ryu::Graphics
 	{
 		g_gfx.Shutdown();
 	}
+
+	void Render()
+	{
+		g_gfx.Render();
+	}
 }

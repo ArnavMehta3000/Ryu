@@ -7,7 +7,6 @@
 #include "Utils/MessageBox.h"
 #include <libassert/assert.hpp>
 #include "Config/Config.h"
-#include "Graphics/Renderer.h"
 
 class TestApp : public Ryu::App::Application
 {
@@ -47,14 +46,11 @@ int WINAPI wWinMain(
 		PANIC("FATAL PROBLEMO");
 	});
 
-	Ryu::Graphics::Init(Ryu::Graphics::API::DirectX12);
 
 	Engine::Engine::Get()
 		.SetCommandLine(lpCmdLine)
 		.SetApp(std::make_shared<TestApp>())
 		.Run();
-
-	Ryu::Graphics::Shutdown();
 
 	return 0;
 }

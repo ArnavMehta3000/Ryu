@@ -9,5 +9,5 @@ target("RyuEngine")
 	-- Make monolithic engine library
 	set_policy("build.merge_archive", true)
 
-	add_deps("RyuCore")
+	add_deps("RyuCore", "RyuGFX")
 target_end()

@@ -2,6 +2,7 @@
 #include "App/Application.h"
 #include "App/Window.h"
 #include "StepTimer/StepTimer.h"
+#include "Graphics/Renderer.h"
 
 namespace Ryu::Engine
 {
@@ -20,12 +21,14 @@ namespace Ryu::Engine
 
 	void Engine::Init()
 	{
+		Ryu::Graphics::Init(Ryu::Graphics::API::DirectX12);
 		m_app->Init();
 	}
 
 	void Engine::Shutdown()
 	{
 		m_app->Shutdown();
+		Ryu::Graphics::Shutdown();
 	}
 
 	Engine& Engine::SetCommandLine(std::wstring_view cmdLine)
@@ -66,6 +69,6 @@ namespace Ryu::Engine
 	void Engine::DoFrame(MAYBE_UNUSED f64 dt)
 	{
 		m_app->OnTick(dt);
-		//m_app->OnRender();
+		Graphics::Render();
 	}
 }

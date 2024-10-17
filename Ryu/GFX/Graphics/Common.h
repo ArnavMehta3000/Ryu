@@ -12,6 +12,8 @@
 
 namespace Ryu::Graphics
 {
+	constexpr u32 FRAME_BUFFER_COUNT{ 3 };
+
 	template <typename T>
 	using ComPtr = Microsoft::WRL::ComPtr<T>;
 

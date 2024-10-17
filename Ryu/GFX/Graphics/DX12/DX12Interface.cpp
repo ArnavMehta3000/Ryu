@@ -8,5 +8,6 @@ namespace Ryu::Graphics::DX12
 	{
 		gfx.Init = Core::Init;
 		gfx.Shutdown = Core::Shutdown;
+		gfx.Render = Core::Render;
 	}
 }

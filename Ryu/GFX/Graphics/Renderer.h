@@ -19,4 +19,5 @@ namespace Ryu::Graphics
 
 	bool Init(API api);
 	void Shutdown();
+	void Render();
 }

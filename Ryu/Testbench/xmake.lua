@@ -8,5 +8,5 @@ target("RyuTestbench")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
 
-	add_deps("RyuEngine", "RyuGFX")
+	add_deps("RyuEngine")
 target_end()

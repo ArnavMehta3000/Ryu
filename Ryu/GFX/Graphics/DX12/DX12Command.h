@@ -29,7 +29,7 @@ namespace Ryu::Graphics::DX12::Core
 			u64 FenceValue{ 0 };
 
 			void Wait(HANDLE fenceEvent, ID3D12Fence1* fence) const noexcept;
-			void Release() noexcept { Graphics::Release(Allocator); }
+			void Release() noexcept { Graphics::Release(Allocator); FenceValue = 0; }
 		};
 
 	private:

@@ -17,7 +17,6 @@ namespace Ryu::Graphics
 	template <typename T>
 	using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-
 	template <typename T>
 	constexpr void Release(T*& ptr)
 	{

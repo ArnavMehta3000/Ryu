@@ -91,7 +91,7 @@ namespace Ryu::Graphics::DX12::Core
 		DXCall(m_cmdList->Close());
 
 		const std::array cmdLists = { static_cast<ID3D12CommandList*>(m_cmdList) };
-		m_cmdQueue->ExecuteCommandLists(cmdLists.size(), cmdLists.data());
+		m_cmdQueue->ExecuteCommandLists((u32)cmdLists.size(), cmdLists.data());
 
 		// If frame's fence value is < signalled fence value means the GPU is done
 		// processing the frame and it can be displayed -> reuse to record new commands

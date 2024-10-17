@@ -1,6 +1,7 @@
 #include "DX12Core.h"
 #include "Graphics/Config.h"
 #include "Graphics/DX12/DX12Command.h"
+#include "Graphics/DX12/DX12Resources.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::DX12::Core
@@ -11,9 +12,17 @@ namespace Ryu::Graphics::DX12::Core
 
 		constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL{ D3D_FEATURE_LEVEL_11_0 };
 
-		ID3D12Device8* g_device{ nullptr };
-		IDXGIFactory7* g_dxgiFactory{ nullptr };
-		DX12Command    g_gfxCommand;
+		ID3D12Device8*                      g_device{ nullptr };
+		IDXGIFactory7*                      g_dxgiFactory{ nullptr };
+		DX12Command                         g_gfxCommand;
+		DescriptorHeap                      g_rtvDescHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		DescriptorHeap                      g_dsvDescHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+		DescriptorHeap                      g_srvDescHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		DescriptorHeap                      g_uavDescHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+		std::array<std::vector<IUnknown*>, FRAME_BUFFER_COUNT> g_deferredReleases;
+		std::array<u32, FRAME_BUFFER_COUNT>                    g_deferredReleaseFlags{};
+		std::mutex                                             g_deferredReleaseMutex;
 
 		bool InitializationFailed()
 		{
@@ -48,7 +57,28 @@ namespace Ryu::Graphics::DX12::Core
 			DXCall(support.Init(device.Get()));
 			return support.MaxSupportedFeatureLevel();
 		}
-	}
+
+		void __declspec(noinline) ProcessDeferredRelease(u32 frameIndex)
+		{
+			std::lock_guard lock{ g_deferredReleaseMutex };
+
+			// Clear flag
+			g_deferredReleaseFlags[frameIndex] = 0;
+
+			g_rtvDescHeap.ProcessDeferredFree(frameIndex);
+			g_dsvDescHeap.ProcessDeferredFree(frameIndex);
+			g_srvDescHeap.ProcessDeferredFree(frameIndex);
+			g_uavDescHeap.ProcessDeferredFree(frameIndex);
+
+			std::vector<IUnknown*>& deferredReleases = g_deferredReleases[frameIndex];
+			for (auto& ptr : deferredReleases)
+			{
+				Release(ptr);
+			}
+			deferredReleases.clear();
+		}
+
+	}	
 
 	bool Init()
 	{
@@ -69,14 +99,19 @@ namespace Ryu::Graphics::DX12::Core
 			dxgiCreationFlags |= DXGI_CREATE_FACTORY_DEBUG;
 
 			ComPtr<ID3D12Debug6> debugController;
-			DXCall(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
-
-			debugController->EnableDebugLayer();
-
-			if (config.EnableGPUBasedValidation)
+			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 			{
-				LOG_DEBUG(USE_LOG_CATEGORY(DX12Core), "Enabling GPU-based validation");
-				debugController->SetEnableGPUBasedValidation(TRUE);
+				debugController->EnableDebugLayer();
+
+				if (config.EnableGPUBasedValidation)
+				{
+					LOG_DEBUG(USE_LOG_CATEGORY(DX12Core), "Enabling GPU-based validation");
+					debugController->SetEnableGPUBasedValidation(TRUE);
+				}
+			}
+			else
+			{
+				LOG_WARN(USE_LOG_CATEGORY(DX12Core), "Failed to enable DX12 debug layer! Ensure Graphics Tools feature is installed");
 			}
 		}
 
@@ -97,8 +132,16 @@ namespace Ryu::Graphics::DX12::Core
 		// Create device
 		DXCall(D3D12CreateDevice(adapter.Get(), maxFeatureLevel, IID_PPV_ARGS(&g_device)));
 		DEBUG_ASSERT(g_device, "Failed to create device");
-		DX12_NAME_OBJECT(g_device, L"Main Device");
 
+		bool heapInit = true;
+		heapInit &= g_rtvDescHeap.Init(512, false);
+		heapInit &= g_dsvDescHeap.Init(512, false);
+		heapInit &= g_srvDescHeap.Init(4096, true);
+		heapInit &= g_uavDescHeap.Init(512, false);
+		if (!heapInit) return InitializationFailed();
+
+		new (&g_gfxCommand) DX12Command(g_device, D3D12_COMMAND_LIST_TYPE_DIRECT);
+		if (!g_gfxCommand.GetCommandQueue()) return InitializationFailed();
 
 		if (config.EnableDebugLayer)
 		{
@@ -110,8 +153,11 @@ namespace Ryu::Graphics::DX12::Core
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 		}
 
-		new (&g_gfxCommand) DX12Command(g_device, D3D12_COMMAND_LIST_TYPE_DIRECT);
-		if (!g_gfxCommand.GetCommandQueue()) return InitializationFailed();
+		DX12_NAME_OBJECT(g_device, L"Main Device");
+		DX12_NAME_OBJECT(g_rtvDescHeap.GetHeap(), L"RTV Descriptor Heap");
+		DX12_NAME_OBJECT(g_dsvDescHeap.GetHeap(), L"DSV Descriptor Heap");
+		DX12_NAME_OBJECT(g_srvDescHeap.GetHeap(), L"SRV Descriptor Heap");
+		DX12_NAME_OBJECT(g_uavDescHeap.GetHeap(), L"UAV Descriptor Heap");
 
 		LOG_TRACE(USE_LOG_CATEGORY(DX12Core), "Initialized DX12");
 
@@ -123,7 +169,21 @@ namespace Ryu::Graphics::DX12::Core
 		LOG_INFO(USE_LOG_CATEGORY(DX12Core), "Shutting down DX12");
 
 		g_gfxCommand.Release();
+
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			ProcessDeferredRelease(i);
+		}
+
 		Release(g_dxgiFactory);
+
+		g_rtvDescHeap.Release();
+		g_dsvDescHeap.Release();
+		g_srvDescHeap.Release();
+		g_uavDescHeap.Release();
+
+		// Some types only use deferred release. Process them here
+		ProcessDeferredRelease(0);
 
 		if (const GraphicsConfig& config = GraphicsConfig::Get(); config.EnableDebugLayer)
 		{
@@ -156,6 +216,39 @@ namespace Ryu::Graphics::DX12::Core
 		// Record commands
 		ID3D12GraphicsCommandList6* cmdList{ g_gfxCommand.GetCommandList() };
 
+		const u32 frameIndex = GetCurrentFrameIndex();
+		if (g_deferredReleaseFlags[frameIndex])
+		{
+			ProcessDeferredRelease(frameIndex);
+		}
+
 		g_gfxCommand.EndFrame();
+	}
+
+	ID3D12Device8* GetDevice()
+	{
+		return g_device;
+	}
+
+	u32 GetCurrentFrameIndex()
+	{
+		return g_gfxCommand.GetFrameIndex();
+	}
+
+	void SetDeferredReleaseFlag()
+	{
+		g_deferredReleaseFlags[GetCurrentFrameIndex()] = 1;
+	}
+
+	namespace Internal
+	{
+		void DeferredRelease(IUnknown* ptr)
+		{
+			const u32 frameIndex = GetCurrentFrameIndex();
+			std::lock_guard lock{ g_deferredReleaseMutex };
+
+			g_deferredReleases[frameIndex].push_back(ptr);
+			SetDeferredReleaseFlag();
+		}
 	}
 }

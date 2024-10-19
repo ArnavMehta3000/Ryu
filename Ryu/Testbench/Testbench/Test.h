@@ -14,19 +14,3 @@ class TestApp : public Ryu::App::Application
 public:
 	LOG_CATEGORY(TestApp);
 };
-
-struct MyConfig : public Ryu::Config::IConfig<MyConfig>
-{
-	int x = 3;
-	int y = 5;
-};
-
-class TestSingleton
-{
-public:
-	TestSingleton() {}
-	RYU_DECLARE_SINGLETON(TestSingleton);
-
-public:
-	i32 X = 0;
-};

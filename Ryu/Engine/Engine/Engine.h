@@ -1,5 +1,6 @@
 #pragma once
 #include "Common/Common.h"
+#include "Utils/Singleton.h"
 #include "Config/CommandLine.h"
 #include <memory>
 
@@ -12,12 +13,13 @@ namespace Ryu::Engine
 {
 	class Engine
 	{
+		RYU_DECLARE_SINGLETON(Engine);
 	public:
-		static Engine& Get();
-		~Engine() = default;
+		Engine();
+		~Engine();
 
-		Engine& SetApp(std::shared_ptr<App::Application> app) { m_app = std::move(app); return Engine::Get(); }
-		Engine& SetCommandLine(std::wstring_view cmdLine);
+		void SetApp(std::shared_ptr<App::Application> app) { m_app = std::move(app); }
+		void SetCommandLine(std::wstring_view cmdLine);
 		
 		inline std::shared_ptr<App::Application> GetApp() const { return m_app; }
 		inline const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }
@@ -27,7 +29,6 @@ namespace Ryu::Engine
 		void Run();
 
 	private:
-		Engine();
 		void Init();
 		void Shutdown();
 		void DoFrame(MAYBE_UNUSED f64 dt);

@@ -6,18 +6,16 @@
 
 namespace Ryu::Engine
 {
-	DX::StepTimer s_timer;
+	RYU_SINGLETON_IMPL(Engine);
 
-	Engine& Engine::Get()
-	{
-		static Engine engine;
-		return engine;
-	}
+	DX::StepTimer s_timer;
 
 	Engine::Engine()
 		: m_app(nullptr)
 	{
 	}
+
+	Engine::~Engine() = default;
 
 	void Engine::Init()
 	{
@@ -31,10 +29,9 @@ namespace Ryu::Engine
 		Ryu::Graphics::Shutdown();
 	}
 
-	Engine& Engine::SetCommandLine(std::wstring_view cmdLine)
+	void Engine::SetCommandLine(std::wstring_view cmdLine)
 	{
 		m_cmdLine = Config::CommandLine(cmdLine);
-		return *this;
 	}
 
 	f64 Engine::GetEngineUpTime() const

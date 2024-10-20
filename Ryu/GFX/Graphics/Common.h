@@ -28,10 +28,10 @@ namespace Ryu::Graphics
 	}
 
 	// Log category only for graphics panic (hresult fail)
-	LOG_CATEGORY(GraphicsPanic);
+	RYU_LOG_CATEGORY(GraphicsPanic);
 
 	// Log category only for graphics debugging
-	LOG_CATEGORY(GraphicsDebug);
+	RYU_LOG_CATEGORY(GraphicsDebug);
 
 
 	namespace Internal

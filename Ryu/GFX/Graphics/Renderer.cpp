@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Graphics/GraphicsAPI.h"
+#include "Graphics/ISurface.h"
 #include "Graphics/DX12/DX12Interface.h"
 #include <libassert/assert.hpp>  //TODO: Remove this include when assert is removed from this file
 
@@ -32,8 +33,18 @@ namespace Ryu::Graphics
 		g_gfx.Shutdown();
 	}
 
-	void Render()
+	ISurface* CreateSurface(App::WindowBase* window)
 	{
-		g_gfx.Render();
+		return g_gfx.Surface.Create(window);
+	}
+
+	void ResizeSurface(u32 width, u32 height)
+	{
+		g_gfx.Surface.OnResize(width, height);
+	}
+
+	void RenderSurface()
+	{
+		g_gfx.Surface.Render();
 	}
 }

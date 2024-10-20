@@ -30,9 +30,7 @@ namespace Ryu::App
 		LRESULT MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 
 	private:
-		IWindowEventListener* m_eventListener;
-		u32 m_width;
-		u32 m_height;
+		IWindowEventListener* m_eventListener;		
 		std::wstring m_name;
 		bool m_minimized;
 		bool m_maximized;

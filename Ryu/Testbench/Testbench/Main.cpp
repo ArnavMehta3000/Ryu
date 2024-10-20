@@ -9,10 +9,13 @@ int WINAPI wWinMain(
 {
 	using namespace Ryu;
 
-	auto& logger = Logging::Logger::Get();
-	logger.AddSink(std::make_unique<Logging::DebugSink>());
-	logger.AddSink(std::make_unique<Logging::ConsoleSink>());
-	logger.SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
+	// Creating the engine object initializes all core subsystems
+	Engine::Engine engine;
+
+	Logging::Logger* logger = Logging::Logger::Get();
+	logger->AddSink(std::make_unique<Logging::DebugSink>());
+	logger->AddSink(std::make_unique<Logging::ConsoleSink>());
+	logger->SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
 	{
 		Utils::MessageBoxDesc desc;
 		desc.Title        = EnumToString(level);
@@ -25,7 +28,6 @@ int WINAPI wWinMain(
 		PANIC("FATAL PROBLEMO");
 	});
 
-	Engine::Engine engine;
 	engine.SetCommandLine(lpCmdLine);
 	engine.SetApp(std::make_shared<TestApp>());
 	engine.Run();

@@ -4,11 +4,7 @@
 
 namespace Ryu::Logging
 {
-	Logger& Logger::Get()
-	{
-		static Logger instance;
-		return instance;
-	}
+	RYU_SINGLETON_IMPL(Logger);
 
 	void Logger::AddSink(std::unique_ptr<ILogSink> sink)
 	{

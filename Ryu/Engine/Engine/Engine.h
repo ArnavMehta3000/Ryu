@@ -1,19 +1,18 @@
 #pragma once
-#include "Common/Common.h"
-#include "Utils/Singleton.h"
 #include "Config/CommandLine.h"
+#include "Logger/Logger.h"
+#include "Graphics/ISurface.h"
 #include <memory>
 
-namespace Ryu::App
-{
-	class Application;
-}
+namespace Ryu::App { class Application; }
 
 namespace Ryu::Engine
 {
 	class Engine
 	{
 		RYU_DECLARE_SINGLETON(Engine);
+		RYU_LOG_CATEGORY(Engine);
+
 	public:
 		Engine();
 		~Engine();
@@ -35,6 +34,8 @@ namespace Ryu::Engine
 
 	private:
 		std::shared_ptr<App::Application> m_app;
-		Config::CommandLine m_cmdLine;
+		Config::CommandLine               m_cmdLine;
+		Logging::Logger                   m_logger;
+		Graphics::GFXSurface              m_renderSurface;
 	};
 }

@@ -2,19 +2,23 @@
 #include "Graphics/Config.h"
 #include "Graphics/DX12/DX12Command.h"
 #include "Graphics/DX12/DX12Resources.h"
+#include "Graphics/DX12/DX12Surface.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::DX12::Core
 {
 	namespace
 	{
-		LOG_CATEGORY(DX12Core);
+		RYU_LOG_CATEGORY(DX12Core);
 
 		constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL{ D3D_FEATURE_LEVEL_11_0 };
+		constexpr DXGI_FORMAT g_defaultRenderTargetFormat{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
 
 		ID3D12Device8*                      g_device{ nullptr };
 		IDXGIFactory7*                      g_dxgiFactory{ nullptr };
 		DX12Command                         g_gfxCommand;
+		std::unique_ptr<DX12Surface>        g_surface;
+
 		DescriptorHeap                      g_rtvDescHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		DescriptorHeap                      g_dsvDescHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 		DescriptorHeap                      g_srvDescHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -26,7 +30,7 @@ namespace Ryu::Graphics::DX12::Core
 
 		bool InitializationFailed()
 		{
-			LOG_ERROR(USE_LOG_CATEGORY(DX12Core), "DX12 initialization failed");
+			LOG_ERROR(RYU_USE_LOG_CATEGORY(DX12Core), "DX12 initialization failed");
 
 			Shutdown();
 			return false;
@@ -82,11 +86,11 @@ namespace Ryu::Graphics::DX12::Core
 
 	bool Init()
 	{
-		LOG_INFO(USE_LOG_CATEGORY(DX12Core), "Initializing DX12");
+		LOG_INFO(RYU_USE_LOG_CATEGORY(DX12Core), "Initializing DX12");
 
 		if (g_device)
 		{
-			LOG_DEBUG(USE_LOG_CATEGORY(DX12Core), "DX12 already initialized");
+			LOG_DEBUG(RYU_USE_LOG_CATEGORY(DX12Core), "DX12 already initialized");
 			return InitializationFailed();
 		}
 
@@ -95,7 +99,7 @@ namespace Ryu::Graphics::DX12::Core
 		u32 dxgiCreationFlags = 0;
 		if (config.EnableDebugLayer)
 		{
-			LOG_DEBUG(USE_LOG_CATEGORY(DX12Core), "Enabling graphics debug layer");
+			LOG_DEBUG(RYU_USE_LOG_CATEGORY(DX12Core), "Enabling graphics debug layer");
 			dxgiCreationFlags |= DXGI_CREATE_FACTORY_DEBUG;
 
 			ComPtr<ID3D12Debug6> debugController;
@@ -105,13 +109,13 @@ namespace Ryu::Graphics::DX12::Core
 
 				if (config.EnableGPUBasedValidation)
 				{
-					LOG_DEBUG(USE_LOG_CATEGORY(DX12Core), "Enabling GPU-based validation");
+					LOG_DEBUG(RYU_USE_LOG_CATEGORY(DX12Core), "Enabling GPU-based validation");
 					debugController->SetEnableGPUBasedValidation(TRUE);
 				}
 			}
 			else
 			{
-				LOG_WARN(USE_LOG_CATEGORY(DX12Core), "Failed to enable DX12 debug layer! Ensure Graphics Tools feature is installed");
+				LOG_WARN(RYU_USE_LOG_CATEGORY(DX12Core), "Failed to enable DX12 debug layer! Ensure Graphics Tools feature is installed");
 			}
 		}
 
@@ -159,14 +163,19 @@ namespace Ryu::Graphics::DX12::Core
 		DX12_NAME_OBJECT(g_srvDescHeap.GetHeap(), L"SRV Descriptor Heap");
 		DX12_NAME_OBJECT(g_uavDescHeap.GetHeap(), L"UAV Descriptor Heap");
 
-		LOG_TRACE(USE_LOG_CATEGORY(DX12Core), "Initialized DX12");
+		LOG_TRACE(RYU_USE_LOG_CATEGORY(DX12Core), "Initialized DX12");
 
 		return true;
 	}
 
 	void Shutdown()
 	{
-		LOG_INFO(USE_LOG_CATEGORY(DX12Core), "Shutting down DX12");
+		LOG_INFO(RYU_USE_LOG_CATEGORY(DX12Core), "Shutting down DX12");
+
+		// Remove surface
+		LOG_TRACE(RYU_USE_LOG_CATEGORY(DX12Core), "Removing surface");
+		g_gfxCommand.Flush();
+		g_surface.reset();
 
 		g_gfxCommand.Release();
 
@@ -206,11 +215,33 @@ namespace Ryu::Graphics::DX12::Core
 
 		Release(g_device);
 
-		LOG_TRACE(USE_LOG_CATEGORY(DX12Core), "Shutdown DX12");
+		LOG_TRACE(RYU_USE_LOG_CATEGORY(DX12Core), "Shutdown DX12");
 	}
 
-	void Render()
+	ISurface* CreateSurface(App::WindowBase* window)
 	{
+		DEBUG_ASSERT(window && window->GetHWND(), "Invalid window handle");
+
+		g_surface = std::make_unique<DX12Surface>(window);
+		g_surface->CreateSwapChain(g_dxgiFactory, g_gfxCommand.GetCommandQueue(), g_defaultRenderTargetFormat);
+
+		LOG_INFO(RYU_USE_LOG_CATEGORY(DX12Core), "Created DX12 surface");
+
+		return g_surface.get();
+	}
+
+	void OnResizeSurface(u32 width, u32 height)
+	{
+		DEBUG_ASSERT(g_surface, "Surface not created");
+
+		g_gfxCommand.Flush();
+		g_surface->OnResize(width, height);
+	}
+
+	void RenderSurface()
+	{
+		DEBUG_ASSERT(g_surface, "Surface not created");
+
 		g_gfxCommand.BeginFrame();
 
 		// Record commands
@@ -222,12 +253,19 @@ namespace Ryu::Graphics::DX12::Core
 			ProcessDeferredRelease(frameIndex);
 		}
 
+		g_surface->Present();
+
 		g_gfxCommand.EndFrame();
 	}
 
 	ID3D12Device8* GetDevice()
 	{
 		return g_device;
+	}
+
+	DXGI_FORMAT GetDefaultRenderTargetFormat()
+	{
+		return g_defaultRenderTargetFormat;
 	}
 
 	u32 GetCurrentFrameIndex()
@@ -239,6 +277,14 @@ namespace Ryu::Graphics::DX12::Core
 	{
 		g_deferredReleaseFlags[GetCurrentFrameIndex()] = 1;
 	}
+
+	DescriptorHeap& GetRTVDescHeap() { return g_rtvDescHeap; }
+
+	DescriptorHeap& GetDSVDescHeap() { return g_dsvDescHeap; }
+
+	DescriptorHeap& GetSRVDescHeap() { return g_srvDescHeap; }
+
+	DescriptorHeap& GetUAVDescHeap() { return g_uavDescHeap; }
 
 	namespace Internal
 	{

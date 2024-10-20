@@ -6,8 +6,11 @@ namespace Ryu::Graphics::DX12
 {
 	void GetGraphicsInterface(GraphicsInterface& gfx)
 	{
-		gfx.Init = Core::Init;
-		gfx.Shutdown = Core::Shutdown;
-		gfx.Render = Core::Render;
+		gfx.Init             = Core::Init;
+		gfx.Shutdown         = Core::Shutdown;
+
+		gfx.Surface.Create   = Core::CreateSurface;
+		gfx.Surface.OnResize = Core::OnResizeSurface;
+		gfx.Surface.Render   = Core::RenderSurface;
 	}
 }

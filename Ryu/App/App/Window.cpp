@@ -7,13 +7,14 @@ namespace Ryu::App
 	Window::Window(const std::wstring& name, u32 width, u32 height, IWindowEventListener* eventListener)
 		: WindowBase(GetModuleHandle(NULL), L"RyuWindow")
 		, m_eventListener(eventListener)
-		, m_width(width)
-		, m_height(height)
 		, m_name(name)
 		, m_minimized(false)
 		, m_maximized(false)
 		, m_resizing(false)
 	{
+
+		m_width = width;
+		m_height = height;
 	}
 
 	void Window::Create()

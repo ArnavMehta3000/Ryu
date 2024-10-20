@@ -1,5 +1,6 @@
 #include "Common/Common.h"
-#include "Graphics/Renderer.h"
+#include "Graphics/ISurface.h"
+#include "App/WindowBase.h"
 
 namespace Ryu::Graphics
 {
@@ -8,6 +9,12 @@ namespace Ryu::Graphics
 	{
 		bool(*Init)(void);
 		void(*Shutdown)(void);
-		void(*Render)(void);
+
+		struct
+		{
+			ISurface*(*Create)(App::WindowBase* window);
+			void(*OnResize)(u32 width, u32 height);
+			void(*Render)();
+		}Surface;
 	};
 }

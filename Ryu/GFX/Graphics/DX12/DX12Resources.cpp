@@ -113,13 +113,18 @@ namespace Ryu::Graphics::DX12
 		std::lock_guard lock{ m_mutex };
 
 		ASSERT(m_heap && m_size                                         , "Descriptor heap is not initialized");
-		ASSERT(handle.Container == this                                 , "Invalid descriptor handle");
 		ASSERT(handle.CPU.ptr >= m_cpuStart.ptr                         , "Invalid descriptor handle");
+		
 		ASSERT((handle.CPU.ptr - m_cpuStart.ptr) % m_descriptorSize == 0, "Invalid descriptor handle");
+#if defined(RYU_BUILD_DEBUG)
+		ASSERT(handle.Container == this                                 , "Invalid descriptor handle");
 		ASSERT(handle.Index < m_capacity                                , "Invalid descriptor handle");
-
+#endif
 		const u32 index = u32((handle.CPU.ptr - m_cpuStart.ptr) / m_descriptorSize);
+
+#if defined(RYU_BUILD_DEBUG)
 		ASSERT(handle.Index == index                                    , "Invalid descriptor handle");
+#endif
 
 		const u32 frameIndex = Core::GetCurrentFrameIndex();
 		m_deferredFreeIndices[frameIndex].push_back(index);

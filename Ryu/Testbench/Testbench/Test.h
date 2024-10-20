@@ -12,5 +12,5 @@
 class TestApp : public Ryu::App::Application
 {
 public:
-	LOG_CATEGORY(TestApp);
+	RYU_LOG_CATEGORY(TestApp);
 };

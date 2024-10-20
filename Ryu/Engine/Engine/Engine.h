@@ -1,23 +1,24 @@
 #pragma once
-#include "Common/Common.h"
 #include "Config/CommandLine.h"
+#include "Logger/Logger.h"
+#include "Graphics/ISurface.h"
 #include <memory>
 
-namespace Ryu::App
-{
-	class Application;
-}
+namespace Ryu::App { class Application; }
 
 namespace Ryu::Engine
 {
 	class Engine
 	{
-	public:
-		static Engine& Get();
-		~Engine() = default;
+		RYU_DECLARE_SINGLETON(Engine);
+		RYU_LOG_CATEGORY(Engine);
 
-		Engine& SetApp(std::shared_ptr<App::Application> app) { m_app = std::move(app); return Engine::Get(); }
-		Engine& SetCommandLine(std::wstring_view cmdLine);
+	public:
+		Engine();
+		~Engine();
+
+		void SetApp(std::shared_ptr<App::Application> app) { m_app = std::move(app); }
+		void SetCommandLine(std::wstring_view cmdLine);
 		
 		inline std::shared_ptr<App::Application> GetApp() const { return m_app; }
 		inline const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }
@@ -27,13 +28,14 @@ namespace Ryu::Engine
 		void Run();
 
 	private:
-		Engine();
 		void Init();
 		void Shutdown();
 		void DoFrame(MAYBE_UNUSED f64 dt);
 
 	private:
 		std::shared_ptr<App::Application> m_app;
-		Config::CommandLine m_cmdLine;
+		Config::CommandLine               m_cmdLine;
+		Logging::Logger                   m_logger;
+		Graphics::GFXSurface              m_renderSurface;
 	};
 }

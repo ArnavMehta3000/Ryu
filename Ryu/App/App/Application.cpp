@@ -18,7 +18,7 @@ namespace Ryu::App
 		::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 		
 		m_window = std::make_shared<Window>(L"Ryu App", 1280, 720, this);
-		m_inputSystem = std::make_unique<Input::InputSystem>(m_window->GetHandle(), this);
+		m_inputSystem = std::make_unique<Input::InputSystem>(m_window->GetHWND(), this);
 		
 		m_window->Create();
 

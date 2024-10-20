@@ -41,3 +41,5 @@
 	template<typename U> constexpr static auto Check(int) -> decltype(std::declval<U>().__VA_ARGS__, bool()) { return true; }\
 	template<typename> constexpr static bool Check(...) { return false; } public:                                            \
 	static constexpr bool Value = Check<T>(0); }; }
+
+#define RYU_BIT(x) (1 << x)

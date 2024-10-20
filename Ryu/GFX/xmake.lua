@@ -1,5 +1,4 @@
-target("RyuGraphics")
-	set_enabled(false)
+target("RyuGFX")
 	set_kind("static")
 	set_group("Ryu/Graphics")
 
@@ -7,6 +6,14 @@ target("RyuGraphics")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
 
-	add_deps("RyuCore")
+	add_packages("directx-headers")
+
+	add_deps(
+		"RyuUtils",
+		"RyuConfig",
+		"RyuEvents",
+		"RyuLogger",
+		"RyuApp"
+	)
 	add_links("d3d12", "dxgi", "dxguid")
 target_end()

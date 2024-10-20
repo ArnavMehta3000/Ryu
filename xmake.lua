@@ -41,6 +41,7 @@ set_policy("build.always_update_configfiles", false)
 if is_mode("debug") then
 	-- Enable preprocessor markers in debug mode
 	set_policy("preprocessor.linemarkers", true)
+	add_defines("RYU_BUILD_DEBUG")
 
 	-- Enable hot reloading
 	set_symbols("debug", "edit")

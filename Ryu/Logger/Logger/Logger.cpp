@@ -4,11 +4,7 @@
 
 namespace Ryu::Logging
 {
-	Logger& Logger::Get()
-	{
-		static Logger instance;
-		return instance;
-	}
+	RYU_SINGLETON_IMPL(Logger);
 
 	void Logger::AddSink(std::unique_ptr<ILogSink> sink)
 	{
@@ -26,17 +22,27 @@ namespace Ryu::Logging
 
 		std::string timeStr = fmt::format("{:%Y-%m-%d %H:%M:%S}", timeInfo);
 
-		std::string formattedMessage = fmt::format("[{}] [{}] [{}]: {}", 
-			timeStr,
-			category.Name,
-			EnumToString(level),
-			message.Message);
+		std::string formattedMessage;
 
 		// Add stacktrace if needed
 		if (level == LogLevel::Fatal || level == LogLevel::Error)
 		{
 			auto entry = *message.Stacktrace.begin();
-			formattedMessage = fmt::format("{}\n{}({}):{}", formattedMessage, entry.source_file(), entry.source_line(), entry.description());
+			formattedMessage = std::format("[{}] [{}] [{}]: {}\n{}({}):{}", timeStr,
+				category.Name,
+				EnumToString(level),
+				message.Message,
+				entry.source_file(),
+				entry.source_line(),
+				entry.description());
+		}
+		else
+		{
+			formattedMessage = fmt::format("[{}] [{}] [{}]: {}",
+				timeStr,
+				category.Name,
+				EnumToString(level),
+				message.Message);
 		}
 
 		std::lock_guard<std::mutex> lock(m_mutex);

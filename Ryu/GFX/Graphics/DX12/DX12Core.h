@@ -11,7 +11,7 @@ namespace Ryu::Graphics::DX12::Core
 	void Shutdown();
 	void Render();
 
-	ID3D12Device8* GetDevice();
+	ID3D12Device8* const GetDevice();
 
 	DXGI_FORMAT GetDefaultRenderTargetFormat();
 	u32 GetCurrentFrameIndex();

@@ -28,6 +28,9 @@ namespace Ryu::Graphics::DX12
 		void Release();
 		void Finalize();
 
+	public:
+		static constexpr u32 BUFFER_COUNT = 3;
+
 	private:
 		struct RenderTargetData
 		{
@@ -35,12 +38,12 @@ namespace Ryu::Graphics::DX12
 			DescriptorHandle RTV{};
 		};
 
-		IDXGISwapChain4*                                 m_swapChain;
-		mutable u32                                      m_currentBackBufferIndex;
-		std::array<RenderTargetData, FRAME_BUFFER_COUNT> m_renderTargetData{};
-		CD3DX12_VIEWPORT                                 m_viewport;
-		CD3DX12_RECT                                     m_scissorRect;
-		u32                                              m_presentFlags;
-		u32                                              m_allowTearing;
+		IDXGISwapChain4*                           m_swapChain;
+		mutable u32                                m_currentBackBufferIndex;
+		std::array<RenderTargetData, BUFFER_COUNT> m_renderTargetData{};
+		CD3DX12_VIEWPORT                           m_viewport;
+		CD3DX12_RECT                               m_scissorRect;
+		u32                                        m_presentFlags;
+		u32                                        m_allowTearing;
 	};
 }

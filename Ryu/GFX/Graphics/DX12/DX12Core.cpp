@@ -258,7 +258,7 @@ namespace Ryu::Graphics::DX12::Core
 		g_gfxCommand.EndFrame();
 	}
 
-	ID3D12Device8* GetDevice()
+	ID3D12Device8* const GetDevice()
 	{
 		return g_device;
 	}

@@ -39,7 +39,7 @@ namespace Ryu::Graphics::DX12
 
 		DXGI_SWAP_CHAIN_DESC1 desc{};
 		desc.AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED;
-		desc.BufferCount = FRAME_BUFFER_COUNT;
+		desc.BufferCount = BUFFER_COUNT;
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		desc.Flags       = m_allowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 		desc.Format      = ToNonSRGB(format);
@@ -67,7 +67,7 @@ namespace Ryu::Graphics::DX12
 		// Get backbuffer
 		m_currentBackBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		for (u32 i = 0; i < BUFFER_COUNT; i++)
 		{
 			m_renderTargetData[i].RTV = Core::GetRTVDescHeap().Allocate();
 		}
@@ -89,7 +89,7 @@ namespace Ryu::Graphics::DX12
 
 	void DX12Surface::Release()
 	{
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		for (u32 i = 0; i < BUFFER_COUNT; i++)
 		{
 			RenderTargetData& data = m_renderTargetData[i];
 			Graphics::Release(data.Resource);
@@ -102,7 +102,7 @@ namespace Ryu::Graphics::DX12
 	void DX12Surface::Finalize()
 	{
 		// Create RTV for each back buffer
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		for (u32 i = 0; i < BUFFER_COUNT; i++)
 		{
 			RenderTargetData& data = m_renderTargetData[i];
 			DEBUG_ASSERT(!data.Resource);

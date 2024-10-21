@@ -1,6 +1,6 @@
 #pragma once
 #include "Common/ObjectMacros.h"
-#include "Event/Events.h"
+#include "Event/IEventListener.h"
 
 namespace Ryu::App
 {

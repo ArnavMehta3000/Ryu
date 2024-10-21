@@ -1,5 +1,5 @@
 #pragma once
-#include <d3d12.h>
+#include "Graphics/Common.h"
 
 namespace Ryu::Graphics::DX12::Helpers
 {
@@ -14,4 +14,6 @@ namespace Ryu::Graphics::DX12::Helpers
 			.VisibleNodeMask      = 0
 		};
 	};
+
+	ID3D12RootSignature* CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC1& desc);
 }

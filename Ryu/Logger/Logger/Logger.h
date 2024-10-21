@@ -13,7 +13,7 @@ namespace Ryu::Logging
 {
 	class Logger
 	{
-		RYU_DECLARE_SINGLETON(Logger);
+		RYU_DECLARE_SINGLETON(Logger, false);
 	public:
 		using OnLogCallback = std::function<void(LogLevel, const LogMessage&)>;
 

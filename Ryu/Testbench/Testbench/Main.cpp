@@ -1,6 +1,11 @@
 #include <Windows.h>
 #include "Test.h"
 
+void GlobalCallback(u32 value)
+{
+	LOG_INFO(TestApp::TestAppLog, "GlobalCallback: {}", value);
+}
+
 int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,
 	_In_opt_ MAYBE_UNUSED HINSTANCE hPrevInstance,
@@ -11,7 +16,18 @@ int WINAPI wWinMain(
 
 	// Creating the engine object initializes all core subsystems
 	Engine::Engine engine;
+	auto app = std::make_shared<TestApp>();
 
+	Events::Event<u32>::DelegateHandle lambdaHandle = engine.m_OnEvent.Add([](u32 value)
+		{
+			LOG_INFO(TestApp::TestAppLog, "LambdaCallback: {}", value);
+		});
+
+	Events::Event<u32>::DelegateHandle globalHandle = engine.m_OnEvent.Add(&GlobalCallback);
+	Events::Event<u32>::DelegateHandle localHandle = engine.m_OnEvent.Add(app.get(), &TestApp::LocalCallback);
+
+	engine.m_OnEvent.Remove(localHandle);
+	
 	Logging::Logger* logger = Logging::Logger::Get();
 	logger->AddSink(std::make_unique<Logging::DebugSink>());
 	logger->AddSink(std::make_unique<Logging::ConsoleSink>());
@@ -29,7 +45,7 @@ int WINAPI wWinMain(
 	});
 
 	engine.SetCommandLine(lpCmdLine);
-	engine.SetApp(std::make_shared<TestApp>());
+	engine.SetApp(app);
 	engine.Run();
 
 	return 0;

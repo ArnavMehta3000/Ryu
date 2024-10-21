@@ -2,6 +2,7 @@
 #include "Config/CommandLine.h"
 #include "Logger/Logger.h"
 #include "Graphics/ISurface.h"
+#include "Event/Event.h"
 #include <memory>
 
 namespace Ryu::App { class Application; }
@@ -10,7 +11,7 @@ namespace Ryu::Engine
 {
 	class Engine
 	{
-		RYU_DECLARE_SINGLETON(Engine);
+		RYU_DECLARE_SINGLETON(Engine, true);
 		RYU_LOG_CATEGORY(Engine);
 
 	public:
@@ -27,6 +28,8 @@ namespace Ryu::Engine
 
 		void Run();
 
+		Events::Event<u32> m_OnEvent;
+
 	private:
 		void Init();
 		void Shutdown();
@@ -35,7 +38,6 @@ namespace Ryu::Engine
 	private:
 		std::shared_ptr<App::Application> m_app;
 		Config::CommandLine               m_cmdLine;
-		Logging::Logger                   m_logger;
 		Graphics::GFXSurface              m_renderSurface;
 	};
 }

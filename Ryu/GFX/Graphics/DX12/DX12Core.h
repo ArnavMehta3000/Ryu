@@ -9,7 +9,6 @@ namespace Ryu::Graphics::DX12::Core
 {
 	bool Init();
 	void Shutdown();
-	void Render();
 
 	ID3D12Device8* const GetDevice();
 
@@ -39,4 +38,7 @@ namespace Ryu::Graphics::DX12::Core
 			ptr = nullptr;
 		}
 	}
+
+
+	void CreateRootSignature();
 }

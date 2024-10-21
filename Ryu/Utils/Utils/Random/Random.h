@@ -18,6 +18,7 @@ namespace Ryu::Utils
 		static Generator* GetGenerator();
 		static void SetSeed(Generator::result_type seed);
 		
+		static u64 U64();
 		static f32 Float();		
 		static bool Bool();
 		static bool Bool(f32 probability);

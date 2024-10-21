@@ -13,4 +13,9 @@ class TestApp : public Ryu::App::Application
 {
 public:
 	RYU_LOG_CATEGORY(TestApp);
+
+	void LocalCallback(u32 value)
+	{
+		LOG_INFO(TestAppLog, "LocalCallback {}", value);
+	}
 };

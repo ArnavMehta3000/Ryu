@@ -3,6 +3,7 @@
 #include "Graphics/DX12/DX12Command.h"
 #include "Graphics/DX12/DX12Resources.h"
 #include "Graphics/DX12/DX12Surface.h"
+#include "Graphics/DX12/DX12Helpers.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::DX12::Core
@@ -256,6 +257,13 @@ namespace Ryu::Graphics::DX12::Core
 		g_surface->Present();
 
 		g_gfxCommand.EndFrame();
+	}
+
+	void CreateRootSignature()
+	{
+		CD3DX12_ROOT_PARAMETER1 params[3];
+		params[0].InitAsConstants(2, 0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+		params[1].InitAsConstantBufferView(1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_PIXEL);
 	}
 
 	ID3D12Device8* const GetDevice()

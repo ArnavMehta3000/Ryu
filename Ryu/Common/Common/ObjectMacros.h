@@ -36,6 +36,12 @@
 #define RYU_STRING_IMPL(x) #x
 #define RYU_STRING(x) RYU_STRING_IMPL(x)
 
+// Macro to print a TODO message
+#define RYU_TODO(x) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): TODO: " x))
+
+// Macro to print a warning
+#define RYU_NOTE(x) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): NOTE: " x))
+
 // Checks if a function exists for a given class
 #define RYU_FUNCTION_CHECK(NAME, ...) namespace Ryu { template<typename T> class HasFunction_##NAME {                        \
 	template<typename U> constexpr static auto Check(int) -> decltype(std::declval<U>().__VA_ARGS__, bool()) { return true; }\

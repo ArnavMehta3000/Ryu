@@ -17,7 +17,7 @@ namespace Ryu::Utils
 		}
 	}
 
-	thread_local Random::Generator Random::s_mersenne64;
+	thread_local Random::Generator Random::s_mersenne64{ static_cast<Generator::result_type>(std::random_device{}()) };
 
 	Random::Generator* Random::GetGenerator()
 	{
@@ -27,6 +27,11 @@ namespace Ryu::Utils
 	void Random::SetSeed(Generator::result_type seed)
 	{
 		Random::s_mersenne64.seed(seed);
+	}
+
+	u64 Random::U64()
+	{
+		return s_mersenne64();
 	}
 
 	f32 Random::Float()

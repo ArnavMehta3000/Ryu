@@ -1,6 +1,6 @@
 #pragma once
 #include "Common/Common.h"
-#include "Event/Events.h"
+#include "Event/IEventListener.h"
 #include "Input/KeyCode.h"
 
 namespace Ryu::Input

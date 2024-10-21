@@ -8,11 +8,21 @@ namespace Ryu::Engine
 {
 	RYU_SINGLETON_IMPL(Engine);
 
-	DX::StepTimer s_timer;
+	namespace 
+	{
+		DX::StepTimer s_timer;
+
+		// Register all the required singletons
+		void InitSingletons()
+		{
+			Utils::SingletonRegistry::Register<Logging::Logger>();
+		}
+	}
 
 	Engine::Engine()
 		: m_app(nullptr)
 	{
+		InitSingletons();
 	}
 
 	Engine::~Engine() = default;
@@ -79,7 +89,7 @@ namespace Ryu::Engine
 			LOG_ERROR(RYU_USE_LOG_CATEGORY(Engine), "Engine application not initialized!");
 			return;
 		}
-
+		m_OnEvent.Broadcast(69);
 		Init();
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Starting Engine main loop");

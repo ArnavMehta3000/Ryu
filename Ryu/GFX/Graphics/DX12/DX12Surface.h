@@ -1,7 +1,6 @@
 #pragma once
 #include "Graphics/ISurface.h"
 #include "Graphics/DX12/DX12Resources.h"
-#include "App/WindowBase.h"
 #include <array>
 
 namespace Ryu::Graphics::DX12

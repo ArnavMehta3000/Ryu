@@ -4,6 +4,7 @@
 #include "Graphics/DX12/DX12Resources.h"
 #include "Graphics/DX12/DX12Surface.h"
 #include "Graphics/DX12/DX12Helpers.h"
+#include "App/WindowBase.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::DX12::Core
@@ -13,12 +14,12 @@ namespace Ryu::Graphics::DX12::Core
 		RYU_LOG_CATEGORY(DX12Core);
 
 		constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVEL{ D3D_FEATURE_LEVEL_11_0 };
-		constexpr DXGI_FORMAT g_defaultRenderTargetFormat{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
+		constexpr DXGI_FORMAT DEFAULT_RENDER_TARGET_FORMAT{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
 
 		ID3D12Device8*                      g_device{ nullptr };
 		IDXGIFactory7*                      g_dxgiFactory{ nullptr };
 		DX12Command                         g_gfxCommand;
-		std::unique_ptr<DX12Surface>        g_surface;
+		std::unique_ptr<DX12Surface>        g_surface{ nullptr };
 
 		DescriptorHeap                      g_rtvDescHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		DescriptorHeap                      g_dsvDescHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
@@ -224,7 +225,7 @@ namespace Ryu::Graphics::DX12::Core
 		DEBUG_ASSERT(window && window->GetHWND(), "Invalid window handle");
 
 		g_surface = std::make_unique<DX12Surface>(window);
-		g_surface->CreateSwapChain(g_dxgiFactory, g_gfxCommand.GetCommandQueue(), g_defaultRenderTargetFormat);
+		g_surface->CreateSwapChain(g_dxgiFactory, g_gfxCommand.GetCommandQueue(), DEFAULT_RENDER_TARGET_FORMAT);
 
 		LOG_INFO(RYU_USE_LOG_CATEGORY(DX12Core), "Created DX12 surface");
 
@@ -273,7 +274,7 @@ namespace Ryu::Graphics::DX12::Core
 
 	DXGI_FORMAT GetDefaultRenderTargetFormat()
 	{
-		return g_defaultRenderTargetFormat;
+		return DEFAULT_RENDER_TARGET_FORMAT;
 	}
 
 	u32 GetCurrentFrameIndex()

@@ -1,4 +1,5 @@
 #include "DX12Surface.h"
+#include "App/WindowBase.h"
 #include "Graphics/DX12/DX12Core.h"
 #include <libassert/assert.hpp>
 

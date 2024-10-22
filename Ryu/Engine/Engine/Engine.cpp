@@ -43,7 +43,7 @@ namespace Ryu::Engine
 			return false;
 		}
 		
-		if (Ryu::Graphics::Init(Ryu::Graphics::API::DirectX11))
+		if (Ryu::Graphics::Init(Graphics::GraphicsConfig::Get().GraphicsAPI))
 		{
 			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics initialized successfully");
 		}
@@ -53,7 +53,7 @@ namespace Ryu::Engine
 			return false;
 		}
 
-		m_renderSurface.Window = dynamic_cast<Ryu::App::Window*>(m_app->GetWindow().get());
+		m_renderSurface.Window = m_app->GetWindow().get();
 		m_renderSurface.Surface = Graphics::CreateSurface(m_renderSurface.Window);
 
 		ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");

@@ -13,4 +13,6 @@ namespace Ryu::Graphics::DX11::Core
 
 	ID3D11Device5* const GetDevice();
 	ID3D11DeviceContext4* const GetImContext();
+
+	DXGI_FORMAT GetDefaultRenderTargetFormat();
 }

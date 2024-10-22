@@ -25,3 +25,8 @@ void Ryu::Graphics::Internal::SetNameDX12(ID3D12Object* obj, std::wstring name)
 		obj->SetName(name.c_str());
 	}
 }
+
+void Ryu::Graphics::Internal::LogDX11Naming(std::string_view name)
+{
+	LOG_DEBUG(RYU_USE_LOG_CATEGORY(GraphicsDebug), "DX11 object named: {}", name);
+}

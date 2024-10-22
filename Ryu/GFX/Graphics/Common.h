@@ -40,6 +40,18 @@ namespace Ryu::Graphics
 	{
 		void LogHResultError(HRESULT hr, std::string_view functionName, std::string_view fileName, u32 lineNumber);
 		void SetNameDX12(ID3D12Object* obj, std::wstring name);
+		
+		void LogDX11Naming(std::string_view name);
+		
+		template <typename T>
+		inline void SetDebugObjectName(_In_ T resource, _In_z_ std::string_view name)
+		{
+			if (resource)
+			{
+				resource->SetPrivateData(WKPDID_D3DDebugObjectName, (u32)name.length(), name.data());
+				LogDX11Naming(name);
+			}
+		}
 	}
 }
 
@@ -57,3 +69,10 @@ namespace Ryu::Graphics
 #else
 #define DX12_NAME_OBJECT(obj, name)
 #endif
+
+#if defined(RYU_BUILD_DEBUG)
+#define DX11_NAME_OBJECT(obj, name) Ryu::Graphics::Internal::SetDebugObjectName(obj, name);
+#else
+#define DX11_NAME_OBJECT(obj, name)
+#endif
+

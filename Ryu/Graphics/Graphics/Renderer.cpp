@@ -2,6 +2,7 @@
 #include "Graphics/API.h"
 #include "Graphics/GraphicsInterface.h"
 #include "Graphics/ISurface.h"
+#include "Graphics/Internal/DXInternal.h"
 #include "Graphics/DX12/DX12Interface.h"
 #include "Graphics/DX11/DX11Interface.h"
 
@@ -27,11 +28,17 @@ namespace Ryu::Graphics
 
 	bool Init(API api)
 	{
-		return SetGraphicsInterface(api) && g_gfx.Init();
+		// Internal will create the common D3D objects
+		return Internal::Init(api)
+			&& SetGraphicsInterface(api)
+			&& g_gfx.Init();
 	}
 
 	void Shutdown()
 	{
+		// Shutdown internal first since they are not relevant to the core rendering API
+		// This will remove unwanted references
+		Internal::Shutdown();
 		g_gfx.Shutdown();
 	}
 

@@ -11,7 +11,7 @@ int WINAPI wWinMain(
 	using namespace Ryu;
 
 	// Set the working API
-	Graphics::GraphicsConfig::Get().GraphicsAPI = Graphics::API::DirectX11;
+	Graphics::GraphicsConfig::Get().GraphicsAPI = Graphics::API::DirectX12;
 
 	// Creating the engine object initializes all core subsystems
 	Engine::Engine engine;

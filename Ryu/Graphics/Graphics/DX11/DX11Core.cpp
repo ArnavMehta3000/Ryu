@@ -1,5 +1,6 @@
 #include "DX11Core.h"
 #include "Graphics/Config.h"
+#include "Graphics/Internal/DXInternal.h"
 #include "Graphics/DX11/DX11Surface.h"
 #include <libassert/assert.hpp>
 
@@ -14,7 +15,6 @@ namespace Ryu::Graphics::DX11::Core
 		
 		ID3D11Device5*               g_device{ nullptr };
 		ID3D11DeviceContext4*        g_imContext{ nullptr };
-		IDXGIFactory7*               g_dxgiFactory{ nullptr };
 		std::unique_ptr<DX11Surface> g_surface{ nullptr };
 
 		bool InitializationFailed()
@@ -23,73 +23,6 @@ namespace Ryu::Graphics::DX11::Core
 
 			Shutdown();
 			return false;
-		}
-
-		IDXGIAdapter4* GetMainAdapter()
-		{
-			D3D_FEATURE_LEVEL maxFeatureLevel;
-			static constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVELS[] =
-			{
-				D3D_FEATURE_LEVEL_11_1,
-				D3D_FEATURE_LEVEL_11_0,
-				D3D_FEATURE_LEVEL_10_1,
-				D3D_FEATURE_LEVEL_10_0
-			};
-
-			IDXGIAdapter4* adapter{ nullptr };
-			ComPtr<ID3D11Device> device;
-			ComPtr<ID3D11DeviceContext> context;
-			for (u32 i = 0; g_dxgiFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter)) != DXGI_ERROR_NOT_FOUND; ++i)
-			{
-				if (SUCCEEDED(::D3D11CreateDevice(
-					adapter,
-					D3D_DRIVER_TYPE_UNKNOWN,
-					nullptr,
-					D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-					MIN_FEATURE_LEVELS,
-					_countof(MIN_FEATURE_LEVELS),
-					D3D11_SDK_VERSION,
-					&device,
-					&maxFeatureLevel,
-					&context)))
-				{
-					return adapter;
-				}
-			}
-
-			return nullptr;
-		}
-
-		D3D_FEATURE_LEVEL GetMaxFeatureLevel(IDXGIAdapter4* adapter)
-		{
-			// Use helper class to check for feature support
-			D3D_FEATURE_LEVEL maxFeatureLevel{ D3D_FEATURE_LEVEL_11_1 };
-
-			static constexpr D3D_FEATURE_LEVEL MIN_FEATURE_LEVELS[] = 
-			{
-				D3D_FEATURE_LEVEL_11_1,
-				D3D_FEATURE_LEVEL_11_0,
-				D3D_FEATURE_LEVEL_10_1,
-				D3D_FEATURE_LEVEL_10_0
-			};
-
-			ComPtr<ID3D11Device> device;
-			ComPtr<ID3D11DeviceContext> context;
-			HRESULT hr{ S_OK };
-			
-			DXCall(hr = ::D3D11CreateDevice(
-				adapter,
-				D3D_DRIVER_TYPE_UNKNOWN,
-				nullptr,
-				D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-				MIN_FEATURE_LEVELS,
-				_countof(MIN_FEATURE_LEVELS),
-				D3D11_SDK_VERSION,
-				&device,
-				&maxFeatureLevel,
-				&context));
-
-			return maxFeatureLevel;
 		}
 
 		void ReportLiveObjects(bool releaseDevice = true)
@@ -120,27 +53,23 @@ namespace Ryu::Graphics::DX11::Core
 		}
 
 		const GraphicsConfig& config = GraphicsConfig::Get();
-
-		u32 dxgiCreationFlags = 0;
 		u32 deviceCreationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 		if (config.EnableDebugLayer)
 		{
 			LOG_DEBUG(RYU_USE_LOG_CATEGORY(DX11Core), "Enabling graphics debug layer");
-			dxgiCreationFlags |= DXGI_CREATE_FACTORY_DEBUG;
 			deviceCreationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 		}
 
-		DXCall(CreateDXGIFactory2(dxgiCreationFlags, IID_PPV_ARGS(&g_dxgiFactory)));
+		auto* const factory = Graphics::Internal::GetFactory();
 
-		// Adapter block
+		// Device crea
 		{
-			ComPtr<IDXGIAdapter4> adapter;
-			adapter.Attach(GetMainAdapter());
+			IDXGIAdapter4* const adapter = Graphics::Internal::GetMainAdapter();
 
 			DEBUG_ASSERT(adapter, "Failed to get main adapter");
 			if (!adapter) return InitializationFailed();
 
-			const D3D_FEATURE_LEVEL maxFeatureLevel = GetMaxFeatureLevel(adapter.Get());
+			const D3D_FEATURE_LEVEL maxFeatureLevel = Graphics::Internal::GetMaxFeatureLevel();
 			DEBUG_ASSERT(maxFeatureLevel >= MIN_FEATURE_LEVEL);
 			if (maxFeatureLevel < MIN_FEATURE_LEVEL) return InitializationFailed();
 
@@ -149,7 +78,7 @@ namespace Ryu::Graphics::DX11::Core
 				ComPtr<ID3D11Device> device;
 				ComPtr<ID3D11DeviceContext> deviceContext;
 				DXCall(::D3D11CreateDevice(
-					adapter.Get(),
+					adapter,
 					D3D_DRIVER_TYPE_UNKNOWN,
 					NULL,
 					deviceCreationFlags,
@@ -205,7 +134,6 @@ namespace Ryu::Graphics::DX11::Core
 		g_imContext->ClearState();
 		g_imContext->Flush();
 
-		Release(g_dxgiFactory);
 		Release(g_imContext);
 
 		if (GraphicsConfig::Get().EnableDebugLayer)

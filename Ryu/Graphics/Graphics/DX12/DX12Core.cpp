@@ -1,5 +1,6 @@
 #include "DX12Core.h"
 #include "Graphics/Config.h"
+#include "Graphics/Internal/DXInternal.h"
 #include "Graphics/DX12/DX12Command.h"
 #include "Graphics/DX12/DX12Resources.h"
 #include "Graphics/DX12/DX12Surface.h"
@@ -17,7 +18,6 @@ namespace Ryu::Graphics::DX12::Core
 		constexpr DXGI_FORMAT DEFAULT_RENDER_TARGET_FORMAT{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
 
 		ID3D12Device8*                      g_device{ nullptr };
-		IDXGIFactory7*                      g_dxgiFactory{ nullptr };
 		DX12Command                         g_gfxCommand;
 		std::unique_ptr<DX12Surface>        g_surface{ nullptr };
 
@@ -36,32 +36,6 @@ namespace Ryu::Graphics::DX12::Core
 
 			Shutdown();
 			return false;
-		}
-
-		IDXGIAdapter4* GetMainAdapter()
-		{
-			IDXGIAdapter4* adapter{ nullptr };
-
-			for (u32 i = 0; g_dxgiFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter)) != DXGI_ERROR_NOT_FOUND; ++i)
-			{
-				if (SUCCEEDED(::D3D12CreateDevice(adapter, MIN_FEATURE_LEVEL, __uuidof(ID3D12Device), nullptr)))
-				{
-					return adapter;
-				}
-				Release(adapter);
-			}
-			return nullptr;
-		}
-
-		D3D_FEATURE_LEVEL GetMaxFeatureLevel(IDXGIAdapter4* adapter)
-		{
-			// Use helper class to check for feature support
-			ComPtr<ID3D12Device> device;
-			DXCall(D3D12CreateDevice(adapter, MIN_FEATURE_LEVEL, IID_PPV_ARGS(&device)));
-
-			CD3DX12FeatureSupport support;
-			DXCall(support.Init(device.Get()));
-			return support.MaxSupportedFeatureLevel();
 		}
 
 		void __declspec(noinline) ProcessDeferredRelease(u32 frameIndex)
@@ -97,12 +71,9 @@ namespace Ryu::Graphics::DX12::Core
 		}
 
 		const GraphicsConfig& config = GraphicsConfig::Get();
-		
-		u32 dxgiCreationFlags = 0;
 		if (config.EnableDebugLayer)
 		{
 			LOG_DEBUG(RYU_USE_LOG_CATEGORY(DX12Core), "Enabling graphics debug layer");
-			dxgiCreationFlags |= DXGI_CREATE_FACTORY_DEBUG;
 
 			ComPtr<ID3D12Debug6> debugController;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
@@ -121,22 +92,18 @@ namespace Ryu::Graphics::DX12::Core
 			}
 		}
 
-		DXCall(CreateDXGIFactory2(dxgiCreationFlags, IID_PPV_ARGS(&g_dxgiFactory)));
-
-		// Get main adapter
-		ComPtr<IDXGIAdapter4> adapter;
-		adapter.Attach(GetMainAdapter());
+		IDXGIAdapter4* const adapter = Graphics::Internal::GetMainAdapter();
 		
 		DEBUG_ASSERT(adapter, "Failed to get main adapter");
 		if (!adapter) return InitializationFailed();
 
 		//  Get max feature level
-		const D3D_FEATURE_LEVEL maxFeatureLevel = GetMaxFeatureLevel(adapter.Get());
+		const D3D_FEATURE_LEVEL maxFeatureLevel = Graphics::Internal::GetMaxFeatureLevel();
 		DEBUG_ASSERT(maxFeatureLevel >= MIN_FEATURE_LEVEL);
 		if (maxFeatureLevel < MIN_FEATURE_LEVEL) return InitializationFailed();
 
 		// Create device
-		DXCall(D3D12CreateDevice(adapter.Get(), maxFeatureLevel, IID_PPV_ARGS(&g_device)));
+		DXCall(D3D12CreateDevice(adapter, maxFeatureLevel, IID_PPV_ARGS(&g_device)));
 		DEBUG_ASSERT(g_device, "Failed to create device");
 
 		bool heapInit = true;
@@ -186,8 +153,6 @@ namespace Ryu::Graphics::DX12::Core
 			ProcessDeferredRelease(i);
 		}
 
-		Release(g_dxgiFactory);
-
 		g_rtvDescHeap.Release();
 		g_dsvDescHeap.Release();
 		g_srvDescHeap.Release();
@@ -225,7 +190,7 @@ namespace Ryu::Graphics::DX12::Core
 		DEBUG_ASSERT(window && window->GetHWND(), "Invalid window handle");
 
 		g_surface = std::make_unique<DX12Surface>(window);
-		g_surface->CreateSwapChain(g_dxgiFactory, g_gfxCommand.GetCommandQueue(), DEFAULT_RENDER_TARGET_FORMAT);
+		g_surface->CreateSwapChain(Graphics::Internal::GetFactory(), g_gfxCommand.GetCommandQueue(), DEFAULT_RENDER_TARGET_FORMAT);
 
 		LOG_INFO(RYU_USE_LOG_CATEGORY(DX12Core), "Created DX12 surface");
 

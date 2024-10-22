@@ -1,8 +1,9 @@
 #include "Renderer.h"
-#include "Graphics/GraphicsAPI.h"
+#include "Graphics/API.h"
+#include "Graphics/GraphicsInterface.h"
 #include "Graphics/ISurface.h"
 #include "Graphics/DX12/DX12Interface.h"
-#include <libassert/assert.hpp>  //TODO: Remove this include when assert is removed from this file
+#include "Graphics/DX11/DX11Interface.h"
 
 namespace Ryu::Graphics
 {
@@ -14,8 +15,9 @@ namespace Ryu::Graphics
 		{
 			switch (api)
 			{
-			case Ryu::Graphics::API::DirectX12:
-				DX12::GetGraphicsInterface(g_gfx);
+			case API::DirectX12: DX12::GetGraphicsInterface(g_gfx);
+				return true;
+			case API::DirectX11: DX11::GetGraphicsInterface(g_gfx);
 				return true;
 			}
 

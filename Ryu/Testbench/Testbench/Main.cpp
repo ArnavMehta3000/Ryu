@@ -1,10 +1,6 @@
 #include <Windows.h>
 #include "Test.h"
-
-void GlobalCallback(u32 value)
-{
-	LOG_INFO(TestApp::TestAppLog, "GlobalCallback: {}", value);
-}
+#include "Graphics/Config.h"
 
 int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,
@@ -14,19 +10,11 @@ int WINAPI wWinMain(
 {
 	using namespace Ryu;
 
+	// Set the working API
+	Graphics::GraphicsConfig::Get().GraphicsAPI = Graphics::API::DirectX11;
+
 	// Creating the engine object initializes all core subsystems
 	Engine::Engine engine;
-	auto app = std::make_shared<TestApp>();
-
-	Events::Event<u32>::DelegateHandle lambdaHandle = engine.m_OnEvent.Add([](u32 value)
-		{
-			LOG_INFO(TestApp::TestAppLog, "LambdaCallback: {}", value);
-		});
-
-	Events::Event<u32>::DelegateHandle globalHandle = engine.m_OnEvent.Add(&GlobalCallback);
-	Events::Event<u32>::DelegateHandle localHandle = engine.m_OnEvent.Add(app.get(), &TestApp::LocalCallback);
-
-	engine.m_OnEvent.Remove(localHandle);
 	
 	Logging::Logger* logger = Logging::Logger::Get();
 	logger->AddSink(std::make_unique<Logging::DebugSink>());
@@ -45,7 +33,7 @@ int WINAPI wWinMain(
 	});
 
 	engine.SetCommandLine(lpCmdLine);
-	engine.SetApp(app);
+	engine.SetApp(std::make_shared<TestApp>());
 	engine.Run();
 
 	return 0;

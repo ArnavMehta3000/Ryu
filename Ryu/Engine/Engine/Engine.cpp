@@ -3,6 +3,7 @@
 #include "App/Window.h"
 #include "StepTimer/StepTimer.h"
 #include "Graphics/Renderer.h"
+#include "Graphics/Config.h"
 
 namespace Ryu::Engine
 {
@@ -27,7 +28,7 @@ namespace Ryu::Engine
 
 	Engine::~Engine() = default;
 
-	void Engine::Init()
+	bool Engine::Init()
 	{
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Initializing Engine");
 
@@ -39,17 +40,17 @@ namespace Ryu::Engine
 		else
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Engine application");
-			return;
+			return false;
 		}
 		
-		if (Ryu::Graphics::Init(Ryu::Graphics::API::DirectX12))
+		if (Ryu::Graphics::Init(Ryu::Graphics::API::DirectX11))
 		{
 			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics initialized successfully");
 		}
 		else
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Graphics");
-			return;
+			return false;
 		}
 
 		m_renderSurface.Window = dynamic_cast<Ryu::App::Window*>(m_app->GetWindow().get());
@@ -58,6 +59,8 @@ namespace Ryu::Engine
 		ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine initialized successfully");
+
+		return true;
 	}
 
 	void Engine::Shutdown()
@@ -86,11 +89,15 @@ namespace Ryu::Engine
 
 		if (m_app == nullptr)
 		{
-			LOG_ERROR(RYU_USE_LOG_CATEGORY(Engine), "Engine application not initialized!");
+			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Engine application not initialized!");
 			return;
 		}
-		m_OnEvent.Broadcast(69);
-		Init();
+
+		if (!Init())
+		{
+			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");
+			return;
+		}
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Starting Engine main loop");
 

@@ -2,6 +2,8 @@
 #include "Common/Common.h"
 #include "Logger/Logger.h"
 #include <directx/d3dx12.h>
+#include <d3d11_4.h>
+#include <d3d11shader.h>
 #include <Windows.h>
 #include <dxgi1_6.h>
 #if defined(RYU_BUILD_DEBUG)

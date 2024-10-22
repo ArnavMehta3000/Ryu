@@ -9,6 +9,9 @@ namespace Ryu::Graphics::DX12::Core
 {
 	bool Init();
 	void Shutdown();
+	ISurface* CreateSurface(App::WindowBase* window);
+	void OnResizeSurface(u32 width, u32 height);
+	void RenderSurface();
 
 	ID3D12Device8* const GetDevice();
 
@@ -19,10 +22,6 @@ namespace Ryu::Graphics::DX12::Core
 	DescriptorHeap& GetDSVDescHeap();
 	DescriptorHeap& GetSRVDescHeap();
 	DescriptorHeap& GetUAVDescHeap();
-
-	ISurface* CreateSurface(App::WindowBase* window);
-	void OnResizeSurface(u32 width, u32 height);
-	void RenderSurface();
 
 	namespace Internal
 	{

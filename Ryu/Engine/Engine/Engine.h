@@ -28,10 +28,8 @@ namespace Ryu::Engine
 
 		void Run();
 
-		Events::Event<u32> m_OnEvent;
-
 	private:
-		void Init();
+		bool Init();
 		void Shutdown();
 		void DoFrame(MAYBE_UNUSED f64 dt);
 

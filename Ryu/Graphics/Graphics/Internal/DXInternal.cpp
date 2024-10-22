@@ -120,10 +120,6 @@ namespace Ryu::Graphics::Internal
 			CreateAdapterDX12();
 			CaptureMaxFeatureLevelDX11();
 			break;
-
-		default:
-			PANIC("API not implemented", api);
-			return false;
 		}
 
 		return true;

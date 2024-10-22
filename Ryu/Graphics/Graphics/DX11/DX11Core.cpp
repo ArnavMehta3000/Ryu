@@ -60,8 +60,6 @@ namespace Ryu::Graphics::DX11::Core
 			deviceCreationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 		}
 
-		auto* const factory = Graphics::Internal::GetFactory();
-
 		// Device crea
 		{
 			IDXGIAdapter4* const adapter = Graphics::Internal::GetMainAdapter();

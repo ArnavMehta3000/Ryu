@@ -50,3 +50,14 @@ namespace Ryu::App
 		};
 	}
 }
+
+RYU_BEGIN_ENUM_TO_STRING(Ryu::App::WindowState)
+	RYU_ENUM_TO_STRING(Restored)
+	RYU_ENUM_TO_STRING(Maximized)
+	RYU_ENUM_TO_STRING(Minimized)
+RYU_END_ENUM_TO_STRING()
+
+RYU_BEGIN_ENUM_TO_STRING(Ryu::App::WindowFocus)
+	RYU_ENUM_TO_STRING(Gained)
+	RYU_ENUM_TO_STRING(Lost)
+RYU_END_ENUM_TO_STRING()

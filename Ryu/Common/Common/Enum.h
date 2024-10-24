@@ -1,5 +1,6 @@
 #pragma once
-#include <type_traits>
+#include "Common/Concepts.h"
+#include <string_view>
 
 template <typename Enum>
 struct EnableBitMaskOps
@@ -67,3 +68,26 @@ struct EnableBitMaskOps<Enum>                \
 };                                           \
 											 \
 namespace Ryu { constexpr bool IsEnumMaskBitSet(Enum Mask, Enum Component) { return (Mask & Component) == Component; } }
+
+namespace Ryu
+{
+	template <typename T> requires Ryu::IsEnum<T>
+	inline constexpr std::string_view EnumToString(T value);
+}
+
+#define RYU_ENUM_TO_STRING(Value) case Value: return RYU_ENUM_STRINGIFY(Value);
+
+#define RYU_ENUM_STRINGIFY(Value) #Value
+
+#define RYU_BEGIN_ENUM_TO_STRING(EnumType)                             \
+	template <>                                                        \
+	inline constexpr std::string_view Ryu::EnumToString(EnumType value)\
+	{                                                                  \
+		switch(value)                                                  \
+		{                                                              \
+			using enum EnumType;
+
+#define RYU_END_ENUM_TO_STRING()    \
+		default: return "<Unknown>";\
+		}                           \
+	}                               \

@@ -1,4 +1,4 @@
-target("RyuGFX")
+target("RyuGraphics")
 	set_kind("static")
 	set_group("Ryu/Graphics")
 

@@ -43,9 +43,10 @@ namespace Ryu::Engine
 			return false;
 		}
 		
-		if (Ryu::Graphics::Init(Graphics::GraphicsConfig::Get().GraphicsAPI))
+		Graphics::API api = Graphics::GraphicsConfig::Get().GraphicsAPI;
+		if (Ryu::Graphics::Init(api))
 		{
-			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics initialized successfully");
+			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(api));
 		}
 		else
 		{

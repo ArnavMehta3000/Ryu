@@ -13,6 +13,9 @@ namespace Ryu
 	template <typename T>
 	concept IsFuncPtr = std::is_pointer_v<T> && std::is_function_v<std::remove_pointer_t<T>>;
 
+	template <typename T>
+	concept IsEnum = std::is_enum_v<T>;
+
 	template <typename Child, typename Parent>
 	concept IsDerived = std::is_base_of_v<Child, Parent>;
 

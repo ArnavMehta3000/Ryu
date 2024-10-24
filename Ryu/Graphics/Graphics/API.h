@@ -1,4 +1,5 @@
 #pragma once
+#include "Common/Enum.h"
 
 namespace Ryu::Graphics
 {
@@ -8,3 +9,8 @@ namespace Ryu::Graphics
 		DirectX11
 	};
 }
+
+RYU_BEGIN_ENUM_TO_STRING(Ryu::Graphics::API)
+	RYU_ENUM_TO_STRING(Ryu::Graphics::API::DirectX12)
+	RYU_ENUM_TO_STRING(Ryu::Graphics::API::DirectX11)
+RYU_END_ENUM_TO_STRING()

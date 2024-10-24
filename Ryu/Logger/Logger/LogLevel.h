@@ -1,5 +1,5 @@
 #pragma once
-#include <string_view>
+#include "Common/Enum.h"
 
 namespace Ryu::Logging
 {
@@ -14,18 +14,11 @@ namespace Ryu::Logging
 	};
 }
 
-inline constexpr std::string_view EnumToString(Ryu::Logging::LogLevel level)
-{
-	switch (level)
-	{
-		using enum Ryu::Logging::LogLevel;
-
-	case Trace: return "Trace";
-	case Debug: return "Debug";
-	case Info:  return "Info";
-	case Warn:  return "Warn";
-	case Error: return "Error";
-	case Fatal: return "Fatal";
-	default:    return "Unknown";
-	}
-}
+RYU_BEGIN_ENUM_TO_STRING(Ryu::Logging::LogLevel)
+	RYU_ENUM_TO_STRING(Trace)
+	RYU_ENUM_TO_STRING(Debug)
+	RYU_ENUM_TO_STRING(Info)
+	RYU_ENUM_TO_STRING(Warn)
+	RYU_ENUM_TO_STRING(Error)
+	RYU_ENUM_TO_STRING(Fatal)
+RYU_END_ENUM_TO_STRING()

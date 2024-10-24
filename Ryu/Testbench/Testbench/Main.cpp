@@ -22,7 +22,7 @@ int WINAPI wWinMain(
 	logger->SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
 	{
 		Utils::MessageBoxDesc desc;
-		desc.Title        = EnumToString(level);
+		desc.Title        = Ryu::EnumToString(level);
 		desc.Title       += " Error";
 		desc.Text         = message.Message;
 		desc.Flags.Button = Utils::MessagBoxButton::Ok;

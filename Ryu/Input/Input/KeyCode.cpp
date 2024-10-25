@@ -125,8 +125,8 @@ namespace Ryu::Input
 		case F22:                FALLTHROUGH;
 		case F23:                FALLTHROUGH;
 		case F24:                FALLTHROUGH;
-		case Numlock:            FALLTHROUGH;
-		case Scroll:             FALLTHROUGH;
+		case NumLock:            FALLTHROUGH;
+		case ScrollLock:         FALLTHROUGH;
 		case NumpadEqual:        FALLTHROUGH;
 		case LeftShift:          FALLTHROUGH;
 		case RightShift:         FALLTHROUGH;

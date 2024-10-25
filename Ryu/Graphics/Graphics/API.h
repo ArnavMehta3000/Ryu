@@ -11,6 +11,6 @@ namespace Ryu::Graphics
 }
 
 RYU_BEGIN_ENUM_TO_STRING(Ryu::Graphics::API)
-	RYU_ENUM_TO_STRING(Ryu::Graphics::API::DirectX12)
-	RYU_ENUM_TO_STRING(Ryu::Graphics::API::DirectX11)
+	RYU_ENUM_TO_STRING(DirectX12)
+	RYU_ENUM_TO_STRING(DirectX11)
 RYU_END_ENUM_TO_STRING()

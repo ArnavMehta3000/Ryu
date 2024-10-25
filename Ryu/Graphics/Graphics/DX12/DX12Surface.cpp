@@ -1,6 +1,8 @@
 #include "DX12Surface.h"
 #include "App/WindowBase.h"
+#include "Graphics/Config.h"
 #include "Graphics/DX12/DX12Core.h"
+#include "Graphics/Internal/DXInternal.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::DX12
@@ -11,6 +13,16 @@ namespace Ryu::Graphics::DX12
 		{
 			return format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB ? DXGI_FORMAT_R8G8B8A8_UNORM : format;
 		}
+
+		bool CheckFormatSupport(DXGI_FORMAT format)
+		{
+			CD3DX12FeatureSupport support;
+			support.Init(Core::GetDevice());
+
+			D3D12_FORMAT_SUPPORT1 support1;
+			D3D12_FORMAT_SUPPORT2 support2;
+			return SUCCEEDED(support.FormatSupport(format, support1, support2));
+		}
 	}
 
 	DX12Surface::DX12Surface(App::WindowBase* window)
@@ -18,6 +30,7 @@ namespace Ryu::Graphics::DX12
 		, m_swapChain(nullptr)
 		, m_currentBackBufferIndex(0)
 		, m_presentFlags(0)
+		, m_vsync(GraphicsConfig::Get().EnableVSync)
 	{
 		DEBUG_ASSERT(window->GetHWND(), "Invalid window handle");
 	}
@@ -27,16 +40,21 @@ namespace Ryu::Graphics::DX12
 		Release();
 	}
 
-	void DX12Surface::CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* cmdQueue, DXGI_FORMAT format)
+	void DX12Surface::CreateSwapChain(ID3D12CommandQueue* cmdQueue, DXGI_FORMAT format)
 	{
-		ASSERT(factory && cmdQueue, "Invalid factory or command queue");
+		ASSERT(cmdQueue, "Invalid factory or command queue");
 
 		Release();
 
-		if (SUCCEEDED(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &m_allowTearing, sizeof(m_allowTearing))))
+		auto* const factory = Internal::GetFactory();
+
+		if (Internal::HasTearingSupport() && !GraphicsConfig::Get().EnableVSync)
 		{
 			m_presentFlags = DXGI_PRESENT_ALLOW_TEARING;
+			m_allowTearing = true;
 		}
+
+		DEBUG_ASSERT(CheckFormatSupport(format), "Format not supported");
 
 		DXGI_SWAP_CHAIN_DESC1 desc{};
 		desc.AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -49,7 +67,23 @@ namespace Ryu::Graphics::DX12
 		desc.SampleDesc  = { 1, 0 };
 		desc.Scaling     = DXGI_SCALING_STRETCH;
 		desc.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		desc.Stereo = false;
+		desc.Stereo      = false;
+
+		DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc{};
+		if (GraphicsConfig::Get().EnableVSync)
+		{
+			auto [numerator, denominator] = Internal::GetRefreshRate(format, desc.Width, desc.Height);
+			fsDesc.RefreshRate.Numerator = numerator;
+			fsDesc.RefreshRate.Denominator = denominator;
+		}
+		else
+		{
+			fsDesc.RefreshRate.Numerator = 0;
+			fsDesc.RefreshRate.Denominator = 1;
+		}
+		fsDesc.Windowed         = TRUE;
+		fsDesc.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;
+		fsDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 
 		IDXGISwapChain1* swapChain{nullptr};
 		DXCall(factory->CreateSwapChainForHwnd(
@@ -68,9 +102,9 @@ namespace Ryu::Graphics::DX12
 		// Get backbuffer
 		m_currentBackBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-		for (u32 i = 0; i < BUFFER_COUNT; i++)
+		for (RenderTargetData& data : m_renderTargetData)
 		{
-			m_renderTargetData[i].RTV = Core::GetRTVDescHeap().Allocate();
+			data.RTV = Core::GetRTVDescHeap().Allocate();
 		}
 
 		Finalize();
@@ -79,8 +113,8 @@ namespace Ryu::Graphics::DX12
 	void DX12Surface::Present() const
 	{
 		DEBUG_ASSERT(m_swapChain);
-		DXCall(m_swapChain->Present(0, m_presentFlags));
 
+		DXCall(m_swapChain->Present(m_vsync, m_presentFlags));
 		m_currentBackBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
 	}
 
@@ -90,9 +124,8 @@ namespace Ryu::Graphics::DX12
 
 	void DX12Surface::Release()
 	{
-		for (u32 i = 0; i < BUFFER_COUNT; i++)
+		for (RenderTargetData& data : m_renderTargetData)
 		{
-			RenderTargetData& data = m_renderTargetData[i];
 			Graphics::Release(data.Resource);
 			Core::GetRTVDescHeap().Free(data.RTV);
 		}
@@ -103,9 +136,8 @@ namespace Ryu::Graphics::DX12
 	void DX12Surface::Finalize()
 	{
 		// Create RTV for each back buffer
-		for (u32 i = 0; i < BUFFER_COUNT; i++)
+		for (RenderTargetData& data : m_renderTargetData)
 		{
-			RenderTargetData& data = m_renderTargetData[i];
 			DEBUG_ASSERT(!data.Resource);
 
 			D3D12_RENDER_TARGET_VIEW_DESC desc{};
@@ -121,5 +153,10 @@ namespace Ryu::Graphics::DX12
 			0.0f, 0.0f,
 			static_cast<f32>(desc.BufferDesc.Width),
 			static_cast<f32>(desc.BufferDesc.Height));
+
+		m_scissorRect = CD3DX12_RECT(
+			0, 0,
+			static_cast<LONG>(desc.BufferDesc.Width),
+			static_cast<LONG>(desc.BufferDesc.Height));
 	}
 }

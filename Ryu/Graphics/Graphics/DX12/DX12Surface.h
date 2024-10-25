@@ -11,7 +11,7 @@ namespace Ryu::Graphics::DX12
 		explicit DX12Surface(App::WindowBase* window);
 		~DX12Surface();
 
-		void CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* cmdQueue, DXGI_FORMAT format);
+		void CreateSwapChain(ID3D12CommandQueue* cmdQueue, DXGI_FORMAT format);
 		
 		void Present() const override;
 		void OnResize(u32 width, u32 height) override;
@@ -33,7 +33,7 @@ namespace Ryu::Graphics::DX12
 	private:
 		struct RenderTargetData
 		{
-			ID3D12Resource* Resource = nullptr;
+			ID3D12Resource* Resource{ nullptr };
 			DescriptorHandle RTV{};
 		};
 
@@ -44,5 +44,6 @@ namespace Ryu::Graphics::DX12
 		CD3DX12_RECT                               m_scissorRect;
 		u32                                        m_presentFlags;
 		u32                                        m_allowTearing;
+		bool                                       m_vsync;
 	};
 }

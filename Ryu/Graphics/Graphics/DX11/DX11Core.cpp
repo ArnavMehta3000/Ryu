@@ -1,4 +1,5 @@
 #include "DX11Core.h"
+#include "App/WindowBase.h"
 #include "Graphics/Config.h"
 #include "Graphics/Internal/DXInternal.h"
 #include "Graphics/DX11/DX11Surface.h"
@@ -131,6 +132,8 @@ namespace Ryu::Graphics::DX11::Core
 
 		g_imContext->ClearState();
 		g_imContext->Flush();
+		
+		Sleep(250);  // Wait for the resources to be released
 
 		Release(g_imContext);
 
@@ -144,17 +147,27 @@ namespace Ryu::Graphics::DX11::Core
 
 	ISurface* CreateSurface(App::WindowBase* window)
 	{
-		return nullptr;
+		DEBUG_ASSERT(window && window->GetHWND(), "Invalid window handle");
+
+		g_surface = std::make_unique<DX11Surface>(window);
+		g_surface->CreateSwapChain(DEFAULT_RENDER_TARGET_FORMAT);
+
+		LOG_INFO(RYU_USE_LOG_CATEGORY(DX11Core), "Created DX11 surface");
+
+		return g_surface.get();
 	}
 
 	void OnResizeSurface(u32 width, u32 height)
 	{
+		DEBUG_ASSERT(g_surface, "Surface not created");
 
+		g_surface->OnResize(width, height);
 	}
 
 	void RenderSurface()
 	{
-
+		g_surface->SetBackBuffer();
+		g_surface->Present();
 	}
 
 	ID3D11Device5* const GetDevice()

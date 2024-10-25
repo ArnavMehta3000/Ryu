@@ -12,6 +12,7 @@ namespace Ryu::Graphics
 		bool EnableDebugLayer{ false };
 #endif
 		bool EnableGPUBasedValidation{ false };  // Only used for DirectX12
+		bool EnableVSync{ true };
 		API GraphicsAPI{ API::DirectX12 };
 	};
 }

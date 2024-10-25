@@ -190,7 +190,7 @@ namespace Ryu::Graphics::DX12::Core
 		DEBUG_ASSERT(window && window->GetHWND(), "Invalid window handle");
 
 		g_surface = std::make_unique<DX12Surface>(window);
-		g_surface->CreateSwapChain(Graphics::Internal::GetFactory(), g_gfxCommand.GetCommandQueue(), DEFAULT_RENDER_TARGET_FORMAT);
+		g_surface->CreateSwapChain(g_gfxCommand.GetCommandQueue(), DEFAULT_RENDER_TARGET_FORMAT);
 
 		LOG_INFO(RYU_USE_LOG_CATEGORY(DX12Core), "Created DX12 surface");
 

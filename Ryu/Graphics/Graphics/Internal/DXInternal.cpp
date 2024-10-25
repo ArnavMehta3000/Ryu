@@ -96,10 +96,29 @@ namespace Ryu::Graphics::Internal
 			DXCall(support.Init(device.Get()));
 			g_maxFeatureLevel = support.MaxSupportedFeatureLevel();
 		}
+	
+		void EnableDXGIDebugLayer()
+		{
+			const GraphicsConfig& config = GraphicsConfig::Get();
+			if (!config.EnableDebugLayer)
+			{
+				return;
+			}
+
+			ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
+			if (SUCCEEDED(::DXGIGetDebugInterface1(0, IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
+			{
+				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
+				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+			}
+		}
 	}
 
 	bool Init(API api)
 	{
+		::CoInitialize(NULL);
+		EnableDXGIDebugLayer();
+
 		// --- Create factory ---
 		u32 dxgiCreationFlags = 0;
 		if (GraphicsConfig::Get().EnableDebugLayer)
@@ -129,6 +148,8 @@ namespace Ryu::Graphics::Internal
 	{
 		Release(g_adapter);
 		Release(g_dxgiFactory);
+
+		::CoUninitialize();
 	}
 
 	IDXGIFactory7* const GetFactory()
@@ -144,5 +165,54 @@ namespace Ryu::Graphics::Internal
 	D3D_FEATURE_LEVEL GetMaxFeatureLevel()
 	{
 		return g_maxFeatureLevel;
+	}
+
+	std::pair<u32, u32> GetRefreshRate(DXGI_FORMAT format, u32 width, u32 height)
+	{
+		// Get main output window
+		ComPtr<IDXGIOutput> output;
+		HRESULT hr{ S_OK };
+		if (SUCCEEDED(hr = g_adapter->EnumOutputs(0, &output)))
+		{
+			ComPtr<IDXGIOutput6> output6;
+			if (SUCCEEDED(hr = output.As(&output6)))
+			{
+				u32 numModes{ 0 };
+				DXGI_MODE_DESC1* displayModes = NULL;
+				if (SUCCEEDED(hr = output6->GetDisplayModeList1(format, DXGI_ENUM_MODES_INTERLACED, &numModes, nullptr)))
+				{
+					displayModes = new DXGI_MODE_DESC1[numModes]; 
+					if (SUCCEEDED(hr = output6->GetDisplayModeList1(format, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModes)))
+					{
+						for (u32 i = 0; i < numModes; i++)
+						{
+							if (displayModes[i].Width == width &&
+								displayModes[i].Height == height)
+							{
+								return std::make_pair(
+									displayModes[i].RefreshRate.Numerator, 
+									displayModes[i].RefreshRate.Denominator);
+							}
+						}
+					}
+				}
+
+				delete[] displayModes;
+			}
+		}
+
+		return std::make_pair(60u, 1u);
+	}
+
+	bool HasTearingSupport()
+	{
+
+		BOOL allowTearing = FALSE;
+		if (SUCCEEDED(g_dxgiFactory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing))))
+		{
+			allowTearing = TRUE;
+		}
+
+		return allowTearing == TRUE;
 	}
 }

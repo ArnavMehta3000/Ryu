@@ -119,7 +119,7 @@ namespace Ryu::Engine
 		Shutdown();
 	}
 
-	void Engine::DoFrame(MAYBE_UNUSED f64 dt)
+	void Engine::DoFrame(f64 dt)
 	{
 		m_app->OnTick(dt);
 		Graphics::RenderSurface();

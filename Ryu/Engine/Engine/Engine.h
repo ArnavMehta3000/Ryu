@@ -31,7 +31,7 @@ namespace Ryu::Engine
 	private:
 		bool Init();
 		void Shutdown();
-		void DoFrame(MAYBE_UNUSED f64 dt);
+		void DoFrame(f64 dt);
 
 	private:
 		std::shared_ptr<App::Application> m_app;

@@ -77,6 +77,11 @@ namespace Ryu::Events
 
 		void Broadcast(Args... args) const
 		{
+			if (m_callbacks.empty())
+			{
+				return;
+			}
+			
 			for (auto& d : m_callbacks)
 			{
 				d.Callback(std::forward<Args>(args)...);
@@ -87,3 +92,8 @@ namespace Ryu::Events
 		std::vector<Delegate> m_callbacks;
 	};
 }
+
+// Used to declare a event and its delegate handle
+#define RYU_DECLARE_EVENT(Name, ...)\
+::Ryu::Events::Event<__VA_ARGS__> Name;\
+using RYU_CONCAT(Name, DelegateHandle) = ::Ryu::Events::Event<__VA_ARGS__>::DelegateHandle 

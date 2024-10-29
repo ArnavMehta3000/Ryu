@@ -31,8 +31,10 @@ namespace Ryu::Engine
 
 	private:
 		bool Init();
+		bool InitApplication();
 		void Shutdown();
 		void DoFrame(f64 dt) const;
+		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
 		std::shared_ptr<App::Application> m_app;

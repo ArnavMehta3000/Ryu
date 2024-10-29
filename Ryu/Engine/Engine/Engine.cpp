@@ -3,7 +3,7 @@
 #include "App/Window.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/Config.h"
-#include "External/StepTimer/StepTimer.h"
+#include <External/StepTimer/StepTimer.h>
 
 namespace Ryu::Engine
 {
@@ -39,7 +39,7 @@ namespace Ryu::Engine
 		}
 
 		// Initialize the application
-		if (m_app->Init())
+		if (InitApplication())
 		{
 			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine application initialized successfully");
 		}
@@ -68,6 +68,18 @@ namespace Ryu::Engine
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine initialized successfully");
 
 		return true;
+	}
+
+	bool Engine::InitApplication()
+	{
+		// Bind the events before initializing the application
+		std::ignore = m_app->OnWindowResize.Add([this](const App::Events::OnWindowResize& event)
+		{
+			OnAppResize(event.Width, event.Height);
+		});
+
+		// Init the application
+		return m_app->Init();
 	}
 
 	void Engine::Shutdown()
@@ -138,5 +150,11 @@ namespace Ryu::Engine
 	{
 		m_app->Tick(dt);
 		Graphics::RenderSurface();
+	}
+
+	void Engine::OnAppResize(u32 width, u32 height) const noexcept
+	{
+		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine::OnAppResize -  {}x{}", width, height);
+		RYU_TODO("Fire resize to the graphics engine")
 	}
 }

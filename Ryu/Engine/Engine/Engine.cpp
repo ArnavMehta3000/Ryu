@@ -79,7 +79,7 @@ namespace Ryu::Engine
 		m_cmdLine = Config::CommandLine(cmdLine);
 	}
 
-	f64 Engine::GetEngineUpTime() const
+	f64 Engine::GetEngineUpTime()
 	{
 		return s_timer.GetTotalSeconds();
 	}
@@ -119,9 +119,18 @@ namespace Ryu::Engine
 		Shutdown();
 	}
 
-	void Engine::DoFrame(f64 dt)
+	void Engine::Quit() const noexcept
 	{
-		m_app->OnTick(dt);
+		if (m_app)
+		{
+			LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Rquesting application shutdown");
+			m_app->StopRunning();
+		}
+	}
+
+	void Engine::DoFrame(f64 dt) const
+	{
+		m_app->Tick(dt);
 		Graphics::RenderSurface();
 	}
 }

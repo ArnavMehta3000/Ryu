@@ -24,14 +24,15 @@ namespace Ryu::Engine
 		inline std::shared_ptr<App::Application> GetApp() const { return m_app; }
 		inline const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }
 
-		f64 GetEngineUpTime() const;
+		static f64 GetEngineUpTime();
 
 		void Run();
+		void Quit() const noexcept;
 
 	private:
 		bool Init();
 		void Shutdown();
-		void DoFrame(f64 dt);
+		void DoFrame(f64 dt) const;
 
 	private:
 		std::shared_ptr<App::Application> m_app;

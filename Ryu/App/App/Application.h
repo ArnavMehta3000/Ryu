@@ -12,33 +12,38 @@ namespace Ryu::App
 	{
 	public:
 		Application();
-		~Application();
+		virtual ~Application();
 
 		bool Init();
 		void Shutdown();
+		void Tick(f64 dt);
 
-		void OnTick(MAYBE_UNUSED f64 dt);
+		void StopRunning();
 
 		inline NODISCARD std::shared_ptr<Window> GetWindow() const { return m_window; }
 		inline NODISCARD bool IsRunning() const { return m_isRunning; }
 
+	protected:
+		virtual bool OnInit() = 0;
+		virtual void OnShutdown() = 0;
+		virtual void OnTick(f64 dt) = 0;
 
 	private:
 		// Inherited via IWindowEventListener
-		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowClose& event) override;
-		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowStateChange& event) override;
-		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowResize& event) override;
-		void OnEvent(MAYBE_UNUSED const App::Events::OnWindowFocusChange& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const App::Events::OnWindowClose& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const App::Events::OnWindowStateChange& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const App::Events::OnWindowResize& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const App::Events::OnWindowFocusChange& event) override;
 
 		// Inherited via IInputEventListener
-		void OnEvent(MAYBE_UNUSED const Input::Events::OnKeyDown& event) override;
-		void OnEvent(MAYBE_UNUSED const Input::Events::OnKeyUp& event) override;
-		void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseButtonUp& event) override;
-		void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseButtonDown& event) override;
-		void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseDblClick& event) override;
-		void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMove& event) override;
-		void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMoveRaw& event) override;
-		void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseWheel& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnKeyDown& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnKeyUp& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseButtonUp& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseButtonDown& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseDblClick& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMove& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseMoveRaw& event) override;
+		virtual void OnEvent(MAYBE_UNUSED const Input::Events::OnMouseWheel& event) override;
 
 	private:
 		std::unique_ptr<Input::InputSystem> m_inputSystem;

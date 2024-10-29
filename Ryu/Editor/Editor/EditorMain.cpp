@@ -1,5 +1,6 @@
 #include <Windows.h>
-#include "Test.h"
+#include "Editor/Application/EditorApp.h"
+#include "Engine/Engine.h"
 #include "Graphics/Config.h"
 
 int WINAPI wWinMain(
@@ -9,7 +10,7 @@ int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED int       nCmdShow)
 {
 	using namespace Ryu;
-
+	
 	// Set the working API
 	Graphics::GraphicsConfig::Get().GraphicsAPI = Graphics::API::DirectX11;
 
@@ -18,7 +19,7 @@ int WINAPI wWinMain(
 	Logging::SetUpDefaultLogger();
 
 	engine.SetCommandLine(lpCmdLine);
-	engine.SetApp(std::make_shared<TestApp>());
+	engine.SetApp(std::make_shared<Editor::EditorApp>());
 	engine.Run();
 
 	return 0;

@@ -25,6 +25,6 @@ namespace Ryu
 	template <typename T>
 	concept IsTickable = requires(T* t)
 	{
-		{ t->OnTick(double()) } -> std::same_as<void>;
+		{ t->Tick(double()) } -> std::same_as<void>;
 	};
 }

@@ -18,4 +18,8 @@ public:
 	{
 		LOG_INFO(TestAppLog, "LocalCallback {}", value);
 	}
+
+	bool OnInit() override { return  true; }
+	void OnShutdown() override {}
+	void OnTick(MAYBE_UNUSED f64 dt) override {}
 };

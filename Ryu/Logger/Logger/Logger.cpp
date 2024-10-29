@@ -1,4 +1,7 @@
 #include "Logger.h"
+#include "Sinks/ConsoleSink.h"
+#include "Sinks/DebugSink.h"
+#include "Utils/MessageBox.h"
 #include <fmt/core.h>
 #include <fmt/chrono.h>
 
@@ -60,5 +63,26 @@ namespace Ryu::Logging
 				m_onFatalCallback(level, message);
 			}
 		}
+	}
+
+	void SetUpDefaultLogger()
+	{
+		Logger* logger = Logger::Get();
+#if defined(RYU_BUILD_DEBUG)
+		logger->AddSink(std::make_unique<Logging::DebugSink>());
+#endif
+		logger->AddSink(std::make_unique<Logging::ConsoleSink>());
+		logger->SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
+		{
+			Utils::MessageBoxDesc desc;
+			desc.Title        = Ryu::EnumToString(level);
+			desc.Title       += " Error";
+			desc.Text         = message.Message;
+			desc.Flags.Button = Utils::MessagBoxButton::Ok;
+			desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
+
+			Utils::ShowMessageBox(desc);
+			PANIC("FATAL PROBLEMO");
+		});
 	}
 }

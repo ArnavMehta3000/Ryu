@@ -9,9 +9,7 @@ namespace Ryu::App
 	{
 	}
 
-	Application::~Application()
-	{
-	}
+	Application::~Application() = default;
 
 	bool Application::Init()
 	{
@@ -23,16 +21,24 @@ namespace Ryu::App
 		m_window->Create();
 
 		m_isRunning = true;
-		return true;
+
+		// Call user initialization now
+		return OnInit();
 	}
 
 	void Application::Shutdown()
 	{
-		::CoUninitialize();
+		OnShutdown();
 	}
 
-	void Application::OnTick(MAYBE_UNUSED const f64 dt)
+	void Application::Tick(const f64 dt)
 	{
+		OnTick(dt);
+	}
+
+	void Application::StopRunning()
+	{
+		m_isRunning = false;
 	}
 
 #pragma region WindowEvents

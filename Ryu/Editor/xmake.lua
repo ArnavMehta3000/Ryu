@@ -1,17 +1,16 @@
 target("RyuEditor")
 	add_rules("RadDebug")
-	add_rules("win.sdk.application")
-	add_packages("imgui")
+    add_rules("win.sdk.application")
+    set_default(true)
+    set_kind("binary")
+    set_group("Ryu")
 
-	set_default(true)
-	set_kind("binary")
-	set_group("Ryu")
+    add_includedirs(".")
+    add_files("**.cpp")
+    add_headerfiles("**.h")
 
-	add_includedirs(".")
-	add_files("**.cpp")
-	add_headerfiles("**.h")
-
-	add_deps("RyuEngine", { inherit = true })
+    add_packages("imgui")
+    add_deps("RyuEngine")
 
 	on_run(function (target)
 		local run_editor = function (t)

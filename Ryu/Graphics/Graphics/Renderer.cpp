@@ -11,6 +11,7 @@ namespace Ryu::Graphics
 	namespace
 	{
 		GraphicsInterface g_gfx{};
+		bool g_initialized{ false };
 
 		bool SetGraphicsInterface(API api)
 		{
@@ -26,12 +27,19 @@ namespace Ryu::Graphics
 		}
 	}
 
+	bool IsInitialized()
+	{
+		return g_initialized;
+	}
+
 	bool Init(API api)
 	{
 		// Internal will create the common D3D objects
-		return Internal::Init(api)
+		g_initialized = Internal::Init(api)
 			&& SetGraphicsInterface(api)
 			&& g_gfx.Init();
+
+		return g_initialized;
 	}
 
 	void Shutdown()
@@ -40,6 +48,7 @@ namespace Ryu::Graphics
 		// This will remove unwanted references
 		Internal::Shutdown();
 		g_gfx.Shutdown();
+		g_initialized = false;
 	}
 
 	ISurface* CreateSurface(App::WindowBase* window)

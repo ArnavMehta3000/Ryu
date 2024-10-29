@@ -155,6 +155,10 @@ namespace Ryu::Engine
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept
 	{
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine::OnAppResize -  {}x{}", width, height);
-		RYU_TODO("Fire resize to the graphics engine")
+		
+		if (Graphics::IsInitialized())
+		{
+			Graphics::ResizeSurface(width, height);
+		}
 	}
 }

@@ -120,6 +120,10 @@ namespace Ryu::Graphics::DX12
 
 	void DX12Surface::OnResize(u32 width, u32 height)
 	{
+		// TODO : Implement
+		std::ignore = width;
+		std::ignore = height;
+		RYU_NOT_IMPLEMENTED(RYU_USE_LOG_CATEGORY(DX12Surface));
 	}
 
 	void DX12Surface::Release()

@@ -74,7 +74,6 @@ namespace Ryu::Events
 				m_callbacks.end());
 		}
 
-
 		void Broadcast(Args... args) const
 		{
 			if (m_callbacks.empty())

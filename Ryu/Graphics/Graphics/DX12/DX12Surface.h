@@ -7,6 +7,7 @@ namespace Ryu::Graphics::DX12
 {
 	class DX12Surface : public ISurface
 	{
+		RYU_LOG_CATEGORY(DX12Surface);
 	public:
 		explicit DX12Surface(App::WindowBase* window);
 		~DX12Surface();

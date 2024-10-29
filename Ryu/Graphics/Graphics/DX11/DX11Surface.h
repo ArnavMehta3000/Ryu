@@ -6,6 +6,8 @@ namespace Ryu::Graphics::DX11
 {
 	class DX11Surface : public ISurface
 	{
+		RYU_LOG_CATEGORY(DX11Surface);
+		
 		struct RenderTargetData;
 	public:
 		explicit DX11Surface(App::WindowBase* window);

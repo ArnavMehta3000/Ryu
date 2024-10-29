@@ -47,18 +47,18 @@ namespace Ryu::App
 		void OnEvent(const Input::Events::OnMouseWheel& event) override;
 
 	public:
-		RYU_DECLARE_EVENT(OnWindowClose, const App::Events::OnWindowClose&);
+		RYU_DECLARE_EVENT(OnWindowClose,       const App::Events::OnWindowClose&);
 		RYU_DECLARE_EVENT(OnWindowStateChange, const App::Events::OnWindowStateChange&);
-		RYU_DECLARE_EVENT(OnWindowResize, const App::Events::OnWindowResize&);
+		RYU_DECLARE_EVENT(OnWindowResize,      const App::Events::OnWindowResize&);
 		RYU_DECLARE_EVENT(OnWindowFocusChange, const App::Events::OnWindowFocusChange&);
-		RYU_DECLARE_EVENT(OnKeyDown, const Input::Events::OnKeyDown&);
-		RYU_DECLARE_EVENT(OnKeyUp, const Input::Events::OnKeyUp&);
-		RYU_DECLARE_EVENT(OnMouseButtonUp, const Input::Events::OnMouseButtonUp&);
-		RYU_DECLARE_EVENT(OnMouseButtonDown, const Input::Events::OnMouseButtonDown&);
-		RYU_DECLARE_EVENT(OnMouseDblClick, const Input::Events::OnMouseDblClick&);
-		RYU_DECLARE_EVENT(OnMouseMove, const Input::Events::OnMouseMove&);
-		RYU_DECLARE_EVENT(OnMouseMoveRaw, const Input::Events::OnMouseMoveRaw&);
-		RYU_DECLARE_EVENT(OnMouseWheel, const Input::Events::OnMouseWheel&);
+		RYU_DECLARE_EVENT(OnKeyDown,           const Input::Events::OnKeyDown&);
+		RYU_DECLARE_EVENT(OnKeyUp,             const Input::Events::OnKeyUp&);
+		RYU_DECLARE_EVENT(OnMouseButtonUp,     const Input::Events::OnMouseButtonUp&);
+		RYU_DECLARE_EVENT(OnMouseButtonDown,   const Input::Events::OnMouseButtonDown&);
+		RYU_DECLARE_EVENT(OnMouseDblClick,     const Input::Events::OnMouseDblClick&);
+		RYU_DECLARE_EVENT(OnMouseMove,         const Input::Events::OnMouseMove&);
+		RYU_DECLARE_EVENT(OnMouseMoveRaw,      const Input::Events::OnMouseMoveRaw&);
+		RYU_DECLARE_EVENT(OnMouseWheel,        const Input::Events::OnMouseWheel&);
 
 	private:
 		std::unique_ptr<Input::InputSystem> m_inputSystem;

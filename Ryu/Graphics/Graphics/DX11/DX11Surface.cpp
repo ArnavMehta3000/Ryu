@@ -122,6 +122,10 @@ namespace Ryu::Graphics::DX11
 
 	void DX11Surface::OnResize(u32 width, u32 height)
 	{
+		// TODO : Implement
+		std::ignore = width;
+		std::ignore = height;
+		RYU_NOT_IMPLEMENTED(RYU_USE_LOG_CATEGORY(DX11Surface));
 	}
 
 	void DX11Surface::Release()

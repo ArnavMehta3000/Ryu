@@ -207,9 +207,18 @@ namespace Ryu::App
 
 		case WM_EXITSIZEMOVE:
 		{
-			// Send window resize event after the resize id done
-			// We already know the new size (cached during WM_SIZE)
+			// Send window resize event after the resize is done
 			m_resizing = false;
+
+			// Check if current and cached window size is same
+			RECT r{};
+			::GetClientRect(m_hWnd, &r);
+			if (m_width == r.right - r.left && 
+				m_height == r.bottom - r.top)
+			{
+				// No need to send resize event
+				break;
+			}
 
 			Events::OnWindowResize e;
 			e.Window = this;

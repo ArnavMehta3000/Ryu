@@ -42,6 +42,9 @@
 // Macro to print a warning
 #define RYU_NOTE(x) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): NOTE: " x))
 
+// Macro to say that the function is not implemented
+#define RYU_NOT_IMPLEMENTED(LogCategory) LOG_WARN(LogCategory, "Function {} not implemented", std::string_view(__FUNCTION__))
+
 // Checks if a function exists for a given class
 #define RYU_FUNCTION_CHECK(NAME, ...) namespace Ryu { template<typename T> class HasFunction_##NAME {                        \
 	template<typename U> constexpr static auto Check(int) -> decltype(std::declval<U>().__VA_ARGS__, bool()) { return true; }\

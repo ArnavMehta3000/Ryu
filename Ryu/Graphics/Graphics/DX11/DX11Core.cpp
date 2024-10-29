@@ -45,7 +45,7 @@ namespace Ryu::Graphics::DX11::Core
 
 	bool Init()
 	{
-		LOG_INFO(RYU_USE_LOG_CATEGORY(DX11Core), "Initializing DX12");
+		LOG_INFO(RYU_USE_LOG_CATEGORY(DX11Core), "Initializing DX11");
 
 		if (g_device)
 		{

@@ -213,8 +213,8 @@ namespace Ryu::App
 			// Check if current and cached window size is same
 			RECT r{};
 			::GetClientRect(m_hWnd, &r);
-			if (m_width == r.right - r.left && 
-				m_height == r.bottom - r.top)
+			if (m_width == static_cast<u32>(r.right - r.left) && 
+				m_height == static_cast<u32>(r.bottom - r.top))
 			{
 				// No need to send resize event
 				break;

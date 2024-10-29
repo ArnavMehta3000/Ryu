@@ -1,9 +1,9 @@
 #include "Engine.h"
 #include "App/Application.h"
 #include "App/Window.h"
-#include "StepTimer/StepTimer.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/Config.h"
+#include "External/StepTimer/StepTimer.h"
 
 namespace Ryu::Engine
 {
@@ -31,6 +31,12 @@ namespace Ryu::Engine
 	bool Engine::Init()
 	{
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Initializing Engine");
+
+		// Check if debugger is attached
+		if (::IsDebuggerPresent())
+		{
+			LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "--- A debugger is attached to the Engine!---");
+		}
 
 		// Initialize the application
 		if (m_app->Init())

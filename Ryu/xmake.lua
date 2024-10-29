@@ -12,6 +12,7 @@ target("RyuCore")
 		"RyuConfig",
 		"RyuInput",
 		"RyuApp",
+		"RyuMath",
 		{ public = true }
 	)
 

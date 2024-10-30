@@ -12,7 +12,6 @@ target("RyuCore")
 		"RyuConfig",
 		"RyuInput",
 		"RyuApp",
-		"RyuPlugin",
 		"RyuMath",
 		{ public = true }
 	)
@@ -21,7 +20,6 @@ target("RyuCore")
 		"RyuUtils",
 		"RyuLogger",
 		"RyuInput",
-		"RyuPlugin",
 		"RyuApp",
 		{ public = true }
 	)

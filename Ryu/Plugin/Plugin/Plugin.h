@@ -14,10 +14,11 @@ namespace Ryu::Plugin
 		Plugin(const Plugin&) = delete;
 		Plugin(Plugin&&) noexcept = default;
 
-		Plugin(DLL dll, std::unique_ptr<T> pluginInterface)
-			: m_interface(std::move(pluginInterface))
-			, m_dll(std::move(dll))
-		{}
+		Plugin(DLL dll, T* pluginInterface)
+			: m_dll(std::move(dll))
+		{
+			m_interface = std::unique_ptr<T>(pluginInterface);
+		}
 
 		~Plugin()
 		{

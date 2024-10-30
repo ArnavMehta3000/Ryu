@@ -1,10 +1,11 @@
 #pragma once
+#include "Plugin/API.h"
 #include "Common/Common.h"
 #include <string_view>
 
 namespace Ryu::Plugin
 {
-	class PluginInterface
+	class RYU_PLUGIN_API PluginInterface
 	{
 	public:
 		PluginInterface();

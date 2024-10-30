@@ -2,7 +2,6 @@
 #include "Test.h"
 #include "Graphics/Config.h"
 #include "Plugin/PluginLoader.h"
-#include "../Plugins/SamplePlugin/SamplePlugin/SamplePlugin.h"
 
 int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,

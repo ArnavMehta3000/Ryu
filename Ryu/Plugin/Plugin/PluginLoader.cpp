@@ -70,7 +70,7 @@ namespace Ryu::Plugin
 			LOG_ERROR(RYU_USE_LOG_CATEGORY(PluginLoader), "Failed to activate plugin: {}", path.string());
 		}
 
-		return GenericPlugin(std::move(dll), std::unique_ptr<PluginInterface>(pluginInterface));
+		return GenericPlugin(std::move(dll), pluginInterface);
 	}
 
 }

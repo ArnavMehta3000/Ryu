@@ -4,7 +4,7 @@
 
 namespace Sample
 {
-	class SamplePlugin : public Ryu::Plugin::PluginInterface
+	class RYU_PLUGIN_API SamplePlugin : public Ryu::Plugin::PluginInterface
 	{
 		RYU_DISABLE_COPY_AND_MOVE(SamplePlugin);
 

@@ -27,4 +27,8 @@ namespace Ryu
 	{
 		{ t->Tick(double()) } -> std::same_as<void>;
 	};
+
+	// Will be true if T is a complete type
+	template <typename T>
+	concept IsComplete = requires { sizeof(T); };
 }

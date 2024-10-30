@@ -69,7 +69,7 @@ namespace Ryu::Editor
 		{
 			using namespace Graphics;
 		case Graphics::API::DirectX11:
-			result = ImGui_ImplDX11_Init(DX11::Core::GetDevice(), DX11::Core::GetImContext());
+			//result = ImGui_ImplDX11_Init(DX11::Core::GetDevice(), DX11::Core::GetImContext());
 			break;
 
 		case Graphics::API::DirectX12:
@@ -86,7 +86,7 @@ namespace Ryu::Editor
 		switch (Graphics::GraphicsConfig::Get().GraphicsAPI)
 		{
 		case Graphics::API::DirectX11:
-			ImGui_ImplDX11_Shutdown();
+			//ImGui_ImplDX11_Shutdown();
 			break;
 
 		case Graphics::API::DirectX12:

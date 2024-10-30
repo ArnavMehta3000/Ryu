@@ -13,6 +13,8 @@ namespace Ryu::Plugin
 	{
 	public:
 		DLL();
+		DLL(const DLL&) = delete;
+		DLL(DLL&&) noexcept = default;
 		~DLL();
 
 		bool Load(std::filesystem::path libPath);
@@ -20,6 +22,9 @@ namespace Ryu::Plugin
 		bool IsLoaded();
 
 		DLLFunc GetSymbol(std::string_view name) const;
+
+		DLL& operator=(const DLL&) = delete;
+		DLL& operator=(DLL&& lib) noexcept = default;
 	
 	private:
 		HMODULE m_handle;

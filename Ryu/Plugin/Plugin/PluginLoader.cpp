@@ -1,6 +1,5 @@
 #include "PluginLoader.h"
 #include "Plugin/PluginInterface.h"
-#include <filesystem>
 #include <algorithm>
 #include <stdexcept>
 
@@ -54,13 +53,13 @@ namespace Ryu::Plugin
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(PluginLoader), "Failed to load plugin. File not found: {}", path.string());
 		}
 
-		PluginLoadCallback loadFunc = reinterpret_cast<PluginLoadCallback>(dll.GetSymbol("PluginLoad"));
+		PluginLoadCallback loadFunc = reinterpret_cast<PluginLoadCallback>(dll.GetSymbol("GetPluginInterface"));
 		if (!loadFunc)
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(PluginLoader), "Failed to load plugin. Missing symbol: {}", path.string());
 		}
 
-		std::unique_ptr<PluginInterface> pluginInterface = std::unique_ptr<PluginInterface>(loadFunc());
+		PluginInterface* pluginInterface = loadFunc();
 		if (!pluginInterface)
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(PluginLoader), "Failed to load plugin. Missing plugin interface: {}", path.string());
@@ -71,7 +70,7 @@ namespace Ryu::Plugin
 			LOG_ERROR(RYU_USE_LOG_CATEGORY(PluginLoader), "Failed to activate plugin: {}", path.string());
 		}
 
-		return GenericPlugin(std::move(dll), std::move(pluginInterface));
+		return GenericPlugin(std::move(dll), std::unique_ptr<PluginInterface>(pluginInterface));
 	}
 
 }

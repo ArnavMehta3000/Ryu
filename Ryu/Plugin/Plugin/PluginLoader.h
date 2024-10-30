@@ -3,8 +3,7 @@
 #include "Plugin/Plugin.h"
 #include "Logger/Logger.h"
 #include <vector>
-
-namespace std::filesystem { class path; }
+#include <filesystem>
 
 namespace Ryu::Plugin
 {
@@ -41,7 +40,7 @@ namespace Ryu::Plugin
 		template<typename T> requires (!IsComplete<StaticPluginProvider<T>>)
 		NODISCARD Plugin<T> Load(bool activate)
 		{
-			GenericPlugin plugin = Load(T::Filename(), activate);
+			GenericPlugin plugin = Load(T::GetFilename(), activate);
 			return std::move(plugin).As<T>();
 		}
 

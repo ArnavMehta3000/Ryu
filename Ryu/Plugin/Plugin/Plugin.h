@@ -9,9 +9,11 @@ namespace Ryu::Plugin
 	class Plugin
 	{
 		static_assert(IsDerived<PluginInterface, T> && "Plugin must derive from Ryu::Engine::PluginInterface");
-		RYU_DISABLE_COPY(Plugin);
 
 	public:
+		Plugin(const Plugin&) = delete;
+		Plugin(Plugin&&) noexcept = default;
+
 		Plugin(DLL dll, std::unique_ptr<T> pluginInterface)
 			: m_interface(std::move(pluginInterface))
 			, m_dll(std::move(dll))
@@ -30,20 +32,18 @@ namespace Ryu::Plugin
 		template <typename U>
 		Plugin<U> As()&&
 		{
-			return Plugin<U>(std::move(m_dll), std::unique_ptr<U>(std::static_pointer_cast<U>(m_interface.release())));
+			//Plugin<U>(std::move(m_lib), std::unique_ptr<U>(SafeCast<U*>(m_interface.release())));
+			return Plugin<U>(std::move(m_dll), std::unique_ptr<U>(static_cast<U*>(m_interface.release())));
 		}
 
 		bool Activate()
 		{
-			return m_interface ? m_interface->Activate() : false;
+			return m_interface ? static_cast<PluginInterface*>(m_interface.get())->Activate() : false;
 		}
 		
 		void Deactivate()
 		{
-			if (m_interface)
-			{
-				m_interface->Deactivate();
-			}
+			m_interface->Deactivate();
 		}
 
 		inline const DLL& GetDLL() const noexcept { return m_dll; }
@@ -57,6 +57,9 @@ namespace Ryu::Plugin
 		{
 			return std::move(*this).As<PluginInterface>();
 		}
+
+		Plugin& operator=(const Plugin&) = delete;
+		Plugin& operator=(Plugin&&) noexcept = default;
 
 	private:
 		std::unique_ptr<T> m_interface;

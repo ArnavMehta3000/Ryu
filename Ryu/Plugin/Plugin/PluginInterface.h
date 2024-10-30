@@ -6,10 +6,10 @@ namespace Ryu::Plugin
 {
 	class PluginInterface
 	{
-		RYU_DISABLE_COPY_AND_MOVE(PluginInterface);
-
 	public:
 		PluginInterface();
+		PluginInterface(const PluginInterface&) = delete;
+		PluginInterface(PluginInterface&&) = delete;
 		virtual ~PluginInterface() = default;
 
 		bool Activate();
@@ -20,6 +20,9 @@ namespace Ryu::Plugin
 		virtual std::string_view GetDescription() const noexcept = 0;
 		virtual std::string_view GetName() const noexcept = 0;
 		virtual u32 GetVersion() const noexcept = 0;
+
+		PluginInterface& operator=(const PluginInterface&) = delete;
+		PluginInterface& operator=(PluginInterface&&) = delete;
 
 	private:
 		virtual bool OnActivate() = 0;

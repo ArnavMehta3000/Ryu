@@ -1,6 +1,7 @@
 #pragma once
 #include <type_traits>
 
+
 #define RYU_DISABLE_COPY(T)      \
 	explicit T(const T&) = delete; \
 	T& operator=(const T&) = delete;

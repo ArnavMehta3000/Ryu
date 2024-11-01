@@ -5,6 +5,10 @@
 
 namespace Ryu::Input
 {
+	/**
+	 * @brief Enum class for all keycodes
+	 * @details Maps to the Win32 virtual key codes. More info: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+	 */
 	enum class KeyCode : u32
 	{
 		None               = 0x00,
@@ -210,6 +214,9 @@ namespace Ryu::Input
 		Quote              = VK_OEM_7,
 	};
 
+	/**
+	 * @brief Enum class for all modifier keys
+	 */
 	enum class ModifierKeys
 	{
 		None         = KeyCode::None,
@@ -221,6 +228,9 @@ namespace Ryu::Input
 		RightAlt     = KeyCode::RightMenu
 	};
 
+	/**
+	 * @brief Enum class for all mouse buttons
+	 */
 	enum class MouseButton
 	{
 		None         = KeyCode::None,
@@ -231,7 +241,18 @@ namespace Ryu::Input
 		XButton2     = KeyCode::Extra2MouseButton
 	};
 
+	/**
+	 * @brief Checks if the given `u32` is a valid KeyCode
+	 * @param value `u32` Mapping to virtual key
+	 * @return `KeyCode` if valid. False if invalid
+	 */
 	std::expected<KeyCode, bool> IsValidKeyCodeValue(u32 value);
+
+	/**
+	 * @brief Checks if the given `u32` is a valid `MouseButton`
+	 * @param value `u32` Mapping to virtual key
+	 * @return `MouseButton` if valid. False if invalid
+	 */
 	std::expected<MouseButton, bool> IsValidMouseButtonsValue(u32 value);
 }
 

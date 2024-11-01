@@ -5,9 +5,18 @@
 
 namespace Ryu::Input
 {
+	/**
+	 * @brief Class to handle all input events
+	 * @details This class injects its own WndProc into the window and handles all input events. Then forwards the remaining calls to the original WndProc
+	 */
 	class InputSystem
 	{
 	public:
+		/**
+		 * @brief Constructs a new Input System
+		 * @param window The window to inject the WndProc and listen for inputs
+		 * @param eventListener The event listener (cannot be null)
+		 */
 		InputSystem(HWND window, IInputEventListener* eventListener);
 		virtual ~InputSystem();
 		static LRESULT CALLBACK InputWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

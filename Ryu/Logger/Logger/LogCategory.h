@@ -4,6 +4,10 @@
 
 namespace Ryu::Logging
 {
+	/**
+	 * @brief Represents a log category
+	 * @details Wraps a string to be used as a log category
+	 */
 	struct LogCategory
 	{
 		std::string_view Name;

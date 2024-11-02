@@ -4,6 +4,9 @@
 
 namespace Ryu::Logging
 {
+	/**
+	 * @brief Contains a message and a stacktrace
+	 */
 	struct LogMessage
 	{
 		std::string Message;

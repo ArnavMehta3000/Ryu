@@ -18,7 +18,17 @@ namespace Ryu::Input
 		 * @param eventListener The event listener (cannot be null)
 		 */
 		InputSystem(HWND window, IInputEventListener* eventListener);
+
 		virtual ~InputSystem();
+
+		/**
+		 * @brief Handles all input events and forwards the remaining calls to the original WndProc
+		 * @param hWnd Handle to the window
+		 * @param msg Window message
+		 * @param wParam WPARAM parameter
+		 * @param lParam LPARAM parameter
+		 * @return 
+		 */
 		static LRESULT CALLBACK InputWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 		
 	private:

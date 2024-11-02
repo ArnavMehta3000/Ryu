@@ -23,6 +23,7 @@ namespace Ryu::Logging
 		if (m_file)
 		{
 			fclose(m_file);
+			FreeConsole();
 		}
 	}
 

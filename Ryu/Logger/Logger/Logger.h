@@ -11,18 +11,40 @@
 
 namespace Ryu::Logging
 {
+	/**
+	 * @brief Main logging class
+	 * @details This is a singleton class which can be accessed via the Logger::Get() function
+	 */
 	class Logger
 	{
 		RYU_DECLARE_SINGLETON(Logger, false);
 	public:
+		/**
+		 * @brief Callback type for when a log message is dispatched
+		 */
 		using OnLogCallback = std::function<void(LogLevel, const LogMessage&)>;
 
 	public:
 		Logger() = default;
 
+		/**
+		 * @brief Add a new output sink to the logger
+		 * @param sink The sink to add
+		 */
 		void AddSink(std::unique_ptr<ILogSink> sink);
+
+		/**
+		 * @brief Log a message
+		 * @param category The `LogCategory` to use
+		 * @param level The `LogLevel` to use
+		 * @param message The `LogMessage` to dispatch
+		 */
 		void Log(const LogCategory& category, LogLevel level, const LogMessage& message) const;
 
+		/**
+		 * @brief Set a custom callback for fatal errors
+		 * @param callback The callback
+		 */
 		inline void SetOnFatalCallback(OnLogCallback callback) { m_onFatalCallback = callback; }
 
 	private:

@@ -1,5 +1,5 @@
 #pragma once
-#include "App/Application.h"
+#include "Engine/Runtime/Runtime.h"
 #include "Engine/Engine.h"
 #include "Logger/Logger.h"
 #include "Logger/Sinks/DebugSink.h"
@@ -9,7 +9,7 @@
 #include "Utils/Singleton.h"
 #include <libassert/assert.hpp>
 
-class TestApp : public Ryu::App::Application
+class TestApp : public Ryu::Engine::Runtime
 {
 public:
 	RYU_LOG_CATEGORY(TestApp);

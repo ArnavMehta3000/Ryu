@@ -5,10 +5,10 @@
 #include "Event/Event.h"
 #include <memory>
 
-namespace Ryu::App { class Application; }
-
 namespace Ryu::Engine
 {
+	class Runtime;
+
 	/**
 	 * @brief The main Engine class
 	 */
@@ -25,7 +25,7 @@ namespace Ryu::Engine
 		 * @brief Set the application that is run by the Engine
 		 * @param app The application to use (owned by the Engine after setting)
 		 */
-		void SetApp(std::shared_ptr<App::Application> app) { m_app = std::move(app); }
+		void SetRuntime(std::shared_ptr<Runtime> runtime) { m_runtime = std::move(runtime); }
 
 		/**
 		 * @brief Set the command line used by the Engine
@@ -38,7 +38,7 @@ namespace Ryu::Engine
 		 * @brief Get the application used by the Engine
 		 * @return The application (owned by the Engine)
 		 */
-		inline RYU_API std::shared_ptr<App::Application> GetApp() const { return m_app; }
+		inline RYU_API std::shared_ptr<Runtime> GetRuntime() const { return m_runtime; }
 
 		/**
 		 * @brief Get the command line used by the Engine
@@ -65,14 +65,14 @@ namespace Ryu::Engine
 
 	private:
 		bool Init();
-		bool InitApplication();
+		bool InitRuntime();
 		void Shutdown();
-		void DoFrame(f64 dt) const;
+		void DoFrame(f64 dt);
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		std::shared_ptr<App::Application> m_app;
-		Config::CommandLine               m_cmdLine;
-		Graphics::GFXSurface              m_renderSurface;
+		std::shared_ptr<Runtime> m_runtime;
+		Config::CommandLine      m_cmdLine;
+		Graphics::GFXSurface     m_renderSurface;
 	};
 }

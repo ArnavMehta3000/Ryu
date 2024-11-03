@@ -8,6 +8,8 @@ target("RyuEngine")
 	-- Make monolithic engine library
 	set_policy("build.merge_archive", true)
 
+	add_packages("entt")
+
 	add_deps(
 		"RyuCore",
 		"RyuGraphics",

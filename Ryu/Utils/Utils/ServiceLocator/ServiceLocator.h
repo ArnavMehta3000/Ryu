@@ -4,7 +4,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace Ryu
+namespace Ryu::Utils
 {
 	class ServiceLocator
 	{

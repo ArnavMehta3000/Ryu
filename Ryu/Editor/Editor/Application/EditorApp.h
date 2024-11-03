@@ -1,10 +1,10 @@
 #pragma once
-#include "App/Application.h"
+#include "Engine/Runtime/Runtime.h"
 #include "Logger/LogCategory.h"
 
 namespace Ryu::Editor
 {
-	class EditorApp : public App::Application
+	class EditorApp : public Engine::Runtime
 	{
 	public:
 		RYU_LOG_CATEGORY(Editor);

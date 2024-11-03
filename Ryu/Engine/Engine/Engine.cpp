@@ -1,5 +1,5 @@
 #include "Engine.h"
-#include "App/Application.h"
+#include "Engine/Runtime/Runtime.h"
 #include "App/Window.h"
 #include "Graphics/Renderer.h"
 #include "Graphics/Config.h"
@@ -21,7 +21,7 @@ namespace Ryu::Engine
 	}
 
 	Engine::Engine()
-		: m_app(nullptr)
+		: m_runtime(nullptr)
 	{
 		InitSingletons();
 	}
@@ -39,7 +39,7 @@ namespace Ryu::Engine
 		}
 
 		// Initialize the application
-		if (InitApplication())
+		if (InitRuntime())
 		{
 			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine application initialized successfully");
 		}
@@ -60,33 +60,36 @@ namespace Ryu::Engine
 			return false;
 		}
 
-		m_renderSurface.Window = m_app->GetWindow().get();
+		m_renderSurface.Window = m_runtime->GetWindow().get();
 		m_renderSurface.Surface = Graphics::CreateSurface(m_renderSurface.Window);
 
-		ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
+		DEBUG_ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
+
+		// Init the world after creating the runtime
+		m_runtime->GetWorld().Init();
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine initialized successfully");
 
 		return true;
 	}
 
-	bool Engine::InitApplication()
+	bool Engine::InitRuntime()
 	{
 		// Bind the events before initializing the application
-		std::ignore = m_app->OnWindowResize.Add([this](const App::Events::OnWindowResize& event)
+		std::ignore = m_runtime->OnWindowResize.Add([this](const App::Events::OnWindowResize& event)
 		{
 			OnAppResize(event.Width, event.Height);
 		});
 
 		// Init the application
-		return m_app->Init();
+		return m_runtime->Init();
 	}
 
 	void Engine::Shutdown()
 	{
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Shutting down Engine");
 
-		m_app->Shutdown();
+		m_runtime->Shutdown();
 		Ryu::Graphics::Shutdown();
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Shutdown Engine");
@@ -106,7 +109,7 @@ namespace Ryu::Engine
 	{
 		LOG_DEBUG(RYU_USE_LOG_CATEGORY(Engine), "Running the Engine");
 
-		if (m_app == nullptr)
+		if (m_runtime == nullptr)
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Engine application not initialized!");
 			return;
@@ -120,8 +123,8 @@ namespace Ryu::Engine
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Starting Engine main loop");
 
-		auto appWindow = m_app->GetWindow();
-		while (m_app->IsRunning())
+		auto appWindow = m_runtime->GetWindow();
+		while (m_runtime->IsRunning())
 		{
 			// Pump regardless of frame time
 			appWindow->PumpMessages();
@@ -139,16 +142,16 @@ namespace Ryu::Engine
 
 	void Engine::Quit() const noexcept
 	{
-		if (m_app)
+		if (m_runtime)
 		{
 			LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Rquesting application shutdown");
-			m_app->StopRunning();
+			m_runtime->StopRunning();
 		}
 	}
 
-	void Engine::DoFrame(f64 dt) const
+	void Engine::DoFrame(f64 dt)
 	{
-		m_app->Tick(dt);
+		m_runtime->Tick(dt);
 		Graphics::RenderSurface();
 	}
 

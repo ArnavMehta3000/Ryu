@@ -1,7 +1,7 @@
 #pragma once
 #include <typeindex>
 
-namespace Ryu
+namespace Ryu::Utils
 {
 	/**
 	 * @brief An interface for a service type

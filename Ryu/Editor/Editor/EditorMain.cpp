@@ -19,7 +19,7 @@ int WINAPI wWinMain(
 	Logging::SetUpDefaultLogger();
 
 	engine.SetCommandLine(lpCmdLine);
-	engine.SetApp(std::make_shared<Editor::EditorApp>());
+	engine.SetRuntime(std::make_shared<Editor::EditorApp>());
 	engine.Run();
 
 	return 0;

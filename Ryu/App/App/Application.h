@@ -12,7 +12,6 @@ namespace Ryu::App
 	class Application
 		: public IWindowEventListener
 		, public Input::IInputEventListener
-		, public ITickable<Application>
 	{
 	public:
 		/**

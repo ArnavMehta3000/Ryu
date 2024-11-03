@@ -18,7 +18,7 @@ int WINAPI wWinMain(
 	Logging::SetUpDefaultLogger();
 
 	engine.SetCommandLine(lpCmdLine);
-	engine.SetApp(std::make_shared<TestApp>());
+	engine.SetRuntime(std::make_shared<TestApp>());
 	engine.Run();
 
 	return 0;

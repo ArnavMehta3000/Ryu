@@ -1,5 +1,6 @@
 #pragma once
 #include "Common/Concepts.h"
+#include "Common/API.h"
 
 namespace Ryu
 {
@@ -9,7 +10,7 @@ namespace Ryu
 	 * @tparam T Type of object
 	 */
 	template <typename T>
-	struct ITickable
+	struct RYU_API ITickable
 	{
 		ITickable()
 		{

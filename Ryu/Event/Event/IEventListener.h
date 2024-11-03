@@ -4,7 +4,7 @@ namespace Ryu::Events
 {
 	namespace Internal
 	{
-		class EventListenerBase
+		class RYU_API EventListenerBase
 		{
 		public:
 			virtual ~EventListenerBase() = default;
@@ -18,7 +18,7 @@ namespace Ryu::Events
 	 * @details Derived classes must implement the `OnEvent` method to receive events
 	 */
 	template <typename EventType>
-	class IEventListener : public Internal::EventListenerBase
+	class RYU_API IEventListener : public Internal::EventListenerBase
 	{
 	public:
 		/**

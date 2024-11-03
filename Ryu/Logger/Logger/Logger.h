@@ -31,7 +31,7 @@ namespace Ryu::Logging
 		 * @brief Add a new output sink to the logger
 		 * @param sink The sink to add
 		 */
-		void AddSink(std::unique_ptr<ILogSink> sink);
+		RYU_API void AddSink(std::unique_ptr<ILogSink> sink);
 
 		/**
 		 * @brief Log a message
@@ -39,13 +39,13 @@ namespace Ryu::Logging
 		 * @param level The `LogLevel` to use
 		 * @param message The `LogMessage` to dispatch
 		 */
-		void Log(const LogCategory& category, LogLevel level, const LogMessage& message) const;
+		RYU_API void Log(const LogCategory& category, LogLevel level, const LogMessage& message) const;
 
 		/**
 		 * @brief Set a custom callback for fatal errors
 		 * @param callback The callback
 		 */
-		inline void SetOnFatalCallback(OnLogCallback callback) { m_onFatalCallback = callback; }
+		inline RYU_API void SetOnFatalCallback(OnLogCallback callback) { m_onFatalCallback = callback; }
 
 	private:
 		std::vector<std::unique_ptr<ILogSink>> m_sinks;

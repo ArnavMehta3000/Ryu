@@ -7,14 +7,14 @@ namespace Ryu::App
 	class Window : public WindowBase
 	{
 	public:
-		Window(const std::wstring& name, u32 width, u32 height, IWindowEventListener* eventListener = nullptr);
-		~Window() = default;
+		RYU_API Window(const std::wstring& name, u32 width, u32 height, IWindowEventListener* eventListener = nullptr);
+		RYU_API ~Window() = default;
 
-		void Create();
-		void PumpMessages();
+		RYU_API void Create();
+		RYU_API void PumpMessages();
 
-		inline void SetEventListener(IWindowEventListener* eventListener) { m_eventListener = eventListener; }
-		inline operator HWND() const { return m_hWnd; }
+		inline  RYU_API void SetEventListener(IWindowEventListener* eventListener) { m_eventListener = eventListener; }
+		inline  RYU_API operator HWND() const { return m_hWnd; }
 
 	private:
 		template <typename... Args>

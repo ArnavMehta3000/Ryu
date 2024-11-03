@@ -5,7 +5,7 @@
 namespace Ryu::Input
 {
 	// Abstract interface that listens to both keyboard and mouse events
-	class IInputEventListener
+	class RYU_API IInputEventListener
 		: public IKeyboardEventListener
 		, public IMouseEventListener
 	{

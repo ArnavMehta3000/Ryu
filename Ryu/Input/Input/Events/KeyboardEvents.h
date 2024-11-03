@@ -9,13 +9,13 @@ namespace Ryu::Input
 	{
 		namespace Internal
 		{
-			struct OnKeyEvent
+			struct RYU_API OnKeyEvent
 			{
 				KeyCode Key;
 			};
 		}
 
-		struct OnKeyDown : public Internal::OnKeyEvent
+		struct RYU_API OnKeyDown : public Internal::OnKeyEvent
 		{
 			explicit OnKeyDown(KeyCode key)
 			{
@@ -23,7 +23,7 @@ namespace Ryu::Input
 			}
 		};
 
-		struct OnKeyUp : public Internal::OnKeyEvent
+		struct RYU_API OnKeyUp : public Internal::OnKeyEvent
 		{
 			explicit OnKeyUp(KeyCode key)
 			{
@@ -33,7 +33,7 @@ namespace Ryu::Input
 	}
 
 	// Abstract interface that only listens to keyboard events
-	class IKeyboardEventListener
+	class RYU_API IKeyboardEventListener
 		: public Ryu::Events::IEventListener<Events::OnKeyDown>
 		, public Ryu::Events::IEventListener<Events::OnKeyUp>
 	{

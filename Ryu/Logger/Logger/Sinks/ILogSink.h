@@ -8,7 +8,7 @@ namespace Ryu::Logging
 	/**
 	 * @brief Interface for logging sinks.
 	 */
-	class ILogSink
+	class RYU_API ILogSink
 	{
 	public:
 		/**

@@ -8,7 +8,7 @@ namespace Ryu::Config
 	 * @tparam T Config type
 	 */
 	template <typename T>
-	struct IConfig
+	struct RYU_API IConfig
 	{
 		/**
 		 * @brief Static method to get the Config object

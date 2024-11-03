@@ -1,4 +1,5 @@
 #pragma once
+#include "Common/API.h"
 #include "Utils/Random/Random.h"
 #include <functional>
 #include <vector>
@@ -44,7 +45,7 @@ namespace Ryu::Events
 		 * @return The delegate handle (nondiscardable)
 		 */
 		template<typename T>
-		NODISCARD DelegateHandle Add(T* objectPtr,  void (T::*func)(Args...))
+		RYU_API NODISCARD DelegateHandle Add(T* objectPtr,  void (T::*func)(Args...))
 		{
 			Delegate d;
 			
@@ -65,7 +66,7 @@ namespace Ryu::Events
 		 * @param callback The callback
 		 * @return The delegate handle (nondiscardable)
 		 */
-		NODISCARD DelegateHandle Add(CallbackType callback)
+		RYU_API NODISCARD DelegateHandle Add(CallbackType callback)
 		{
 			Delegate d;
 			d.ID = Utils::Random::U64();
@@ -83,7 +84,7 @@ namespace Ryu::Events
 		 * @return The delegate handle (nondiscardable)
 		 */
 		template <typename Callable>
-		NODISCARD DelegateHandle Add(Callable&& callable)
+		RYU_API NODISCARD DelegateHandle Add(Callable&& callable)
 		{
 			Delegate d;
 			d.ID = Utils::Random::U64();
@@ -99,7 +100,7 @@ namespace Ryu::Events
 		 * @brief Remove a callback from the event
 		 * @param handle The delegate handle
 		 */
-		void Remove(DelegateHandle handle)
+		RYU_API void Remove(DelegateHandle handle)
 		{
 			m_callbacks.erase(
 				std::remove_if(m_callbacks.begin(), m_callbacks.end(),
@@ -114,7 +115,7 @@ namespace Ryu::Events
 		 * @brief Call all the callbacks
 		 * @param ...args Arguments to pass to the callbacks
 		 */
-		void Broadcast(Args... args) const
+		RYU_API void Broadcast(Args... args) const
 		{
 			if (m_callbacks.empty())
 			{

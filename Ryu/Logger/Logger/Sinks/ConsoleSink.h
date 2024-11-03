@@ -7,7 +7,7 @@ namespace Ryu::Logging
 	/**
 	 * @brief A sink that outputs log messages to the console
 	 */
-	class ConsoleSink : public ILogSink
+	class RYU_API ConsoleSink : public ILogSink
 	{
 	public:
 		/**

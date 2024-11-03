@@ -5,6 +5,7 @@
 #include "Common/ObjectMacros.h"
 #include "Common/Interfaces.h"
 #include "Common/Enum.h"
+#include "Common/API.h"
 
 // Bring Ryu's standard types into the global namespace
 using namespace Ryu::Common::StandardTypes;

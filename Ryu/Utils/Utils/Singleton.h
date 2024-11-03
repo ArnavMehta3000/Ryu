@@ -8,21 +8,37 @@
 
 namespace Ryu::Utils
 {
-	// Contains all singleton instances
+	/**
+	 * @brief Registry for singletons
+	 */
 	class SingletonRegistry
 	{
 
 	public:
-		// Singleton data structure
+		
+		/**
+		 * @brief Singleton entry
+		 */
 		struct SingletonEntry
 		{
+			/**
+			 * @brief Name of the singleton class
+			 */
 			std::string Name;
+
+			/**
+			 * @brief Singleton instance
+			 */
 			std::unique_ptr<std::any> Instance{ nullptr };
 		};
 
 		using SingletonMap = std::map<size_t, SingletonEntry>;
 
-		// Get the singleton instance without checking
+		/**
+		 * @brief Get the singleton instance without checking
+		 * @tparam T The type of the singleton instance
+		 * @return The singleton instance. nullptr if not found
+		 */
 		template <typename T>
 		inline static T* Get()
 		{
@@ -36,8 +52,12 @@ namespace Ryu::Utils
 				return nullptr;
 			}
 		}
-
-		// Get the singleton instance with checking
+				
+		/**
+		 * @brief Get the singleton instance with checking
+		 * @tparam T The type of the singleton instance
+		 * @return The singleton instance
+		 */
 		template <typename T>
 		inline static T* GetChecked()
 		{
@@ -46,7 +66,11 @@ namespace Ryu::Utils
 			return ptr;
 		}
 
-		// Register a singleton instance using a unique pointer
+		/**
+		 * @brief Register a singleton instance using a unique pointer
+		 * @tparam T The type of the singleton
+		 * @param instance The unique pointer
+		 */
 		template <typename T>
 		inline static void Register(std::unique_ptr<std::any> instance)
 		{
@@ -57,7 +81,11 @@ namespace Ryu::Utils
 			s_singletons[GetHash<T>()] = { typeid(T).name(), std::move(instance) };
 		}
 
-		// Register a singleton instance using a raw pointer
+		/**
+		 * @brief Register a singleton instance using a raw pointer
+		 * @tparam T The type of the singleton
+		 * @param instance The raw pointer
+		 */
 		template <typename T>
 		inline static void Register(T* instance)
 		{
@@ -68,7 +96,10 @@ namespace Ryu::Utils
 			s_singletons[GetHash<T>()] = { typeid(T).name(), std::make_unique<std::any>(instance) };
 		}
 
-		// Register a singleton instance by creating the pointer in place
+		/**
+		 * @brief Register a singleton by creating a instance in place
+		 * @tparam T The type of the singleton
+		 */
 		template <typename T>
 		inline static void Register()
 		{
@@ -78,7 +109,10 @@ namespace Ryu::Utils
 			s_singletons[GetHash<T>()] = { typeid(T).name(), std::make_unique<std::any>(new T()) };
 		}
 
-		// Unregister a singleton
+		/**
+		 * @brief Unregister a singleton
+		 * @tparam T The type of the singleton
+		 */
 		template <typename T>
 		inline static void Unregister()
 		{
@@ -89,7 +123,10 @@ namespace Ryu::Utils
 			s_singletons.erase(GetHash<T>());
 		}
 
-		// Get all registered singletons
+		/**
+		 * @brief Get all registered singletons
+		 * @return The registry map
+		 */
 		static const SingletonMap& GetAllRegisteredSingletons();
 
 	private:

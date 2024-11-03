@@ -14,7 +14,7 @@ namespace Ryu::Logging
 		 * @brief Constructs a new CallbackSink
 		 * @param callback The callback function to write log messages to
 		 */
-		explicit CallbackSink(std::function<void(LogLevel, const LogMessage&)> callback);
+		RYU_API explicit CallbackSink(std::function<void(LogLevel, const LogMessage&)> callback);
 		
 		/**
 		 * @brief Writes a log message to the file
@@ -22,14 +22,14 @@ namespace Ryu::Logging
 		 * @param level The `LogLevel` of the message
 		 * @param message The `LogMessage` to write
 		 */
-		void Log(LogLevel level, const LogMessage& message) const override;
-		
+		RYU_API void Log(LogLevel level, const LogMessage& message) const override;
+
 		/**
 		 * @brief Returns the name of the sink
 		 * @details Overrides the `GetName` method of the `ILogSink` interface
 		 * @return The name of the sink
 		 */
-		std::string_view GetName() const override;
+		RYU_API std::string_view GetName() const override;
 
 	private:
 		std::function<void(LogLevel, const LogMessage&)> m_callback;

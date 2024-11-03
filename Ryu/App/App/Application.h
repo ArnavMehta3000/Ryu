@@ -12,22 +12,22 @@ namespace Ryu::App
 		, public ITickable<Application>
 	{
 	public:
-		Application();
-		virtual ~Application();
+		RYU_API Application();
+		virtual RYU_API ~Application();
 
-		bool Init();
-		void Shutdown();
-		void Tick(f64 dt);
+		RYU_API bool Init();
+		RYU_API void Shutdown();
+		RYU_API void Tick(f64 dt);
 
-		void StopRunning();
+		RYU_API void StopRunning();
 
-		inline NODISCARD std::shared_ptr<Window> GetWindow() const { return m_window; }
-		inline NODISCARD bool IsRunning() const { return m_isRunning; }
+		inline RYU_API NODISCARD std::shared_ptr<Window> GetWindow() const { return m_window; }
+		inline RYU_API NODISCARD bool IsRunning() const { return m_isRunning; }
 
 	protected:
-		virtual bool OnInit() = 0;
-		virtual void OnShutdown() = 0;
-		virtual void OnTick(f64 dt) = 0;
+		virtual RYU_API bool OnInit() = 0;
+		virtual RYU_API void OnShutdown() = 0;
+		virtual RYU_API void OnTick(f64 dt) = 0;
 
 	private:
 		// Inherited via IWindowEventListener

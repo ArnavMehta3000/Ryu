@@ -15,6 +15,7 @@ includes("Xmake/Packages.lua")
 includes("Xmake/Options.lua")
 includes("Xmake/Rules/RyuPlugin.lua")
 includes("Xmake/Rules/RadDebug.lua")
+includes("Xmake/Rules/ExportAPI.lua")
 
 -- Build debug mode by default
 set_defaultmode("debug")
@@ -58,6 +59,9 @@ set_runtimes(is_mode("debug") and "MDd" or "MD")
 
 -- Add compilation success to all targets
 add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
+
+-- Add rule to export shared library
+add_rules("ExportAPI")
 
 -- Include xmake projects
 includes("**/xmake.lua")

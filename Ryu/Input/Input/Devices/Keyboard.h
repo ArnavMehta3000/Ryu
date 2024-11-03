@@ -27,6 +27,6 @@ namespace Ryu::Input
 
 	private:
 		KeyMap m_keyStates;
-		IKeyboardEventListener* m_eventListener;
+		IKeyboardEventListener* m_eventListener{ nullptr };
 	};
 }

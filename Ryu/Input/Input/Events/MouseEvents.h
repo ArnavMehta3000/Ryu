@@ -9,7 +9,7 @@ namespace Ryu::Input
 	{
 		namespace Internal
 		{
-			struct OnMouseEvent
+			struct RYU_API OnMouseEvent
 			{
 				MouseButton Button;
 				i32 PosX;
@@ -17,7 +17,7 @@ namespace Ryu::Input
 			};
 		}
 
-		struct OnMouseButtonDown : public Internal::OnMouseEvent
+		struct RYU_API OnMouseButtonDown : public Internal::OnMouseEvent
 		{
 			explicit OnMouseButtonDown(MouseButton button, i32 x, i32 y)
 			{
@@ -27,7 +27,7 @@ namespace Ryu::Input
 			}
 		};
 
-		struct OnMouseButtonUp : public Internal::OnMouseEvent
+		struct RYU_API OnMouseButtonUp : public Internal::OnMouseEvent
 		{
 			explicit OnMouseButtonUp(MouseButton button, i32 x, i32 y)
 			{
@@ -37,7 +37,7 @@ namespace Ryu::Input
 			}
 		};
 
-		struct OnMouseDblClick : public Internal::OnMouseEvent
+		struct RYU_API OnMouseDblClick : public Internal::OnMouseEvent
 		{
 			explicit OnMouseDblClick(MouseButton button, i32 x, i32 y)
 			{
@@ -47,7 +47,7 @@ namespace Ryu::Input
 			}
 		};
 
-		struct OnMouseMove : public Internal::OnMouseEvent
+		struct RYU_API OnMouseMove : public Internal::OnMouseEvent
 		{
 			explicit OnMouseMove(MouseButton button, i32 x, i32 y)
 			{
@@ -57,7 +57,7 @@ namespace Ryu::Input
 			}
 		};
 
-		struct OnMouseMoveRaw : public Internal::OnMouseEvent
+		struct RYU_API OnMouseMoveRaw : public Internal::OnMouseEvent
 		{
 			explicit OnMouseMoveRaw(MouseButton button, i32 x, i32 y)
 			{
@@ -67,7 +67,7 @@ namespace Ryu::Input
 			}
 		};
 
-		struct OnMouseWheel : public Internal::OnMouseEvent
+		struct RYU_API OnMouseWheel : public Internal::OnMouseEvent
 		{
 			i32 Delta;
 
@@ -82,7 +82,7 @@ namespace Ryu::Input
 	}
 
 	// Abstract interface that only listens to mouse events
-	class IMouseEventListener
+	class RYU_API IMouseEventListener
 		: public Ryu::Events::IEventListener<Ryu::Input::Events::OnMouseButtonUp>
 		, public Ryu::Events::IEventListener<Ryu::Input::Events::OnMouseButtonDown>
 		, public Ryu::Events::IEventListener<Ryu::Input::Events::OnMouseDblClick>

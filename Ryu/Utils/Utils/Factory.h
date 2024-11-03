@@ -6,18 +6,34 @@
 
 namespace Ryu::Utils
 {
+	/**
+	 * @brief Class to auto register types during static initialization
+	 * @tparam Base The class that inherits from Factory
+	 * @tparam ...Args The arguments to pass to the constructor
+	 */
 	template <class Base, class... Args>
 	class Factory
 	{
 		friend Base;
 	public:
+		/**
+		 * @brief The function type of the factory
+		 */
 		using FuncType = std::unique_ptr<Base>(*)(Args...);
 
+		/**
+		 * @brief The base class of the factory registrar
+		 * @tparam T The class to register
+		 */
 		template <class T>
 		struct Registrar : Base
 		{
 			friend T;
 		public:
+			/**
+			 * @brief Function to register the class with the factory
+			 * @return True if registration was successful
+			 */
 			static bool Register()
 			{
 				std::string name(T::GetStaticName());
@@ -42,13 +58,24 @@ namespace Ryu::Utils
 		};
 
 	public:
-		template <class... T>
-		static std::unique_ptr<Base> Create(const std::string_view name, T&&... args)
+		/**
+		 * @brief Create an instance of the class
+		 * @tparam ...Args The arguments to pass to the constructor
+		 * @param name The name of the class to instantiate
+		 * @param ...args The arguments to pass to the constructor
+		 * @return A unique instance of the class
+		 */
+		template <class... Args>
+		static std::unique_ptr<Base> Create(const std::string_view name, Args&&... args)
 		{
 			std::string nameStr(name);
-			return GetStaticData().at(nameStr)(std::forward<T>(args)...);
+			return GetStaticData().at(nameStr)(std::forward<Args>(args)...);
 		}
 
+		/**
+		 * @brief Get the static map of registered classes
+		 * @return The static map of registered classes
+		 */
 		const static std::unordered_map<std::string, FuncType>& GetData()
 		{
 			return GetStaticData();

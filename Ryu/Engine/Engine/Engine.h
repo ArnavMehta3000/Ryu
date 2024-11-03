@@ -38,19 +38,19 @@ namespace Ryu::Engine
 		 * @brief Get the application used by the Engine
 		 * @return The application (owned by the Engine)
 		 */
-		inline std::shared_ptr<App::Application> GetApp() const { return m_app; }
+		inline RYU_API std::shared_ptr<App::Application> GetApp() const { return m_app; }
 
 		/**
 		 * @brief Get the command line used by the Engine
 		 * @return The parsed command line
 		 */
-		inline const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }
+		inline RYU_API const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }
 
 		/**
 		 * @brief Get the Engine up time in seconds
 		 * @return How long the engine has been active for
 		 */
-		static f64 GetEngineUpTime();
+		static RYU_API f64 GetEngineUpTime();
 
 		/**
 		 * @brief Run the main engine loop

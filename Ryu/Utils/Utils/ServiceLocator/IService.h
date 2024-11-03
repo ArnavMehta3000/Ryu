@@ -3,6 +3,10 @@
 
 namespace Ryu
 {
+	/**
+	 * @brief An interface for a service type
+	 * @details Create an interface for a service type
+	 */
 	class IService
 	{
 	public:
@@ -11,6 +15,10 @@ namespace Ryu
 		virtual TypeIndex GetTypeIndex() const = 0;
 	};
 
+	/**
+	 * @brief A base class for services
+	 * @tparam T The class that implements the service
+	 */
 	template <typename T>
 	class ServiceBase : public T
 	{

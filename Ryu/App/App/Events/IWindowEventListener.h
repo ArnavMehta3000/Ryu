@@ -4,7 +4,7 @@
 namespace Ryu::App
 {
 	// Abstract interface for window event listeners
-	class IWindowEventListener
+	class RYU_API IWindowEventListener
 		: public Ryu::Events::IEventListener<Events::OnWindowClose>
 		, public Ryu::Events::IEventListener<Events::OnWindowStateChange>
 		, public Ryu::Events::IEventListener<Events::OnWindowResize>

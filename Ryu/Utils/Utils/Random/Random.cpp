@@ -17,7 +17,7 @@ namespace Ryu::Utils
 		}
 	}
 
-	thread_local Random::Generator Random::s_mersenne64{ static_cast<Generator::result_type>(std::random_device{}()) };
+	Random::Generator Random::s_mersenne64{ static_cast<Generator::result_type>(std::random_device{}()) };
 
 	Random::Generator* Random::GetGenerator()
 	{

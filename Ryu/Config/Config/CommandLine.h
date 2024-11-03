@@ -32,21 +32,21 @@ namespace Ryu::Config
 		 * @param key Argument key
 		 * @return True if the argument exists, false otherwise
 		 */
-		bool GetBool(std::string_view key) const;
+		RYU_API bool GetBool(std::string_view key) const;
 
 		/**
 		 * @brief Returns the `i32` value of a command line argument
 		 * @param key Argument key
 		 * @return The value of the argument or std::nullopt
 		 */
-		std::optional<i32> GetInt(std::string_view key) const;
+		RYU_API std::optional<i32> GetInt(std::string_view key) const;
 
 		/**
 		 * @brief Returns the `std::string` value of a command line argument
 		 * @param key Argument key
 		 * @return The value of the argument or std::nullopt
 		 */
-		std::optional<std::string> GetString(std::string_view key) const;
+		RYU_API std::optional<std::string> GetString(std::string_view key) const;
 
 	private:
 		void ParseArguments();

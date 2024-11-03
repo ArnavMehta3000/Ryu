@@ -13,7 +13,7 @@ namespace Ryu::World
 		{
 			if (auto ptr = Subsystem::Create(name, this))
 			{
-				LOG_TRACE(RYU_USE_LOG_CATEGORY(World), "Created world subsystem {}", name);
+				LOG_TRACE(RYU_USE_LOG_CATEGORY(World), "Created world subsystem - {}", name);
 				m_systems.push_back(std::move(ptr));
 			}
 		}
@@ -23,7 +23,7 @@ namespace Ryu::World
 		{
 			if (!system->Init())
 			{
-				LOG_WARN(RYU_USE_LOG_CATEGORY(World), "Failed to initialize world subsystem {}", system->GetName());
+				LOG_WARN(RYU_USE_LOG_CATEGORY(World), "Failed to initialize world subsystem - {}", system->GetName());
 			}
 		}
 

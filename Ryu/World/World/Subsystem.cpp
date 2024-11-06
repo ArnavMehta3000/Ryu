@@ -3,19 +3,24 @@
 
 namespace Ryu::World
 {
-	RYU_API bool Subsystem::Init()
+	entt::registry& IWorldSubsystem::GetRegistry() const noexcept
+	{
+		return GetWorld()->m_registry;
+	}
+
+	bool Subsystem::Init()
 	{
 		m_isInitialized = OnInit();
 		return m_isInitialized;
 	}
 
-	RYU_API void Subsystem::Shutdown()
+	void Subsystem::Shutdown()
 	{
 		OnShutdown();
 		m_isInitialized = false;
 	}
 
-	RYU_API void Subsystem::Tick(f64 dt)
+	void Subsystem::Tick(f64 dt)
 	{
 		if (m_canTick)
 		{
@@ -30,10 +35,10 @@ namespace Ryu::World
 		static std::string_view GetStaticName() { return "ExampleSubsystem"; }
 
 		ExampleSubsystem(World* world)
-			: m_world(world)
 		{
 			// Make this subsystem non-tickable
 			CanTick(false);
+			SetWorld(world);
 		}
 
 		bool OnInit() override
@@ -54,9 +59,6 @@ namespace Ryu::World
 		{
 			return GetStaticName();
 		}
-
-	private:
-		World* m_world;
 	};
 
 	

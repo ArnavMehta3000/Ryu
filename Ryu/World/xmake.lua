@@ -7,5 +7,8 @@ target("RyuWorld")
 	add_extrafiles("**.inl")
 	add_packages("entt", "libassert" , { public = true })
 
-	add_deps("RyuUtils", "RyuLogger")
+	add_deps(
+		"RyuUtils",
+		"RyuLogger",
+		"RyuEvents")
 target_end()

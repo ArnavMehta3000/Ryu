@@ -22,6 +22,11 @@ namespace Ryu::Utils
 		using FuncType = std::unique_ptr<Base>(*)(Args...);
 
 		/**
+		 * @brief Alias for the underlying unordered_map
+		 */
+		using FactoryMap = std::unordered_map<std::string, FuncType>;
+
+		/**
 		 * @brief The base class of the factory registrar
 		 * @tparam T The class to register
 		 */
@@ -76,7 +81,7 @@ namespace Ryu::Utils
 		 * @brief Get the static map of registered classes
 		 * @return The static map of registered classes
 		 */
-		const static std::unordered_map<std::string, FuncType>& GetData()
+		const static FactoryMap& GetFactoryData()
 		{
 			return GetStaticData();
 		}
@@ -84,9 +89,9 @@ namespace Ryu::Utils
 	private:
 		Factory() = default;
 
-		static std::unordered_map<std::string, FuncType>& GetStaticData()
+		static FactoryMap& GetStaticData()
 		{
-			static std::unordered_map<std::string, FuncType> data;
+			static FactoryMap data;
 			return data;
 		}
 	};

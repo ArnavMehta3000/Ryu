@@ -23,6 +23,7 @@ target("RyuCore")
 		"RyuInput",
 		"RyuWorld",
 		"RyuApp",
+		"RyuMath",
 		{ public = true }
 	)
 target_end()

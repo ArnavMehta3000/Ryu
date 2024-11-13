@@ -123,7 +123,12 @@ namespace Ryu::Engine
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Starting Engine main loop");
 
+		// Show the window
 		auto appWindow = m_runtime->GetWindow();
+
+		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Showing window");
+		appWindow->ShowWindow();
+
 		while (m_runtime->IsRunning())
 		{
 			// Pump regardless of frame time

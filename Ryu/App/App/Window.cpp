@@ -62,11 +62,6 @@ namespace Ryu::App
 		}
 
 		SetDarkTheme();
-
-		::ShowWindow(m_hWnd, SW_SHOW);
-		::UpdateWindow(m_hWnd);
-		::SetForegroundWindow(m_hWnd);
-		::SetFocus(m_hWnd);
 	}
 
 	void Window::PumpMessages()
@@ -78,6 +73,19 @@ namespace Ryu::App
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+	}
+
+	void Window::ShowWindow()
+	{
+		if (m_hWnd == nullptr)
+		{
+			return;
+		}
+
+		::ShowWindow(m_hWnd, SW_SHOW);
+		::UpdateWindow(m_hWnd);
+		::SetForegroundWindow(m_hWnd);
+		::SetFocus(m_hWnd);
 	}
 
 	void Window::SetDarkTheme()

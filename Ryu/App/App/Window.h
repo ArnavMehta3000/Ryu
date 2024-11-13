@@ -34,6 +34,12 @@ namespace Ryu::App
 		 */
 		RYU_API void PumpMessages();
 
+
+		/**
+		 * @brief Show the window
+		 */
+		RYU_API void ShowWindow();
+
 		/**
 		 * @brief Override window event listener
 		 * @param eventListener Pointer to new window event listener

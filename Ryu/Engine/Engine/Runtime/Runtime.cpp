@@ -7,7 +7,7 @@ namespace Ryu::Engine
 	Runtime::Runtime()
 		: m_world()
 	{
-		LOG_TRACE(RYU_USE_LOG_CATEGORY(Runtime), "Runtiem created");
+		LOG_TRACE(RYU_USE_LOG_CATEGORY(Runtime), "Runtime created");
 	}
 
 	bool Runtime::OnInit()

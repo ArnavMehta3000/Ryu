@@ -74,9 +74,9 @@ namespace Ryu::Scripting
 		RegisterScriptArray(m_engine, false);
 		RegisterStdStringUtils(m_engine);
 		RegisterScriptDictionary(m_engine);
+		RegisterScriptDateTime(m_engine);
 		RegisterScriptFile(m_engine);
 		RegisterScriptFileSystem(m_engine);
-		RegisterScriptDateTime(m_engine);
 		RegisterExceptionRoutines(m_engine);
 		RegisterScriptMath(m_engine);
 		RegisterScriptMathComplex(m_engine);

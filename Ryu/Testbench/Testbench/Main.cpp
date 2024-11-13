@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include "Test.h"
 #include "Graphics/Config.h"
+#include "Scripting/ScriptEngine.h"
 
 int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,
@@ -19,6 +20,10 @@ int WINAPI wWinMain(
 
 	engine.SetCommandLine(lpCmdLine);
 	engine.SetRuntime(std::make_shared<TestApp>());
+	
+	Scripting::ScriptEngine se;
+	se.Init();
+	
 	engine.Run();
 
 	return 0;

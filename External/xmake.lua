@@ -1,22 +1,24 @@
--- Create phony targets for each external
-for _, dir in ipairs(os.dirs(os.scriptdir() .. "/External/**")) do
-	local ext_name = path.basename(dir)
-	target(ext_name)
-		set_group("Ryu/External")
-		set_kind("phony")
-		add_includedirs(dir, { public = false })
-		add_headerfiles(dir .."/**.h")
+target("SimpleMath")
+	set_group("Ryu/External")
+	set_kind("static")
+	add_headerfiles("External/SimpleMath/SimpleMath.h")
+	add_files("External/SimpleMath/SimpleMath.cpp")
+target_end()
 
-		-- Check if target has cpp files
-		on_config(function(target)
-			for _, files in ipairs(os.filedirs(dir .. "/**.cpp")) do
-				target:add("files", dir .. "/**.cpp")
-				break;  -- Dip out on first cpp found
-			end
-		end)
+target("StepTimer")
+	set_group("Ryu/External")
+	set_kind("headeronly")
+	add_headerfiles("External/StepTimer/StepTimer.h")
+target_end()
 
-	target_end()
-end
+target("AngelScriptAddOns")
+	set_group("Ryu/External")
+	set_kind("static")
+	add_packages("angelscript", { public = true })
+	add_headerfiles("External/AngelScript/**.h")
+	add_files("External/AngelScript/**.cpp")
+	add_defines("_CRT_SECURE_NO_WARNINGS")  -- Remove library deprecated warnings
+target_end()
 
 
 -- A phony target to include all external source files
@@ -24,13 +26,12 @@ target("RyuExternals")
 	set_group("Ryu/External")
 	set_kind("phony")
 	add_includedirs(".", { public = true })
-	add_headerfiles("**.h")
-	add_files("**.cpp")
 
-	on_config(function(target)
-		for _, dir in ipairs(os.dirs("$(scriptdir)/External/**")) do
-			local ext_name = path.basename(dir)
-			target:add("deps", ext_name)
-		end
-	end)
+	add_deps(
+		"SimpleMath",
+		"StepTimer",
+		"AngelScriptAddOns",
+		{ public = true })
+
+	add_links("AngelScriptAddOns")
 target_end()

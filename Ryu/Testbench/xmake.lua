@@ -9,7 +9,8 @@ target("RyuTestbench")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
 
-	add_deps("RyuEngine")
+	add_deps("RyuEngine", "RyuScripting")
+	add_links("AngelScriptAddOns")
 	
 	on_run(function (target)
 			local run_editor = function (t)

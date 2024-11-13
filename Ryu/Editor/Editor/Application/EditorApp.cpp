@@ -64,7 +64,7 @@ namespace Ryu::Editor
 
 		ImGui_ImplWin32_Init(GetWindow()->GetHWND());
 
-		bool result{ true };
+		//bool result{ true };
 		switch (Graphics::GraphicsConfig::Get().GraphicsAPI)
 		{
 			using namespace Graphics;

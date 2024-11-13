@@ -11,10 +11,10 @@ target("StepTimer")
 	add_headerfiles("External/StepTimer/StepTimer.h")
 target_end()
 
-target("AngelScriptAddOns")
+target("AngelScript")
 	set_group("Ryu/External")
 	set_kind("static")
-	add_packages("angelscript", { public = true })
+	add_includedirs("External/AngelScript/", { public = false })
 	add_headerfiles("External/AngelScript/**.h")
 	add_files("External/AngelScript/**.cpp")
 	add_defines("_CRT_SECURE_NO_WARNINGS")  -- Remove library deprecated warnings
@@ -30,8 +30,8 @@ target("RyuExternals")
 	add_deps(
 		"SimpleMath",
 		"StepTimer",
-		"AngelScriptAddOns",
+		"AngelScript",
 		{ public = true })
 
-	add_links("AngelScriptAddOns")
+	add_links("AngelScript", { public = true })
 target_end()

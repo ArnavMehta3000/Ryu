@@ -1,6 +1,8 @@
 #pragma once
-#include "Scripting/Common.h"
 #include "Logger/LogCategory.h"
+
+struct asSMessageInfo;
+class asIScriptEngine;
 
 namespace Ryu::Scripting
 {
@@ -15,12 +17,12 @@ namespace Ryu::Scripting
 		bool Init();
 		void Shutdown();
 
-		static void MessageCallback(const AS::asSMessageInfo* info, void* data);
+		static void MessageCallback(const asSMessageInfo* info, void* data);
 
 	private:
 		void ConfigureEngine();
 
 	private:
-		AS::asIScriptEngine* m_engine;
+		asIScriptEngine* m_engine;
 	};
 }

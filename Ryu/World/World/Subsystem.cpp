@@ -61,5 +61,37 @@ namespace Ryu::World
 		}
 	};
 
+	RYU_WORLD_SUBSYSTEM(MyNewSubsystem)
+	{
+	public:
+		static std::string_view GetStaticName() { return "MyNewSubsystem"; }
+
+		MyNewSubsystem(World* world)
+		{
+			// Make this subsystem non-tickable
+			CanTick(false);
+			SetWorld(world);
+		}
+
+		bool OnInit() override
+		{
+			return true;
+		}
+
+		void OnShutdown() override
+		{
+		}
+
+		void OnTick(MAYBE_UNUSED f64 dt) override
+		{
+		}
+
+	private:
+		std::string_view GetName() override
+		{
+			return GetStaticName();
+		}
+	};
+
 	
 }

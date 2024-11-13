@@ -4,6 +4,7 @@ target("RyuUtils")
 	add_includedirs(".", { public = true })
 	add_files("**.cpp")
 	add_headerfiles("**.h")
+	add_extrafiles("**.inl")
 
 	add_packages("libassert", "uuid_v4")
 

@@ -20,6 +20,11 @@ namespace Ryu::Editor
 
 	bool EditorApp::OnInit()
 	{
+		if (!Runtime::OnInit())
+		{
+			return false;
+		}
+
 		if (!RouteWndProc())
 		{
 			LOG_ERROR(RYU_USE_LOG_CATEGORY(Editor), "Failed to route Editor WndProc!");
@@ -34,10 +39,12 @@ namespace Ryu::Editor
 	void EditorApp::OnShutdown()
 	{
 		ShutdownImGui();
+		Runtime::OnShutdown();
 	}
 
-	void EditorApp::OnTick(MAYBE_UNUSED f64 dt)
+	void EditorApp::OnTick(f64 dt)
 	{
+		Runtime::OnTick(dt);
 	}
 
 	bool EditorApp::RouteWndProc() const

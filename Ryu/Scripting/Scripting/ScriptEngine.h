@@ -17,6 +17,8 @@ namespace Ryu::Scripting
 		bool Init();
 		void Shutdown();
 
+		inline constexpr RYU_API asIScriptEngine* GetEngine() const { return m_engine; }
+
 		static void MessageCallback(const asSMessageInfo* info, void* data);
 
 	private:

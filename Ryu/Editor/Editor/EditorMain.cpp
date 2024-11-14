@@ -2,7 +2,6 @@
 #include "Editor/Application/EditorApp.h"
 #include "Engine/Engine.h"
 #include "Graphics/Config.h"
-#include "Scripting/ScriptEngine.h"
 
 int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,
@@ -21,10 +20,6 @@ int WINAPI wWinMain(
 
 	engine.SetCommandLine(lpCmdLine);
 	engine.SetRuntime(std::make_shared<Editor::EditorApp>());
-
-	Scripting::ScriptEngine se;
-	se.Init();
-
 	engine.Run();
 
 	return 0;

@@ -43,10 +43,7 @@ namespace Ryu::Scripting
 
 	ScriptEngine::~ScriptEngine()
 	{
-		if (m_engine)
-		{
-			m_engine->ShutDownAndRelease();
-		}
+		Shutdown();
 	}
 
 	bool ScriptEngine::Init()
@@ -62,6 +59,11 @@ namespace Ryu::Scripting
 
 	void ScriptEngine::Shutdown()
 	{
+		if (m_engine)
+		{
+			m_engine->ShutDownAndRelease();
+			m_engine = nullptr;
+		}
 	}
 
 	void ScriptEngine::ConfigureEngine()

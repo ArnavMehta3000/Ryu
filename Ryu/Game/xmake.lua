@@ -1,4 +1,4 @@
-target("RyuWorld")
+target("RyuGame")
 	set_group("Ryu/Core")
 	set_kind("static")
 	add_includedirs(".", { public = true })

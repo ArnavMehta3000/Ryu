@@ -3,7 +3,7 @@ target("RyuCore")
 	set_default(true)
 	set_group("Ryu/Core")
 	set_kind("phony")
-	
+
 	add_deps(
 		"RyuCommon",
 		"RyuUtils",
@@ -12,7 +12,7 @@ target("RyuCore")
 		"RyuConfig",
 		"RyuInput",
 		"RyuApp",
-		"RyuWorld",
+		"RyuGame",
 		"RyuMath",
 		{ public = true }
 	)
@@ -21,7 +21,7 @@ target("RyuCore")
 		"RyuUtils",
 		"RyuLogger",
 		"RyuInput",
-		"RyuWorld",
+		"RyuGame",
 		"RyuApp",
 		"RyuMath",
 		{ public = true }

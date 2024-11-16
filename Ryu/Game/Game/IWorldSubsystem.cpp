@@ -1,7 +1,7 @@
 #include "IWorldSubsystem.h"
-#include "World/World.h"
+#include "Game/World.h"
 
-namespace Ryu::World
+namespace Ryu::Game
 {
 	IWorldSubsystem::IWorldSubsystem(World* world)
 		: m_world(world)

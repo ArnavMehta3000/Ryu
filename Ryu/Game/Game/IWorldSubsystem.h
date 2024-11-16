@@ -2,7 +2,7 @@
 #include "Common/Common.h"
 #include <entt/fwd.hpp>
 
-namespace Ryu::World
+namespace Ryu::Game
 {
 	class World;
 

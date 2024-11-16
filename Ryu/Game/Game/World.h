@@ -1,12 +1,12 @@
 #pragma once
-#include "World/Entity.h"
-#include "World/IWorldSubsystem.h"
+#include "Game/Entity.h"
+#include "Game/IWorldSubsystem.h"
 #include "Logger/LogCategory.h"
 #include "Event/Event.h"
 #include <vector>
 #include <entt/entity/registry.hpp>
 
-namespace Ryu::World
+namespace Ryu::Game
 {
 	/**
 	 * @brief Class representing a collection of entities, components and subsystems

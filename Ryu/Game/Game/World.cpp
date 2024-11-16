@@ -2,7 +2,7 @@
 #include "Logger/Logger.h"
 #include <entt/entt.hpp>
 
-namespace Ryu::World
+namespace Ryu::Game
 {
 	void World::Init()
 	{

@@ -2,7 +2,7 @@
 #include "App/Application.h"
 #include "Logger/LogCategory.h"
 #include "Scripting/ScriptEngine.h"
-#include "World/World.h"
+#include "Game/World.h"
 
 namespace Ryu::Engine
 {
@@ -12,7 +12,7 @@ namespace Ryu::Engine
 
 	public:
 		Runtime();
-		inline constexpr World::World& GetWorld() noexcept { return m_world; }
+		inline constexpr Game::World& GetWorld() noexcept { return m_world; }
 		inline constexpr Scripting::ScriptEngine& GetScriptEngine() noexcept { return m_scriptEngine; }
 
 	protected:
@@ -26,7 +26,7 @@ namespace Ryu::Engine
 		void RegisterEngineAPI();
 
 	private:
-		World::World            m_world;
+		Game::World            m_world;
 		Scripting::ScriptEngine m_scriptEngine;
 	};
 }

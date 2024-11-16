@@ -5,10 +5,10 @@
 #include <External/AngelScript/AddOns/scriptbuilder/scriptbuilder.h>
 
 // Example subsystem
-class ExampleSubsystem : public Ryu::World::IWorldSubsystem
+class ExampleSubsystem : public Ryu::Game::IWorldSubsystem
 {
 public:
-	ExampleSubsystem(Ryu::World::World* world) : IWorldSubsystem(world)
+	ExampleSubsystem(Ryu::Game::World* world) : IWorldSubsystem(world)
 	{
 
 	}

@@ -69,7 +69,11 @@ namespace Ryu::Graphics::DX11::Core
 			if (!adapter) return InitializationFailed();
 
 			const D3D_FEATURE_LEVEL maxFeatureLevel = Graphics::Internal::GetMaxFeatureLevel();
-			DEBUG_ASSERT(maxFeatureLevel >= MIN_FEATURE_LEVEL);
+			if (maxFeatureLevel < MIN_FEATURE_LEVEL)
+			{
+				LOG_ERROR(RYU_USE_LOG_CATEGORY(DX11Core), "Failed to get max feature level");
+			}
+
 			if (maxFeatureLevel < MIN_FEATURE_LEVEL) return InitializationFailed();
 
 			// Device creation block

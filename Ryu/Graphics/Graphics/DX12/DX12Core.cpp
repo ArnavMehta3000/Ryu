@@ -99,7 +99,11 @@ namespace Ryu::Graphics::DX12::Core
 
 		//  Get max feature level
 		const D3D_FEATURE_LEVEL maxFeatureLevel = Graphics::Internal::GetMaxFeatureLevel();
-		DEBUG_ASSERT(maxFeatureLevel >= MIN_FEATURE_LEVEL);
+		if (maxFeatureLevel < MIN_FEATURE_LEVEL)
+		{
+			LOG_ERROR(RYU_USE_LOG_CATEGORY(DX12Core), "Failed to get max feature level");
+		}
+
 		if (maxFeatureLevel < MIN_FEATURE_LEVEL) return InitializationFailed();
 
 		// Create device

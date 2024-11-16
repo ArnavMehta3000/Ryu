@@ -8,20 +8,23 @@ target("RyuTestbench")
 	add_includedirs(".")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
+	add_files("**.as", { rule = "CopyToBuildDir" })
 
 	add_deps("RyuEngine", "RyuScripting")
+
+	set_rundir(path.join(os.scriptdir(), "Testbench"))  -- Set the current directory as the run directory
 	
 	on_run(function (target)
-			local run_editor = function (t)
-				os.exec(target:targetfile())
-			end
+		local run_editor = function (t)
+			os.exec(target:targetfile())
+		end
 
-			if has_config("use-raddbg") then
-				local rad_path = get_config("raddbg-path")
-				print("Running Rad Debugger")
-				os.execv(rad_path, { target:targetfile() })
-			else
-				os.exec(target:targetfile())
-			end
-		end)
+		if has_config("use-raddbg") then
+			local rad_path = get_config("raddbg-path")
+			print("Running Rad Debugger")
+			os.execv(rad_path, { target:targetfile() })
+		else
+			os.exec(target:targetfile())
+		end
+	end)
 target_end()

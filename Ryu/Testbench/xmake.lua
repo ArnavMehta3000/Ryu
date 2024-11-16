@@ -9,11 +9,8 @@ target("RyuTestbench")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
 	add_files("**.as", { rule = "CopyToBuildDir" })
-
 	add_deps("RyuEngine", "RyuScripting")
 
-	set_rundir(path.join(os.scriptdir(), "Testbench"))  -- Set the current directory as the run directory
-	
 	on_run(function (target)
 		local run_editor = function (t)
 			os.exec(target:targetfile())

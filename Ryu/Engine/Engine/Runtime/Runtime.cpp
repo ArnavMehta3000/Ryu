@@ -1,6 +1,7 @@
 #include "Runtime.h"
 #include "Logger/Logger.h"
 #include "Engine/Engine.h"
+#include "Engine/GameInstance/GameInstanceFactory.h"
 #include <angelscript.h>
 #include <External/AngelScript/AddOns/scriptbuilder/scriptbuilder.h>
 
@@ -81,7 +82,11 @@ namespace Ryu::Engine
 	
 	void Runtime::OnTick(f64 dt)
 	{
-		m_world.Tick(dt);		
+		m_world.Tick(dt);
+		if (m_gameInstance)
+		{
+			m_gameInstance->OnUpdate(dt);
+		}
 	}
 
 	void Runtime::OnRegisterWorldSubsystems()
@@ -93,6 +98,7 @@ namespace Ryu::Engine
 	{
 		LOG_DEBUG(RYU_USE_LOG_CATEGORY(Runtime), "Configuring script engine for runtime use");
 		RegisterEngineAPI();
+		RegisterGameInstanceAPI();
 	}
 	
 	void Runtime::RegisterEngineAPI()
@@ -165,5 +171,55 @@ namespace Ryu::Engine
 			}
 		}
 	}
-}
+	
+	void Runtime::RegisterGameInstanceAPI()
+	{
+		LOG_TRACE(RYU_USE_LOG_CATEGORY(Runtime), "Registering Game Instance API");
 
+		auto* const scriptEngine = m_scriptEngine.GetEngine();
+		i32 r{ 0 };
+
+		// Register base class
+		r = scriptEngine->RegisterObjectType("ScriptableGameInstance", 0, asOBJ_REF);
+		ASSERT(r >= 0);
+
+		// Register virtual functions
+		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnInit()", asMETHOD(Game::ScriptableGameInstance, OnInit), asCALL_THISCALL);
+		ASSERT(r >= 0);
+		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnStart()", asMETHOD(Game::ScriptableGameInstance, OnStart), asCALL_THISCALL);
+		ASSERT(r >= 0);
+		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnStop()", asMETHOD(Game::ScriptableGameInstance, OnStop), asCALL_THISCALL);
+		ASSERT(r >= 0);
+		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnUpdate(double)", asMETHOD(Game::ScriptableGameInstance, OnUpdate), asCALL_THISCALL);
+		ASSERT(r >= 0);
+		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnShutdown()", asMETHOD(Game::ScriptableGameInstance, OnShutdown), asCALL_THISCALL);
+		ASSERT(r >= 0);
+
+		// Register reference counters
+		r = scriptEngine->RegisterObjectBehaviour("ScriptableGameInstance", asBEHAVE_ADDREF, "void f()", asMETHOD(Game::ScriptableGameInstance, AddRef), asCALL_THISCALL);
+		ASSERT(r >= 0);
+		r = scriptEngine->RegisterObjectBehaviour("ScriptableGameInstance", asBEHAVE_RELEASE, "void f()", asMETHOD(Game::ScriptableGameInstance, Release), asCALL_THISCALL);
+		ASSERT(r >= 0);
+
+
+		// Build the script
+		CScriptBuilder builder;
+		if (builder.StartNewModule(scriptEngine, "GameInstance") >= 0)
+		{
+			if (builder.AddSectionFromFile("Game/Scripts/GameInstance.as") >= 0)
+			{
+				if (builder.BuildModule() >= 0)
+				{
+					GameInstanceFactory factory(scriptEngine);
+					m_gameInstance = factory.CreateInstance("TestGameInstance");
+
+					if (m_gameInstance)
+					{
+						m_gameInstance->OnInit();
+						m_gameInstance->OnStart();
+					}
+				}
+			}
+		}
+	}
+}

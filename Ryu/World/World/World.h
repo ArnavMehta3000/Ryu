@@ -107,7 +107,6 @@ namespace Ryu::World
 
 		RYU_DECLARE_EVENT(OnEntityCreate, EntityHandle&);
 
-
 	private:
 		entt::registry                                m_registry;
 		std::vector<std::unique_ptr<IWorldSubsystem>> m_subsystems;

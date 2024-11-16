@@ -16,12 +16,9 @@ public:
 private:
 	// Inherited via IWorldSubsystem
 	std::string_view GetName() override { return "ExampleSubsystem"; }
-
-	bool OnInit() override { return true; }
-	
-	void OnShutdown() override { }
-	
-	void OnTick(MAYBE_UNUSED f64 dt) override { }
+	bool OnInit() override { return true; }	
+	void OnShutdown() override {}	
+	void OnTick(MAYBE_UNUSED f64 dt) override {}
 };
 
 namespace

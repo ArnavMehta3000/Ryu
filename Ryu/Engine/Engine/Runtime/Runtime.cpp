@@ -4,6 +4,26 @@
 #include <angelscript.h>
 #include <External/AngelScript/AddOns/autowrapper/aswrappedcall.h>
 
+// Example subsystem
+class ExampleSubsystem : public Ryu::World::IWorldSubsystem
+{
+public:
+	ExampleSubsystem(Ryu::World::World* world) : IWorldSubsystem(world)
+	{
+
+	}
+
+private:
+	// Inherited via IWorldSubsystem
+	std::string_view GetName() override { return "ExampleSubsystem"; }
+
+	bool OnInit() override { return true; }
+	
+	void OnShutdown() override { }
+	
+	void OnTick(MAYBE_UNUSED f64 dt) override { }
+};
+
 namespace
 {
 	Ryu::Engine::Engine* GetEngineWrapper()
@@ -30,10 +50,9 @@ namespace Ryu::Engine
 	{
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Runtime), "Initializing Runtime");
 
-		// World initialization is handled by the engine
-		// Since we want to initialize the world after the 
-		// application has been initialized.
-		// This is because the world is a member of the runtime
+		// First register world subsystems, then init the world
+		OnRegisterWorldSubsystems();
+		m_world.Init();
 
 		if (!m_scriptEngine.Init())
 		{
@@ -60,6 +79,11 @@ namespace Ryu::Engine
 	void Runtime::OnTick(f64 dt)
 	{
 		m_world.Tick(dt);		
+	}
+
+	void Runtime::OnRegisterWorldSubsystems()
+	{
+		GetWorld().RegisterSubsystem<ExampleSubsystem>();
 	}
 	
 	void Runtime::ConfigureScriptEngine()

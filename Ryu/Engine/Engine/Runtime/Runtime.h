@@ -19,6 +19,7 @@ namespace Ryu::Engine
 		virtual bool OnInit() override;
 		virtual void OnShutdown() override;
 		virtual void OnTick(f64 dt) override;
+		virtual void OnRegisterWorldSubsystems();
 
 	private:
 		void ConfigureScriptEngine();

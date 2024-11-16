@@ -37,8 +37,8 @@ namespace Ryu
 	 * @tparam Child The class to check
 	 * @tparam Parent The base class
 	 */
-	template <typename Child, typename Parent>
-	concept IsDerived = std::is_base_of_v<Child, Parent>;
+	template <typename Parent, typename Child>
+	concept IsDerived = std::is_base_of_v<Parent, Child>;
 
 	/**
 	 * @brief Concept to check if two types are the same

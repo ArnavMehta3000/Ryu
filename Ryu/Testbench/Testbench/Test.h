@@ -14,7 +14,7 @@ class TestApp : public Ryu::Engine::Runtime
 public:
 	RYU_LOG_CATEGORY(TestApp);
 
-	bool OnInit() override { return  true; }
-	void OnShutdown() override {}
-	void OnTick(MAYBE_UNUSED f64 dt) override {}
+	bool OnInit() override { return  Runtime::OnInit(); }
+	void OnShutdown() override { Runtime::OnShutdown(); }
+	void OnTick(f64 dt) override { Runtime::OnTick(dt); }
 };

@@ -1,5 +1,6 @@
 #include "World.h"
 #include "Logger/Logger.h"
+#include <entt/entt.hpp>
 
 namespace Ryu::World
 {
@@ -7,23 +8,16 @@ namespace Ryu::World
 	{
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(World), "Initializing world");
 
-		// Create all subsystems using the factory
-		const auto& subsystems = Subsystem::GetFactoryData();
-		for (auto& [name, subsystem] : subsystems)
-		{
-			if (std::unique_ptr<Subsystem> ptr = Subsystem::Create(name, this))
-			{
-				LOG_TRACE(RYU_USE_LOG_CATEGORY(World), "Created world subsystem - {}", name);
-				m_subsystems.push_back(std::move(ptr));
-			}
-		}
-
 		// Initialize all subsystems
 		for (auto& system : m_subsystems)
 		{
 			if (!system->Init())
 			{
 				LOG_WARN(RYU_USE_LOG_CATEGORY(World), "Failed to initialize world subsystem - {}", system->GetName());
+			}
+			else
+			{
+				LOG_DEBUG(RYU_USE_LOG_CATEGORY(World), "World subsystem initialized - {}", system->GetName());
 			}
 		}
 
@@ -74,6 +68,7 @@ namespace Ryu::World
 			m_entitiesMarkedForDeletion.clear();
 		}
 	}
+
 	EntityHandle World::CreateEntity()
 	{
 		EntityHandle e = entt::handle(m_registry, m_registry.create());

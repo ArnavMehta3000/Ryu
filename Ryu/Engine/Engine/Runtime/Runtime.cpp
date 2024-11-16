@@ -2,7 +2,7 @@
 #include "Logger/Logger.h"
 #include "Engine/Engine.h"
 #include <angelscript.h>
-#include <External/AngelScript/AddOns/autowrapper/aswrappedcall.h>
+#include <External/AngelScript/AddOns/scriptbuilder/scriptbuilder.h>
 
 // Example subsystem
 class ExampleSubsystem : public Ryu::World::IWorldSubsystem
@@ -31,6 +31,12 @@ namespace
 	f64 GetEngineUpTimeWrapper()
 	{
 		return Ryu::Engine::Engine::GetEngineUpTime();
+	}
+
+	void DebugLog(const std::string& str)
+	{
+		RYU_LOG_CATEGORY(Script);
+		LOG_INFO(RYU_USE_LOG_CATEGORY(Script), "{}", str);
 	}
 }
 
@@ -86,25 +92,78 @@ namespace Ryu::Engine
 	void Runtime::ConfigureScriptEngine()
 	{
 		LOG_DEBUG(RYU_USE_LOG_CATEGORY(Runtime), "Configuring script engine for runtime use");
-		RegisterEngineWithScriptEngine();
+		RegisterEngineAPI();
 	}
 	
-	void Runtime::RegisterEngineWithScriptEngine()
+	void Runtime::RegisterEngineAPI()
 	{
+		LOG_TRACE(RYU_USE_LOG_CATEGORY(Runtime), "Registering Engine API");
 		i32 r{ 0 };
 		auto* const scriptEngine = m_scriptEngine.GetEngine();
 		
 		// Register Engine type
-		r = scriptEngine->RegisterObjectType("Engine", sizeof(Ryu::Engine::Engine), asOBJ_REF | asOBJ_NOCOUNT);
+		r = scriptEngine->RegisterObjectType("Engine", 0, asOBJ_REF | asOBJ_NOCOUNT);
 		ASSERT(r >= 0);
 
 		// Register Engine up time getter
-		r = scriptEngine->RegisterGlobalFunction("double GetEngineUpTime()", WRAP_FN(GetEngineUpTimeWrapper), asCALL_GENERIC);
+		r = scriptEngine->RegisterGlobalFunction("double GetEngineUpTime()", asFUNCTION(GetEngineUpTimeWrapper), asCALL_CDECL);
 		ASSERT(r >= 0);
 
 		// Register Engine getter
-		r = scriptEngine->RegisterGlobalFunction("Engine@ GetEngine()", WRAP_FN(GetEngineWrapper), asCALL_GENERIC);
+		r = scriptEngine->RegisterGlobalFunction("Engine@ GetEngine()", asFUNCTION(GetEngineWrapper), asCALL_CDECL);
 		ASSERT(r >= 0);
+
+		// Register engine quit function
+		r = scriptEngine->RegisterObjectMethod("Engine", "void Quit() const", asMETHOD(Ryu::Engine::Engine, Quit), asCALL_THISCALL);
+		ASSERT(r >= 0);
+
+		r = scriptEngine->RegisterGlobalFunction("void DebugLog(const string& in)", asFUNCTION(DebugLog), asCALL_CDECL);
+		ASSERT(r >= 0);
+
+		// Sample script as a string
+		const char* testScript = R"(
+		[editable]
+		[range [10, 100]]
+		void main()
+		{
+			DebugLog("This is an example message from a custom script!");
+		})";
+
+		CScriptBuilder builder;
+		if (builder.StartNewModule(scriptEngine, "TestModule") >= 0)
+		{
+			if (builder.AddSectionFromMemory("TestScript", testScript) >= 0)
+			{
+				if (builder.BuildModule() >= 0)
+				{
+					if (asIScriptModule* mod = scriptEngine->GetModule("TestModule"))
+					{
+						if (asIScriptFunction* func = mod->GetFunctionByDecl("void main()"))
+						{
+							std::vector<std::string> metadata = builder.GetMetadataForFunc(func);
+
+							if (asIScriptContext* ctx = scriptEngine->CreateContext())
+							{
+								if (ctx->Prepare(func) >= 0)
+								{
+									r = ctx->Execute();
+									if (r != asEXECUTION_FINISHED)
+									{
+										// The execution didn't complete as expected. Determine what happened.
+										if (r == asEXECUTION_EXCEPTION)
+										{
+											LOG_ERROR(RYU_USE_LOG_CATEGORY(Runtime), "Failed to execute script: {}", ctx->GetExceptionString());
+										}
+									}
+								}
+
+								ctx->Release();
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
 

@@ -23,7 +23,7 @@ namespace Ryu::Engine
 
 	private:
 		void ConfigureScriptEngine();
-		void RegisterEngineWithScriptEngine();
+		void RegisterEngineAPI();
 
 	private:
 		World::World            m_world;

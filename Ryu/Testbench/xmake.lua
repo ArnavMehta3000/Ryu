@@ -1,6 +1,7 @@
 target("RyuTestbench")
 	add_rules("RadDebug")
 	add_rules("win.sdk.application")
+	add_rules("AddScriptPathDefine", { name = "RYU_PROJECT_DIR" })
 	set_default(true)
 	set_kind("binary")
 	set_group("Ryu/Testing")

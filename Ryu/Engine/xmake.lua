@@ -10,6 +10,8 @@ target("RyuEngine")
 
 	add_packages("entt")
 
+	add_rules("AddScriptPathDefine", { name = "RYU_ENGINE_DIR" })
+
 	add_deps(
 		"RyuCore",
 		"RyuGraphics",

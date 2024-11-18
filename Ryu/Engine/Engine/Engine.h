@@ -75,4 +75,6 @@ namespace Ryu::Engine
 		Config::CommandLine      m_cmdLine;
 		Graphics::GFXSurface     m_renderSurface;
 	};
+
+	std::string_view GetEngineDirectory();
 }

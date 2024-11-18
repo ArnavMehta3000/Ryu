@@ -17,6 +17,7 @@ includes("Xmake/Rules/RyuPlugin.lua")
 includes("Xmake/Rules/RadDebug.lua")
 includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/CopyToBuildDir.lua")
+includes("Xmake/Rules/AddScriptPathDefine.lua")
 
 -- Build debug mode by default
 set_defaultmode("debug")

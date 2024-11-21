@@ -2,7 +2,6 @@
 #include "App/Application.h"
 #include "Logger/LogCategory.h"
 #include "Scripting/ScriptEngine.h"
-#include "Game/GameInstance/ScriptableGameInstance.h"
 #include "Game/World.h"
 
 namespace Ryu::Engine
@@ -24,12 +23,9 @@ namespace Ryu::Engine
 
 	private:
 		void ConfigureScriptEngine();
-		void RegisterEngineAPI();
-		void RegisterGameInstanceAPI();
 
 	private:
 		Game::World            m_world;
 		Scripting::ScriptEngine m_scriptEngine;
-		std::unique_ptr<Game::ScriptableGameInstance> m_gameInstance;
 	};
 }

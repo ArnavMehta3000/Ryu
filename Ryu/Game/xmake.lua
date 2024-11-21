@@ -10,5 +10,6 @@ target("RyuGame")
 	add_deps(
 		"RyuUtils",
 		"RyuLogger",
+		"RyuScripting",
 		"RyuEvents")
 target_end()

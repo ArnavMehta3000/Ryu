@@ -11,31 +11,12 @@
 #include <External/AngelScript/AddOns/scripthelper/scripthelper.h>
 #include <External/AngelScript/AddOns/scriptmath/scriptmath.h>
 #include <External/AngelScript/AddOns/scriptmath/scriptmathcomplex.h>
+#include <External/AngelScript/AddOns/scripthandle/scripthandle.h>
+#include <External/AngelScript/AddOns/weakref/weakref.h>
 #include <libassert/assert.hpp>
 
 namespace Ryu::Scripting
 {
-	void ScriptEngine::MessageCallback(const asSMessageInfo* info, MAYBE_UNUSED void* data)
-	{
-		switch (info->type)
-		{
-		case asMSGTYPE_ERROR:
-			LOG_ERROR(RYU_USE_LOG_CATEGORY(ScriptEngine), "{} ({}, {}) : {}",
-				info->section, info->row, info->col, info->message);
-			break;
-
-		case asMSGTYPE_WARNING:
-			LOG_WARN(RYU_USE_LOG_CATEGORY(ScriptEngine), "{} ({}, {}) : {}",
-				info->section, info->row, info->col, info->message);
-			break;
-
-		default:
-			LOG_INFO(RYU_USE_LOG_CATEGORY(ScriptEngine), "{} ({}, {}) : {}",
-				info->section, info->row, info->col, info->message);
-			break;
-		}
-	}
-
 	ScriptEngine::ScriptEngine()
 		: m_engine(nullptr)
 	{
@@ -66,12 +47,58 @@ namespace Ryu::Scripting
 		}
 	}
 
+	asIScriptContext* ScriptEngine::CreateContext() const
+	{
+		asIScriptContext* ctx = m_engine->CreateContext();
+		std::remove_const_t<ScriptEngine*> thisPtr = const_cast<ScriptEngine*>(this);		
+
+		i32 result = ctx->SetExceptionCallback(asMETHOD(ScriptEngine, PrintExceptionInfo), thisPtr, asCALL_THISCALL);
+		ASSERT(result >= 0, "Failed to set exception callback");
+		return ctx;
+	}
+
+	void ScriptEngine::PrintExceptionInfo(asIScriptContext* context) const
+	{
+		const auto* function = context->GetExceptionFunction();
+
+		LOG_ERROR(RYU_USE_LOG_CATEGORY(ScriptEngine), 
+			"Script Exception: {}\n\tFunction: {}\n\tModule: {}\n\tSection: {}\n\tLine: {}",
+			context->GetExceptionString(),
+			function->GetDeclaration(),
+			function->GetModuleName(),
+			function->GetScriptSectionName(),
+			context->GetExceptionLineNumber());
+	}
+
+	void ScriptEngine::MessageCallback(const asSMessageInfo* info, MAYBE_UNUSED void* data)
+	{
+		switch (info->type)
+		{
+		case asMSGTYPE_ERROR:
+			LOG_ERROR(RYU_USE_LOG_CATEGORY(ScriptEngine), "{} ({}, {}) : {}",
+				info->section, info->row, info->col, info->message);
+			break;
+
+		case asMSGTYPE_WARNING:
+			LOG_WARN(RYU_USE_LOG_CATEGORY(ScriptEngine), "{} ({}, {}) : {}",
+				info->section, info->row, info->col, info->message);
+			break;
+
+		default:
+			LOG_INFO(RYU_USE_LOG_CATEGORY(ScriptEngine), "{} ({}, {}) : {}",
+				info->section, info->row, info->col, info->message);
+			break;
+		}
+	}
+
 	void ScriptEngine::ConfigureEngine()
 	{
-		i32 result = m_engine->SetMessageCallback(asFUNCTION(ScriptEngine::MessageCallback), 0, asCALL_CDECL);
+		i32 result = m_engine->SetMessageCallback(asMETHOD(ScriptEngine, MessageCallback), this, asCALL_THISCALL);
 		ASSERT(result >= 0, "Failed to set message callback");
 
 		RegisterStdString(m_engine);
+		RegisterScriptHandle(m_engine);
+		RegisterScriptWeakRef(m_engine);
 		RegisterScriptAny(m_engine);
 		RegisterScriptArray(m_engine, false);
 		RegisterStdStringUtils(m_engine);

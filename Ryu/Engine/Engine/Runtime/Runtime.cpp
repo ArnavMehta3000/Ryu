@@ -1,18 +1,12 @@
 #include "Runtime.h"
 #include "Logger/Logger.h"
-#include "Engine/Engine.h"
-#include "Engine/GameInstance/GameInstanceFactory.h"
-#include <angelscript.h>
-#include <External/AngelScript/AddOns/scriptbuilder/scriptbuilder.h>
+#include "Engine/Registration/ScriptRegistration.h"
 
 // Example subsystem
 class ExampleSubsystem : public Ryu::Game::IWorldSubsystem
 {
 public:
-	ExampleSubsystem(Ryu::Game::World* world) : IWorldSubsystem(world)
-	{
-
-	}
+	ExampleSubsystem(Ryu::Game::World* world) : IWorldSubsystem(world) { }
 
 private:
 	// Inherited via IWorldSubsystem
@@ -24,16 +18,6 @@ private:
 
 namespace
 {
-	Ryu::Engine::Engine* GetEngineWrapper()
-	{
-		return Ryu::Engine::Engine::Get();
-	}
-
-	f64 GetEngineUpTimeWrapper()
-	{
-		return Ryu::Engine::Engine::GetEngineUpTime();
-	}
-
 	void DebugLog(const std::string& str)
 	{
 		RYU_LOG_CATEGORY(Script);
@@ -54,10 +38,6 @@ namespace Ryu::Engine
 	{
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Runtime), "Initializing Runtime");
 
-		// First register world subsystems, then init the world
-		OnRegisterWorldSubsystems();
-		m_world.Init();
-
 		if (!m_scriptEngine.Init())
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Runtime), "Failed to initialize script engine");
@@ -65,6 +45,10 @@ namespace Ryu::Engine
 		}
 
 		ConfigureScriptEngine();
+
+		// First register world subsystems, then init the world
+		OnRegisterWorldSubsystems();
+		m_world.Init();
 
 		LOG_DEBUG(RYU_USE_LOG_CATEGORY(Runtime), "Runtime initialized");
 		return true;
@@ -83,10 +67,10 @@ namespace Ryu::Engine
 	void Runtime::OnTick(f64 dt)
 	{
 		m_world.Tick(dt);
-		if (m_gameInstance)
-		{
-			m_gameInstance->OnUpdate(dt);
-		}
+		//if (m_gameInstance)
+		//{
+		//	m_gameInstance->OnUpdate(dt);
+		//}
 	}
 
 	void Runtime::OnRegisterWorldSubsystems()
@@ -97,129 +81,7 @@ namespace Ryu::Engine
 	void Runtime::ConfigureScriptEngine()
 	{
 		LOG_DEBUG(RYU_USE_LOG_CATEGORY(Runtime), "Configuring script engine for runtime use");
-		RegisterEngineAPI();
-		RegisterGameInstanceAPI();
-	}
-	
-	void Runtime::RegisterEngineAPI()
-	{
-		LOG_TRACE(RYU_USE_LOG_CATEGORY(Runtime), "Registering Engine API");
-		i32 r{ 0 };
-		auto* const scriptEngine = m_scriptEngine.GetEngine();
 		
-		// Register Engine type
-		r = scriptEngine->RegisterObjectType("Engine", 0, asOBJ_REF | asOBJ_NOCOUNT);
-		ASSERT(r >= 0);
-
-		// Register Engine up time getter
-		r = scriptEngine->RegisterGlobalFunction("double GetEngineUpTime()", asFUNCTION(GetEngineUpTimeWrapper), asCALL_CDECL);
-		ASSERT(r >= 0);
-
-		// Register Engine getter
-		r = scriptEngine->RegisterGlobalFunction("Engine@ GetEngine()", asFUNCTION(GetEngineWrapper), asCALL_CDECL);
-		ASSERT(r >= 0);
-
-		// Register engine quit function
-		r = scriptEngine->RegisterObjectMethod("Engine", "void Quit() const", asMETHOD(Ryu::Engine::Engine, Quit), asCALL_THISCALL);
-		ASSERT(r >= 0);
-
-		r = scriptEngine->RegisterGlobalFunction("void DebugLog(const string& in)", asFUNCTION(DebugLog), asCALL_CDECL);
-		ASSERT(r >= 0);
-
-		// Sample script as a string
-		const char* testScript = R"(
-		[editable]
-		[range [10, 100]]
-		void main()
-		{
-			DebugLog("This is an example message from a custom script!");
-		})";
-
-		CScriptBuilder builder;
-		if (builder.StartNewModule(scriptEngine, "TestModule") >= 0)
-		{
-			if (builder.AddSectionFromMemory("TestScript", testScript) >= 0)
-			{
-				if (builder.BuildModule() >= 0)
-				{
-					if (asIScriptModule* mod = scriptEngine->GetModule("TestModule"))
-					{
-						if (asIScriptFunction* func = mod->GetFunctionByDecl("void main()"))
-						{
-							std::vector<std::string> metadata = builder.GetMetadataForFunc(func);
-
-							if (asIScriptContext* ctx = scriptEngine->CreateContext())
-							{
-								if (ctx->Prepare(func) >= 0)
-								{
-									r = ctx->Execute();
-									if (r != asEXECUTION_FINISHED)
-									{
-										// The execution didn't complete as expected. Determine what happened.
-										if (r == asEXECUTION_EXCEPTION)
-										{
-											LOG_ERROR(RYU_USE_LOG_CATEGORY(Runtime), "Failed to execute script: {}", ctx->GetExceptionString());
-										}
-									}
-								}
-
-								ctx->Release();
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	void Runtime::RegisterGameInstanceAPI()
-	{
-		LOG_TRACE(RYU_USE_LOG_CATEGORY(Runtime), "Registering Game Instance API");
-
-		auto* const scriptEngine = m_scriptEngine.GetEngine();
-		i32 r{ 0 };
-
-		// Register base class
-		r = scriptEngine->RegisterObjectType("ScriptableGameInstance", 0, asOBJ_REF);
-		ASSERT(r >= 0);
-
-		// Register virtual functions
-		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnInit()", asMETHOD(Game::ScriptableGameInstance, OnInit), asCALL_THISCALL);
-		ASSERT(r >= 0);
-		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnStart()", asMETHOD(Game::ScriptableGameInstance, OnStart), asCALL_THISCALL);
-		ASSERT(r >= 0);
-		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnStop()", asMETHOD(Game::ScriptableGameInstance, OnStop), asCALL_THISCALL);
-		ASSERT(r >= 0);
-		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnUpdate(double)", asMETHOD(Game::ScriptableGameInstance, OnUpdate), asCALL_THISCALL);
-		ASSERT(r >= 0);
-		r = scriptEngine->RegisterObjectMethod("ScriptableGameInstance", "void OnShutdown()", asMETHOD(Game::ScriptableGameInstance, OnShutdown), asCALL_THISCALL);
-		ASSERT(r >= 0);
-
-		// Register reference counters
-		r = scriptEngine->RegisterObjectBehaviour("ScriptableGameInstance", asBEHAVE_ADDREF, "void f()", asMETHOD(Game::ScriptableGameInstance, AddRef), asCALL_THISCALL);
-		ASSERT(r >= 0);
-		r = scriptEngine->RegisterObjectBehaviour("ScriptableGameInstance", asBEHAVE_RELEASE, "void f()", asMETHOD(Game::ScriptableGameInstance, Release), asCALL_THISCALL);
-		ASSERT(r >= 0);
-
-
-		// Build the script
-		CScriptBuilder builder;
-		if (builder.StartNewModule(scriptEngine, "GameInstance") >= 0)
-		{
-			if (builder.AddSectionFromFile("Game/Scripts/GameInstance.as") >= 0)
-			{
-				if (builder.BuildModule() >= 0)
-				{
-					GameInstanceFactory factory(scriptEngine);
-					m_gameInstance = factory.CreateInstance("TestGameInstance");
-
-					if (m_gameInstance)
-					{
-						m_gameInstance->OnInit();
-						m_gameInstance->OnStart();
-					}
-				}
-			}
-		}
+		ScriptRegistration::Register(m_scriptEngine.GetEngine());
 	}
 }

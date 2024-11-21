@@ -3,6 +3,7 @@
 
 struct asSMessageInfo;
 class asIScriptEngine;
+class asIScriptContext;
 
 namespace Ryu::Scripting
 {
@@ -17,11 +18,12 @@ namespace Ryu::Scripting
 		bool Init();
 		void Shutdown();
 
+		asIScriptContext* CreateContext() const;
 		inline constexpr RYU_API asIScriptEngine* GetEngine() const { return m_engine; }
 
-		static void MessageCallback(const asSMessageInfo* info, void* data);
-
 	private:
+		void PrintExceptionInfo(asIScriptContext* context) const;
+		void MessageCallback(const asSMessageInfo* info, void* data);
 		void ConfigureEngine();
 
 	private:

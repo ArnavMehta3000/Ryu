@@ -1,23 +1,27 @@
-class TestGameInstance : ScriptableGameInstance
+[Factory = CreateTestbenchGameInstance]
+[FriendlyName = Testbench Game Instance]
+class TestbenchGameInstance : IGameInstance
 {
-	private float m_gameTime = 0;
-
-	void OnInit()
-	{
-		DebugLog("INIT GAME INSTANCE");
-	}
+	double totalTime = 0.0;
 
 	void OnStart()
 	{
+		RyuLog(LogLevel::Trace, "Starting the game instance");
 	}
 
-	void OnStop()
+	void OnEnd()
 	{
+		RyuLog(LogLevel::Trace, "Ending the game instance");
 	}
 
 	void OnUpdate(double dt)
 	{
-		m_gameTime += dt;
-		DebugLog("UPDATE GAME INSTANCE - " + m_gameTime);
+		totalTime += dt;
+		RyuLog(LogLevel::Trace, "Updating the game instance (total time): " + totalTime);
 	}
+}
+
+TestbenchGameInstance @CreateTestbenchGameInstance()
+{
+	return @TestbenchGameInstance();
 }

@@ -18,6 +18,7 @@ namespace Ryu::Engine
 #define DECLARE_API(X) static void RYU_CONCAT(Register, RYU_CONCAT(X, API))(asIScriptEngine* engine)
 
 		DECLARE_API(Logger);
+		DECLARE_API(Input);
 		DECLARE_API(Engine);
 		DECLARE_API(Debug);
 		DECLARE_API(World);

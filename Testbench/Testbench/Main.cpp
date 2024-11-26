@@ -1,6 +1,7 @@
 #include <Windows.h>
-#include "Test.h"
+#include "Engine/Engine.h"
 #include "Graphics/Config.h"
+#include "Test.h"
 
 int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,
@@ -8,18 +9,14 @@ int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED LPWSTR    lpCmdLine,
 	_In_     MAYBE_UNUSED int       nCmdShow)
 {
-	using namespace Ryu::Engine;
-	using namespace Ryu::Engine;
-	using namespace Ryu::Graphics;
-	using namespace Ryu::Logging;
-	using namespace Ryu::Config;
+	using namespace Ryu;
 
 	// Set the working API
-	GraphicsConfig::Get().GraphicsAPI = API::DirectX11 ;
+	Graphics::GraphicsConfig::Get().GraphicsAPI = Graphics::API::DirectX12;
 
 	// Creating the engine object initializes all core subsystems
-	Engine engine;
-	SetUpDefaultLogger();
+	Engine::Engine engine;
+	Logging::SetUpDefaultLogger();
 
 	engine.SetCommandLine(lpCmdLine);
 	engine.SetRuntime(std::make_shared<TestApp>());

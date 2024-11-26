@@ -227,7 +227,7 @@ namespace Ryu::Engine
 
 		REGISTER_CHECK(engine->RegisterEnum("MouseButton"));
 		{
-#define REG_KEY(VAL) REGISTER_CHECK(engine->RegisterEnumValue("ModifierKeys", RYU_STRING(VAL), (i32)Ryu::Input::MouseButton::VAL))
+#define REG_KEY(VAL) REGISTER_CHECK(engine->RegisterEnumValue("MouseButton", RYU_STRING(VAL), (i32)Ryu::Input::MouseButton::VAL))
 			REG_KEY(None);
 			REG_KEY(LeftButton);
 			REG_KEY(RightButton);

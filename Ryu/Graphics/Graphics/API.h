@@ -8,6 +8,9 @@ namespace Ryu::Graphics
 		DirectX12 = 0,
 		DirectX11
 	};
+
+	template<API API_TYPE>
+	struct APITraits;
 }
 
 RYU_BEGIN_ENUM_TO_STRING(Ryu::Graphics::API)

@@ -1,7 +1,6 @@
 #include "DXInternal.h"
 #include "Graphics/API.h"
 #include "Graphics/Config.h"
-#include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::Internal
 {

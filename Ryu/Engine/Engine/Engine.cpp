@@ -1,7 +1,6 @@
 #include "Engine.h"
 #include "Engine/Runtime/Runtime.h"
 #include "App/Window.h"
-#include "Graphics/Renderer.h"
 #include "Graphics/Config.h"
 #include <External/StepTimer/StepTimer.h>
 
@@ -50,7 +49,7 @@ namespace Ryu::Engine
 		}
 		
 		Graphics::API api = Graphics::GraphicsConfig::Get().GraphicsAPI;
-		if (Ryu::Graphics::Init(api))
+		/*if (Ryu::Graphics::Init(api))
 		{
 			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(api));
 		}
@@ -58,12 +57,12 @@ namespace Ryu::Engine
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Graphics");
 			return false;
-		}
+		}*/
 
-		m_renderSurface.Window = m_runtime->GetWindow().get();
-		m_renderSurface.Surface = Graphics::CreateSurface(m_renderSurface.Window);
+		//m_renderSurface.Window = m_runtime->GetWindow().get();
+		//m_renderSurface.Surface = Graphics::CreateSurface(m_renderSurface.Window);
 
-		DEBUG_ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
+		//DEBUG_ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
 
 		// Init the world after creating the runtime
 		m_runtime->GetWorld().Init();
@@ -90,7 +89,7 @@ namespace Ryu::Engine
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Shutting down Engine");
 
 		m_runtime->Shutdown();
-		Ryu::Graphics::Shutdown();
+		//Ryu::Graphics::Shutdown();
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Shutdown Engine");
 	}
@@ -157,17 +156,17 @@ namespace Ryu::Engine
 	void Engine::DoFrame(f64 dt)
 	{
 		m_runtime->Tick(dt);
-		Graphics::RenderSurface();
+		//Graphics::RenderSurface();
 	}
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept
 	{
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine::OnAppResize -  {}x{}", width, height);
 
-		if (Graphics::IsInitialized())
-		{
-			Graphics::ResizeSurface(width, height);
-		}
+		//if (Graphics::IsInitialized())
+		//{
+		//	Graphics::ResizeSurface(width, height);
+		//}
 	}
 	
 	std::string_view GetEngineDirectory()

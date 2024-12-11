@@ -1,7 +1,6 @@
 #pragma once
 #include "Config/CommandLine.h"
 #include "Logger/Logger.h"
-#include "Graphics/ISurface.h"
 #include "Event/Event.h"
 #include <memory>
 
@@ -73,7 +72,6 @@ namespace Ryu::Engine
 	private:
 		std::shared_ptr<Runtime> m_runtime;
 		Config::CommandLine      m_cmdLine;
-		Graphics::GFXSurface     m_renderSurface;
 	};
 
 	std::string_view GetEngineDirectory();

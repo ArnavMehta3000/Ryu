@@ -2,8 +2,6 @@
 #include "Logger/Logger.h"
 #include "Graphics/Config.h"
 #include "Graphics/Config.h"
-#include "Graphics/DX11/DX11Core.h"
-#include "Graphics/DX12/DX12Core.h"
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx12.h>
 #include <imgui_impl_dx11.h>
@@ -31,7 +29,8 @@ namespace Ryu::Editor
 			return false;
 		}
 
-		InitImGui();
+		RYU_TODO("Init Imgui");
+		//InitImGui();
 		
 		return true;
 	}

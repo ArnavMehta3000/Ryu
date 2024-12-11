@@ -15,4 +15,6 @@ namespace Ryu::Graphics
 		bool EnableVSync{ true };
 		API GraphicsAPI{ API::DirectX12 };
 	};
+
+	constexpr u32 FRAME_BUFFER_COUNT{ 3 };
 }

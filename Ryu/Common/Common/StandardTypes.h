@@ -65,3 +65,8 @@ namespace Ryu::Common::StandardTypes
 	 */
 	using byte = std::uint8_t;
 }
+
+
+#if defined(RYU_USING_STD_TYPES_GLOBALLY)
+	using namespace Ryu::Common::StandardTypes;
+#endif

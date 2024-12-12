@@ -59,6 +59,11 @@ add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "
 add_links("user32.lib")
 set_runtimes(is_mode("debug") and "MDd" or "MD")
 
+-- Bring standard types namespace to global namespace
+if has_config("use-std-types-globally") then
+	add_defines("RYU_USING_STD_TYPES_GLOBALLY")
+end
+
 -- Add compilation success to all targets
 add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 

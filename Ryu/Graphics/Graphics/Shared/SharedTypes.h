@@ -113,6 +113,22 @@ namespace Ryu::Graphics
 		_Count,
 	};
 
+	enum class SwapEffect
+	{
+		Discard,
+		Sequential,
+		FlipDiscard,
+		FlipSequential,
+	};
+
+	enum class SwapChainFlag
+	{
+		AllowModeSwitch = RYU_BIT(0),
+		AllowFullscreen = RYU_BIT(1),
+		AllowTearing    = RYU_BIT(2),
+	};
+	RYU_ENABLE_BITMASK_OPERATORS(SwapChainFlag)
+
 	enum class IndexFormat
 	{
 		UInt16,

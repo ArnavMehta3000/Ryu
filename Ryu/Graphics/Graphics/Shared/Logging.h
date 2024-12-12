@@ -1,5 +1,6 @@
 #pragma once
 #include "Logger/Logger.h"
+#include <d3dcommon.h>
 #include <string_view>
 #include <string>
 

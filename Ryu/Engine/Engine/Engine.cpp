@@ -49,15 +49,16 @@ namespace Ryu::Engine
 		}
 		
 		Graphics::API api = Graphics::GraphicsConfig::Get().GraphicsAPI;
-		/*if (Ryu::Graphics::Init(api))
+		m_renderer = std::make_unique<Graphics::Renderer>();
+
+		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), api, m_runtime->GetWindow()->GetHWND()); !result.has_value())
 		{
-			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(api));
+			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Graphics. Error: {}", result.error());
 		}
 		else
 		{
-			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Graphics");
-			return false;
-		}*/
+			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(api));
+		}
 
 		//m_renderSurface.Window = m_runtime->GetWindow().get();
 		//m_renderSurface.Surface = Graphics::CreateSurface(m_renderSurface.Window);
@@ -89,7 +90,7 @@ namespace Ryu::Engine
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Shutting down Engine");
 
 		m_runtime->Shutdown();
-		//Ryu::Graphics::Shutdown();
+		Graphics::ShutdownGraphics(m_renderer.get());
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Shutdown Engine");
 	}

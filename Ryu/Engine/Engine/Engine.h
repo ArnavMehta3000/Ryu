@@ -2,6 +2,7 @@
 #include "Config/CommandLine.h"
 #include "Logger/Logger.h"
 #include "Event/Event.h"
+#include "Graphics/Renderer.h"
 #include <memory>
 
 namespace Ryu::Engine
@@ -70,8 +71,9 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		std::shared_ptr<Runtime> m_runtime;
-		Config::CommandLine      m_cmdLine;
+		Config::CommandLine                 m_cmdLine;
+		std::shared_ptr<Runtime>            m_runtime;
+		std::unique_ptr<Graphics::Renderer> m_renderer;
 	};
 
 	std::string_view GetEngineDirectory();

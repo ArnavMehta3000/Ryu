@@ -1,5 +1,6 @@
 #include "IDevice.h"
 #include "Graphics/DX11/DX11Device.h"
+#include <format>
 
 namespace Ryu::Graphics
 {
@@ -11,6 +12,7 @@ namespace Ryu::Graphics
 			return std::make_unique<DX11Device>(desc);
 		}
 
-		return CreateDeviceResult::unexpected_type("Unsupported graphics API");
+		return CreateDeviceResult::unexpected_type(std::format(
+			"Unsupported graphics device API - {}", EnumToString(desc.GraphicsAPI)));
 	}
 }

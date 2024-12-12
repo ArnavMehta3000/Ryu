@@ -1,6 +1,7 @@
 #pragma once
 #include "Common/StandardTypes.h"
 #include "Graphics/Shared/SharedTypes.h"
+#include "Graphics/Shared/Interface/IGraphicsObject.h"
 
 namespace Ryu::Graphics
 {
@@ -13,7 +14,7 @@ namespace Ryu::Graphics
 		SwapEffect SwapEffect;
 	};
 
-	class ISwapChain
+	class ISwapChain : public IGraphicsObject
 	{
 	public:
 		virtual ~ISwapChain() = default;

@@ -14,8 +14,8 @@ namespace Ryu::Graphics
 		return m_device;
 	}
 	
-	std::unique_ptr<ISwapChain> DX11Device::CreateSwapChain(const SwapChainDesc& desc)
+	IDevice::CreateSwapChainResult DX11Device::CreateSwapChain(const SwapChainDesc& desc)
 	{
-		return nullptr;
+		return CreateSwapChainResult::unexpected_type("Not implemented!");
 	}
 }

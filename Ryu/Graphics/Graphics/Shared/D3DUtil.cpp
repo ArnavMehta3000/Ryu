@@ -122,8 +122,8 @@ namespace Ryu::Graphics::Utils
 	{
 		switch (format)
 		{
-		case Ryu::Graphics::IndexFormat::UInt16: return DXGI_FORMAT_R16_UINT;
-		case Ryu::Graphics::IndexFormat::UInt32: return DXGI_FORMAT_R32_UINT;
+		case IndexFormat::UInt16: return DXGI_FORMAT_R16_UINT;
+		case IndexFormat::UInt32: return DXGI_FORMAT_R32_UINT;
 		default:
 			LOG_WARN(Internal::GraphicsPanicLog, "Unknown index format");
 			return DXGI_FORMAT_UNKNOWN;
@@ -284,14 +284,14 @@ namespace Ryu::Graphics::Utils
 	{
 		switch (op)
 		{
-		case Ryu::Graphics::StencilOp::Keep:              return D3D12_STENCIL_OP_KEEP;
-		case Ryu::Graphics::StencilOp::Zero:              return D3D12_STENCIL_OP_ZERO;
-		case Ryu::Graphics::StencilOp::Replace:           return D3D12_STENCIL_OP_REPLACE;
-		case Ryu::Graphics::StencilOp::IncrementSaturate: return D3D12_STENCIL_OP_INCR_SAT;
-		case Ryu::Graphics::StencilOp::DecrementSaturate: return D3D12_STENCIL_OP_DECR_SAT;
-		case Ryu::Graphics::StencilOp::Invert:            return D3D12_STENCIL_OP_INVERT;
-		case Ryu::Graphics::StencilOp::IncrementWrap:     return D3D12_STENCIL_OP_INCR;
-		case Ryu::Graphics::StencilOp::DecrementWrap:     return D3D12_STENCIL_OP_DECR;
+		case StencilOp::Keep:              return D3D12_STENCIL_OP_KEEP;
+		case StencilOp::Zero:              return D3D12_STENCIL_OP_ZERO;
+		case StencilOp::Replace:           return D3D12_STENCIL_OP_REPLACE;
+		case StencilOp::IncrementSaturate: return D3D12_STENCIL_OP_INCR_SAT;
+		case StencilOp::DecrementSaturate: return D3D12_STENCIL_OP_DECR_SAT;
+		case StencilOp::Invert:            return D3D12_STENCIL_OP_INVERT;
+		case StencilOp::IncrementWrap:     return D3D12_STENCIL_OP_INCR;
+		case StencilOp::DecrementWrap:     return D3D12_STENCIL_OP_DECR;
 		default:
 			LOG_WARN(Internal::GraphicsPanicLog, "Unknown stencil op. Defaulting to keep");
 			return D3D12_STENCIL_OP_KEEP;
@@ -302,14 +302,14 @@ namespace Ryu::Graphics::Utils
 	{
 		switch (func)
 		{
-		case Ryu::Graphics::ComparisonFunc::Never:        return D3D12_COMPARISON_FUNC_NEVER;
-		case Ryu::Graphics::ComparisonFunc::Less:         return D3D12_COMPARISON_FUNC_LESS;
-		case Ryu::Graphics::ComparisonFunc::Equal:        return D3D12_COMPARISON_FUNC_EQUAL;
-		case Ryu::Graphics::ComparisonFunc::LessEqual:    return D3D12_COMPARISON_FUNC_LESS_EQUAL;
-		case Ryu::Graphics::ComparisonFunc::Greater:      return D3D12_COMPARISON_FUNC_GREATER;
-		case Ryu::Graphics::ComparisonFunc::NotEqual:     return D3D12_COMPARISON_FUNC_NOT_EQUAL;
-		case Ryu::Graphics::ComparisonFunc::GreaterEqual: return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
-		case Ryu::Graphics::ComparisonFunc::Always:       return D3D12_COMPARISON_FUNC_ALWAYS;
+		case ComparisonFunc::Never:        return D3D12_COMPARISON_FUNC_NEVER;
+		case ComparisonFunc::Less:         return D3D12_COMPARISON_FUNC_LESS;
+		case ComparisonFunc::Equal:        return D3D12_COMPARISON_FUNC_EQUAL;
+		case ComparisonFunc::LessEqual:    return D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		case ComparisonFunc::Greater:      return D3D12_COMPARISON_FUNC_GREATER;
+		case ComparisonFunc::NotEqual:     return D3D12_COMPARISON_FUNC_NOT_EQUAL;
+		case ComparisonFunc::GreaterEqual: return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+		case ComparisonFunc::Always:       return D3D12_COMPARISON_FUNC_ALWAYS;
 		default:
 			LOG_WARN(Internal::GraphicsPanicLog, "Unknown comparison func. Defaulting to never");
 			return D3D12_COMPARISON_FUNC_NEVER;
@@ -345,11 +345,11 @@ namespace Ryu::Graphics::Utils
 	{
 		switch (op)
 		{
-		case BlendOp::Add: return D3D12_BLEND_OP_ADD;
-		case BlendOp::Subtract: return D3D12_BLEND_OP_SUBTRACT;
+		case BlendOp::Add:             return D3D12_BLEND_OP_ADD;
+		case BlendOp::Subtract:        return D3D12_BLEND_OP_SUBTRACT;
 		case BlendOp::ReverseSubtract: return D3D12_BLEND_OP_REV_SUBTRACT;
-		case BlendOp::Min: return D3D12_BLEND_OP_MIN;
-		case BlendOp::Max: return D3D12_BLEND_OP_MAX;
+		case BlendOp::Min:             return D3D12_BLEND_OP_MIN;
+		case BlendOp::Max:             return D3D12_BLEND_OP_MAX;
 		default:
 			LOG_WARN(Internal::GraphicsPanicLog, "Unknown blend op. Defaulting to add");
 			return D3D12_BLEND_OP_ADD;

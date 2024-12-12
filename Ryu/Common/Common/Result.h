@@ -16,4 +16,15 @@ namespace Ryu
 	 * @brief Void result type
 	 */
 	using VoidResult = std::expected<void, std::string>;
+
+	template <typename T>
+	Result<T> ResultError(std::string message)
+	{
+		return std::unexpected(std::move(message));
+	}
+
+	inline VoidResult ResultError(std::string message)
+	{
+		return VoidResult::unexpected_type(std::move(message));
+	}
 }

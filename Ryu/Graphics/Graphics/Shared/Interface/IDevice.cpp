@@ -3,7 +3,7 @@
 
 namespace Ryu::Graphics
 {
-	std::unique_ptr<IDevice> IDevice::Create(const DeviceCreateDesc& desc)
+	IDevice::CreateDeviceResult IDevice::Create(const DeviceCreateDesc& desc)
 	{
 		switch (desc.GraphicsAPI)
 		{
@@ -11,6 +11,6 @@ namespace Ryu::Graphics
 			return std::make_unique<DX11Device>(desc);
 		}
 
-		return nullptr;
+		return CreateDeviceResult::unexpected_type("Unsupported graphics API");
 	}
 }

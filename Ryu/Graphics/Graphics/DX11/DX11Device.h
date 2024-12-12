@@ -2,7 +2,6 @@
 #include "Graphics/DX11/DX11Types.h"
 #include "Graphics/Shared/Interface/IDevice.h"
 
-
 namespace Ryu::Graphics
 {
 	class DX11Device : public IDevice
@@ -12,7 +11,7 @@ namespace Ryu::Graphics
 
 	private:
 		NativeObjectType GetNativeObject() const override;
-		std::unique_ptr<ISwapChain> CreateSwapChain(const SwapChainDesc& desc) override;
+		CreateSwapChainResult CreateSwapChain(const SwapChainDesc& desc) override;
 
 		inline DX11::IDX11DeviceContext* GetImmediateContext() const { return m_imContext.Get(); }
 	

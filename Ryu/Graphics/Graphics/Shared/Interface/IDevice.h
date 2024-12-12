@@ -1,4 +1,5 @@
 #pragma once
+#include "Common/Result.h"
 #include "Graphics/Shared/Interface/IGraphicsObject.h"
 #include "Graphics/API.h"
 
@@ -10,6 +11,7 @@ namespace Ryu::Graphics
 	struct DeviceCreateDesc
 	{
 		API GraphicsAPI;
+		HWND WindowHandle;
 		bool EnableDebugLayer;
 		bool EnableGPUBasedValidation;  // Only used for DirectX12
 		bool EnableVSync;
@@ -17,11 +19,15 @@ namespace Ryu::Graphics
 
 	class IDevice : public IGraphicsObject
 	{
+	protected:
+		using CreateDeviceResult = Result<std::unique_ptr<IDevice>>;
+		using CreateSwapChainResult = Result<std::unique_ptr<ISwapChain>>;
+
 	public:
 		virtual ~IDevice() = default;
 
-		static std::unique_ptr<IDevice> Create(const DeviceCreateDesc& desc);
+		static CreateDeviceResult Create(const DeviceCreateDesc& desc);
 
-		virtual std::unique_ptr<ISwapChain> CreateSwapChain(const SwapChainDesc& desc) = 0;
+		virtual CreateSwapChainResult CreateSwapChain(const SwapChainDesc& desc) = 0;
 	};
 }

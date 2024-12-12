@@ -17,14 +17,21 @@ namespace Ryu
 	 */
 	using VoidResult = std::expected<void, std::string>;
 
-	template <typename T>
-	Result<T> ResultError(std::string message)
+	/**
+	 * @brief Helper struct for creating a result with an error message
+	 */
+	struct MakeResultError
 	{
-		return std::unexpected(std::move(message));
-	}
+		template <typename T>
+		operator Result<T>() const 
+		{
+			return std::unexpected(Message);
+		}
 
-	inline VoidResult ResultError(std::string message)
-	{
-		return VoidResult::unexpected_type(std::move(message));
-	}
+		operator VoidResult() const {
+			return std::unexpected(Message);
+		}
+
+		std::string Message;
+	};
 }

@@ -9,7 +9,7 @@ namespace Ryu::Graphics
 		DEBUG_ASSERT(renderer, "Renderer is nullptr!");
 		if (!renderer)
 		{
-			return ResultError("Renderer is nullptr!");
+			return MakeResultError{ "Renderer is nullptr!" };
 		}
 
 		const GraphicsConfig& config = GraphicsConfig::Get();
@@ -49,7 +49,7 @@ namespace Ryu::Graphics
 		auto deviceResult = IDevice::Create(deviceCreatedesc);
 		if (!deviceResult)
 		{
-			return ResultError(deviceResult.error());
+			return MakeResultError{ deviceResult.error() };
 		}
 
 		m_device = std::move(*deviceResult);
@@ -57,7 +57,7 @@ namespace Ryu::Graphics
 		auto swapChainResult = m_device->CreateSwapChain(swapChainDesc);
 		if (!swapChainResult)
 		{
-			return ResultError(swapChainResult.error());
+			return MakeResultError{ swapChainResult.error() };
 		}
 
 		m_swapchain = std::move(*swapChainResult);

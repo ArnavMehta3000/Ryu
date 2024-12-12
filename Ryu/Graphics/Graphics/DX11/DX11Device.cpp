@@ -16,6 +16,6 @@ namespace Ryu::Graphics
 	
 	IDevice::CreateSwapChainResult DX11Device::CreateSwapChain(const SwapChainDesc& desc)
 	{
-		return CreateSwapChainResult::unexpected_type("Not implemented!");
+		return MakeResultError{ "DX11Device::CreateSwapChain method not implemented!" };
 	}
 }

@@ -64,11 +64,11 @@ namespace Ryu::Editor
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // IF using Docking Branch
 
-		ImGui_ImplWin32_Init(GetWindow()->GetHWND());
+		//ImGui_ImplWin32_Init(GetWindow()->GetHWND());
 
 		//bool result{ true };
 		switch (Graphics::GraphicsConfig::Get().GraphicsAPI)
@@ -100,8 +100,8 @@ namespace Ryu::Editor
 			break;
 		}
 		
-		ImGui_ImplWin32_Shutdown();
-		ImGui::DestroyContext();
+		//ImGui_ImplWin32_Shutdown();
+		//ImGui::DestroyContext();
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Editor), "ImGui shutdown");
 	}
 

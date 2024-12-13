@@ -15,17 +15,4 @@ namespace Ryu::Graphics
 		using IDX12DescriptorHeap      = ID3D12DescriptorHeap;
 		using IDX12Fence               = ID3D12Fence1;
 	}
-
-	template<>
-	struct APITraits<API::DirectX12>
-	{
-		using DeviceType              = DX12::IDX12Device;
-		using ResourceType            = DX12::IDX12Resource;
-		using CommandQueueType        = DX12::IDX12CommandQueue;
-		using CommandAllocatorType    = DX12::IDX12CommandAllocator;
-		using CommandListType         = DX12::IDX12CommandList;
-		using GraphicsCommandListType = DX12::IDX12GraphicsCommandList;
-		using DescriptorHeapType      = DX12::IDX12DescriptorHeap;
-		using FenceType               = DX12::IDX12Fence;
-	};
 }

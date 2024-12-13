@@ -1,24 +1,15 @@
 #pragma once
 #include "Graphics/Shared/SharedTypes.h"
 #include <dxgi.h>
-
-enum D3D_PRIMITIVE_TOPOLOGY : int;
-enum D3D11_STENCIL_OP : int;
-enum D3D11_COMPARISON_FUNC : int;
-enum D3D11_FILL_MODE : int;
-enum D3D11_CULL_MODE : int;
-enum D3D11_BLEND_OP : int;
-enum D3D12_PRIMITIVE_TOPOLOGY_TYPE : int;
-enum D3D12_STENCIL_OP : int;
-enum D3D12_COMPARISON_FUNC : int;
-enum D3D12_FILL_MODE : int;
-enum D3D12_CULL_MODE : int;
-enum D3D12_BLEND_OP : int;
+#include <d3d12.h>
+#include <d3d11.h>
 
 namespace Ryu::Graphics::Utils
 {
 	DXGI_FORMAT GetFormat(Format format);
 	DXGI_FORMAT GetIndexFormat(IndexFormat format);
+	DXGI_FORMAT ToNonSRGBFormat(DXGI_FORMAT format);
+	DXGI_SWAP_EFFECT GetSwapEffect(SwapEffect effect);
 	bool IsFormatTypeless(Format format);
 
 	D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology(PrimitiveTopology topology);

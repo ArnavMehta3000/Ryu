@@ -1,7 +1,4 @@
 #include "D3DUtil.h"
-#include <d3d12.h>
-#include <d3d11.h>
-#include <dxgidebug.h>
 #include "Graphics/Shared/Logging.h"
 
 namespace Ryu::Graphics::Utils
@@ -127,6 +124,33 @@ namespace Ryu::Graphics::Utils
 		default:
 			LOG_WARN(Internal::GraphicsPanicLog, "Unknown index format");
 			return DXGI_FORMAT_UNKNOWN;
+		}
+	}
+
+	DXGI_FORMAT ToNonSRGBFormat(DXGI_FORMAT format)
+	{
+		switch (format)
+		{
+		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:   return DXGI_FORMAT_R8G8B8A8_UNORM;
+		case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8A8_UNORM;
+		case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8X8_UNORM;
+		default:
+			LOG_WARN(Internal::GraphicsPanicLog, "Unknown sRGB format. Defaulting to input format");
+			return format;
+		}
+	}
+
+	DXGI_SWAP_EFFECT GetSwapEffect(SwapEffect effect)
+	{
+		switch (effect)
+		{
+		case SwapEffect::Discard:        return DXGI_SWAP_EFFECT_DISCARD;
+		case SwapEffect::Sequential:     return DXGI_SWAP_EFFECT_SEQUENTIAL;
+		case SwapEffect::FlipDiscard:    return DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		case SwapEffect::FlipSequential: return DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+		default:
+			LOG_WARN(Internal::GraphicsPanicLog, "Unknown swap effect. Defaulting to discard");
+			return DXGI_SWAP_EFFECT_DISCARD;
 		}
 	}
 

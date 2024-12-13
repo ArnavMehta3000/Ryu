@@ -3,6 +3,10 @@
 
 namespace Ryu::Graphics
 {
+	DXGISwapChain::DXGISwapChain(NativeType* swapChain)
+		: m_swapChain(swapChain)
+	{
+	}
 	void DXGISwapChain::Present()
 	{
 	}

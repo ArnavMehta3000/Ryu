@@ -14,6 +14,8 @@ namespace Ryu::Graphics
 		CreateSwapChainResult CreateSwapChain(const SwapChainDesc& desc) override;
 
 		inline DX11::IDX11DeviceContext* GetImmediateContext() const { return m_imContext.Get(); }
+
+		void InitDevice(const DeviceCreateDesc& desc);
 	
 	private:
 		ComPtr<DX11::IDX11Device> m_device;

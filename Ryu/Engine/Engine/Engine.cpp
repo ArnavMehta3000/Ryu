@@ -51,7 +51,7 @@ namespace Ryu::Engine
 		Graphics::API api = Graphics::GraphicsConfig::Get().GraphicsAPI;
 		m_renderer = std::make_unique<Graphics::Renderer>();
 
-		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), api, m_runtime->GetWindow()->GetHWND()); !result.has_value())
+		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), api, m_runtime->GetWindow()->GetHWND()); !result)
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Graphics. Error: {}", result.error());
 		}

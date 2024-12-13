@@ -11,7 +11,6 @@ namespace Ryu::Graphics
 	struct DeviceCreateDesc
 	{
 		API GraphicsAPI;
-		HWND WindowHandle;
 		bool EnableDebugLayer;
 		bool EnableGPUBasedValidation;  // Only used for DirectX12
 		bool EnableVSync;

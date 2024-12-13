@@ -10,8 +10,13 @@ namespace Ryu::Graphics
 		u32 Width;
 		u32 Height;
 		u32 BufferCount;
+		u32 SampleCount;
+		u32 SampleQuality;
+		u32 Flags;
 		Format Format;
 		SwapEffect SwapEffect;
+		HWND WindowHandle;
+		bool Windowed;
 	};
 
 	class ISwapChain : public IGraphicsObject

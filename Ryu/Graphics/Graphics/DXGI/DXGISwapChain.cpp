@@ -1,11 +1,14 @@
 #include "DXGISwapChain.h"
-#include <dxgi1_6.h>
 
 namespace Ryu::Graphics
 {
 	DXGISwapChain::DXGISwapChain(NativeType* swapChain)
 		: m_swapChain(swapChain)
 	{
+	}
+	DXGISwapChain::~DXGISwapChain()
+	{
+		m_swapChain.Reset();
 	}
 	void DXGISwapChain::Present()
 	{
@@ -22,6 +25,6 @@ namespace Ryu::Graphics
 	
 	NativeObjectType DXGISwapChain::GetNativeObject() const
 	{
-		return m_swapChain;
+		return m_swapChain.Get();
 	}
 }

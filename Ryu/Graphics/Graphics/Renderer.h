@@ -6,7 +6,7 @@
 
 namespace Ryu::Graphics
 {
-	class Renderer : std::enable_shared_from_this<Renderer>
+	class Renderer
 	{
 	public:
 		NODISCARD VoidResult Init(const DeviceCreateDesc& deviceCreatedesc, const SwapChainDesc& swapChainDesc);

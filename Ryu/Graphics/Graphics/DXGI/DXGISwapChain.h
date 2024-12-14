@@ -1,15 +1,16 @@
+#pragma once
 #include "Graphics/Shared/Interface/ISwapChain.h"
-
-struct IDXGISwapChain4;
+#include <dxgi1_6.h>
 
 namespace Ryu::Graphics
 {
 	class DXGISwapChain : public ISwapChain
 	{
 	public:
-		using NativeType = IDXGISwapChain4;
+		RYU_DECLARE_GFX_NATIVE_TYPE(IDXGISwapChain4);
 
 		explicit DXGISwapChain(NativeType* swapChain);
+		~DXGISwapChain();
 
 	private:
 		void Present() override;

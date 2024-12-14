@@ -4,6 +4,7 @@
 #include <libassert/assert.hpp>
 #include <dxgi1_6.h>
 #include <dxgidebug.h>
+#include "Graphics/DX12/DX12Device.h"
 
 namespace Ryu::Graphics
 {
@@ -15,7 +16,14 @@ namespace Ryu::Graphics
 			return MakeResultError{ "Renderer is nullptr!" };
 		}
 
-		const GraphicsConfig& config = GraphicsConfig::Get();
+		GraphicsConfig& config = GraphicsConfig::Get();
+
+		// If GPU based validation is enabled automatically enable the debug layer as well
+		if (config.EnableGPUBasedValidation && !config.EnableDebugLayer)
+		{
+			config.EnableDebugLayer = true;
+		}
+
 
 		const DeviceCreateDesc deviceCreateDesc
 		{
@@ -29,12 +37,12 @@ namespace Ryu::Graphics
 		{
 			.Width         = 1280,
 			.Height        = 720,
-			.BufferCount   = 2,
+			.BufferCount   = FRAME_BUFFER_COUNT,
 			.SampleCount   = 1,
 			.SampleQuality = 0,
-			.Flags         = 0,
+			.Flags         = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING,
 			.Format        = Format::R8G8B8A8_UNORM,
-			.SwapEffect    = SwapEffect::FlipDiscard,
+			.SwapEffect    = SwapEffect::FlipSequential,
 			.WindowHandle  = hWnd,
 			.Windowed      = true
 		};
@@ -49,22 +57,13 @@ namespace Ryu::Graphics
 		{
 			return;
 		}
+
+		renderer->Shutdown();
 	}
 
 	VoidResult Renderer::Init(const DeviceCreateDesc& deviceCreatedesc, const SwapChainDesc& swapChainDesc)
 	{
-		DXCall(::CoInitialize(NULL));
-
-		// Enable DXGI debug layer if requested
-		if (deviceCreatedesc.EnableDebugLayer)
-		{
-			ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
-			if (SUCCEEDED(::DXGIGetDebugInterface1(0, IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
-			{
-				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, TRUE);
-				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-			}
-		}
+		DXCall(::CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
 		auto deviceResult = IDevice::Create(deviceCreatedesc);
 		if (!deviceResult)
@@ -89,6 +88,9 @@ namespace Ryu::Graphics
 	
 	void Renderer::Shutdown()
 	{
+		m_swapchain.reset();
+		m_device.reset();
+	
 		::CoUninitialize();
 	}
 	
@@ -103,7 +105,7 @@ namespace Ryu::Graphics
 				return;
 			}
 
-			obj->SetRenderer(shared_from_this());
+			obj->SetRenderer(this);
 		}
 	}
 }

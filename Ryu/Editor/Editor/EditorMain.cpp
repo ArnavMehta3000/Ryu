@@ -13,6 +13,7 @@ int WINAPI wWinMain(
 	
 	// Set the working API
 	Graphics::GraphicsConfig::Get().GraphicsAPI = Graphics::API::DirectX11;
+	Graphics::GraphicsConfig::Get().EnableDebugLayer = true;
 
 	// Creating the engine object initializes all core subsystems
 	Engine::Engine engine;

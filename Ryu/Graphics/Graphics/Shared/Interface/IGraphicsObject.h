@@ -17,11 +17,11 @@ namespace Ryu::Graphics
 		virtual NativeObjectType GetNativeObject() const = 0;
 
 		template<typename T>
-		std::optional<ComPtr<T>> GetNativeObjectAs() const
+		std::optional<T*> GetNativeObjectAs() const
 		{
 			try
 			{
-				return std::any_cast<ComPtr<T>>(GetNativeObject());
+				return std::any_cast<T>(GetNativeObject());
 			}
 			catch (const std::bad_any_cast&)
 			{
@@ -29,23 +29,14 @@ namespace Ryu::Graphics
 			}
 		}
 
-		template<typename T>
-		T* GetNativeObjectRawPtr() const
-		{
-			try
-			{
-				return std::any_cast<ComPtr<T>>(GetNativeObject()).Get();
-			}
-			catch (const std::bad_any_cast&)
-			{
-				return nullptr;
-			}
-		}
-
-		inline void SetRenderer(std::shared_ptr<Renderer> renderer) { m_renderer = renderer; }
-		std::shared_ptr<Renderer> GetRenderer() const { return m_renderer.lock(); }
+		inline void SetRenderer(Renderer* renderer) { m_renderer = renderer; }
+		Renderer* GetRenderer() const { return m_renderer; }
 
 	private:
-		std::weak_ptr<Renderer> m_renderer;
+		Renderer* m_renderer{ nullptr };
 	};
+
 }
+
+#define RYU_DECLARE_GFX_NATIVE_TYPE(Type) using NativeType = Type
+#define RYU_GET_GFX_NATIVE_TYPE(Object, Type) Object->GetNativeObjectAs<Type>().value_or(nullptr)

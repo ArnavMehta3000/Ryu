@@ -16,5 +16,5 @@ namespace Ryu::Graphics
 		API GraphicsAPI{ API::DirectX12 };
 	};
 
-	constexpr u32 FRAME_BUFFER_COUNT{ 3 };
+	constexpr unsigned int FRAME_BUFFER_COUNT = 3;
 }

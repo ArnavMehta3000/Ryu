@@ -7,7 +7,9 @@
 namespace Ryu::Graphics
 {
 	class ISwapChain;
+	class ICommandList;
 	struct SwapChainDesc;
+	struct CommandListDesc;
 
 	struct DeviceCreateDesc
 	{
@@ -22,6 +24,7 @@ namespace Ryu::Graphics
 	protected:
 		using CreateDeviceResult = Result<std::unique_ptr<IDevice>>;
 		using CreateSwapChainResult = Result<std::unique_ptr<ISwapChain>>;
+		using CreateCommandListResult = Result<std::unique_ptr<ICommandList>>;
 
 	public:
 		virtual ~IDevice() = default;
@@ -32,7 +35,9 @@ namespace Ryu::Graphics
 		inline IDXGIFactory7* GetDXGIFactory() const { return m_dxgiFactory.Get(); }
 
 		virtual void ReportLiveObjects(bool releaseBeforeReporting = false) = 0;
-		virtual CreateSwapChainResult CreateSwapChain(const SwapChainDesc& desc) = 0;
+		virtual CreateSwapChainResult CreateSwapChain(const SwapChainDesc& desc) const = 0;
+		virtual CreateCommandListResult CreateCommandList(const CommandListDesc& desc) const = 0;
+		virtual void ExecuteCommandList(const ICommandList* commandList) const = 0;
 
 	protected:
 		bool InitializeDXGI(bool enableDebugLayer);

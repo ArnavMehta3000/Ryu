@@ -41,13 +41,13 @@ namespace Ryu::Graphics::Internal
 }
 
 #if defined(RYU_BUILD_DEBUG)
-#define DX12_NAME_OBJECT(obj, name) ::Ryu::Graphics::Internal::SetNameDX12(obj, name);
+#define DX12_NAME_OBJECT(obj, name) ::Ryu::Graphics::Internal::SetNameDX12(obj, name)
 #else
 #define DX12_NAME_OBJECT(obj, name)
 #endif
 
 #if defined(RYU_BUILD_DEBUG)
-#define DX11_NAME_OBJECT(obj, name) ::Ryu::Graphics::Internal::SetDebugObjectName(obj, name);
+#define DX11_NAME_OBJECT(obj, name) ::Ryu::Graphics::Internal::SetDebugObjectName(obj, name)
 #else
 #define DX11_NAME_OBJECT(obj, name)
 #endif

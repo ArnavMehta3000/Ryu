@@ -1,8 +1,10 @@
 #include "DX12Device.h"
 #include "Graphics/Config.h"
+#include "Graphics/Renderer.h"
 #include "Graphics/Shared/Logging.h"
 #include "Graphics/Shared/D3DUtil.h"
 #include "Graphics/DXGI/DXGISwapChain.h"
+#include "Graphics/DX12/DX12CommandList.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics
@@ -50,7 +52,7 @@ namespace Ryu::Graphics
 		return m_device.Get();
 	}
 	
-	IDevice::CreateSwapChainResult DX12Device::CreateSwapChain(const SwapChainDesc& desc)
+	IDevice::CreateSwapChainResult DX12Device::CreateSwapChain(const SwapChainDesc& desc) const
 	{
 		DEBUG_ASSERT(m_dxgiFactory, "DXGI factory is not initialized!");
 		DEBUG_ASSERT(m_adapter, "Adapter is not initialized!");
@@ -139,7 +141,29 @@ namespace Ryu::Graphics
 		DXCall(swapChain1.As(&swapChain4));
 		DX11_NAME_OBJECT(swapChain4.Get(), "DXGI SwapChain");  // DXGI object use the DX11 naming convention
 
-		return std::make_unique<DXGISwapChain>(swapChain4.Detach());
+		return std::make_unique<DXGISwapChain>(desc, swapChain4.Detach());
+	}
+
+	IDevice::CreateCommandListResult DX12Device::CreateCommandList(const CommandListDesc& desc) const
+	{
+		auto ptr = std::make_unique<DX12CommandList>(*this, desc);
+		GetRenderer()->InitializeResource(ptr.get());
+		return std::move(ptr);
+	}
+
+	void DX12Device::ExecuteCommandList(const ICommandList* commandList) const
+	{
+		if (DX12CommandList::NativeType* cmdList = RYU_GET_GFX_NATIVE_TYPE(commandList, DX12CommandList::NativeType))
+		{
+			DX12::IDX12CommandList* const cmdLists[] = { cmdList };
+			m_cmdQueue->ExecuteCommandLists(1, cmdLists);
+
+			// Signal and wait for execution if immediate sync is needed
+			if (auto dx12CmdList = dynamic_cast<const DX12CommandList*>(commandList))
+			{
+				dx12CmdList->Signal();
+			}
+		}
 	}
 	
 	void DX12Device::InitDevice(const DeviceCreateDesc& desc)
@@ -171,9 +195,11 @@ namespace Ryu::Graphics
 
 		DXCall(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
 
-		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+		D3D12_COMMAND_QUEUE_DESC queueDesc{};
+		queueDesc.Type     = D3D12_COMMAND_LIST_TYPE_DIRECT;
+		queueDesc.Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE;
+		queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+		queueDesc.NodeMask = 0;
 
 		DXCall(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_cmdQueue)));
 

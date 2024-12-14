@@ -157,6 +157,8 @@ namespace Ryu::Engine
 	void Engine::DoFrame(f64 dt)
 	{
 		m_runtime->Tick(dt);
+		m_renderer->BeginFrame();
+		m_renderer->EndFrame();
 		//Graphics::RenderSurface();
 	}
 

@@ -8,8 +8,9 @@ namespace Ryu::Graphics
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE(IDXGISwapChain4);
+		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_swapChain.Get())
 
-		explicit DXGISwapChain(NativeType* swapChain);
+		explicit DXGISwapChain(const SwapChainDesc& desc, NativeType* swapChain);
 		~DXGISwapChain();
 
 	private:
@@ -17,8 +18,10 @@ namespace Ryu::Graphics
 		void Resize(u32 width, u32 height) override;
 		u32 GetCurrentBackBufferIndex() const override;
 		NativeObjectType GetNativeObject() const override;
+		u32 GetCurrentFrameIndex() const override;
 
 	private:
-		ComPtr<IDXGISwapChain4> m_swapChain;
+		ComPtr<NativeType> m_swapChain;
+		u32 m_currentBackBufferIndex = 0;
 	};
 }

@@ -21,7 +21,7 @@ namespace Ryu::Graphics
 		{
 			try
 			{
-				return std::any_cast<T>(GetNativeObject());
+				return std::any_cast<T*>(GetNativeObject());
 			}
 			catch (const std::bad_any_cast&)
 			{
@@ -38,5 +38,11 @@ namespace Ryu::Graphics
 
 }
 
+// Declare the native type of the graphics object
 #define RYU_DECLARE_GFX_NATIVE_TYPE(Type) using NativeType = Type
-#define RYU_GET_GFX_NATIVE_TYPE(Object, Type) Object->GetNativeObjectAs<Type>().value_or(nullptr)
+
+// Declare native type implicit conversion operator
+#define RYU_DECLARE_GFX_NATIVE_TYPE_OP(ReturnValue) operator NativeType*() const { return ReturnValue; }
+
+// Get native type of the graphics object
+#define RYU_GET_GFX_NATIVE_TYPE(Object, Type) (Object)->GetNativeObjectAs<Type>().value_or(nullptr)

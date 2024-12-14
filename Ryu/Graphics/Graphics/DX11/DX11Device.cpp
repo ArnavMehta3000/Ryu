@@ -1,8 +1,10 @@
 #include "DX11Device.h"
 #include "Graphics/Config.h"
+#include "Graphics/Renderer.h"
 #include "Graphics/Shared/Logging.h"
 #include "Graphics/Shared/D3DUtil.h"
 #include "Graphics/DXGI/DXGISwapChain.h"
+#include "Graphics/DX11/DX11CommandList.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics
@@ -51,7 +53,7 @@ namespace Ryu::Graphics
 		return m_device.Get();
 	}
 	
-	IDevice::CreateSwapChainResult DX11Device::CreateSwapChain(const SwapChainDesc& desc)
+	IDevice::CreateSwapChainResult DX11Device::CreateSwapChain(const SwapChainDesc& desc) const
 	{
 		DEBUG_ASSERT(m_device, "DX11Device is not initialized!");
 		DEBUG_ASSERT(m_dxgiFactory, "DXGI factory is not initialized!");
@@ -140,9 +142,24 @@ namespace Ryu::Graphics
 		DXCall(swapChain1.As(&swapChain4));
 		DX11_NAME_OBJECT(swapChain4.Get(), "DXGI SwapChain");  // DXGI object use the DX11 naming convention
 
-		return std::make_unique<DXGISwapChain>(swapChain4.Detach());
+		return std::make_unique<DXGISwapChain>(desc, swapChain4.Detach());
 	}
 	
+	IDevice::CreateCommandListResult DX11Device::CreateCommandList(const CommandListDesc& desc) const
+	{
+		auto ptr = std::make_unique<DX11CommandList>(*this, desc);
+		GetRenderer()->InitializeResource(ptr.get());
+		return std::move(ptr);
+	}
+
+	void DX11Device::ExecuteCommandList(const ICommandList* commandList) const
+	{
+		if (DX11CommandList::NativeType* cmdList = RYU_GET_GFX_NATIVE_TYPE(commandList, DX11CommandList::NativeType))
+		{
+			m_imContext->ExecuteCommandList(cmdList, FALSE);
+		}
+	}
+
 	void DX11Device::InitDevice(const DeviceCreateDesc& desc)
 	{
 		static constexpr std::array<D3D_FEATURE_LEVEL, 4> featureLevels =
@@ -171,7 +188,7 @@ namespace Ryu::Graphics
 			ComPtr<ID3D11Device> device;
 			ComPtr<ID3D11DeviceContext> imContext;
 
-			HRESULT hr = ::D3D11CreateDevice(
+			DXCall(D3D11CreateDevice(
 				m_adapter.Get(),
 				D3D_DRIVER_TYPE_UNKNOWN,
 				nullptr,
@@ -182,7 +199,7 @@ namespace Ryu::Graphics
 				&device,
 				&achievedFeatureLevel,
 				&imContext
-			);
+			));
 
 			// Get updated interface for device
 			DXCall(device.As(&m_device));

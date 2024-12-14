@@ -22,9 +22,17 @@ namespace Ryu::Graphics
 	class ISwapChain : public IGraphicsObject
 	{
 	public:
+		ISwapChain(const SwapChainDesc& desc) : m_desc(desc) {}
+
 		virtual ~ISwapChain() = default;
 		virtual void Present() = 0;
 		virtual void Resize(u32 width, u32 height) = 0;
 		virtual u32 GetCurrentBackBufferIndex() const = 0;
+		virtual u32 GetCurrentFrameIndex() const = 0;
+		
+		inline const SwapChainDesc& GetDesc() const { return m_desc; }
+
+	protected:
+		SwapChainDesc m_desc;
 	};
 }

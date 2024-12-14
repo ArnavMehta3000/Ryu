@@ -82,6 +82,21 @@ namespace Ryu::Graphics
 
 		m_swapchain = std::move(*swapChainResult);
 		InitializeResource(m_swapchain.get());
+
+
+		CommandListDesc cmdListDesc{ CommandListType::Graphics };
+		m_commandLists.resize(swapChainDesc.BufferCount);
+		
+		for (uint32_t i = 0; i < swapChainDesc.BufferCount; i++)
+		{
+			auto createCmdListResult = m_device->CreateCommandList(cmdListDesc);
+			if (!createCmdListResult)
+			{
+				return MakeResultError{ "Failed to create command list" };
+			}
+			
+			m_commandLists[i] = std::move(*createCmdListResult);
+		}
 		
 		return {};
 	}
@@ -107,5 +122,21 @@ namespace Ryu::Graphics
 
 			obj->SetRenderer(this);
 		}
+	}
+	
+	void Renderer::BeginFrame()
+	{
+		u32 frameIndex = m_swapchain->GetCurrentFrameIndex();
+		auto& cmdList = m_commandLists[frameIndex];
+		cmdList->Begin();
+	}
+	
+	void Renderer::EndFrame()
+	{
+		u32 frameIndex = m_swapchain->GetCurrentFrameIndex();
+		auto& cmdList = m_commandLists[frameIndex];
+		cmdList->End();
+		m_device->ExecuteCommandList(cmdList.get());
+		m_swapchain->Present();
 	}
 }

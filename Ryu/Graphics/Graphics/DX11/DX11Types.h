@@ -5,6 +5,7 @@ namespace Ryu::Graphics::DX11
 {
 	using IDX11Device            = ID3D11Device5;
 	using IDX11DeviceContext     = ID3D11DeviceContext4;
+	using ID3D11CommandList      = ID3D11CommandList;
 	using IDX11RenderTarget      = ID3D11RenderTargetView1;
 	using IDX11Texture2D         = ID3D11Texture2D1;
 	using IDX11DepthStencil      = ID3D11DepthStencilView;

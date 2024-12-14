@@ -37,8 +37,7 @@ namespace Ryu::Graphics
 		{
 			if (releaseBeforeReporting)
 			{
-				// Release the device after acquring its debug interface
-				m_device.Reset();
+				m_device.Reset();  // Release the device after acquring its debug interface
 			}
 
 			LOG_DEBUG(Internal::GraphicsDebugLog, "~~~DX12 Report Live Objects~~~");

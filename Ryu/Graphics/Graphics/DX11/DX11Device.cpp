@@ -1,9 +1,9 @@
 #include "DX11Device.h"
+#include "Graphics/Config.h"
 #include "Graphics/Shared/Logging.h"
-#include "Graphics/DXGI/DXGISwapChain.h"
 #include "Graphics/Shared/D3DUtil.h"
+#include "Graphics/DXGI/DXGISwapChain.h"
 #include <libassert/assert.hpp>
-#include <dxgi1_6.h>
 
 namespace Ryu::Graphics
 {
@@ -14,77 +14,88 @@ namespace Ryu::Graphics
 		InitDevice(desc);
 	}
 
+	DX11Device::~DX11Device()
+	{
+		ShutdownDXGI();
+
+		m_imContext.Reset();
+
+		// Release the device
+		if (GraphicsConfig::Get().EnableDebugLayer)
+		{
+			ReportLiveObjects(true);
+		}
+		else
+		{
+			m_device.Reset();
+		}
+	}
+
+	void DX11Device::ReportLiveObjects(bool releaseBeforeReporting)
+	{
+		ComPtr<ID3D11Debug> debugDevice;
+		if (SUCCEEDED(m_device.As(&debugDevice)))
+		{
+			if (releaseBeforeReporting)
+			{
+				// Release the device after acquring its debug interface
+				m_device.Reset();
+			}
+
+			LOG_DEBUG(Internal::GraphicsDebugLog, "~~~DX11 Report Live Objects~~~");
+			debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL | D3D11_RLDO_SUMMARY);
+		}
+	}
+
 	NativeObjectType DX11Device::GetNativeObject() const
 	{
-		return m_device;
+		return m_device.Get();
 	}
 	
 	IDevice::CreateSwapChainResult DX11Device::CreateSwapChain(const SwapChainDesc& desc)
 	{
 		DEBUG_ASSERT(m_device, "DX11Device is not initialized!");
+		DEBUG_ASSERT(m_dxgiFactory, "DXGI factory is not initialized!");
+		DEBUG_ASSERT(m_adapter, "Adapter is not initialized!");
 
-		ComPtr<IDXGIDevice4> dxgiDevice;
-		if (FAILED(m_device.As(&dxgiDevice)))
-		{
-			return MakeResultError{ "Failed to get DXGI device!" };
-		}
-
-		ComPtr<IDXGIAdapter> dxgiAdapter;
-		if (FAILED(dxgiDevice->GetAdapter(&dxgiAdapter)))
-		{
-			return MakeResultError{ "Failed to get DXGI adapter!" };
-		}
-
-		ComPtr<IDXGIAdapter4> dxgiAdapter4;
-		DXCall(dxgiAdapter.As(&dxgiAdapter4));
-
-		HRESULT hr{ S_OK };
 		u32 numerator = 60;
 		u32 denominator = 1;
 
 		const DXGI_FORMAT format = Utils::ToNonSRGBFormat(Utils::GetFormat(desc.Format));
 
 		ComPtr<IDXGIOutput> output;
-		for (u32 i = 0; dxgiAdapter4->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND; i++)
+		for (UINT i = 0; m_adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND; ++i)
 		{
-			u32 numModes = 0;
-
-			// Get number of modes for this format
-			hr = output->GetDisplayModeList(format, 0, &numModes, nullptr);
-			if (FAILED(hr) || numModes == 0)
+			UINT numModes = 0;
+			if (FAILED(output->GetDisplayModeList(format, 0, &numModes, nullptr)) || numModes == 0)
 			{
 				continue;
 			}
 
 			std::vector<DXGI_MODE_DESC> modes(numModes);
-			hr = output->GetDisplayModeList(format, 0, &numModes, modes.data());
-			if (FAILED(hr))
+			if (FAILED(output->GetDisplayModeList(format, 0, &numModes, modes.data())))
 			{
 				continue;
 			}
 
-			// Find the highest refresh rate for the requested resolution
-			for (const DXGI_MODE_DESC& mode : modes)
+			for (const auto& mode : modes)
 			{
 				if (mode.Width == desc.Width &&
 					mode.Height == desc.Height &&
 					mode.Format == format)
 				{
-					const u32 currentRate = mode.RefreshRate.Numerator / mode.RefreshRate.Denominator;
-					const u32 bestRate    = numerator / denominator;
+					UINT currentRate = mode.RefreshRate.Numerator / mode.RefreshRate.Denominator;
+					UINT bestRate = numerator / denominator;
 
 					if (currentRate > bestRate)
 					{
-						numerator   = mode.RefreshRate.Numerator;
+						numerator = mode.RefreshRate.Numerator;
 						denominator = mode.RefreshRate.Denominator;
 					}
 				}
 			}
 			output.Reset();
 		}
-
-		ComPtr<IDXGIFactory7> dxgiFactory;
-		DXCall(dxgiAdapter4->GetParent(IID_PPV_ARGS(&dxgiFactory)));
 
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc1{};
 		swapChainDesc1.Width              = desc.Width;
@@ -108,22 +119,27 @@ namespace Ryu::Graphics
 		fsDesc.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
 
 		ComPtr<IDXGISwapChain1> swapChain1;
-		hr = dxgiFactory->CreateSwapChainForHwnd(
+		HRESULT hr = m_dxgiFactory->CreateSwapChainForHwnd(
 			m_device.Get(),
-			static_cast<HWND>(desc.WindowHandle),
+			desc.WindowHandle,
 			&swapChainDesc1,
 			&fsDesc,
 			nullptr,  // Restrict to output window
 			&swapChain1
 		);
-		
+
 		if (FAILED(hr))
 		{
+			DXCall(hr);
 			return MakeResultError{ "Failed to create DXGI swap chain!" };
 		}
 
+		// Disable Alt+Enter fullscreen transitions handled by DXGI
+		DXCall(m_dxgiFactory->MakeWindowAssociation(desc.WindowHandle, DXGI_MWA_NO_ALT_ENTER));
+
 		ComPtr<IDXGISwapChain4> swapChain4;
 		DXCall(swapChain1.As(&swapChain4));
+		DX11_NAME_OBJECT(swapChain4.Get(), "DXGI SwapChain");  // DXGI object use the DX11 naming convention
 
 		return std::make_unique<DXGISwapChain>(swapChain4.Detach());
 	}
@@ -142,6 +158,13 @@ namespace Ryu::Graphics
 		if (desc.EnableDebugLayer)
 		{
 			createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+			LOG_DEBUG(Internal::GraphicsDebugLog, "Graphics debug layer enabled");
+		}
+
+		if (!InitializeDXGI(desc.EnableDebugLayer))
+		{
+			LOG_ERROR(Internal::GraphicsDebugLog, "Failed to initialize DXGI!");
+			return;
 		}
 
 		D3D_FEATURE_LEVEL achievedFeatureLevel;
@@ -150,9 +173,9 @@ namespace Ryu::Graphics
 			ComPtr<ID3D11DeviceContext> imContext;
 
 			HRESULT hr = ::D3D11CreateDevice(
-				nullptr,  // Use default adapter
-				D3D_DRIVER_TYPE_HARDWARE,
-				nullptr,  // No software rasterizer
+				m_adapter.Get(),
+				D3D_DRIVER_TYPE_UNKNOWN,
+				nullptr,
 				createDeviceFlags,
 				featureLevels.data(),
 				static_cast<u32>(featureLevels.size()),
@@ -161,23 +184,6 @@ namespace Ryu::Graphics
 				&achievedFeatureLevel,
 				&imContext
 			);
-
-			if (FAILED(hr))
-			{
-				// Try WARP device if hardware device creation failed
-				DXCall(::D3D11CreateDevice(
-					nullptr,  // Use default adapter
-					D3D_DRIVER_TYPE_WARP,
-					nullptr,  // No software rasterizer
-					createDeviceFlags,
-					featureLevels.data(),
-					static_cast<u32>(featureLevels.size()),
-					D3D11_SDK_VERSION,
-					&device,
-					&achievedFeatureLevel,
-					&imContext
-				));
-			}
 
 			// Get updated interface for device
 			DXCall(device.As(&m_device));

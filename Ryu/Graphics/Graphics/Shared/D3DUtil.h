@@ -7,6 +7,7 @@
 namespace Ryu::Graphics::Utils
 {
 	DXGI_FORMAT GetFormat(Format format);
+	Format GetFormat(DXGI_FORMAT format);
 	DXGI_FORMAT GetIndexFormat(IndexFormat format);
 	DXGI_FORMAT ToNonSRGBFormat(DXGI_FORMAT format);
 	DXGI_SWAP_EFFECT GetSwapEffect(SwapEffect effect);

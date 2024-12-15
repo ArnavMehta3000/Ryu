@@ -147,8 +147,12 @@ namespace Ryu::Graphics
 	
 	IDevice::CreateCommandListResult DX11Device::CreateCommandList(const CommandListDesc& desc) const
 	{
-		auto ptr = std::make_unique<DX11CommandList>(*this, desc);
-		GetRenderer()->InitializeResource(ptr.get());
+		auto ptr = std::make_unique<DX11CommandList>(this, desc);
+		
+		DX11CommandList::NativeType* nativePtr = *ptr.get();
+		ptr->SetName(nativePtr, "DX11 Command List");
+		InitializeResource(ptr.get());
+		
 		return std::move(ptr);
 	}
 

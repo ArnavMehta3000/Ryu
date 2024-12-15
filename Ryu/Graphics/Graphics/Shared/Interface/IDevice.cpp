@@ -4,6 +4,7 @@
 #include "Graphics/Shared/Logging.h"
 #include "Graphics/DX11/DX11Device.h"
 #include "Graphics/DX12/DX12Device.h"
+#include "Graphics/Renderer.h"
 #include <dxgidebug.h>
 #include <format>
 
@@ -22,6 +23,18 @@ namespace Ryu::Graphics
 
 		return CreateDeviceResult::unexpected_type(std::format(
 			"Unsupported graphics device API - {}", EnumToString(desc.GraphicsAPI)));
+	}
+
+	void IDevice::InitializeResource(IGraphicsObject* obj) const
+	{
+		if (auto renderer = GetRenderer())
+		{
+			renderer->InitializeResource(obj);
+		}
+		else
+		{
+			LOG_WARN(Internal::GraphicsDebugLog, "Renderer is not initialized on device. Failing to initialize resource.");
+		}
 	}
 	
 	bool IDevice::InitializeDXGI(bool enableDebugLayer)

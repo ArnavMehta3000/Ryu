@@ -113,6 +113,16 @@ namespace Ryu::Graphics
 		_Count,
 	};
 
+	enum class TextureUsage
+	{
+		None            = 0,
+		RenderTarget    = RYU_BIT(0),
+		DepthStencil    = RYU_BIT(1),
+		ShaderResource  = RYU_BIT(2),
+		UnorderedAccess = RYU_BIT(3)
+	};
+	RYU_ENABLE_BITMASK_OPERATORS(TextureUsage)
+
 	enum class SwapEffect
 	{
 		Discard,

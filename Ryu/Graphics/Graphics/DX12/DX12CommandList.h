@@ -1,13 +1,14 @@
 #pragma once
 #include "Common/StandardTypes.h"
 #include "Graphics/DX12/DX12Types.h"
+#include "Graphics/DX12/IDX12Object.h"
 #include "Graphics/Shared/Interface/ICommandList.h"
 
 namespace Ryu::Graphics
 {
 	class DX12Device;
 
-	class DX12CommandList : public ICommandList
+	class DX12CommandList : public ICommandList, public IDX12Object
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE(DX12::IDX12GraphicsCommandList);

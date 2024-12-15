@@ -31,6 +31,8 @@ namespace Ryu::Graphics
 
 		static CreateDeviceResult Create(const DeviceCreateDesc& desc);
 
+		void InitializeResource(IGraphicsObject* obj) const;
+
 		inline IDXGIAdapter4* GetAdapter() const { return m_adapter.Get(); }
 		inline IDXGIFactory7* GetDXGIFactory() const { return m_dxgiFactory.Get(); }
 

@@ -1,10 +1,11 @@
 #pragma once
 #include "Graphics/DX11/DX11Types.h"
+#include "Graphics/DX11/IDX11Object.h"
 #include "Graphics/Shared/Interface/IDevice.h"
 
 namespace Ryu::Graphics
 {
-	class DX11Device : public IDevice
+	class DX11Device : public IDevice, public IDX11Object
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE(DX11::IDX11Device);

@@ -5,12 +5,12 @@
 
 namespace Ryu::Graphics
 {
-	DX11CommandList::DX11CommandList(const DX11Device& device, const CommandListDesc& desc)
+	DX11CommandList::DX11CommandList(const DX11Device* device, const CommandListDesc& desc)
 		: ICommandList(desc)
 		, m_device(device)
 	{
 		static u32 _count = 0;
-		DX11Device::NativeType* nativeDevice = m_device;
+		DX11Device::NativeType* nativeDevice = *m_device;
 		ComPtr<ID3D11DeviceContext3> baseContext;
 		
 		DXCall(nativeDevice->CreateDeferredContext3(0, &baseContext));

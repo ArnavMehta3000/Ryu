@@ -1,6 +1,6 @@
 target("RyuGraphics")
 	set_kind("static")
-	set_group("Ryu/BreakOnFailHRESULT")
+	set_group("Ryu")
 
 	if has_config("assert-on-fail-hresult") then
 		add_defines("RYU_BREAK_ON_FAIL_HRESULT")

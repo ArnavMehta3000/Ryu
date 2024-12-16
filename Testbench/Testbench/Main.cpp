@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include "Engine/Engine.h"
-#include "Graphics/Config.h"
+#include "GraphicsRHI/Config.h"
 #include "Test.h"
 
 int WINAPI wWinMain(

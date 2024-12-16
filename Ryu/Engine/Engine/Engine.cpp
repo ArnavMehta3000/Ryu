@@ -1,7 +1,7 @@
 #include "Engine.h"
 #include "Engine/Runtime/Runtime.h"
 #include "App/Window.h"
-#include "Graphics/Config.h"
+#include "GraphicsRHI/Config.h"
 #include <External/StepTimer/StepTimer.h>
 
 namespace Ryu::Engine

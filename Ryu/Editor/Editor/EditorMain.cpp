@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include "Editor/Application/EditorApp.h"
 #include "Engine/Engine.h"
-#include "Graphics/Config.h"
+#include "GraphicsRHI/Config.h"
 
 int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,

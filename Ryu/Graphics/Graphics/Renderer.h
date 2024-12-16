@@ -1,25 +1,30 @@
 #pragma once
 #include "Common/Result.h"
 #include "Common/ObjectMacros.h"
-#include "Graphics/Shared/Interface/ISwapChain.h"
-#include "Graphics/Shared/Interface/IDevice.h"
-#include "Graphics/Shared/Interface/ICommandList.h"
+#include "GraphicsRHI/API.h"
+#include "GraphicsRHI/ISwapChain.h"
+#include "GraphicsRHI/IDevice.h"
+#include "GraphicsRHI/ICommandList.h"
+#include "GraphicsRHI/IRenderer.h"
 #include <vector>
 
 namespace Ryu::Graphics
 {
-	class Renderer
+	class Renderer : public IRenderer
 	{
 	public:
 		NODISCARD VoidResult Init(const DeviceCreateDesc& deviceCreatedesc, const SwapChainDesc& swapChainDesc);
 		void Shutdown();
 
-		NODISCARD inline ISwapChain* GetSwapChain() const { return m_swapchain.get(); }
-		NODISCARD inline IDevice* GetDevice() const { return m_device.get(); }
+		inline ISwapChain* GetSwapChain() const override { return m_swapchain.get(); }
+		inline IDevice* GetDevice() const override { return m_device.get(); }
 
-		void InitializeResource(IGraphicsObject* obj);
+		void InitializeResource(IGraphicsObject* obj) override;
 		void BeginFrame();
 		void EndFrame();
+
+	private:
+		IDevice::CreateDeviceResult CreateDevice(const DeviceCreateDesc& deviceCreatedesc);
 
 	private:
 		std::unique_ptr<ISwapChain> m_swapchain;

@@ -1,10 +1,9 @@
 #include "Renderer.h"
-#include "Graphics/Config.h"
-#include "Graphics/Shared/Logging.h"
+#include "GraphicsRHI/Config.h"
+#include "GraphicsRHI/Utils/Logging.h"
+#include "GraphicsDX11/DX11Device.h"
 #include <libassert/assert.hpp>
 #include <dxgi1_6.h>
-#include <dxgidebug.h>
-#include "Graphics/DX12/DX12Device.h"
 
 namespace Ryu::Graphics
 {
@@ -65,7 +64,7 @@ namespace Ryu::Graphics
 	{
 		DXCall(::CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
-		auto deviceResult = IDevice::Create(deviceCreatedesc);
+		auto deviceResult = CreateDevice(deviceCreatedesc);
 		if (!deviceResult)
 		{
 			return MakeResultError{ deviceResult.error() };
@@ -113,30 +112,37 @@ namespace Ryu::Graphics
 	{
 		if (obj)
 		{
-			DEBUG_ASSERT(obj->GetRenderer() == nullptr, "Graphics object already has a renderer!");
+			DEBUG_ASSERT(obj->GetRendererInterface() == nullptr, "Graphics object already has a renderer!");
 			
-			if (obj->GetRenderer() != nullptr)
+			if (obj->GetRendererInterface() != nullptr)
 			{
 				return;
 			}
 
-			obj->SetRenderer(this);
+			obj->SetRendererInterface(this);
 		}
 	}
 	
 	void Renderer::BeginFrame()
 	{
-		u32 frameIndex = m_swapchain->GetCurrentFrameIndex();
-		auto& cmdList = m_commandLists[frameIndex];
-		cmdList->Begin();
 	}
 	
 	void Renderer::EndFrame()
 	{
-		u32 frameIndex = m_swapchain->GetCurrentFrameIndex();
-		auto& cmdList = m_commandLists[frameIndex];
-		cmdList->End();
-		m_device->ExecuteCommandList(cmdList.get());
-		m_swapchain->Present();
+	}
+	
+	IDevice::CreateDeviceResult Renderer::CreateDevice(const DeviceCreateDesc& deviceCreatedesc)
+	{
+		switch (deviceCreatedesc.GraphicsAPI)
+		{
+		case API::DirectX11:
+			return std::make_unique<DX11::DX11Device>(deviceCreatedesc);
+
+			//case API::DirectX12:
+			//	return std::make_unique<DX12Device>(desc);
+		}
+
+		return MakeResultError{ std::format(
+			"Unsupported graphics device API - {}", EnumToString(deviceCreatedesc.GraphicsAPI)) };
 	}
 }

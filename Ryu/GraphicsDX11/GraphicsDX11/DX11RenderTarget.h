@@ -18,7 +18,7 @@ namespace Ryu::Graphics::DX11
 		TextureUsage Usage = TextureUsage::RenderTarget;
 	};
 
-	class DX11RenderTarget : public IRenderTarget, public IGraphicsNamedObject<DX11::IDX11RenderTarget>
+	class DX11RenderTarget : public IRenderTarget, public IGraphicsRHIObject<DX11::IDX11RenderTarget>
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_renderTarget.Get())

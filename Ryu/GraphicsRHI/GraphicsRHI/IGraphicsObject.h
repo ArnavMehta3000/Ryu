@@ -85,9 +85,10 @@ operator NativeType*() const { return ReturnValue; }
 namespace Ryu::Graphics
 {
 	template<DirectXObject TNative, API TApi = GetAPITypeT<TNative>::Value>
-	class IGraphicsNamedObject {
+	class IGraphicsRHIObject 
+	{
 	public:
-		virtual ~IGraphicsNamedObject() = default;
+		virtual ~IGraphicsRHIObject() = default;
 		RYU_DECLARE_GFX_NATIVE_TYPE(TNative);
 
 		void SetName(std::string_view name)

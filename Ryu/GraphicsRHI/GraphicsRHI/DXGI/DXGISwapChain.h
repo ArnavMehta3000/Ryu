@@ -4,7 +4,7 @@
 
 namespace Ryu::Graphics
 {
-	class DXGISwapChain : public ISwapChain, public IGraphicsNamedObject<IDXGISwapChain4>
+	class DXGISwapChain : public ISwapChain, public IGraphicsRHIObject<IDXGISwapChain4>
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_swapChain.Get())

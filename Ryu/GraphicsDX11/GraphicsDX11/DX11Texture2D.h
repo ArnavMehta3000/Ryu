@@ -6,7 +6,7 @@ namespace Ryu::Graphics::DX11
 {
 	class DX11Device;
 
-	class DX11Texture2D : public ITexture2D, public IGraphicsNamedObject<DX11::IDX11Texture2D>
+	class DX11Texture2D : public ITexture2D, public IGraphicsRHIObject<DX11::IDX11Texture2D>
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_texture.Get())

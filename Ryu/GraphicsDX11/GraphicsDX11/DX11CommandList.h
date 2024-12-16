@@ -6,7 +6,7 @@ namespace Ryu::Graphics::DX11
 {
 	class DX11Device;
 
-	class DX11CommandList : public ICommandList, public IGraphicsNamedObject<DX11::ID3D11CommandList>
+	class DX11CommandList : public ICommandList, public IGraphicsRHIObject<DX11::ID3D11CommandList>
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_cmdList.Get())

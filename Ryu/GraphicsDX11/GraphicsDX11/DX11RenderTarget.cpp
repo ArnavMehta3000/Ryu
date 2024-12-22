@@ -35,7 +35,6 @@ namespace Ryu::Graphics::DX11
 	{
 		DX11Texture2D::NativeType* nativeTexture = *texture;
 		m_texture = std::make_unique<DX11Texture2D>(device, nativeTexture);
-		m_device->InitializeResource(m_texture.get());
 
 		CreateRenderTargetView();
 	}

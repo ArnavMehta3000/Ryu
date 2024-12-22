@@ -59,9 +59,9 @@ namespace Ryu::Graphics::DX11
 	
 	IDevice::CreateCommandListResult DX11Device::CreateCommandList(const CommandListDesc& desc) const
 	{
+		DEBUG_ASSERT(m_device, "DX11Device is not initialized!");
+
 		auto ptr = std::make_unique<DX11CommandList>(this, desc);
-		ptr->SetName("DX11 Command List");
-		InitializeResource(ptr.get());
 		
 		return std::move(ptr);
 	}

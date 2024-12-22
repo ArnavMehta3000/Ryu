@@ -9,7 +9,7 @@ namespace Ryu::Graphics::DX11
 	class DX11SwapChain : public DXGISwapChain
 	{
 	public:
-		explicit DX11SwapChain(const DX11Device* device, const SwapChainDesc& desc);
+		DX11SwapChain(const DX11Device* device, const SwapChainDesc& desc);
 		~DX11SwapChain();
 
 		DX11RenderTarget* GetRenderTarget() const { return m_renderTarget.get(); }

@@ -10,6 +10,8 @@ namespace Ryu::Graphics::DX11
 		, m_desc(desc)
 	{
 		CreateNativeTexture();
+		m_device->InitializeResource(this);
+		SetName("DX11 Texture2D");
 	}
 
 	DX11Texture2D::DX11Texture2D(const DX11Device* device, NativeType* texture)
@@ -45,6 +47,9 @@ namespace Ryu::Graphics::DX11
 		{
 			m_desc.Usage |= TextureUsage::UnorderedAccess;
 		}
+
+		m_device->InitializeResource(this);
+		SetName("DX11 Texture2D");
 	}
 
 	DX11Texture2D::~DX11Texture2D()
@@ -78,6 +83,5 @@ namespace Ryu::Graphics::DX11
 
 		DX11Device::NativeType* nativeDevice = *m_device;
 		DXCall(nativeDevice->CreateTexture2D1(&texDesc, nullptr, m_texture.ReleaseAndGetAddressOf()));
-		SetName("DX11 Texture 2D");
 	}
 }

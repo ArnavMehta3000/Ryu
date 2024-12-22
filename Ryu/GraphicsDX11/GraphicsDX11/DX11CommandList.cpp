@@ -16,6 +16,9 @@ namespace Ryu::Graphics::DX11
 		DXCall(nativeDevice->CreateDeferredContext3(0, &baseContext));
 		DXCall(baseContext->QueryInterface(IID_PPV_ARGS(m_deferredContext.ReleaseAndGetAddressOf())));
 		DX11_NAME_OBJECT(m_deferredContext.Get(), std::format("Deferred Context {}", _count++));
+
+		m_device->InitializeResource(this);
+		SetName("DX11 Command List");
 	}
 
 	DX11CommandList::~DX11CommandList()

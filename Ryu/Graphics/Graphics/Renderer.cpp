@@ -80,7 +80,6 @@ namespace Ryu::Graphics
 		}
 
 		m_swapchain = std::move(*swapChainResult);
-		InitializeResource(m_swapchain.get());
 
 
 		CommandListDesc cmdListDesc{ CommandListType::Graphics };

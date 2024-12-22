@@ -13,6 +13,9 @@ namespace Ryu::Graphics::DX11
 	{
 		CreateSwapChain();
 		CreateBackBufferRenderTarget();
+
+		m_device->InitializeResource(this);
+		SetName("DX11 Swap Chain");
 	}
 	
 	DX11SwapChain::~DX11SwapChain()
@@ -101,8 +104,6 @@ namespace Ryu::Graphics::DX11
 
 		ComPtr<IDXGISwapChain4> swapChain4;
 		DXCall(swapChain1.As(&m_swapChain));
-
-		SetName("DX11 Swap Chain");
 	}
 	
 	void DX11SwapChain::CreateBackBufferRenderTarget()
@@ -129,8 +130,6 @@ namespace Ryu::Graphics::DX11
 		textureDesc.Usage         = TextureUsage::RenderTarget | TextureUsage::ShaderResource;
 
 		auto backBufferTexture = std::make_unique<DX11Texture2D>(m_device, nativeBackBuffer1.Detach());
-		m_renderTarget = std::make_unique<DX11RenderTarget>(m_device, backBufferTexture.release());
-		
-		m_device->InitializeResource(m_renderTarget.get());
+		m_renderTarget         = std::make_unique<DX11RenderTarget>(m_device, backBufferTexture.release());
 	}
 }

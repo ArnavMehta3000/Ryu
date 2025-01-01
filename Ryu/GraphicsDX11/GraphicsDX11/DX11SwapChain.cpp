@@ -132,4 +132,9 @@ namespace Ryu::Graphics::DX11
 		auto backBufferTexture = std::make_unique<DX11Texture2D>(m_device, nativeBackBuffer1.Detach());
 		m_renderTarget         = std::make_unique<DX11RenderTarget>(m_device, backBufferTexture.release());
 	}
+	
+	IRenderTarget* DX11SwapChain::GetBackBufferRenderTarget() const
+	{
+		return m_renderTarget.get();
+	}
 }

@@ -2,6 +2,7 @@
 #include "GraphicsRHI/Config.h"
 #include "GraphicsRHI/Utils/Logging.h"
 #include "GraphicsDX11/DX11Device.h"
+#include "GraphicsDX11/RenderPasses/DX11RenderPassFactory.h"
 #include <libassert/assert.hpp>
 #include <dxgi1_6.h>
 
@@ -60,6 +61,7 @@ namespace Ryu::Graphics
 		renderer->Shutdown();
 	}
 
+
 	VoidResult Renderer::Init(const DeviceCreateDesc& deviceCreatedesc, const SwapChainDesc& swapChainDesc)
 	{
 		DXCall(::CoInitializeEx(NULL, COINIT_MULTITHREADED));
@@ -83,24 +85,27 @@ namespace Ryu::Graphics
 
 
 		CommandListDesc cmdListDesc{ CommandListType::Graphics };
-		m_commandLists.resize(swapChainDesc.BufferCount);
-		
-		for (uint32_t i = 0; i < swapChainDesc.BufferCount; i++)
+
+		if (auto createCmdListResult = m_device->CreateCommandList(cmdListDesc))
 		{
-			auto createCmdListResult = m_device->CreateCommandList(cmdListDesc);
-			if (!createCmdListResult)
-			{
-				return MakeResultError{ "Failed to create command list" };
-			}
-			
-			m_commandLists[i] = std::move(*createCmdListResult);
+			m_commandList = std::move(*createCmdListResult);
 		}
+		else
+		{
+			return MakeResultError{ "Failed to create command list" };
+		}
+		
+		CreateRenderPasses(deviceCreatedesc);
 		
 		return {};
 	}
 	
 	void Renderer::Shutdown()
 	{
+		m_renderPassFactory.reset();
+		m_backBufferClearPass.reset();
+
+		m_commandList.reset();
 		m_swapchain.reset();
 		m_device.reset();
 	
@@ -124,10 +129,19 @@ namespace Ryu::Graphics
 	
 	void Renderer::BeginFrame()
 	{
+		m_commandList->Begin();
+
+		m_backBufferClearPass->Begin(m_commandList.get());
+		m_backBufferClearPass->End(m_commandList.get());
+
+		m_commandList->End();
+
+		m_device->ExecuteCommandList(m_commandList.get());
 	}
 	
 	void Renderer::EndFrame()
 	{
+		m_swapchain->Present();
 	}
 	
 	IDevice::CreateDeviceResult Renderer::CreateDevice(const DeviceCreateDesc& deviceCreatedesc)
@@ -143,5 +157,31 @@ namespace Ryu::Graphics
 
 		return MakeResultError{ std::format(
 			"Unsupported graphics device API - {}", EnumToString(deviceCreatedesc.GraphicsAPI)) };
+	}
+	
+	void Renderer::CreateRenderPasses(const DeviceCreateDesc& deviceCreatedesc)
+	{
+		if (!m_renderPassFactory)
+		{
+			switch (deviceCreatedesc.GraphicsAPI)
+			{
+			case API::DirectX11:
+				m_renderPassFactory = std::make_unique<DX11::DX11RenderPassFactory>();
+				break;
+
+			//case API::DirectX12:
+				//return std::make_unique<DX12Device>(desc);
+			}
+		}
+
+		// Create back buffer clear render pass
+		if (!m_backBufferClearPass)
+		{
+			IClearRenderPass::Desc desc;
+			desc.RenderTargets = { m_swapchain->GetBackBufferRenderTarget() };
+			desc.ClearColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+
+			m_backBufferClearPass = m_renderPassFactory->CreateClearRenderPass(desc);
+		}
 	}
 }

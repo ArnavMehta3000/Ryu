@@ -45,11 +45,6 @@ namespace Ryu::Graphics::DX11
 		m_texture.reset();
 	}
 	
-	void DX11RenderTarget::Clear(const f32 clearColor[4])
-	{
-	
-	}
-
 	void DX11RenderTarget::CreateRenderTargetView()
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC1 rtvDesc{};

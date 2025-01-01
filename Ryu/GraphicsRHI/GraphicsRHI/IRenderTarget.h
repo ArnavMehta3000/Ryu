@@ -11,8 +11,6 @@ namespace Ryu::Graphics
 	{
 	public:
 		virtual ~IRenderTarget() = default;
-
-		virtual void Clear(const f32 clearColor[4]) = 0;
 		virtual Format GetFormat() const = 0;
 		virtual u32 GetWidth() const = 0;
 		virtual u32 GetHeight() const = 0;

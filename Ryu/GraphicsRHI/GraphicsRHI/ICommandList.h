@@ -4,6 +4,8 @@
 
 namespace Ryu::Graphics
 {
+	class IRenderTarget;
+
 	enum class CommandListType
 	{
 		Graphics,
@@ -29,6 +31,8 @@ namespace Ryu::Graphics
 		virtual void Begin() = 0;
 		virtual void End() = 0;
 		virtual void Reset() = 0;
+
+		virtual void ClearRenderTargetView(IRenderTarget* renderTarget, const f32* clearColor) = 0;
 
 	protected:
 		CommandListDesc m_desc{};

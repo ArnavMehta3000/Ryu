@@ -18,6 +18,8 @@ namespace Ryu::Graphics::DX11
 		void CreateSwapChain();
 		void CreateBackBufferRenderTarget();
 
+		IRenderTarget* GetBackBufferRenderTarget() const override;
+
 	private:
 		const DX11Device* m_device;
 		std::unique_ptr<DX11RenderTarget> m_renderTarget;

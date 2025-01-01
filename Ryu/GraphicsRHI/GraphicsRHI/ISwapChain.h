@@ -5,6 +5,8 @@
 
 namespace Ryu::Graphics
 {
+	class IRenderTarget;
+
 	struct SwapChainDesc
 	{
 		u32 Width;
@@ -29,6 +31,8 @@ namespace Ryu::Graphics
 		virtual void Resize(u32 width, u32 height) = 0;
 		
 		inline const SwapChainDesc& GetDesc() const { return m_desc; }
+
+		virtual IRenderTarget* GetBackBufferRenderTarget() const = 0;
 
 	protected:
 		SwapChainDesc m_desc;

@@ -6,6 +6,8 @@
 #include "GraphicsRHI/IDevice.h"
 #include "GraphicsRHI/ICommandList.h"
 #include "GraphicsRHI/IRenderer.h"
+#include "GraphicsRHI/RenderPasses/IClearRenderPass.h"
+#include "GraphicsRHI/RenderPasses/IRenderPassFactory.h"
 #include <vector>
 
 namespace Ryu::Graphics
@@ -25,11 +27,14 @@ namespace Ryu::Graphics
 
 	private:
 		IDevice::CreateDeviceResult CreateDevice(const DeviceCreateDesc& deviceCreatedesc);
+		void CreateRenderPasses(const DeviceCreateDesc& deviceCreatedesc);
 
 	private:
-		std::unique_ptr<ISwapChain> m_swapchain;
-		std::unique_ptr<IDevice> m_device;
-		std::vector<std::unique_ptr<ICommandList>> m_commandLists;
+		std::unique_ptr<IDevice>            m_device;
+		std::unique_ptr<ISwapChain>         m_swapchain;
+		std::unique_ptr<ICommandList>       m_commandList;		
+		std::unique_ptr<IRenderPassFactory> m_renderPassFactory;
+		std::unique_ptr<IClearRenderPass>   m_backBufferClearPass;
 	};
 	
 	NODISCARD VoidResult InitGraphics(Renderer* renderer, API api, HWND hWnd);

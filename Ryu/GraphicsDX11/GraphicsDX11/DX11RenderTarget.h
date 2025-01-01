@@ -28,7 +28,6 @@ namespace Ryu::Graphics::DX11
 		~DX11RenderTarget();
 
 	private:
-		void Clear(const f32 clearColor[4]) override;
 		Format GetFormat() const override { return m_desc.Format; }
 		u32 GetWidth()     const override { return m_desc.Width; }
 		u32 GetHeight()    const override { return m_desc.Height; }

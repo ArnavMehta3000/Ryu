@@ -159,7 +159,6 @@ namespace Ryu::Engine
 		m_runtime->Tick(dt);
 		m_renderer->BeginFrame();
 		m_renderer->EndFrame();
-		//Graphics::RenderSurface();
 	}
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept

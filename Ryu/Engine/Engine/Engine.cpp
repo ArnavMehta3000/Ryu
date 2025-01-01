@@ -65,8 +65,6 @@ namespace Ryu::Engine
 
 		//DEBUG_ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
 
-		// Init the world after creating the runtime
-		m_runtime->GetWorld().Init();
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine initialized successfully");
 

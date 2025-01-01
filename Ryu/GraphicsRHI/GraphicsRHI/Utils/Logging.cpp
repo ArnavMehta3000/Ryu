@@ -27,8 +27,8 @@ namespace Ryu::Graphics::Internal
 		}
 	}
 
-	void Ryu::Graphics::Internal::LogDX11Naming(std::string_view name)
+	void Ryu::Graphics::Internal::LogDX11Naming(const std::string& msg)
 	{
-		LOG_DEBUG(RYU_USE_LOG_CATEGORY(GraphicsDebug), "DX11 object named: {}", name);
+		LOG_DEBUG(RYU_USE_LOG_CATEGORY(GraphicsDebug), "{}", msg);
 	}
 }

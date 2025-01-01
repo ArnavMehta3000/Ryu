@@ -49,7 +49,6 @@ namespace Ryu::Graphics::DX11
 		}
 
 		m_device->InitializeResource(this);
-		SetName("DX11 Texture2D");
 	}
 
 	DX11Texture2D::~DX11Texture2D()

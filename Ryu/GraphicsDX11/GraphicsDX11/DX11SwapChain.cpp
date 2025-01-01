@@ -130,7 +130,9 @@ namespace Ryu::Graphics::DX11
 		textureDesc.Usage         = TextureUsage::RenderTarget | TextureUsage::ShaderResource;
 
 		auto backBufferTexture = std::make_unique<DX11Texture2D>(m_device, nativeBackBuffer1.Detach());
-		m_renderTarget         = std::make_unique<DX11RenderTarget>(m_device, backBufferTexture.release());
+		backBufferTexture->SetName("DX11 Back Buffer Texture");
+		
+		m_renderTarget = std::make_unique<DX11RenderTarget>(m_device, backBufferTexture.release());
 	}
 	
 	IRenderTarget* DX11SwapChain::GetBackBufferRenderTarget() const

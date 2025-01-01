@@ -18,15 +18,36 @@ namespace Ryu::Graphics::Internal
 
 	void SetNameDX12(ID3D12Object* obj, std::wstring name);
 
-	void LogDX11Naming(std::string_view name);
+	void LogDX11Naming(const std::string& name);
 
 	template <typename T>
 	inline void SetDebugObjectName(_In_ T resource, _In_z_ std::string_view name)
 	{
 		if (resource)
 		{
-			resource->SetPrivateData(WKPDID_D3DDebugObjectName, (unsigned int)name.length(), name.data());
-			LogDX11Naming(name);
+			// Buffer to store the current name
+			char currentName[256];
+			unsigned int nameLength = sizeof(currentName);
+
+			HRESULT result = resource->GetPrivateData(WKPDID_D3DDebugObjectName, &nameLength, currentName);
+			std::string nameStr(name);
+
+			// Check if there was an existing name
+			if (SUCCEEDED(result) && nameLength > 0)
+			{
+				std::string oldName(currentName, nameLength);
+				if (oldName != name) // Only log if the name is different
+				{
+					LogDX11Naming("DX11 rename object: \"" + oldName + "\" -> \"" + nameStr);
+				}
+			}
+			else
+			{
+				LogDX11Naming("DX11 name object: " + nameStr);
+			}
+
+			// Set the new name
+			resource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<unsigned int>(name.length()), name.data());
 		}
 	}
 }

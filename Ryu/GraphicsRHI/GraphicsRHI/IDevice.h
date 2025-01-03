@@ -39,6 +39,8 @@ namespace Ryu::Graphics
 		virtual CreateCommandListResult CreateCommandList(const CommandListDesc& desc) const = 0;
 		virtual void ExecuteCommandList(const ICommandList* commandList) const = 0;
 
+		bool CheckFeatureSupport(DXGI_FEATURE feature);
+
 	protected:
 		bool InitializeDXGI(bool enableDebugLayer);
 		void ShutdownDXGI();

@@ -20,6 +20,16 @@ namespace Ryu::Graphics
 		}
 	}
 	
+	bool IDevice::CheckFeatureSupport(DXGI_FEATURE feature)
+	{
+		DEBUG_ASSERT(m_dxgiFactory, "DXGI factory not initialized");
+
+		BOOL result{ 0 };
+		DXCall(m_dxgiFactory->CheckFeatureSupport(feature, &result, sizeof(BOOL)));
+
+		return result == TRUE;
+	}
+
 	bool IDevice::InitializeDXGI(bool enableDebugLayer)
 	{
 		if (enableDebugLayer)

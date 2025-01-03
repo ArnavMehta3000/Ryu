@@ -20,11 +20,10 @@ namespace Ryu::Graphics::DX11
 		CreateCommandListResult CreateCommandList(const CommandListDesc& desc) const override;
 		void ExecuteCommandList(const ICommandList* commandList) const override;
 
-
 		void InitDevice(const DeviceCreateDesc& desc);
 	
 	private:
-		ComPtr<NativeType> m_device;
+		ComPtr<NativeType>               m_device;
 		ComPtr<DX11::IDX11DeviceContext> m_imContext;
 	};
 }

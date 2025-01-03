@@ -54,6 +54,11 @@ namespace Ryu::Graphics::DX11
 		DEBUG_ASSERT(m_dxgiFactory, "DXGI factory is not initialized!");
 		DEBUG_ASSERT(m_adapter, "Adapter is not initialized!");
 
+		if (!m_dxgiFactory || !m_adapter || !m_adapter)
+		{
+			return MakeResultError{ "Failed to create swap chain" };
+		}
+
 		return std::make_unique<DX11SwapChain>(this, desc);
 	}
 	

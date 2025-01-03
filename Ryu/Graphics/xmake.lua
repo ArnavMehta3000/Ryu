@@ -10,8 +10,6 @@ target("RyuGraphics")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
 
-	add_packages("directx-headers", { public = true })
-
 	add_deps(
 		"RyuGraphicsRHI",
 		"RyuGraphicsDX11"

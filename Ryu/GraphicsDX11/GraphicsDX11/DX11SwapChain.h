@@ -12,8 +12,6 @@ namespace Ryu::Graphics::DX11
 		DX11SwapChain(const DX11Device* device, const SwapChainDesc& desc);
 		~DX11SwapChain();
 
-		DX11RenderTarget* GetRenderTarget() const { return m_renderTarget.get(); }
-
 	private:
 		void CreateSwapChain();
 		void CreateBackBufferRenderTarget();

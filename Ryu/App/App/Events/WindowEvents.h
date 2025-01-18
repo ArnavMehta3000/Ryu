@@ -9,7 +9,7 @@ namespace Ryu::App
 	/**
 	 * @brief Represents the state of the window
 	 */
-	enum class RYU_API WindowState
+	enum class WindowState
 	{
 		/**
 		 * @brief When window has been resized, but minimized or maximized doesn't apply
@@ -30,7 +30,7 @@ namespace Ryu::App
 	/**
 	 * @brief  Represents the focus state of the window
 	 */
-	enum class RYU_API WindowFocus
+	enum class WindowFocus
 	{
 		/**
 		 * @brief When the window just gained focus
@@ -107,14 +107,3 @@ namespace Ryu::App
 		};
 	}
 }
-
-RYU_BEGIN_ENUM_TO_STRING(Ryu::App::WindowState)
-	RYU_ENUM_TO_STRING(Restored)
-	RYU_ENUM_TO_STRING(Maximized)
-	RYU_ENUM_TO_STRING(Minimized)
-RYU_END_ENUM_TO_STRING()
-
-RYU_BEGIN_ENUM_TO_STRING(Ryu::App::WindowFocus)
-	RYU_ENUM_TO_STRING(Gained)
-	RYU_ENUM_TO_STRING(Lost)
-RYU_END_ENUM_TO_STRING()

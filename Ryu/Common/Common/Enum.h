@@ -13,49 +13,35 @@ template <BitMaskEnabled Enum>
 constexpr Enum operator|(Enum lhs, Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	return static_cast<Enum>(
-		static_cast<UnderlyingType>(lhs) |
-		static_cast<UnderlyingType>(rhs)
-		);
+	return static_cast<Enum>(static_cast<UnderlyingType>(lhs) | static_cast<UnderlyingType>(rhs));
 }
 
 template <BitMaskEnabled Enum>
 constexpr Enum operator&(Enum lhs, Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	return static_cast<Enum>(
-		static_cast<UnderlyingType>(lhs) &
-		static_cast<UnderlyingType>(rhs)
-		);
+	return static_cast<Enum>(static_cast<UnderlyingType>(lhs) &static_cast<UnderlyingType>(rhs));
 }
 
 template <BitMaskEnabled Enum>
 constexpr Enum operator^(Enum lhs, Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	return static_cast<Enum>(
-		static_cast<UnderlyingType>(lhs) ^
-		static_cast<UnderlyingType>(rhs)
-		);
+	return static_cast<Enum>(static_cast<UnderlyingType>(lhs) ^static_cast<UnderlyingType>(rhs));
 }
 
 template <BitMaskEnabled Enum>
 constexpr Enum operator~(Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	return static_cast<Enum>(
-		~static_cast<UnderlyingType>(rhs)
-		);
+	return static_cast<Enum>(~static_cast<UnderlyingType>(rhs));
 }
 
 template <BitMaskEnabled Enum>
 constexpr Enum& operator|=(Enum& lhs, const Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	lhs = static_cast<Enum>(
-		static_cast<UnderlyingType>(lhs) |
-		static_cast<UnderlyingType>(rhs)
-		);
+	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) |static_cast<UnderlyingType>(rhs));
 	return lhs;
 }
 
@@ -63,10 +49,7 @@ template <BitMaskEnabled Enum>
 constexpr Enum& operator&=(Enum& lhs, const Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	lhs = static_cast<Enum>(
-		static_cast<UnderlyingType>(lhs) &
-		static_cast<UnderlyingType>(rhs)
-		);
+	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) &static_cast<UnderlyingType>(rhs));
 	return lhs;
 }
 
@@ -74,10 +57,7 @@ template <BitMaskEnabled Enum>
 constexpr Enum& operator^=(Enum& lhs, const Enum rhs) noexcept 
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	lhs = static_cast<Enum>(
-		static_cast<UnderlyingType>(lhs) ^
-		static_cast<UnderlyingType>(rhs)
-		);
+	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) ^static_cast<UnderlyingType>(rhs));
 	return lhs;
 }
 
@@ -97,19 +77,5 @@ namespace Ryu
 // Used to create a bit mask
 #define RYU_BIT(Value) 1 << Value
 
-#define RYU_ENUM_TO_STRING(Value) case Value: return RYU_ENUM_STRINGIFY(Value);
-
-#define RYU_ENUM_STRINGIFY(Value) #Value
-
-#define RYU_BEGIN_ENUM_TO_STRING(EnumType)                                     \
-	template <>                                                                \
-	inline constexpr RYU_API std::string_view Ryu::EnumToString(EnumType value)\
-	{                                                                          \
-		switch(value)                                                          \
-		{                                                                      \
-			using enum EnumType;
-
-#define RYU_END_ENUM_TO_STRING()    \
-		default: return "<Unknown>";\
-		}                           \
-	}                               \
+// Empty macro for codegen
+#define TENUM(...)

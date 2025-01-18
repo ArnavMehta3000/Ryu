@@ -150,9 +150,6 @@ namespace Ryu::Graphics
 		{
 		case API::DirectX11:
 			return std::make_unique<DX11::DX11Device>(deviceCreatedesc);
-
-			//case API::DirectX12:
-			//	return std::make_unique<DX12Device>(desc);
 		}
 
 		return MakeResultError{ std::format(
@@ -168,9 +165,6 @@ namespace Ryu::Graphics
 			case API::DirectX11:
 				m_renderPassFactory = std::make_unique<DX11::DX11RenderPassFactory>();
 				break;
-
-			//case API::DirectX12:
-				//return std::make_unique<DX12Device>(desc);
 			}
 		}
 

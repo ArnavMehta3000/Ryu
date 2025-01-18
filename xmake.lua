@@ -18,6 +18,7 @@ includes("Xmake/Rules/RadDebug.lua")
 includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/CopyToBuildDir.lua")
 includes("Xmake/Rules/AddScriptPathDefine.lua")
+includes("Xmake/Rules/EnumAutogen.lua")
 
 -- Build debug mode by default
 set_defaultmode("debug")
@@ -67,6 +68,7 @@ add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 
 -- Add rule to export shared library
 add_rules("ExportAPI")
+add_rules("EnumAutogen")
 
 -- Include xmake projects
 includes("**/xmake.lua")

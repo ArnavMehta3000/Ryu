@@ -7,18 +7,20 @@ namespace Ryu::Utils
 {
 	using namespace Common::StandardTypes;
 
+	TENUM()
 	enum class MessagBoxButton : i32
 	{
 		AbortRetryIgnore       = MB_ABORTRETRYIGNORE,
 		CancelTryAgainContinue = MB_CANCELTRYCONTINUE,
 		Help                   = MB_HELP,
 		Ok                     = MB_OK,
-		OkCancel               = MB_OK,
+		OkCancel               = MB_OKCANCEL,
 		RetryCancel            = MB_RETRYCANCEL,
 		YesNo                  = MB_YESNO,
 		YesNoCancel            = MB_YESNOCANCEL
 	};
 
+	TENUM()
 	enum class MessageBoxIcon : i32
 	{
 		Error    = MB_ICONERROR,
@@ -27,6 +29,7 @@ namespace Ryu::Utils
 		Info     = MB_ICONINFORMATION
 	};
 
+	TENUM()
 	enum class MessageBoxReturnValue
 	{
 		Ok       = 1,
@@ -65,3 +68,5 @@ namespace Ryu::Utils
 			MessageBoxA(desc.Window, desc.Text.c_str(), desc.Title.c_str(), desc.Flags.GetFlags()));
 	}
 }
+
+#include "MessageBox.gen.h"

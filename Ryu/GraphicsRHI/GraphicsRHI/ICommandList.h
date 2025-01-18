@@ -6,6 +6,7 @@ namespace Ryu::Graphics
 {
 	class IRenderTarget;
 
+	TENUM()
 	enum class CommandListType
 	{
 		Graphics,
@@ -38,3 +39,5 @@ namespace Ryu::Graphics
 		CommandListDesc m_desc{};
 	};
 }
+
+#include "ICommandList.gen.h"

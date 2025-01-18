@@ -4,7 +4,6 @@ target("RyuInput")
 	add_includedirs(".", { public = true })
 	add_files("**.cpp")
 	add_headerfiles("**.h")
-
 	add_deps(
 		"RyuCommon",
 		"RyuEvents"

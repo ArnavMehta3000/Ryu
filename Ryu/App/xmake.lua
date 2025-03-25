@@ -5,6 +5,7 @@ target("RyuApp")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
 
+	add_packages("Elos")
 	add_deps("RyuUtils", "RyuInput")
 
 	add_links("Dwmapi")

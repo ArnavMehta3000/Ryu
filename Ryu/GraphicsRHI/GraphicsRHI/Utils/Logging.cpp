@@ -1,6 +1,7 @@
 #include "Logging.h"
 #include "Utils/StringConv.h"
 #include <d3d12.h>
+#include <format>
 
 // RYU_BREAK_ON_FAIL_HRESULT
 // - Configured via xmake

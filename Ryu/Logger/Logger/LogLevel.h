@@ -1,4 +1,6 @@
 #pragma once
+#include "Common/Enum.h"
+
 namespace Ryu::Logging
 {
 	/**
@@ -44,3 +46,18 @@ namespace Ryu::Logging
 		Fatal = 5
 	};
 }
+
+RYU_ENUM_TO_STRING(Ryu::Logging::LogLevel,
+{
+	switch (value)
+	{
+		using enum Logging::LogLevel;
+	case Trace: return "Trace";
+	case Debug: return "Debug";
+	case Info: return "Info";
+	case Warn: return "Warn";
+	case Error: return "Error";
+	case Fatal: return "Fatal";
+	default: return "";
+	}
+})

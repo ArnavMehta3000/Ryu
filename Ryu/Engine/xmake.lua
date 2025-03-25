@@ -14,9 +14,11 @@ target("RyuEngine")
 
 	add_deps(
 		"RyuUtils",
+		"RyuConfig",
 		"RyuLogger",
 		"RyuInput",
 		"RyuApp",
+		"RyuGraphics",
 		"RyuMath",
 		"RyuExternals")
 target_end()

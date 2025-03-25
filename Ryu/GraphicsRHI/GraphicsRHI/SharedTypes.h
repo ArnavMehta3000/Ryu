@@ -184,7 +184,8 @@ namespace Ryu::Graphics
 	{
 		UInt16,
 		UInt32,
-	};		
+	};
+
 	enum class StencilOp
 	{
 		Keep,

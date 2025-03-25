@@ -12,9 +12,7 @@ set_languages("c17", "cxx23")
 -- Include other xmake scripts
 add_moduledirs("Xmake/Modules")
 includes("Xmake/Packages.lua")
-includes("Xmake/Options.lua")
 includes("Xmake/Rules/RyuPlugin.lua")
-includes("Xmake/Rules/RadDebug.lua")
 includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/CopyToBuildDir.lua")
 includes("Xmake/Rules/AddScriptPathDefine.lua")
@@ -56,7 +54,7 @@ end
 
 add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "WIN32_LEAN_AND_MEAN")
 add_links("user32.lib")
-set_runtimes(is_mode("debug") and "MDd" or "MD")
+--set_runtimes(is_mode("debug") and "MDd" or "MD")
 
 -- Bring standard types namespace to global namespace
 if has_config("use-std-types-globally") then

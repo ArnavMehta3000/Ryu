@@ -9,7 +9,6 @@ target("RyuTestbench")
 	add_includedirs(".")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
-	add_files("**.as", { rule = "CopyToBuildDir" })
 	add_deps("RyuEngine")
 
 	on_run(function (target)

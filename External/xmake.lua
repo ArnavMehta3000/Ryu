@@ -23,6 +23,4 @@ target("RyuExternals")
 		"SimpleMath",
 		"StepTimer",
 		{ public = true })
-
-	add_links("AngelScript", { public = true })
 target_end()

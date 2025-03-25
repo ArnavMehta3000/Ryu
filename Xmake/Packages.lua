@@ -9,5 +9,3 @@ add_requires("libassert")
 add_requires("uuid_v4")
 
 add_requires("entt")
-
-add_requires("angelscript")

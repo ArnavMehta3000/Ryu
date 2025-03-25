@@ -9,3 +9,5 @@ add_requires("libassert")
 add_requires("uuid_v4")
 
 add_requires("entt")
+
+add_requires("Elos 57332c984b0a02c4dc6921583057161f14ae66d5")

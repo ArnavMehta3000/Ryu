@@ -7,7 +7,6 @@ namespace Ryu::Logging
 	 * @brief The log level
 	 * @details Dictates the color of the log message
 	 */
-	TENUM()
 	enum class LogLevel
 	{
 		/**
@@ -48,4 +47,17 @@ namespace Ryu::Logging
 	};
 }
 
-#include "LogLevel.gen.h"
+RYU_ENUM_TO_STRING(Ryu::Logging::LogLevel,
+{
+	switch (value)
+	{
+		using enum Logging::LogLevel;
+	case Trace: return "Trace";
+	case Debug: return "Debug";
+	case Info: return "Info";
+	case Warn: return "Warn";
+	case Error: return "Error";
+	case Fatal: return "Fatal";
+	default: return "";
+	}
+})

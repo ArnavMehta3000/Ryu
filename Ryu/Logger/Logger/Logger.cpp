@@ -1,9 +1,16 @@
 #include "Logger.h"
+#include "Common/Enum.h"
 #include "Sinks/ConsoleSink.h"
 #include "Sinks/DebugSink.h"
 #include "Utils/MessageBox.h"
 #include <fmt/core.h>
 #include <fmt/chrono.h>
+#include <libassert/assert.hpp>
+
+namespace Ryu
+{
+	
+}
 
 namespace Ryu::Logging
 {
@@ -75,7 +82,7 @@ namespace Ryu::Logging
 		logger->SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
 		{
 			Utils::MessageBoxDesc desc;
-			desc.Title        = Ryu::EnumToString(level);
+			desc.Title        = EnumToString(level);
 			desc.Title       += " Error";
 			desc.Text         = message.Message;
 			desc.Flags.Button = Utils::MessagBoxButton::Ok;

@@ -8,6 +8,7 @@
 #include <vector>
 #include <functional>
 #include <stacktrace>
+#include <format>
 
 namespace Ryu::Logging
 {

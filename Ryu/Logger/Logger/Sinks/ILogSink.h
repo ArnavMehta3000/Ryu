@@ -1,4 +1,5 @@
 #pragma once
+#include "Common/API.h"
 #include "Logger/LogLevel.h"
 #include "Logger/LogMessage.h"
 #include <string>

@@ -74,8 +74,11 @@ namespace Ryu
 	inline constexpr RYU_API std::string_view EnumToString(T value);
 }
 
+#define RYU_ENUM_TO_STRING(EnumType, Body)\
+namespace Ryu\
+{\
+	template<> inline constexpr std::string_view EnumToString<EnumType>(EnumType value) Body\
+}
+
 // Used to create a bit mask
 #define RYU_BIT(Value) 1 << Value
-
-// Empty macro for codegen
-#define TENUM(...)

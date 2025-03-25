@@ -20,7 +20,7 @@ namespace Ryu::Graphics::Utils
 		case IndexFormat::UInt16: return DXGI_FORMAT_R16_UINT;
 		case IndexFormat::UInt32: return DXGI_FORMAT_R32_UINT;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown index format");
+			LOG_WARN(Internal::GraphicsPanicLog, "Unknown index format {}", static_cast<UINT>(format));
 			return DXGI_FORMAT_UNKNOWN;
 		}
 	}
@@ -45,7 +45,7 @@ namespace Ryu::Graphics::Utils
 		case SwapEffect::FlipDiscard:    return DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		case SwapEffect::FlipSequential: return DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown swap effect. Defaulting to discard");
+			LOG_WARN(Internal::GraphicsPanicLog, "Unknown swap effect {}. Defaulting to discard", static_cast<UINT>(effect));
 			return DXGI_SWAP_EFFECT_DISCARD;
 		}
 	}
@@ -95,7 +95,7 @@ namespace Ryu::Graphics::Utils
 		case PrimitiveTopology::TriangleList:  return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		case PrimitiveTopology::TriangleStrip: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown primitive topology. Defaulting to undefined");
+			LOG_WARN(Internal::GraphicsPanicLog, "Unknown primitive topology {}. Defaulting to undefined", static_cast<UINT>(topology));
 			return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
 		}
 	}

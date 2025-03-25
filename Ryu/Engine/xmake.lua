@@ -13,8 +13,12 @@ target("RyuEngine")
 	add_rules("AddScriptPathDefine", { name = "RYU_ENGINE_DIR" })
 
 	add_deps(
-		"RyuCore",
+		"RyuUtils",
+		"RyuConfig",
+		"RyuLogger",
+		"RyuInput",
+		"RyuApp",
 		"RyuGraphics",
-		"RyuScripting",
+		"RyuMath",
 		"RyuExternals")
 target_end()

@@ -68,7 +68,6 @@ add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 
 -- Add rule to export shared library
 add_rules("ExportAPI")
-add_rules("EnumAutogen")
 
 -- Include xmake projects
 includes("**/xmake.lua")

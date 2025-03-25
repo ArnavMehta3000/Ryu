@@ -9,21 +9,21 @@ namespace Ryu::Graphics
 {
     // DirectX 11 device specialization
     template<>
-    void IGraphicsRHIObject<ID3D11Device, API::DirectX11>::SetNameImpl(ID3D11Device* native, std::string_view name)
+    void IGraphicsRHIObject<ID3D11Device, API::DirectX11>::SetNameImpl(MAYBE_UNUSED ID3D11Device* native, MAYBE_UNUSED std::string_view name)
     {
         DX11_NAME_OBJECT(native, name);
     }
 
     // DirectX 11 device child specialization
     template<>
-    void IGraphicsRHIObject<ID3D11DeviceChild, API::DirectX11>::SetNameImpl(ID3D11DeviceChild* native, std::string_view name)
+    void IGraphicsRHIObject<ID3D11DeviceChild, API::DirectX11>::SetNameImpl(MAYBE_UNUSED ID3D11DeviceChild* native, MAYBE_UNUSED std::string_view name)
     {
         DX11_NAME_OBJECT(native, name);
     }
 
     // DirectX 12 device specialization
     template<>
-    void IGraphicsRHIObject<ID3D12Device, API::DirectX12>::SetNameImpl(ID3D12Device* native, std::string_view name)
+    void IGraphicsRHIObject<ID3D12Device, API::DirectX12>::SetNameImpl(MAYBE_UNUSED ID3D12Device* native, MAYBE_UNUSED std::string_view name)
     {
         const std::string nameStr(name);
         DX12_NAME_OBJECT(native, Utils::ToWideStr(nameStr));
@@ -31,7 +31,7 @@ namespace Ryu::Graphics
 
     // DirectX 12 object specialization
     template<>
-    void IGraphicsRHIObject<ID3D12Object, API::DirectX12>::SetNameImpl(ID3D12Object* native, std::string_view name)
+    void IGraphicsRHIObject<ID3D12Object, API::DirectX12>::SetNameImpl(MAYBE_UNUSED ID3D12Object* native, MAYBE_UNUSED std::string_view name)
     {
         const std::string nameStr(name);
         DX12_NAME_OBJECT(native, Utils::ToWideStr(nameStr));
@@ -39,7 +39,7 @@ namespace Ryu::Graphics
 
     // DXGI (uses DX11 naming)
     template<>
-    void IGraphicsRHIObject<IDXGIObject, API::DirectX11>::SetNameImpl(IDXGIObject* native, std::string_view name)
+    void IGraphicsRHIObject<IDXGIObject, API::DirectX11>::SetNameImpl(MAYBE_UNUSED IDXGIObject* native, MAYBE_UNUSED std::string_view name)
     {
         DX11_NAME_OBJECT(native, name);
     }

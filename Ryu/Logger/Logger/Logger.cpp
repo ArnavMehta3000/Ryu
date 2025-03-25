@@ -72,13 +72,17 @@ namespace Ryu::Logging
 		}
 	}
 
-	void SetUpDefaultLogger()
+	void SetUpDefaultLogger(bool createConsoleSink)
 	{
 		Logger* logger = Logger::Get();
 #if defined(RYU_BUILD_DEBUG)
 		logger->AddSink(std::make_unique<Logging::DebugSink>());
 #endif
-		logger->AddSink(std::make_unique<Logging::ConsoleSink>());
+		if (createConsoleSink)
+		{
+			logger->AddSink(std::make_unique<Logging::ConsoleSink>());
+		}
+
 		logger->SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
 		{
 			Utils::MessageBoxDesc desc;

@@ -10,7 +10,7 @@ target("RyuTestbench")
 	add_files("**.cpp")
 	add_headerfiles("**.h")
 	add_files("**.as", { rule = "CopyToBuildDir" })
-	add_deps("RyuEngine", "RyuScripting")
+	add_deps("RyuEngine")
 
 	on_run(function (target)
 		local run_editor = function (t)

@@ -9,7 +9,6 @@ namespace Ryu::Input
 	 * @brief Enum class for all keycodes
 	 * @details Maps to the Win32 virtual key codes. More info: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 	 */
-	TENUM()
 	enum class KeyCode : u32
 	{
 		None               = 0x00,
@@ -218,7 +217,7 @@ namespace Ryu::Input
 	/**
 	 * @brief Enum class for all modifier keys
 	 */
-	TENUM()
+	
 	enum class ModifierKeys
 	{
 		None         = KeyCode::None,
@@ -233,7 +232,7 @@ namespace Ryu::Input
 	/**
 	 * @brief Enum class for all mouse buttons
 	 */
-	TENUM()
+	
 	enum class MouseButton
 	{
 		None         = KeyCode::None,
@@ -258,5 +257,3 @@ namespace Ryu::Input
 	 */
 	std::expected<MouseButton, bool> IsValidMouseButtonsValue(u32 value);
 }
-
-#include "KeyCode.gen.h"

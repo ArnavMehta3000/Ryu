@@ -76,6 +76,3 @@ namespace Ryu
 
 // Used to create a bit mask
 #define RYU_BIT(Value) 1 << Value
-
-// Empty macro for codegen
-#define TENUM(...)

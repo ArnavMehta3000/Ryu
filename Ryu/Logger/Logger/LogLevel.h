@@ -1,13 +1,10 @@
 #pragma once
-#include "Common/Enum.h"
-
 namespace Ryu::Logging
 {
 	/**
 	 * @brief The log level
 	 * @details Dictates the color of the log message
 	 */
-	TENUM()
 	enum class LogLevel
 	{
 		/**
@@ -47,5 +44,3 @@ namespace Ryu::Logging
 		Fatal = 5
 	};
 }
-
-#include "LogLevel.gen.h"

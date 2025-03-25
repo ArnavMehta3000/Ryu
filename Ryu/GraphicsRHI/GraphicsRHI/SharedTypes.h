@@ -154,7 +154,6 @@ namespace Ryu::Graphics
 #undef DECLARE_FORMAT
 	};
 
-	TENUM()
 	enum class TextureUsage
 	{
 		None            = 0,
@@ -165,16 +164,14 @@ namespace Ryu::Graphics
 	};
 	RYU_ENABLE_BITMASK_OPERATORS(TextureUsage)
 
-	TENUM()
 	enum class SwapEffect
 	{
 		Discard,
 		Sequential,
 		FlipDiscard,
 		FlipSequential,
-	};
+	};	
 	
-	TENUM()
 	enum class SwapChainFlag
 	{
 		AllowModeSwitch = RYU_BIT(0),
@@ -183,14 +180,11 @@ namespace Ryu::Graphics
 	};
 	RYU_ENABLE_BITMASK_OPERATORS(SwapChainFlag)
 
-	TENUM()
 	enum class IndexFormat
 	{
 		UInt16,
 		UInt32,
-	};
-
-	TENUM()
+	};		
 	enum class StencilOp
 	{
 		Keep,
@@ -202,8 +196,7 @@ namespace Ryu::Graphics
 		IncrementWrap,
 		DecrementWrap,
 	};
-
-	TENUM()
+		
 	enum class ComparisonFunc
 	{
 		Never,
@@ -216,29 +209,25 @@ namespace Ryu::Graphics
 		Always,
 	};
 
-	TENUM()
 	enum class FillMode
 	{
 		Solid,
 		Wireframe
 	};
-
-	TENUM()
+	
 	enum class CullMode
 	{
 		None,
 		Front,
 		Back
 	};
-
-	TENUM()
+	
 	enum class FrontFaceMode
 	{
 		CounterClockwise,
 		Clockwise
 	};
-
-	TENUM()
+	
 	enum class PrimitiveTopology
 	{
 		PointList,
@@ -248,22 +237,20 @@ namespace Ryu::Graphics
 		TriangleStrip,
 		PatchList,
 	};
-
-	TENUM()
+	
 	enum class CpuAccessMode
 	{
 		Read,
 		Write,
 	};
 
-	TENUM()
+	
 	enum class TextureFilteringMode
 	{
 		Point,
 		Linear,
 	};
-
-	TENUM()
+	
 	enum class TextureAddressingMode
 	{
 		Wrap,
@@ -272,8 +259,7 @@ namespace Ryu::Graphics
 		MirrorRepeat,
 		MirrorOnce,
 	};
-
-	TENUM()
+	
 	enum class TextureReductionOp
 	{
 		Average,
@@ -281,8 +267,7 @@ namespace Ryu::Graphics
 		Minimum,
 		Maximum,
 	};
-
-	TENUM()
+	
 	enum class BlendOp
 	{
 		Add,
@@ -291,8 +276,7 @@ namespace Ryu::Graphics
 		Min,
 		Max,
 	};
-
-	TENUM()
+	
 	enum class BlendFactor
 	{
 		Zero,
@@ -314,5 +298,3 @@ namespace Ryu::Graphics
 		InvSecondarySrcAlpha,
 	};
 }
-
-#include "SharedTypes.gen.h"

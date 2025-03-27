@@ -17,7 +17,7 @@ int WINAPI wWinMain(
 
 	// Creating the engine object initializes all core subsystems
 	Engine::Engine engine;
-	Logging::SetUpDefaultLogger();
+	Logging::SetUpDefaultLogger(false);
 
 	engine.SetCommandLine(lpCmdLine);
 	engine.SetRuntime(std::make_shared<Editor::EditorApp>());

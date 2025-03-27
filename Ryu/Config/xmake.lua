@@ -6,4 +6,5 @@ target("RyuConfig")
 	add_files("**.cpp")
 
 	add_deps("RyuCommon", "RyuUtils")
+	add_rules("c++.unity_build")
 target_end()

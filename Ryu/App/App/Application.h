@@ -9,8 +9,10 @@ namespace Ryu::App
 	/**
 	 * @brief The Application class
 	 */
-	class Application : private Elos::AppBase
+	class Application : public Elos::AppBase
 	{
+		using ResizeSignal = Elos::Signal<const Elos::Event::Resized&>;
+
 	public:
 		/**
 		 * @brief Construct a new Application object
@@ -41,22 +43,12 @@ namespace Ryu::App
 		RYU_API void Tick(f64 dt);
 
 		/**
-		 * @brief Stop the application
-		 * @details This will call OnShutdown()
-		 */
-		RYU_API void StopRunning();
-
-		/**
 		 * @brief Get the window of the application
 		 * @return Shared pointer to the window
 		 */
 		inline RYU_API NODISCARD Elos::Window* GetWindow() const { return m_window.get(); }
 
-		/**
-		 * @brief Get if the application is running
-		 * @return true if the application is running
-		 */
-		inline RYU_API NODISCARD bool IsRunning() const { return m_isRunning; }
+		inline RYU_API NODISCARD ResizeSignal& GetWindowResizedSignal() { return m_windowResizedSignal; }
 
 	protected:
 		/**
@@ -77,10 +69,27 @@ namespace Ryu::App
 		virtual RYU_API void OnTick(f64 dt) = 0;
 
 		virtual RYU_API void GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo) override;
-	private:
 
+		virtual void RYU_API OnWindowClosedEvent();
+		virtual void RYU_API OnWindowFocusLostEvent(const Elos::Event::FocusLost&) {}
+		virtual void RYU_API OnWindowFocusGainedEvent(const Elos::Event::FocusGained&) {}
+		virtual void RYU_API OnWindowMouseEnteredEvent(const Elos::Event::MouseEntered&) {}
+		virtual void RYU_API OnWindowMouseLeftEvent(const Elos::Event::MouseLeft&) {}
+		virtual void RYU_API OnWindowResizedEvent(const Elos::Event::Resized& e) { m_windowResizedSignal.Emit(e); }
+		virtual void RYU_API OnWindowTextInputEvent(const Elos::Event::TextInput&) {}
+		virtual void RYU_API OnWindowKeyPressedEvent(const Elos::Event::KeyPressed&) {}
+		virtual void RYU_API OnWindowKeyReleasedEvent(const Elos::Event::KeyReleased&) {}
+		virtual void RYU_API OnWindowMouseWheelScrolledEvent(const Elos::Event::MouseWheelScrolled&) {}
+		virtual void RYU_API OnWindowMouseButtonPressedEvent(const Elos::Event::MouseButtonPressed&) {}
+		virtual void RYU_API OnWindowMouseButtonReleasedEvent(const Elos::Event::MouseButtonReleased&) {}
+		virtual void RYU_API OnWindowMouseMovedEvent(const Elos::Event::MouseMoved&) {}
+		virtual void RYU_API OnWindowMouseMovedRawEvent(const Elos::Event::MouseMovedRaw&) {}
 
 	private:
-		bool m_isRunning;
+		void ConfigureConnections();
+
+	protected:
+		Elos::WindowEventConnections m_windowEventConnections;
+		ResizeSignal m_windowResizedSignal;
 	};
 }

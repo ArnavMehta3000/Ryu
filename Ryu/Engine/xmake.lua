@@ -19,5 +19,6 @@ target("RyuEngine")
 		"RyuApp",
 		"RyuGraphics",
 		"RyuMath",
-		"RyuExternals")
+		"RyuExternals", { public = true})
+		add_rules("c++.unity_build")
 target_end()

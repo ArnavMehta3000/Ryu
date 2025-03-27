@@ -10,4 +10,4 @@ add_requires("uuid_v4")
 
 add_requires("entt")
 
-add_requires("Elos 6d798e02abc672ead1c724ebdff078b5674bfbb8")
+add_requires("Elos 2ba1a75896891bc3dcd5051e1924db447a5856ff")

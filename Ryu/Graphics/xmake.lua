@@ -15,6 +15,7 @@ target("RyuGraphics")
 		"RyuGraphicsDX11"
 		--"RyuGraphicsDX12"
 	)
+	add_rules("c++.unity_build")
 target_end()
 
 option("assert-on-fail-hresult")

@@ -8,7 +8,7 @@
 
 namespace Ryu::Graphics::Internal
 {
-	void Ryu::Graphics::Internal::LogHResultError(long hr, std::string_view functionName, std::string_view fileName, unsigned int lineNumber)
+	void LogHResultError(long hr, std::string_view functionName, std::string_view fileName, unsigned int lineNumber)
 	{
 		const std::string err = Utils::HRToString(hr);
 
@@ -19,7 +19,7 @@ namespace Ryu::Graphics::Internal
 #endif
 	}
 
-	void Ryu::Graphics::Internal::SetNameDX12(ID3D12Object* obj, std::wstring name)
+	void SetNameDX12(ID3D12Object* obj, std::wstring name)
 	{
 		if (obj != nullptr)
 		{
@@ -28,7 +28,7 @@ namespace Ryu::Graphics::Internal
 		}
 	}
 
-	void Ryu::Graphics::Internal::LogDX11Naming(const std::string& msg)
+	void LogDX11Naming(const std::string& msg)
 	{
 		LOG_DEBUG(RYU_USE_LOG_CATEGORY(GraphicsDebug), "{}", msg);
 	}

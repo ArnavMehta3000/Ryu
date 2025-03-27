@@ -5,7 +5,6 @@ namespace Ryu::App
 {
 	Application::Application()
 		: m_isRunning(false)
-		, m_hasFocus(false)
 	{
 	}
 

@@ -77,9 +77,10 @@ namespace Ryu::App
 		virtual RYU_API void OnTick(f64 dt) = 0;
 
 		virtual RYU_API void GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo) override;
+	private:
+
 
 	private:
 		bool m_isRunning;
-		bool m_hasFocus;
 	};
 }

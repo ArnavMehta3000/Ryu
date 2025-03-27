@@ -43,11 +43,9 @@ namespace Ryu::App
 		RYU_API void Tick(f64 dt);
 
 		/**
-		 * @brief Get the window of the application
-		 * @return Shared pointer to the window
+		 * @brief Get the window resized signal
+		 * @return Reference to the window resized signal
 		 */
-		inline RYU_API NODISCARD Elos::Window* GetWindow() const { return m_window.get(); }
-
 		inline RYU_API NODISCARD ResizeSignal& GetWindowResizedSignal() { return m_windowResizedSignal; }
 
 	protected:

@@ -1,10 +1,9 @@
 #include "Application.h"
-#include <objbase.h>
+#include <Elos/Window/Utils/WindowExtensions.h>
 
 namespace Ryu::App
 {
-	Application::Application()
-		: Elos::AppBase()
+	Application::Application() : Elos::AppBase()
 	{
 		ConfigureConnections();
 	}
@@ -17,6 +16,12 @@ namespace Ryu::App
 	bool Application::Init()
 	{
 		::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+		
+		AppBase::InitializeWindow();
+		Elos::WindowExtensions::EnableDarkMode(m_window->GetHandle(), true);
+		m_window->SetMinimumSize({ 800, 600 });
+		m_window->RequestFocus();
+
 		return OnInit();
 	}
 
@@ -33,6 +38,7 @@ namespace Ryu::App
 	void Application::GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo)
 	{
 		outCreateInfo.Title = "Ryu Engine";
+		outCreateInfo.Size = { 1280, 720 };
 	}
 
 	void Application::OnWindowClosedEvent()

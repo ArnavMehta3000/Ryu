@@ -1,7 +1,7 @@
 #pragma once
-#include "App/Window.h"
-#include "Input/InputSystem.h"
-#include "Event/Event.h"
+#include "Common/API.h"
+#include "Common/StandardTypes.h"
+#include <Elos/Application/AppBase.h>
 #include <memory>
 
 namespace Ryu::App
@@ -9,10 +9,10 @@ namespace Ryu::App
 	/**
 	 * @brief The Application class
 	 */
-	class Application
-		: public IWindowEventListener
-		, public Input::IInputEventListener
+	class Application : public Elos::AppBase
 	{
+		using ResizeSignal = Elos::Signal<const Elos::Event::Resized&>;
+
 	public:
 		/**
 		 * @brief Construct a new Application object
@@ -43,22 +43,12 @@ namespace Ryu::App
 		RYU_API void Tick(f64 dt);
 
 		/**
-		 * @brief Stop the application
-		 * @details This will call OnShutdown()
-		 */
-		RYU_API void StopRunning();
-
-		/**
 		 * @brief Get the window of the application
 		 * @return Shared pointer to the window
 		 */
-		inline RYU_API NODISCARD std::shared_ptr<Window> GetWindow() const { return m_window; }
+		inline RYU_API NODISCARD Elos::Window* GetWindow() const { return m_window.get(); }
 
-		/**
-		 * @brief Get if the application is running
-		 * @return true if the application is running
-		 */
-		inline RYU_API NODISCARD bool IsRunning() const { return m_isRunning; }
+		inline RYU_API NODISCARD ResizeSignal& GetWindowResizedSignal() { return m_windowResizedSignal; }
 
 	protected:
 		/**
@@ -78,41 +68,28 @@ namespace Ryu::App
 		 */
 		virtual RYU_API void OnTick(f64 dt) = 0;
 
-	private:
-		// Inherited via IWindowEventListener
-		void OnEvent(const App::Events::OnWindowClose& event) override;
-		void OnEvent(const App::Events::OnWindowStateChange& event) override;
-		void OnEvent(const App::Events::OnWindowResize& event) override;
-		void OnEvent(const App::Events::OnWindowFocusChange& event) override;
+		virtual RYU_API void GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo) override;
 
-		// Inherited via IInputEventListener
-		void OnEvent(const Input::Events::OnKeyDown& event) override;
-		void OnEvent(const Input::Events::OnKeyUp& event) override;
-		void OnEvent(const Input::Events::OnMouseButtonUp& event) override;
-		void OnEvent(const Input::Events::OnMouseButtonDown& event) override;
-		void OnEvent(const Input::Events::OnMouseDblClick& event) override;
-		void OnEvent(const Input::Events::OnMouseMove& event) override;
-		void OnEvent(const Input::Events::OnMouseMoveRaw& event) override;
-		void OnEvent(const Input::Events::OnMouseWheel& event) override;
-
-	public:
-		RYU_DECLARE_EVENT(OnWindowClose,       const App::Events::OnWindowClose&);
-		RYU_DECLARE_EVENT(OnWindowStateChange, const App::Events::OnWindowStateChange&);
-		RYU_DECLARE_EVENT(OnWindowResize,      const App::Events::OnWindowResize&);
-		RYU_DECLARE_EVENT(OnWindowFocusChange, const App::Events::OnWindowFocusChange&);
-		RYU_DECLARE_EVENT(OnKeyDown,           const Input::Events::OnKeyDown&);
-		RYU_DECLARE_EVENT(OnKeyUp,             const Input::Events::OnKeyUp&);
-		RYU_DECLARE_EVENT(OnMouseButtonUp,     const Input::Events::OnMouseButtonUp&);
-		RYU_DECLARE_EVENT(OnMouseButtonDown,   const Input::Events::OnMouseButtonDown&);
-		RYU_DECLARE_EVENT(OnMouseDblClick,     const Input::Events::OnMouseDblClick&);
-		RYU_DECLARE_EVENT(OnMouseMove,         const Input::Events::OnMouseMove&);
-		RYU_DECLARE_EVENT(OnMouseMoveRaw,      const Input::Events::OnMouseMoveRaw&);
-		RYU_DECLARE_EVENT(OnMouseWheel,        const Input::Events::OnMouseWheel&);
+		virtual void RYU_API OnWindowClosedEvent();
+		virtual void RYU_API OnWindowFocusLostEvent(const Elos::Event::FocusLost&) {}
+		virtual void RYU_API OnWindowFocusGainedEvent(const Elos::Event::FocusGained&) {}
+		virtual void RYU_API OnWindowMouseEnteredEvent(const Elos::Event::MouseEntered&) {}
+		virtual void RYU_API OnWindowMouseLeftEvent(const Elos::Event::MouseLeft&) {}
+		virtual void RYU_API OnWindowResizedEvent(const Elos::Event::Resized& e) { m_windowResizedSignal.Emit(e); }
+		virtual void RYU_API OnWindowTextInputEvent(const Elos::Event::TextInput&) {}
+		virtual void RYU_API OnWindowKeyPressedEvent(const Elos::Event::KeyPressed&) {}
+		virtual void RYU_API OnWindowKeyReleasedEvent(const Elos::Event::KeyReleased&) {}
+		virtual void RYU_API OnWindowMouseWheelScrolledEvent(const Elos::Event::MouseWheelScrolled&) {}
+		virtual void RYU_API OnWindowMouseButtonPressedEvent(const Elos::Event::MouseButtonPressed&) {}
+		virtual void RYU_API OnWindowMouseButtonReleasedEvent(const Elos::Event::MouseButtonReleased&) {}
+		virtual void RYU_API OnWindowMouseMovedEvent(const Elos::Event::MouseMoved&) {}
+		virtual void RYU_API OnWindowMouseMovedRawEvent(const Elos::Event::MouseMovedRaw&) {}
 
 	private:
-		std::unique_ptr<Input::InputSystem> m_inputSystem;
-		std::shared_ptr<Window>             m_window;
-		bool                                m_isRunning;
-		bool                                m_hasFocus;
+		void ConfigureConnections();
+
+	protected:
+		Elos::WindowEventConnections m_windowEventConnections;
+		ResizeSignal m_windowResizedSignal;
 	};
 }

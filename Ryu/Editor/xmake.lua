@@ -11,4 +11,5 @@ target("RyuEditor")
 
 	add_packages("imgui")
 	add_deps("RyuEngine")
+	add_rules("c++.unity_build")
 target_end()

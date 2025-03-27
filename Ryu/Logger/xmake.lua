@@ -9,4 +9,5 @@ target("RyuLogger")
 	add_packages("libassert", { public = true })
 
 	add_deps("RyuUtils")
+	add_rules("c++.unity_build")
 target_end()

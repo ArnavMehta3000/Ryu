@@ -15,4 +15,5 @@ target("RyuGraphicsDX12")
 
 	add_deps("RyuGraphicsRHI")
 	add_links("d3d12", "dxgi", "dxguid")
+	add_rules("c++.unity_build")
 target_end()

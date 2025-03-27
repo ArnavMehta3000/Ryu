@@ -7,5 +7,8 @@ target("RyuMath")
 
 	add_deps(
 		"RyuCommon", 
-		"RyuExternals")
+		"RyuExternals"
+	)
+
+	add_rules("c++.unity_build")
 target_end()

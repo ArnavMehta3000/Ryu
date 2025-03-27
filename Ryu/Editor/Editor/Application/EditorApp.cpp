@@ -47,7 +47,7 @@ namespace Ryu::Editor
 
 	bool EditorApp::RouteWndProc() const
 	{
-		s_originalWndProc = (WNDPROC)::SetWindowLongPtr(GetWindow()->GetHWND() , GWLP_WNDPROC, (LONG_PTR)&EditorApp::EditorWndProc);
+		s_originalWndProc = (WNDPROC)::SetWindowLongPtr(GetWindow()->GetHandle(), GWLP_WNDPROC, (LONG_PTR)&EditorApp::EditorWndProc);
 		
 		const bool success = s_originalWndProc != nullptr;
 		if (success)

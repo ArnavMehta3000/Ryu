@@ -1,7 +1,6 @@
 #pragma once
 #include "Config/CommandLine.h"
 #include "Logger/Logger.h"
-#include "Event/Event.h"
 #include "Graphics/Renderer.h"
 #include <memory>
 

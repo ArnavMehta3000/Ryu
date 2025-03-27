@@ -13,7 +13,6 @@ target("RyuGraphicsRHI")
 	add_deps(
 		"RyuUtils",
 		"RyuConfig",
-		"RyuEvents",
 		"RyuLogger"
 	)
 	add_links("d3d11", "d3d12", "dxgi", "dxguid")

@@ -56,7 +56,7 @@ namespace Ryu::Logging
 
 	// Sets up default logging functionality
 	// Should only be called after the Logger singleton has been registered by the Engine 
-	void SetUpDefaultLogger();
+	void SetUpDefaultLogger(bool createConsoleSink);
 }
 
 #define LOG_TRACE(category, message, ...) ::Ryu::Logging::Logger::Get()->Log(category, ::Ryu::Logging::LogLevel::Trace, ::Ryu::Logging::LogMessage{ std::format(message, __VA_ARGS__), std::stacktrace::current() })

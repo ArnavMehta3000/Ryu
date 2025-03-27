@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "Engine/Runtime/Runtime.h"
-#include "App/Window.h"
+#include "App/Application.h"
 #include "GraphicsRHI/Config.h"
 #include <External/StepTimer/StepTimer.h>
 
@@ -51,7 +51,7 @@ namespace Ryu::Engine
 		Graphics::API api = Graphics::GraphicsConfig::Get().GraphicsAPI;
 		m_renderer = std::make_unique<Graphics::Renderer>();
 
-		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), api, m_runtime->GetWindow()->GetHWND()); !result)
+		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), api, m_runtime->GetWindow()->GetHandle()); !result)
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Graphics. Error: {}", result.error());
 		}
@@ -74,10 +74,10 @@ namespace Ryu::Engine
 	bool Engine::InitRuntime()
 	{
 		// Bind the events before initializing the application
-		std::ignore = m_runtime->OnWindowResize.Add([this](const App::Events::OnWindowResize& event)
+		/*m_runtime->GetWindowResizedSignal().Connect(([this](const App::Events::OnWindowResize& event)
 		{
 			OnAppResize(event.Width, event.Height);
-		});
+		});*/
 
 		// Init the application
 		return m_runtime->Init();
@@ -121,16 +121,10 @@ namespace Ryu::Engine
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Starting Engine main loop");
 
-		// Show the window
 		auto appWindow = m_runtime->GetWindow();
-
-		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Showing window");
-		appWindow->ShowWindow();
-
-		while (m_runtime->IsRunning())
+		while (appWindow->IsOpen())
 		{
-			// Pump regardless of frame time
-			appWindow->PumpMessages();
+			m_runtime->ProcessWindowEvents();
 
 			s_timer.Tick([&]()
 			{
@@ -148,7 +142,8 @@ namespace Ryu::Engine
 		if (m_runtime)
 		{
 			LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Rquesting application shutdown");
-			m_runtime->StopRunning();
+			// Send a message to the application window to close
+			::SendMessage(m_runtime->GetWindow()->GetHandle(), WM_CLOSE, 0, 0);
 		}
 	}
 

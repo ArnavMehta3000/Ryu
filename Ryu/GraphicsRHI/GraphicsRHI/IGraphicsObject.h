@@ -103,7 +103,7 @@ namespace Ryu::Graphics
 		virtual inline TNative* GetNamedNativeObject() const = 0;
 
 	private:
-		void SetNameImpl(TNative* native, std::string_view name)
+		void SetNameImpl(MAYBE_UNUSED TNative* native, std::string_view name)
 		{
 			if constexpr (DX12Object<TNative>)
 			{

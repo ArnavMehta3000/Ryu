@@ -4,25 +4,19 @@
 namespace Ryu::App
 {
 	Application::Application()
-		: m_isRunning(false)
-		, m_hasFocus(false)
+		: Elos::AppBase()
 	{
+		ConfigureConnections();
 	}
 
-	Application::~Application() = default;
+	Application::~Application()
+	{
+		m_windowEventConnections.DisconnectAll();
+	}
 
 	bool Application::Init()
 	{
 		::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-		
-		m_window = std::make_shared<Window>(L"Ryu App", 1280, 720, this);
-		m_inputSystem = std::make_unique<Input::InputSystem>(m_window->GetHWND(), this);
-		
-		m_window->Create();
-
-		m_isRunning = true;
-
-		// Call user initialization now
 		return OnInit();
 	}
 
@@ -35,75 +29,35 @@ namespace Ryu::App
 	{
 		OnTick(dt);
 	}
-
-	void Application::StopRunning()
+	
+	void Application::GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo)
 	{
-		m_isRunning = false;
+		outCreateInfo.Title = "Ryu Engine";
 	}
 
-#pragma region WindowEvents
-	void Application::OnEvent(const App::Events::OnWindowClose& event)
+	void Application::OnWindowClosedEvent()
 	{
-		m_isRunning = false;
-		OnWindowClose.Broadcast(event);
+		if (m_window)
+		{
+			m_window->Close();
+		}
 	}
-
-	void Application::OnEvent(const App::Events::OnWindowStateChange& event)
+	
+	void Application::ConfigureConnections()
 	{
-		OnWindowStateChange.Broadcast(event);
+		SetUpConnection<const Elos::Event::Closed&>(m_windowEventConnections,              [this](const auto&)   { OnWindowClosedEvent();               });
+		SetUpConnection<const Elos::Event::FocusLost&>(m_windowEventConnections,           [this](const auto& e) { OnWindowFocusLostEvent(e);           });
+		SetUpConnection<const Elos::Event::FocusGained&>(m_windowEventConnections,         [this](const auto& e) { OnWindowFocusGainedEvent(e);         });
+		SetUpConnection<const Elos::Event::MouseEntered&>(m_windowEventConnections,        [this](const auto& e) { OnWindowMouseEnteredEvent(e);        });
+		SetUpConnection<const Elos::Event::MouseLeft&>(m_windowEventConnections,           [this](const auto& e) { OnWindowMouseLeftEvent(e);           });
+		SetUpConnection<const Elos::Event::Resized&>(m_windowEventConnections,             [this](const auto& e) { OnWindowResizedEvent(e);             });
+		SetUpConnection<const Elos::Event::TextInput&>(m_windowEventConnections,           [this](const auto& e) { OnWindowTextInputEvent(e);           });
+		SetUpConnection<const Elos::Event::KeyPressed&>(m_windowEventConnections,          [this](const auto& e) { OnWindowKeyPressedEvent(e);          });
+		SetUpConnection<const Elos::Event::KeyReleased&>(m_windowEventConnections,         [this](const auto& e) { OnWindowKeyReleasedEvent(e);         });
+		SetUpConnection<const Elos::Event::MouseWheelScrolled&>(m_windowEventConnections,  [this](const auto& e) { OnWindowMouseWheelScrolledEvent(e);  });
+		SetUpConnection<const Elos::Event::MouseButtonPressed&>(m_windowEventConnections,  [this](const auto& e) { OnWindowMouseButtonPressedEvent(e);  });
+		SetUpConnection<const Elos::Event::MouseButtonReleased&>(m_windowEventConnections, [this](const auto& e) { OnWindowMouseButtonReleasedEvent(e); });
+		SetUpConnection<const Elos::Event::MouseMoved&>(m_windowEventConnections,          [this](const auto& e) { OnWindowMouseMovedEvent(e);          });
+		SetUpConnection<const Elos::Event::MouseMovedRaw&>(m_windowEventConnections,       [this](const auto& e) { OnWindowMouseMovedRawEvent(e);       });
 	}
-
-	void Application::OnEvent(const App::Events::OnWindowResize& event)
-	{
-		OnWindowResize.Broadcast(event);			
-	}
-
-	void Application::OnEvent(const App::Events::OnWindowFocusChange& event)
-	{
-		m_hasFocus = event.Focus == WindowFocus::Gained ? true : false;
-		OnWindowFocusChange.Broadcast(event);
-	}
-#pragma endregion
-
-#pragma region InputEvents
-	void Application::OnEvent(const Input::Events::OnKeyDown& event)
-	{
-		OnKeyDown.Broadcast(event);
-	}
-
-	void Application::OnEvent(const Input::Events::OnKeyUp& event)
-	{
-		OnKeyUp.Broadcast(event);
-	}
-
-	void Application::OnEvent(const Input::Events::OnMouseButtonUp& event)
-	{
-		OnMouseButtonUp.Broadcast(event);
-	}
-
-	void Application::OnEvent(const Input::Events::OnMouseButtonDown& event)
-	{
-		OnMouseButtonDown.Broadcast(event);
-	}
-
-	void Application::OnEvent(const Input::Events::OnMouseDblClick& event)
-	{
-		OnMouseDblClick.Broadcast(event);
-	}
-
-	void Application::OnEvent(const Input::Events::OnMouseMove& event)
-	{
-		OnMouseMove.Broadcast(event);
-	}
-
-	void Application::OnEvent(const Input::Events::OnMouseMoveRaw& event)
-	{
-		OnMouseMoveRaw.Broadcast(event);
-	}
-
-	void Application::OnEvent(const Input::Events::OnMouseWheel& event)
-	{
-		OnMouseWheel.Broadcast(event);
-	}
-#pragma endregion
 }

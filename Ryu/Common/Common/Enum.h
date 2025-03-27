@@ -20,14 +20,14 @@ template <BitMaskEnabled Enum>
 constexpr Enum operator&(Enum lhs, Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	return static_cast<Enum>(static_cast<UnderlyingType>(lhs) &static_cast<UnderlyingType>(rhs));
+	return static_cast<Enum>(static_cast<UnderlyingType>(lhs) & static_cast<UnderlyingType>(rhs));
 }
 
 template <BitMaskEnabled Enum>
 constexpr Enum operator^(Enum lhs, Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	return static_cast<Enum>(static_cast<UnderlyingType>(lhs) ^static_cast<UnderlyingType>(rhs));
+	return static_cast<Enum>(static_cast<UnderlyingType>(lhs) ^ static_cast<UnderlyingType>(rhs));
 }
 
 template <BitMaskEnabled Enum>
@@ -41,7 +41,7 @@ template <BitMaskEnabled Enum>
 constexpr Enum& operator|=(Enum& lhs, const Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) |static_cast<UnderlyingType>(rhs));
+	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) | static_cast<UnderlyingType>(rhs));
 	return lhs;
 }
 
@@ -49,7 +49,7 @@ template <BitMaskEnabled Enum>
 constexpr Enum& operator&=(Enum& lhs, const Enum rhs) noexcept
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) &static_cast<UnderlyingType>(rhs));
+	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) & static_cast<UnderlyingType>(rhs));
 	return lhs;
 }
 
@@ -57,7 +57,7 @@ template <BitMaskEnabled Enum>
 constexpr Enum& operator^=(Enum& lhs, const Enum rhs) noexcept 
 {
 	using UnderlyingType = std::underlying_type_t<Enum>;
-	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) ^static_cast<UnderlyingType>(rhs));
+	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) ^ static_cast<UnderlyingType>(rhs));
 	return lhs;
 }
 

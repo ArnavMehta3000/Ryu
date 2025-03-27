@@ -6,7 +6,8 @@ target("RyuApp")
 	add_headerfiles("**.h")
 
 	add_packages("Elos")
-	add_deps("RyuUtils", "RyuInput")
+	add_deps("RyuUtils")
 
 	add_links("Dwmapi")
+	add_rules("c++.unity_build")
 target_end()

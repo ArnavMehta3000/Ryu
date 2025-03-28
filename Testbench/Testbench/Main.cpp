@@ -1,6 +1,6 @@
 #include <Windows.h>
 #include "Engine/Engine.h"
-#include "GraphicsRHI/Config.h"
+#include "Config/ConfigManager.h"
 #include "Test.h"
 
 #if defined (RYU_BUILD_DEBUG)
@@ -17,17 +17,15 @@ int WINAPI wWinMain(
 {
 	using namespace Ryu;
 
-	// Set the working API
-	Graphics::GraphicsConfig::Get().GraphicsAPI = Graphics::API::DirectX11;
-
-	// Creating the engine object initializes all core subsystems
-	Engine::Engine engine;
-
 	Logging::SetUpDefaultLogger(g_isDebug);  // Create a console logger only in debug builds
+	Config::ConfigManager::Get().Initialize(RYU_ROOT_CONFIG_DIR "/Testbench");
+	
+	Engine::Engine& engine = Engine::Engine::Get();
 
 	engine.SetCommandLine(lpCmdLine);
 	engine.SetRuntime(std::make_shared<TestApp>());
 	engine.Run();
 
+	Config::ConfigManager::Get().SaveAll();
 	return 0;
 }

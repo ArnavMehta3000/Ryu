@@ -2,6 +2,7 @@
 #include "Config/CommandLine.h"
 #include "Logger/Logger.h"
 #include "Graphics/Renderer.h"
+#include "Utils/Singleton.h"
 #include <memory>
 
 namespace Ryu::Engine
@@ -11,14 +12,13 @@ namespace Ryu::Engine
 	/**
 	 * @brief The main Engine class
 	 */
-	class Engine
+	class Engine : public Utils::Singleton<Engine>
 	{
-		RYU_DECLARE_SINGLETON(Engine, true);
 		RYU_LOG_CATEGORY(Engine);
+		RYU_DECLARE_SINGLETON(Engine);
 
 	public:
-		Engine();
-		~Engine();
+		~Engine() = default;
 
 		/**
 		 * @brief Set the application that is run by the Engine
@@ -61,6 +61,9 @@ namespace Ryu::Engine
 		 * @note This reqests the application to stop running
 		 */
 		void Quit() const noexcept;
+
+	protected:
+		Engine();
 
 	private:
 		bool Init();

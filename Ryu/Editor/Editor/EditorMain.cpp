@@ -10,18 +10,16 @@ int WINAPI wWinMain(
 	_In_     MAYBE_UNUSED int       nCmdShow)
 {
 	using namespace Ryu;
-	
-	// Set the working API
-	Graphics::GraphicsConfig::Get().GraphicsAPI = Graphics::API::DirectX11;
-	Graphics::GraphicsConfig::Get().EnableDebugLayer = true;
 
-	// Creating the engine object initializes all core subsystems
-	Engine::Engine engine;
 	Logging::SetUpDefaultLogger(false);
+	Config::ConfigManager::Get().Initialize(RYU_ROOT_CONFIG_DIR "/Editor");
+
+	Engine::Engine& engine = Engine::Engine::Get();
 
 	engine.SetCommandLine(lpCmdLine);
 	engine.SetRuntime(std::make_shared<Editor::EditorApp>());
 	engine.Run();
 
+	Config::ConfigManager::Get().SaveAll();
 	return 0;
 }

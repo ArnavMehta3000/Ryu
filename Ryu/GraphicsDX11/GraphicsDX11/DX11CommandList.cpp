@@ -3,6 +3,7 @@
 #include "GraphicsRHI/Utils/Logging.h"
 #include "GraphicsDX11/DX11Device.h"
 #include "GraphicsDX11/DX11RenderTarget.h"
+#include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::DX11
 {

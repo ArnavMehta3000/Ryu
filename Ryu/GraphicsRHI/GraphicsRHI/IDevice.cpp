@@ -4,7 +4,7 @@
 #include "GraphicsRHI/IRenderer.h"
 #include "GraphicsRHI/Utils/Logging.h"
 #include <dxgidebug.h>
-#include <format>
+#include <libassert/assert.hpp>
 
 namespace Ryu::Graphics
 {

@@ -7,14 +7,8 @@
 #include <fmt/chrono.h>
 #include <libassert/assert.hpp>
 
-namespace Ryu
-{
-	
-}
-
 namespace Ryu::Logging
 {
-	RYU_SINGLETON_IMPL(Logger);
 
 	void Logger::AddSink(std::unique_ptr<ILogSink> sink)
 	{
@@ -74,16 +68,16 @@ namespace Ryu::Logging
 
 	void SetUpDefaultLogger(bool createConsoleSink)
 	{
-		Logger* logger = Logger::Get();
+		Logger& logger = Logger::Get();
 #if defined(RYU_BUILD_DEBUG)
-		logger->AddSink(std::make_unique<Logging::DebugSink>());
+		logger.AddSink(std::make_unique<Logging::DebugSink>());
 #endif
 		if (createConsoleSink)
 		{
-			logger->AddSink(std::make_unique<Logging::ConsoleSink>());
+			logger.AddSink(std::make_unique<Logging::ConsoleSink>());
 		}
 
-		logger->SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
+		logger.SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
 		{
 			Utils::MessageBoxDesc desc;
 			desc.Title        = EnumToString(level);

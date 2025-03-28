@@ -67,5 +67,10 @@ add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 -- Add rule to export shared library
 add_rules("ExportAPI")
 
+local configDir = path.join(os.projectdir(), "Config")
+configDir = configDir:gsub("\\", "/")
+local defineValue = "RYU_ROOT_CONFIG_DIR=\"" .. configDir .. "\""
+add_defines(defineValue)
+
 -- Include xmake projects
 includes("**/xmake.lua")

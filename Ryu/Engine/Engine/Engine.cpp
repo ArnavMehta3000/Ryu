@@ -6,26 +6,16 @@
 
 namespace Ryu::Engine
 {
-	RYU_SINGLETON_IMPL(Engine);
 
 	namespace 
 	{
 		DX::StepTimer s_timer;
-
-		// Register all the required singletons
-		void InitSingletons()
-		{
-			Utils::SingletonRegistry::Register<Logging::Logger>();
-		}
 	}
 
 	Engine::Engine()
 		: m_runtime(nullptr)
 	{
-		InitSingletons();
 	}
-
-	Engine::~Engine() = default;
 
 	bool Engine::Init()
 	{

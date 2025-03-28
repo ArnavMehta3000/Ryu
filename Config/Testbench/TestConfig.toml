@@ -1,0 +1,15 @@
+[graphics]
+api = 'OpenGL'
+gamma = 2.200000047683716
+msaa_samples = 4
+
+[performance]
+limit_fps = true
+max_fps = 144
+
+[window]
+fullscreen = false
+height = 720
+title = 'Ryu Engine'
+vsync = true
+width = 1280

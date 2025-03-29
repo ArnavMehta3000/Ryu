@@ -1,0 +1,6 @@
+option("assert-on-fail-hresult")
+	set_showmenu(true)
+	set_default(false)
+	set_description("Assert on failure of HRESULT")
+	set_category("root Ryu/Graphics")
+option_end()

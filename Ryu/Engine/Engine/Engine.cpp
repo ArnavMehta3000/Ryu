@@ -2,6 +2,7 @@
 #include "Engine/Runtime/Runtime.h"
 #include "App/Application.h"
 #include "GraphicsRHI/Config.h"
+#include "Profiling/Profiling.h"
 #include <External/StepTimer/StepTimer.h>
 
 namespace Ryu::Engine
@@ -15,10 +16,12 @@ namespace Ryu::Engine
 	Engine::Engine()
 		: m_runtime(nullptr)
 	{
+		TracyPlotConfig("Delta Time", tracy::PlotFormatType::Number, false, true, 0);
 	}
 
 	bool Engine::Init()
 	{
+		RYU_PROFILE_SCOPE();
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Initializing Engine");
 
 		// Check if debugger is attached
@@ -63,6 +66,7 @@ namespace Ryu::Engine
 
 	bool Engine::InitRuntime()
 	{
+		RYU_PROFILE_SCOPE();
 		// Bind the events before initializing the application
 		/*m_runtime->GetWindowResizedSignal().Connect(([this](const App::Events::OnWindowResize& event)
 		{
@@ -75,6 +79,7 @@ namespace Ryu::Engine
 
 	void Engine::Shutdown()
 	{
+		RYU_PROFILE_SCOPE();
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Shutting down Engine");
 
 		m_runtime->Shutdown();
@@ -120,6 +125,8 @@ namespace Ryu::Engine
 			{
 				DoFrame(s_timer.GetElapsedSeconds());
 			});
+			
+			RYU_PROFILE_MARK_FRAME();
 		}
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Stopping Engine main loop");
@@ -139,6 +146,9 @@ namespace Ryu::Engine
 
 	void Engine::DoFrame(f64 dt)
 	{
+		RYU_PROFILE_SCOPE();
+		TracyPlot("Delta Time", dt);
+		
 		m_runtime->Tick(dt);
 		m_renderer->BeginFrame();
 		m_renderer->EndFrame();

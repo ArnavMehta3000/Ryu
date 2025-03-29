@@ -11,6 +11,32 @@ target("StepTimer")
 	add_headerfiles("External/StepTimer/StepTimer.h")
 target_end()
 
+target("TracyClient")
+	set_group("Ryu/External")
+	set_kind("static")
+	add_options("ryu-enable-tracy-profiling", { public = true })
+	add_includedirs("External/Tracy/public", { public = true })
+	add_headerfiles("External/Tracy/public/**.h")
+	add_files("External/Tracy/public/TracyClient.cpp")
+target_end()
+
+
+package("TracyServer")
+	set_sourcedir(path.join(os.scriptdir(), "External", "Tracy", "profiler"))
+	on_install(function (package)
+		
+		local configs = {}
+		table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. "Release")
+		
+		import("package.tools.cmake").install(package, configs)
+
+		-- Copy the generated exe
+		local exe_dir = path.join(package:buildir(), "Release")
+		local copy_path = path.join(os.projectdir(), "build", "Programs", "TracyServer")
+		os.cp(exe_dir, copy_path)
+	end)
+package_end()
+
 
 
 -- A phony target to include all external source files

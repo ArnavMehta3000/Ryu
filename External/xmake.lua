@@ -11,21 +11,6 @@ target("StepTimer")
 	add_headerfiles("External/StepTimer/StepTimer.h")
 target_end()
 
-target("TracyClient")
-	set_group("Ryu/External")
-	set_kind("static")
-	add_options("ryu-enable-tracy-profiling", { public = true })
-	add_includedirs("External/Tracy/public", { public = true })
-	add_headerfiles("External/Tracy/public/**.h")
-	add_files("External/Tracy/public/TracyClient.cpp")
-target_end()
-
-target("TracyServer")
-	set_kind("phony")
-	set_group("Ryu/External")
-	add_packages("TracyServerPackage")
-target_end()
-
 -- A phony target to include all external source files
 target("RyuExternals")
 	set_group("Ryu/External")

@@ -11,6 +11,7 @@ set_languages("c17", "cxx23")
 
 -- Include other xmake scripts
 add_moduledirs("Xmake/Modules")
+includes("Xmake/Tasks.lua")
 includes("Xmake/Packages.lua")
 includes("Xmake/Options.lua")
 includes("Xmake/Rules/RyuPlugin.lua")

@@ -1,4 +1,5 @@
 #include "DX11SwapChain.h"
+#include "Profiling/Profiling.h"
 #include "GraphicsRHI/Utils/D3DUtil.h"
 #include "GraphicsRHI/Utils/Logging.h"
 #include "GraphicsDX11/DX11RenderTarget.h"
@@ -11,6 +12,7 @@ namespace Ryu::Graphics::DX11
 		: DXGISwapChain(desc)
 		, m_device(device)
 	{
+		RYU_PROFILE_SCOPE();
 		CreateSwapChain();
 		CreateBackBufferRenderTarget();
 
@@ -20,11 +22,14 @@ namespace Ryu::Graphics::DX11
 	
 	DX11SwapChain::~DX11SwapChain()
 	{
+		RYU_PROFILE_SCOPE();
 		m_renderTarget.reset();
 	}
 	
 	void DX11SwapChain::CreateSwapChain()
 	{
+		RYU_PROFILE_SCOPE();
+
 		// Reset the back buffer texture and swap chain
 		m_renderTarget.reset();
 		m_swapChain.Reset();
@@ -108,6 +113,7 @@ namespace Ryu::Graphics::DX11
 	
 	void DX11SwapChain::CreateBackBufferRenderTarget()
 	{
+		RYU_PROFILE_SCOPE();
 		// Get native back buffer
 		ComPtr<ID3D11Texture2D> nativeBackBuffer;
 		DXCall(m_swapChain->GetBuffer(0, IID_PPV_ARGS(&nativeBackBuffer)));

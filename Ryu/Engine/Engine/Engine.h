@@ -1,14 +1,13 @@
 #pragma once
+#include "App/Application.h"
 #include "Config/CommandLine.h"
-#include "Logger/Logger.h"
 #include "Graphics/Renderer.h"
+#include "Logger/LogCategory.h"
 #include "Utils/Singleton.h"
 #include <memory>
 
 namespace Ryu::Engine
 {
-	class Runtime;
-
 	/**
 	 * @brief The main Engine class
 	 */
@@ -21,12 +20,6 @@ namespace Ryu::Engine
 		~Engine() = default;
 
 		/**
-		 * @brief Set the application that is run by the Engine
-		 * @param app The application to use (owned by the Engine after setting)
-		 */
-		void SetRuntime(std::shared_ptr<Runtime> runtime) { m_runtime = std::move(runtime); }
-
-		/**
 		 * @brief Set the command line used by the Engine
 		 * @param cmdLine Application command line
 		 */
@@ -37,7 +30,7 @@ namespace Ryu::Engine
 		 * @brief Get the application used by the Engine
 		 * @return The application (owned by the Engine)
 		 */
-		inline RYU_API std::shared_ptr<Runtime> GetRuntime() const { return m_runtime; }
+		inline RYU_API App::Application* GetApplication() const { return m_app.get(); }
 
 		/**
 		 * @brief Get the command line used by the Engine
@@ -74,7 +67,7 @@ namespace Ryu::Engine
 
 	private:
 		Config::CommandLine                 m_cmdLine;
-		std::shared_ptr<Runtime>            m_runtime;
+		std::shared_ptr<App::Application>   m_app;
 		std::unique_ptr<Graphics::Renderer> m_renderer;
 	};
 

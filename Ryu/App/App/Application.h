@@ -53,18 +53,18 @@ namespace Ryu::App
 		 * @brief Called when the application is initialized
 		 * @return true if successful
 		 */
-		virtual RYU_API bool OnInit() = 0;
+		virtual RYU_API bool OnInit();
 
 		/**
 		 * @brief Called when the application is shutdown
 		 */
-		virtual RYU_API void OnShutdown() = 0;
+		virtual RYU_API void OnShutdown();
 
 		/**
 		 * @brief Called when the application is updates
 		 * @param dt delta time
 		 */
-		virtual RYU_API void OnTick(f64 dt) = 0;
+		virtual RYU_API void OnTick(f64 dt);
 
 		virtual RYU_API void GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo) override;
 
@@ -75,7 +75,7 @@ namespace Ryu::App
 		virtual void RYU_API OnWindowMouseLeftEvent(const Elos::Event::MouseLeft&) {}
 		virtual void RYU_API OnWindowResizedEvent(const Elos::Event::Resized& e) { m_windowResizedSignal.Emit(e); }
 		virtual void RYU_API OnWindowTextInputEvent(const Elos::Event::TextInput&) {}
-		virtual void RYU_API OnWindowKeyPressedEvent(const Elos::Event::KeyPressed&) {}
+		virtual void RYU_API OnWindowKeyPressedEvent(const Elos::Event::KeyPressed&);
 		virtual void RYU_API OnWindowKeyReleasedEvent(const Elos::Event::KeyReleased&) {}
 		virtual void RYU_API OnWindowMouseWheelScrolledEvent(const Elos::Event::MouseWheelScrolled&) {}
 		virtual void RYU_API OnWindowMouseButtonPressedEvent(const Elos::Event::MouseButtonPressed&) {}
@@ -91,3 +91,6 @@ namespace Ryu::App
 		ResizeSignal m_windowResizedSignal;
 	};
 }
+
+// Create the runtime to be used by the engine
+extern std::shared_ptr<::Ryu::App::Application> CreateApplication();

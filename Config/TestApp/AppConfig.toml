@@ -1,0 +1,8 @@
+[Debugging]
+PressEscapeToClose = false
+
+[Window]
+WindowMinimumSize = [ 800, 600 ]
+WindowPosition = [ -2147483648, -2147483648 ]
+WindowSize = [ 1280, 720 ]
+WindowTitle = "Ryu Testbench"

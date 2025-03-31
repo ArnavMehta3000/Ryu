@@ -1,6 +1,5 @@
 #include "Engine.h"
-#include "Engine/Runtime/Runtime.h"
-#include "App/Application.h"
+#include "Logger/Logger.h"
 #include "GraphicsRHI/Config.h"
 #include "Profiling/Profiling.h"
 #include <External/StepTimer/StepTimer.h>
@@ -14,7 +13,7 @@ namespace Ryu::Engine
 	}
 
 	Engine::Engine()
-		: m_runtime(nullptr)
+		: m_app(nullptr)
 	{
 		TracyPlotConfig("Delta Time", tracy::PlotFormatType::Number, false, true, 0);
 	}
@@ -23,6 +22,7 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Initializing Engine");
+		m_app = CreateApplication();
 
 		// Check if debugger is attached
 		if (::IsDebuggerPresent())
@@ -43,7 +43,7 @@ namespace Ryu::Engine
 		
 
 		m_renderer = std::make_unique<Graphics::Renderer>();
-		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), m_runtime->GetWindow()->GetHandle()); !result)
+		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), m_app->GetWindow()->GetHandle()); !result)
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Graphics. Error: {}", result.error());
 		}
@@ -52,7 +52,7 @@ namespace Ryu::Engine
 			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(Graphics::GraphicsConfig::Get().GraphicsAPI.Get()));
 		}
 
-		//m_renderSurface.Window = m_runtime->GetWindow().get();
+		//m_renderSurface.Window = m_app->GetWindow().get();
 		//m_renderSurface.Surface = Graphics::CreateSurface(m_renderSurface.Window);
 
 		//DEBUG_ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
@@ -67,13 +67,13 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 		// Bind the events before initializing the application
-		/*m_runtime->GetWindowResizedSignal().Connect(([this](const App::Events::OnWindowResize& event)
+		/*m_app->GetWindowResizedSignal().Connect(([this](const App::Events::OnWindowResize& event)
 		{
 			OnAppResize(event.Width, event.Height);
 		});*/
 
 		// Init the application
-		return m_runtime->Init();
+		return m_app->Init();
 	}
 
 	void Engine::Shutdown()
@@ -81,7 +81,7 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Shutting down Engine");
 
-		m_runtime->Shutdown();
+		m_app->Shutdown();
 		Graphics::ShutdownGraphics(m_renderer.get());
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Shutdown Engine");
@@ -101,12 +101,6 @@ namespace Ryu::Engine
 	{
 		LOG_DEBUG(RYU_USE_LOG_CATEGORY(Engine), "Running the Engine");
 
-		if (m_runtime == nullptr)
-		{
-			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Engine application not initialized!");
-			return;
-		}
-
 		if (!Init())
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");
@@ -115,10 +109,10 @@ namespace Ryu::Engine
 
 		LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Starting Engine main loop");
 
-		auto appWindow = m_runtime->GetWindow();
+		auto appWindow = m_app->GetWindow();
 		while (appWindow->IsOpen())
 		{
-			m_runtime->ProcessWindowEvents();
+			m_app->ProcessWindowEvents();
 
 			s_timer.Tick([&]()
 			{
@@ -135,20 +129,19 @@ namespace Ryu::Engine
 
 	void Engine::Quit() const noexcept
 	{
-		if (m_runtime)
+		if (m_app)
 		{
 			LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Rquesting application shutdown");
 			// Send a message to the application window to close
-			::SendMessage(m_runtime->GetWindow()->GetHandle(), WM_CLOSE, 0, 0);
+			::SendMessage(m_app->GetWindow()->GetHandle(), WM_CLOSE, 0, 0);
 		}
 	}
 
 	void Engine::DoFrame(f64 dt)
 	{
-		RYU_PROFILE_SCOPE();
-		TracyPlot("Delta Time", dt);
+		RYU_PROFILE_SCOPE();		
 		
-		m_runtime->Tick(dt);
+		m_app->Tick(dt);
 		m_renderer->BeginFrame();
 		m_renderer->EndFrame();
 	}

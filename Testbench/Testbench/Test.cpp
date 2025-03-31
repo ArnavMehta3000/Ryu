@@ -1,21 +1,20 @@
 #include "Test.h"
-#include "Logger/Logger.h"
+#include "Profiling/Profiling.h"
 
 bool TestApp::OnInit()
 {
-	auto& config = TestConfig::Get();
-	LOG_WARN(RYU_USE_LOG_CATEGORY(TestApp), "Config API: {}", config.RenderAPI.Get());
-	config.RenderAPI.Set("OpenGL");
-
-	return Runtime::OnInit();
+	RYU_PROFILE_SCOPE();
+	return Application::OnInit();
 }
 
 void TestApp::OnShutdown()
 {
-	Runtime::OnShutdown();
+	RYU_PROFILE_SCOPE();
+	Application::OnShutdown();
 }
 
 void TestApp::OnTick(f64 dt)
 {
-	Runtime::OnTick(dt);
+	RYU_PROFILE_SCOPE();
+	Application::OnTick(dt);
 }

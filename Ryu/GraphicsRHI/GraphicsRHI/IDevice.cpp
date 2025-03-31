@@ -1,5 +1,6 @@
 #include "IDevice.h"
 #include "Common/StandardTypes.h"
+#include "Profiling/Profiling.h"
 #include "GraphicsRHI/Config.h"
 #include "GraphicsRHI/IRenderer.h"
 #include "GraphicsRHI/Utils/Logging.h"
@@ -10,6 +11,7 @@ namespace Ryu::Graphics
 {
 	void IDevice::InitializeResource(IGraphicsObject* obj) const
 	{
+		RYU_PROFILE_SCOPE();
 		if (auto renderer = GetRendererInterface())
 		{
 			renderer->InitializeResource(obj);
@@ -32,6 +34,7 @@ namespace Ryu::Graphics
 
 	bool IDevice::InitializeDXGI(bool enableDebugLayer)
 	{
+		RYU_PROFILE_SCOPE();
 		if (enableDebugLayer)
 		{
 			ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
@@ -76,6 +79,7 @@ namespace Ryu::Graphics
 	
 	void IDevice::ShutdownDXGI()
 	{
+		RYU_PROFILE_SCOPE();
 		m_adapter.Reset();
 		m_dxgiFactory.Reset();
 

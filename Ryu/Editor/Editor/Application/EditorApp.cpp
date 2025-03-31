@@ -17,7 +17,7 @@ namespace Ryu::Editor
 
 	bool EditorApp::OnInit()
 	{
-		if (!Runtime::OnInit())
+		if (!App::Application::OnInit())
 		{
 			return false;
 		}
@@ -37,12 +37,12 @@ namespace Ryu::Editor
 	void EditorApp::OnShutdown()
 	{
 		ShutdownImGui();
-		Runtime::OnShutdown();
+		App::Application::OnShutdown();
 	}
 
 	void EditorApp::OnTick(f64 dt)
 	{
-		Runtime::OnTick(dt);
+		App::Application::OnTick(dt);
 	}
 
 	bool EditorApp::RouteWndProc() const

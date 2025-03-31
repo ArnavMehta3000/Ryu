@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Profiling/Profiling.h"
 #include "GraphicsRHI/Config.h"
 #include "GraphicsRHI/Utils/Logging.h"
 #include "GraphicsDX11/DX11Device.h"
@@ -10,6 +11,7 @@ namespace Ryu::Graphics
 {
 	VoidResult InitGraphics(Renderer* renderer, HWND hWnd)
 	{
+		RYU_PROFILE_SCOPE();
 		DEBUG_ASSERT(renderer, "Renderer is nullptr!");
 		if (!renderer)
 		{
@@ -43,6 +45,7 @@ namespace Ryu::Graphics
 
 	void ShutdownGraphics(Renderer* renderer)
 	{
+		RYU_PROFILE_SCOPE();
 		DEBUG_ASSERT(renderer, "Renderer is nullptr!");
 		if (!renderer)
 		{
@@ -55,6 +58,7 @@ namespace Ryu::Graphics
 
 	VoidResult Renderer::Init(const SwapChainDesc& swapChainDesc)
 	{
+		RYU_PROFILE_SCOPE();
 		DXCall(::CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
 		auto deviceResult = CreateDevice();
@@ -93,6 +97,7 @@ namespace Ryu::Graphics
 	
 	void Renderer::Shutdown()
 	{
+		RYU_PROFILE_SCOPE();
 		m_renderPassFactory.reset();
 		m_backBufferClearPass.reset();
 
@@ -105,6 +110,7 @@ namespace Ryu::Graphics
 	
 	void Renderer::InitializeResource(IGraphicsObject* obj)
 	{
+		RYU_PROFILE_SCOPE();
 		if (obj)
 		{
 			DEBUG_ASSERT(obj->GetRendererInterface() == nullptr, "Graphics object already has a renderer!");
@@ -120,6 +126,7 @@ namespace Ryu::Graphics
 	
 	void Renderer::BeginFrame()
 	{
+		RYU_PROFILE_SCOPE();
 		m_commandList->Begin();
 
 		m_backBufferClearPass->Begin(m_commandList.get());
@@ -132,11 +139,13 @@ namespace Ryu::Graphics
 	
 	void Renderer::EndFrame()
 	{
+		RYU_PROFILE_SCOPE();
 		m_swapchain->Present();
 	}
 	
 	IDevice::CreateDeviceResult Renderer::CreateDevice()
 	{
+		RYU_PROFILE_SCOPE();
 		const API api = GraphicsConfig::Get().GraphicsAPI.Get();
 
 		switch (api)
@@ -151,6 +160,7 @@ namespace Ryu::Graphics
 	
 	void Renderer::CreateRenderPasses()
 	{
+		RYU_PROFILE_SCOPE();
 		if (!m_renderPassFactory)
 		{
 			switch (GraphicsConfig::Get().GraphicsAPI)

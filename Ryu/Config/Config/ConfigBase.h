@@ -6,6 +6,8 @@
 #include <filesystem>
 #include <toml++/toml.hpp>
 #include <type_traits>
+#include <array>
+#include <vector>
 
 namespace Ryu::Config
 {
@@ -324,7 +326,7 @@ namespace Ryu::Config
 			toml::array flagsArray;
 
 			// Check each possible flag value
-			for (int i = 0; i < 32; ++i) // Assuming 32-bit enum
+			for (u32 i = 0; i < 32; ++i) // Assuming 32-bit enum
 			{
 				T flag = static_cast<T>(1 << i);
 
@@ -397,7 +399,7 @@ namespace Ryu::Config
 								if (flagName != "None")
 								{
 									// Find the matching enum value
-									for (int i = 0; i < 32; ++i) // Assuming 32-bit enum
+									for (u32 i = 0; i < 32; ++i) // Assuming 32-bit enum
 									{
 										T flag = static_cast<T>(1 << i);
 										if (std::string(EnumToString(flag)) == flagName)
@@ -417,7 +419,7 @@ namespace Ryu::Config
 						if (flagName != "None")
 						{
 							// Find the matching enum value
-							for (int i = 0; i < 32; ++i) // Assuming 32-bit enum
+							for (u32 i = 0; i < 32; ++i) // Assuming 32-bit enum
 							{
 								T flag = static_cast<T>(1 << i);
 								if (std::string(EnumToString(flag)) == flagName)
@@ -439,6 +441,337 @@ namespace Ryu::Config
 			std::string m_section;
 			std::string m_key;
 			T m_value;
+	};
+
+	namespace Internal
+	{
+		// Helper to check if type is std::vector
+		template<typename T>
+		struct IsVector : std::false_type {};
+		
+		template<typename T, typename A>
+		struct IsVector<std::vector<T, A>> : std::true_type {};
+
+		template<typename T>
+		inline constexpr bool IsVector_v = IsVector<T>::value;
+
+		// Helper to check if type is std::array
+		template<typename T>
+		struct IsArray : std::false_type {};
+
+		template<typename T, std::size_t N>
+		struct IsArray<std::array<T, N>> : std::true_type {};
+
+		template<typename T>
+		inline constexpr bool IsArray_v = IsArray<T>::value;
+
+		// Helper to get the element type from a container
+		template<typename T>
+		struct ContainerValueType { using type = void; };
+
+		template<typename T, typename A>
+		struct ContainerValueType<std::vector<T, A>> { using type = T; };
+
+		template<typename T, std::size_t N>
+		struct ContainerValueType<std::array<T, N>> { using type = T; };
+
+		template<typename T>
+		using ContainerValueType_t = typename ContainerValueType<T>::type;
+	}
+
+	// ConfigValue specialization for std::vector
+	template<typename T>
+		requires Internal::IsVector_v<T> && TomlCompatible<Internal::ContainerValueType_t<T>>
+	class ConfigValue<T>
+	{
+	public:
+		using ElementType = Internal::ContainerValueType_t<T>;
+
+		ConfigValue(ConfigBase* owner, const std::string& section, const std::string& key, const T& defaultValue = T{})
+			: m_owner(owner), m_section(section), m_key(key), m_value(defaultValue)
+		{
+		}
+
+		operator const T& () const { return m_value; }
+
+		ConfigValue& operator=(const T& value)
+		{
+			if (m_value != value)
+			{
+				m_value = value;
+				m_owner->MarkDirty();
+			}
+			return *this;
+		}
+
+		NODISCARD const T& Get() const { return m_value; }
+
+		void Set(const T& value)
+		{
+			if (m_value != value)
+			{
+				m_value = value;
+				m_owner->MarkDirty();
+			}
+		}
+
+		NODISCARD const ElementType& operator[](size_t index) const
+		{
+			return m_value[index];
+		}
+
+		void SetElement(size_t index, const ElementType& value)
+		{
+			if (index < m_value.size() && m_value[index] != value)
+			{
+				m_value[index] = value;
+				m_owner->MarkDirty();
+			}
+		}
+
+		void Serialize(toml::table& table) const
+		{
+			// Convert to TOML array
+			toml::array arr;
+			for (const auto& element : m_value)
+			{
+				arr.push_back(element);
+			}
+
+			// Make sure section table exists
+			if (!m_section.empty())
+			{
+				if (!table.contains(m_section))
+				{
+					table.insert(m_section, toml::table{});
+				}
+				auto& sectionTable = *table[m_section].as_table();
+				sectionTable.insert_or_assign(m_key, std::move(arr));
+			}
+			else
+			{
+				// Root level key
+				table.insert_or_assign(m_key, std::move(arr));
+			}
+		}
+
+		void Deserialize(const toml::table& table)
+		{
+			if (!m_section.empty())
+			{
+				// Look for the section first
+				if (auto sectionNode = table.get(m_section))
+				{
+					if (auto sectionTable = sectionNode->as_table())
+					{
+						DeserializeFromTable(*sectionTable);
+					}
+				}
+			}
+			else
+			{
+				// Root level key
+				DeserializeFromTable(table);
+			}
+		}
+
+	private:
+		void DeserializeFromTable(const toml::table& table)
+		{
+			if (auto node = table.get(m_key))
+			{
+				if (auto arr = node->as_array())
+				{
+					m_value.clear();
+					m_value.reserve(arr->size());
+
+					// Add each element
+					for (const auto& element : *arr)
+					{
+						if constexpr (std::is_same_v<ElementType, std::string>)
+						{
+							if (auto val = element.as_string())
+							{
+								m_value.push_back(val->get());
+							}
+						}
+						else if constexpr (std::is_integral_v<ElementType> && !std::is_same_v<ElementType, bool>)
+						{
+							if (auto val = element.as_integer())
+							{
+								m_value.push_back(static_cast<ElementType>(val->get()));
+							}
+						}
+						else if constexpr (std::is_floating_point_v<ElementType>)
+						{
+							if (auto val = element.as_floating_point())
+							{
+								m_value.push_back(static_cast<ElementType>(val->get()));
+							}
+						}
+						else if constexpr (std::is_same_v<ElementType, bool>)
+						{
+							if (auto val = element.as_boolean())
+							{
+								m_value.push_back(val->get());
+							}
+						}
+					}
+				}
+			}
+		}
+
+		ConfigBase* m_owner;
+		std::string m_section;
+		std::string m_key;
+		T m_value;
+	};
+
+	// ConfigValue specialization for std::array
+	template<typename T>
+		requires Internal::IsArray_v<T>&& TomlCompatible<Internal::ContainerValueType_t<T>>
+	class ConfigValue<T>
+	{
+	public:
+		using ElementType = Internal::ContainerValueType_t<T>;
+		static constexpr std::size_t Size = std::tuple_size_v<T>;
+
+		ConfigValue(ConfigBase* owner, const std::string& section, const std::string& key, const T& defaultValue = T{})
+			: m_owner(owner), m_section(section), m_key(key), m_value(defaultValue)
+		{
+		}
+
+		operator const T& () const { return m_value; }
+
+		ConfigValue& operator=(const T& value)
+		{
+			if (m_value != value)
+			{
+				m_value = value;
+				m_owner->MarkDirty();
+			}
+			return *this;
+		}
+
+		NODISCARD const T& Get() const { return m_value; }
+
+		void Set(const T& value)
+		{
+			if (m_value != value)
+			{
+				m_value = value;
+				m_owner->MarkDirty();
+			}
+		}
+
+		// Element access
+		NODISCARD const ElementType& operator[](size_t index) const
+		{
+			return m_value[index];
+		}
+
+		void SetElement(size_t index, const ElementType& value)
+		{
+			if (index < Size && m_value[index] != value)
+			{
+				m_value[index] = value;
+				m_owner->MarkDirty();
+			}
+		}
+
+		NODISCARD constexpr size_t GetSize() const { return Size; }
+
+		void Serialize(toml::table& table) const
+		{
+			toml::array arr;
+			for (const auto& element : m_value)
+			{
+				arr.push_back(element);
+			}
+
+			if (!m_section.empty())
+			{
+				if (!table.contains(m_section))
+				{
+					table.insert(m_section, toml::table{});
+				}
+				auto& sectionTable = *table[m_section].as_table();
+				sectionTable.insert_or_assign(m_key, std::move(arr));
+			}
+			else
+			{
+				// Root level key
+				table.insert_or_assign(m_key, std::move(arr));
+			}
+		}
+
+		void Deserialize(const toml::table& table)
+		{
+			if (!m_section.empty())
+			{
+				if (auto sectionNode = table.get(m_section))
+				{
+					if (auto sectionTable = sectionNode->as_table())
+					{
+						DeserializeFromTable(*sectionTable);
+					}
+				}
+			}
+			else
+			{
+				// Root level key
+				DeserializeFromTable(table);
+			}
+		}
+
+	private:
+		void DeserializeFromTable(const toml::table& table)
+		{
+			if (auto node = table.get(m_key))
+			{
+				if (auto arr = node->as_array())
+				{
+					for (size_t i = 0; i < std::min(Size, arr->size()); ++i)
+					{
+						const auto& element = (*arr)[i];
+
+						if constexpr (std::is_same_v<ElementType, std::string>)
+						{
+							if (auto val = element.as_string())
+							{
+								m_value[i] = val->get();
+							}
+						}
+						else if constexpr (std::is_integral_v<ElementType> && !std::is_same_v<ElementType, bool>)
+						{
+							if (auto val = element.as_integer())
+							{
+								m_value[i] = static_cast<ElementType>(val->get());
+							}
+						}
+						else if constexpr (std::is_floating_point_v<ElementType>)
+						{
+							if (auto val = element.as_floating_point())
+							{
+								m_value[i] = static_cast<ElementType>(val->get());
+							}
+						}
+						else if constexpr (std::is_same_v<ElementType, bool>)
+						{
+							if (auto val = element.as_boolean())
+							{
+								m_value[i] = val->get();
+							}
+						}
+					}
+				}
+			}
+		}
+
+		ConfigBase* m_owner;
+		std::string m_section;
+		std::string m_key;
+		T m_value;
 	};
 }
 

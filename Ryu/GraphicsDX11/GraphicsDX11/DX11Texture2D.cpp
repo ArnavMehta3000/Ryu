@@ -1,4 +1,5 @@
 #include "DX11Texture2D.h"
+#include "Profiling/Profiling.h"
 #include "GraphicsRHI/Utils/D3DUtil.h"
 #include "GraphicsRHI/Utils/Logging.h"
 #include "GraphicsDX11/DX11Device.h"
@@ -9,6 +10,7 @@ namespace Ryu::Graphics::DX11
 		: m_device(device)
 		, m_desc(desc)
 	{
+		RYU_PROFILE_SCOPE();
 		CreateNativeTexture();
 		m_device->InitializeResource(this);
 		SetName("DX11 Texture2D");
@@ -18,6 +20,7 @@ namespace Ryu::Graphics::DX11
 		: m_device(device)
 		, m_texture(texture)
 	{
+		RYU_PROFILE_SCOPE();
 		// Build texture description
 		D3D11_TEXTURE2D_DESC1 nativeDesc;
 		m_texture->GetDesc1(&nativeDesc);
@@ -53,11 +56,13 @@ namespace Ryu::Graphics::DX11
 
 	DX11Texture2D::~DX11Texture2D()
 	{
+		RYU_PROFILE_SCOPE();
 		m_texture.Reset();
 	}
 	
 	void DX11Texture2D::CreateNativeTexture()
 	{
+		RYU_PROFILE_SCOPE();
 		CD3D11_TEXTURE2D_DESC1 texDesc(
 			Utils::GetFormat(m_desc.Format),
 			m_desc.Width,

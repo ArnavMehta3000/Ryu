@@ -14,7 +14,7 @@ option_end()
 
 option("ryu-enable-tracy-profiling")
 	set_showmenu(true)
-	set_default(true)
+	set_default(false)
 	set_description("Enable profiling")
 	set_category("root Ryu/Profiling")
 	add_defines("RYU_PROFILING_ENABLED", "TRACY_ENABLE")

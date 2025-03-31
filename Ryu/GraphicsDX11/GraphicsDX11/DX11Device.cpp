@@ -1,4 +1,5 @@
 #include "DX11Device.h"
+#include "Profiling/Profiling.h"
 #include "GraphicsRHI/Config.h"
 #include "GraphicsRHI/IRenderer.h"
 #include "GraphicsRHI/Utils/Logging.h"
@@ -11,6 +12,7 @@ namespace Ryu::Graphics::DX11
 {
 	DX11Device::DX11Device()
 	{
+		RYU_PROFILE_SCOPE();
 		DEBUG_ASSERT((GraphicsConfig::Get().GraphicsAPI.Get() == API::DirectX11),
 			"DeviceCreateDesc graphics API must be DirectX11!");
 		
@@ -19,6 +21,7 @@ namespace Ryu::Graphics::DX11
 
 	DX11Device::~DX11Device()
 	{
+		RYU_PROFILE_SCOPE();
 		ShutdownDXGI();
 
 		m_imContext.Reset();
@@ -36,6 +39,7 @@ namespace Ryu::Graphics::DX11
 
 	void DX11Device::ReportLiveObjects(bool releaseBeforeReporting)
 	{
+		RYU_PROFILE_SCOPE();
 		ComPtr<ID3D11Debug> debugDevice;
 		if (SUCCEEDED(m_device.As(&debugDevice)))
 		{
@@ -51,6 +55,7 @@ namespace Ryu::Graphics::DX11
 	
 	IDevice::CreateSwapChainResult DX11Device::CreateSwapChain(const SwapChainDesc& desc) const
 	{
+		RYU_PROFILE_SCOPE();
 		DEBUG_ASSERT(m_device, "DX11Device is not initialized!");
 		DEBUG_ASSERT(m_dxgiFactory, "DXGI factory is not initialized!");
 		DEBUG_ASSERT(m_adapter, "Adapter is not initialized!");
@@ -65,6 +70,7 @@ namespace Ryu::Graphics::DX11
 	
 	IDevice::CreateCommandListResult DX11Device::CreateCommandList(const CommandListDesc& desc) const
 	{
+		RYU_PROFILE_SCOPE();
 		DEBUG_ASSERT(m_device, "DX11Device is not initialized!");
 
 		auto ptr = std::make_unique<DX11CommandList>(this, desc);
@@ -74,6 +80,7 @@ namespace Ryu::Graphics::DX11
 
 	void DX11Device::ExecuteCommandList(const ICommandList* commandList) const
 	{
+		RYU_PROFILE_SCOPE();
 		if (DX11CommandList::NativeType* cmdList = RYU_GET_GFX_NATIVE_TYPE(commandList, DX11CommandList::NativeType))
 		{
 			m_imContext->ExecuteCommandList(cmdList, FALSE);
@@ -82,6 +89,7 @@ namespace Ryu::Graphics::DX11
 
 	void DX11Device::InitDevice()
 	{
+		RYU_PROFILE_SCOPE();
 		static constexpr std::array<D3D_FEATURE_LEVEL, 4> featureLevels =
 		{
 			D3D_FEATURE_LEVEL_11_1,

@@ -8,7 +8,7 @@ target("RyuGraphicsDX12")
 	end
 
 	add_includedirs(".", { public = true })
-	add_files("**.cpp")
+	add_files("**.cpp", { unity_group = "GraphicsDX12" })
 	add_headerfiles("**.h")
 
 	add_packages("directx-headers", { public = true })

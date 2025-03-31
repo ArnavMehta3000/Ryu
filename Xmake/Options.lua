@@ -1,3 +1,10 @@
+option("use-std-types-globally")
+	set_showmenu(true)
+	set_default(true)
+	set_description("Bring Ryu::Common::StandardTypes to the global namespace")
+	set_category("root Ryu")
+option_end()
+
 option("assert-on-fail-hresult")
 	set_showmenu(true)
 	set_default(false)

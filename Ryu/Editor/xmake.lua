@@ -6,7 +6,7 @@ target("RyuEditor")
 	set_group("Ryu")
 
 	add_includedirs(".")
-	add_files("**.cpp")
+	add_files("**.cpp", { unity_group = "Editor" })
 	add_headerfiles("**.h")
 
 	add_packages("imgui")

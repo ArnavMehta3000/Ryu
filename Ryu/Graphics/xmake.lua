@@ -7,7 +7,7 @@ target("RyuGraphics")
 	end
 
 	add_includedirs(".", { public = true })
-	add_files("**.cpp")
+	add_files("**.cpp", { unity_group = "Graphics" })
 	add_headerfiles("**.h")
 
 	add_deps(

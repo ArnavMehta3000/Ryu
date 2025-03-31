@@ -2,7 +2,7 @@ target("RyuEngine")
 	set_group("Ryu")
 	set_kind("static")
 	add_includedirs(".", { public = true })
-	add_files("**.cpp")
+	add_files("**.cpp", { unity_group = "Engine" })
 	add_headerfiles("**.h")
 
 	-- Make monolithic engine library

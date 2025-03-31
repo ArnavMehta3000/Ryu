@@ -2,7 +2,7 @@ target("RyuUtils")
 	set_group("Ryu/Core")
 	set_kind("static")
 	add_includedirs(".", { public = true })
-	add_files("**.cpp")
+	add_files("**.cpp", { unity_group = "Utilities" })
 	add_headerfiles("**.h")
 	add_extrafiles("**.inl")
 

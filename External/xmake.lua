@@ -20,24 +20,11 @@ target("TracyClient")
 	add_files("External/Tracy/public/TracyClient.cpp")
 target_end()
 
-
-package("TracyServer")
-	set_sourcedir(path.join(os.scriptdir(), "External", "Tracy", "profiler"))
-	on_install(function (package)
-		
-		local configs = {}
-		table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. "Release")
-		
-		import("package.tools.cmake").install(package, configs)
-
-		-- Copy the generated exe
-		local exe_dir = path.join(package:buildir(), "Release")
-		local copy_path = path.join(os.projectdir(), "build", "Programs", "TracyServer")
-		os.cp(exe_dir, copy_path)
-	end)
-package_end()
-
-
+target("TracyServer")
+	set_kind("phony")
+	set_group("Ryu/External")
+	add_packages("TracyServerPackage")
+target_end()
 
 -- A phony target to include all external source files
 target("RyuExternals")

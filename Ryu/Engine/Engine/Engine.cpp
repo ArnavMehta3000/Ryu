@@ -41,16 +41,15 @@ namespace Ryu::Engine
 			return false;
 		}
 		
-		Graphics::API api = Graphics::GraphicsConfig::Get().GraphicsAPI;
-		m_renderer = std::make_unique<Graphics::Renderer>();
 
-		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), api, m_runtime->GetWindow()->GetHandle()); !result)
+		m_renderer = std::make_unique<Graphics::Renderer>();
+		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), m_runtime->GetWindow()->GetHandle()); !result)
 		{
 			LOG_FATAL(RYU_USE_LOG_CATEGORY(Engine), "Failed to initialize Graphics. Error: {}", result.error());
 		}
 		else
 		{
-			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(api));
+			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(Graphics::GraphicsConfig::Get().GraphicsAPI.Get()));
 		}
 
 		//m_renderSurface.Window = m_runtime->GetWindow().get();

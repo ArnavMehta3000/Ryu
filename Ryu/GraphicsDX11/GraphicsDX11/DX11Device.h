@@ -9,7 +9,7 @@ namespace Ryu::Graphics::DX11
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_device.Get())
 
-		DX11Device(const DeviceCreateDesc& desc);
+		DX11Device();
 		~DX11Device();
 
 		inline DX11::IDX11DeviceContext* GetImmediateContext() const { return m_imContext.Get(); }
@@ -20,7 +20,7 @@ namespace Ryu::Graphics::DX11
 		CreateCommandListResult CreateCommandList(const CommandListDesc& desc) const override;
 		void ExecuteCommandList(const ICommandList* commandList) const override;
 
-		void InitDevice(const DeviceCreateDesc& desc);
+		void InitDevice();
 	
 	private:
 		ComPtr<NativeType>               m_device;

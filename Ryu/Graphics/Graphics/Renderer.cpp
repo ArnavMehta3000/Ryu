@@ -8,7 +8,7 @@
 
 namespace Ryu::Graphics
 {
-	VoidResult InitGraphics(Renderer* renderer, API api, HWND hWnd)
+	VoidResult InitGraphics(Renderer* renderer, HWND hWnd)
 	{
 		DEBUG_ASSERT(renderer, "Renderer is nullptr!");
 		if (!renderer)
@@ -23,15 +23,6 @@ namespace Ryu::Graphics
 		{
 			config.EnableDebugLayer = true;
 		}
-
-
-		const DeviceCreateDesc deviceCreateDesc
-		{
-			.GraphicsAPI              = api,
-			.EnableDebugLayer         = config.EnableDebugLayer,
-			.EnableGPUBasedValidation = config.EnableGPUBasedValidation,
-			.EnableVSync              = config.EnableVSync
-		};
 		
 		const SwapChainDesc swapChainDesc
 		{
@@ -47,7 +38,7 @@ namespace Ryu::Graphics
 			.Windowed      = true
 		};
 
-		return renderer->Init(deviceCreateDesc, swapChainDesc);
+		return renderer->Init(swapChainDesc);
 	}
 
 	void ShutdownGraphics(Renderer* renderer)
@@ -62,11 +53,11 @@ namespace Ryu::Graphics
 	}
 
 
-	VoidResult Renderer::Init(const DeviceCreateDesc& deviceCreatedesc, const SwapChainDesc& swapChainDesc)
+	VoidResult Renderer::Init(const SwapChainDesc& swapChainDesc)
 	{
 		DXCall(::CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
-		auto deviceResult = CreateDevice(deviceCreatedesc);
+		auto deviceResult = CreateDevice();
 		if (!deviceResult)
 		{
 			return MakeResultError{ deviceResult.error() };
@@ -95,7 +86,7 @@ namespace Ryu::Graphics
 			return MakeResultError{ "Failed to create command list" };
 		}
 		
-		CreateRenderPasses(deviceCreatedesc);
+		CreateRenderPasses();
 		
 		return {};
 	}
@@ -144,23 +135,25 @@ namespace Ryu::Graphics
 		m_swapchain->Present();
 	}
 	
-	IDevice::CreateDeviceResult Renderer::CreateDevice(const DeviceCreateDesc& deviceCreatedesc)
+	IDevice::CreateDeviceResult Renderer::CreateDevice()
 	{
-		switch (deviceCreatedesc.GraphicsAPI)
+		const API api = GraphicsConfig::Get().GraphicsAPI.Get();
+
+		switch (api)
 		{
 		case API::DirectX11:
-			return std::make_unique<DX11::DX11Device>(deviceCreatedesc);
+			return std::make_unique<DX11::DX11Device>();
 		}
 
 		return MakeResultError{ std::format(
-			"Unsupported graphics device API - {}", EnumToString(deviceCreatedesc.GraphicsAPI)) };
+			"Unsupported graphics device API - {}", EnumToString(api)) };
 	}
 	
-	void Renderer::CreateRenderPasses(const DeviceCreateDesc& deviceCreatedesc)
+	void Renderer::CreateRenderPasses()
 	{
 		if (!m_renderPassFactory)
 		{
-			switch (deviceCreatedesc.GraphicsAPI)
+			switch (GraphicsConfig::Get().GraphicsAPI)
 			{
 			case API::DirectX11:
 				m_renderPassFactory = std::make_unique<DX11::DX11RenderPassFactory>();

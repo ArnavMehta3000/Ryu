@@ -15,7 +15,7 @@ namespace Ryu::Graphics
 	class Renderer : public IRenderer
 	{
 	public:
-		NODISCARD VoidResult Init(const DeviceCreateDesc& deviceCreatedesc, const SwapChainDesc& swapChainDesc);
+		NODISCARD VoidResult Init(const SwapChainDesc& swapChainDesc);
 		void Shutdown();
 
 		inline ISwapChain* GetSwapChain() const override { return m_swapchain.get(); }
@@ -26,8 +26,8 @@ namespace Ryu::Graphics
 		void EndFrame();
 
 	private:
-		IDevice::CreateDeviceResult CreateDevice(const DeviceCreateDesc& deviceCreatedesc);
-		void CreateRenderPasses(const DeviceCreateDesc& deviceCreatedesc);
+		IDevice::CreateDeviceResult CreateDevice();
+		void CreateRenderPasses();
 
 	private:
 		std::unique_ptr<IDevice>            m_device;
@@ -37,6 +37,6 @@ namespace Ryu::Graphics
 		std::unique_ptr<IClearRenderPass>   m_backBufferClearPass;
 	};
 	
-	NODISCARD VoidResult InitGraphics(Renderer* renderer, API api, HWND hWnd);
+	NODISCARD VoidResult InitGraphics(Renderer* renderer, HWND hWnd);
 	void ShutdownGraphics(Renderer* renderer);
 }

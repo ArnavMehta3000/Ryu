@@ -9,11 +9,12 @@
 
 namespace Ryu::Graphics::DX11
 {
-	DX11Device::DX11Device(const DeviceCreateDesc& desc)
+	DX11Device::DX11Device()
 	{
-		DEBUG_ASSERT(desc.GraphicsAPI == API::DirectX11, "DeviceCreateDesc graphics API must be DirectX11!");
+		DEBUG_ASSERT((GraphicsConfig::Get().GraphicsAPI.Get() == API::DirectX11),
+			"DeviceCreateDesc graphics API must be DirectX11!");
 		
-		InitDevice(desc);
+		InitDevice();
 	}
 
 	DX11Device::~DX11Device()
@@ -79,7 +80,7 @@ namespace Ryu::Graphics::DX11
 		}
 	}
 
-	void DX11Device::InitDevice(const DeviceCreateDesc& desc)
+	void DX11Device::InitDevice()
 	{
 		static constexpr std::array<D3D_FEATURE_LEVEL, 4> featureLevels =
 		{
@@ -88,15 +89,16 @@ namespace Ryu::Graphics::DX11
 			D3D_FEATURE_LEVEL_10_1,
 			D3D_FEATURE_LEVEL_10_0
 		};
+		const GraphicsConfig& config = GraphicsConfig::Get();
 
 		u32 createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-		if (desc.EnableDebugLayer)
+		if (config.EnableDebugLayer)
 		{
 			createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 			LOG_DEBUG(Internal::GraphicsDebugLog, "Graphics debug layer enabled");
 		}
 
-		if (!InitializeDXGI(desc.EnableDebugLayer))
+		if (!InitializeDXGI(config.EnableDebugLayer))
 		{
 			LOG_ERROR(Internal::GraphicsDebugLog, "Failed to initialize DXGI!");
 			return;
@@ -131,7 +133,7 @@ namespace Ryu::Graphics::DX11
 		DEBUG_ASSERT(m_device, "Failed to create DX11 device!");
 		DEBUG_ASSERT(m_imContext, "Failed to create DX11 immediate context!");
 
-		if (desc.EnableDebugLayer)
+		if (config.EnableDebugLayer)
 		{
 			ComPtr<ID3D11Debug> debugDevice;
 			if (SUCCEEDED(m_device.As(&debugDevice)))

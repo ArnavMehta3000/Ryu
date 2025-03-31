@@ -11,14 +11,6 @@ namespace Ryu::Graphics
 	struct SwapChainDesc;
 	struct CommandListDesc;
 
-	struct DeviceCreateDesc
-	{
-		API GraphicsAPI;
-		bool EnableDebugLayer;
-		bool EnableGPUBasedValidation;  // Only used for DirectX12
-		bool EnableVSync;
-	};
-
 	class IDevice : public IGraphicsObject
 	{
 	public:

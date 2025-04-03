@@ -93,7 +93,7 @@ namespace Ryu::App
 	void Application::OnWindowKeyPressedEvent(const Elos::Event::KeyPressed& e)
 	{
 #if defined(RYU_BUILD_DEBUG)
-		if (e.Key == Elos::KeyCode::Escape)
+		if (e.Key == Elos::KeyCode::Escape && AppConfig::Get().EscToClose)
 		{
 			m_window->Close();
 		}

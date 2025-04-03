@@ -18,7 +18,7 @@ namespace Ryu::App
 			, WindowTitle(this, WindowSection, "WindowTitle", "Ryu Window")
 			, WindowSize(this, WindowSection, "WindowSize", { 1280, 720 })
 			, WindowMinSize(this, WindowSection, "WindowMinimumSize", { 800, 600 })
-			, WindowPos(this, WindowSection, "WindowPosition", { static_cast<i32>(0x80000000), static_cast<i32>(0x80000000) })
+			, WindowPos(this, WindowSection, "WindowPosition", { static_cast<i32>(0x80000000), static_cast<i32>(0x80000000) })  // Same as CW_USEDEFAULT
 			, EscToClose(this, DebuggingSection, "PressEscapeToClose", Common::Globals::g_isDebug)
 			, EnableLogToConsole(this, LogSection, "EnableLogToConsole", Common::Globals::g_isDebug)
 			, EnableLogToFile(this, LogSection, "EnableLogToFile", Common::Globals::g_isDebug)

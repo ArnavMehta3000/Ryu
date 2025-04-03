@@ -70,6 +70,4 @@ namespace Ryu::Engine
 		std::shared_ptr<App::Application>   m_app;
 		std::unique_ptr<Graphics::Renderer> m_renderer;
 	};
-
-	std::string_view GetEngineDirectory();
 }

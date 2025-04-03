@@ -1,6 +1,5 @@
 target("RyuEditor")
 	add_rules("win.sdk.application")
-	add_rules("AddScriptPathDefine", { name = "RYU_EDITOR_DIR" })
 	set_default(true)
 	set_kind("binary")
 	set_group("Ryu")

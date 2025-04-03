@@ -160,9 +160,4 @@ namespace Ryu::Engine
 		//	Graphics::ResizeSurface(width, height);
 		//}
 	}
-	
-	std::string_view GetEngineDirectory()
-	{
-		return RYU_ENGINE_DIR;
-	}
 }

@@ -17,7 +17,6 @@ includes("Xmake/Options.lua")
 includes("Xmake/Rules/RyuPlugin.lua")
 includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/CopyToBuildDir.lua")
-includes("Xmake/Rules/AddScriptPathDefine.lua")
 includes("Xmake/Rules/EnumAutogen.lua")
 
 -- Build debug mode by default
@@ -67,10 +66,8 @@ add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 -- Add rule to export shared library
 add_rules("ExportAPI")
 
-local configDir = path.join(os.projectdir(), "Config")
-configDir = configDir:gsub("\\", "/")
-local defineValue = "RYU_ROOT_CONFIG_DIR=\"" .. configDir .. "\""
-add_defines(defineValue)
+-- Add rule to add Ryu root directory
+add_defines("RYU_ROOT_DIR=\"" .. os.projectdir():gsub("\\", "/") .. "\"")
 
 set_config("ryu-enable-tracy-profiling", true)
 

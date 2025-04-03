@@ -19,21 +19,21 @@ int WINAPI wWinMain(                               \
 
 
 // Default main entry point
-#define RYU_ENTRY_POINT(ConfigName) RYU_MAIN()                                \
-{                                                                             \
-	using namespace Ryu;                                                      \
-	RYU_PROFILE_BOOKMARK("BEGIN RYU");         			                      \
-	Config::ConfigManager::Get().Initialize(RYU_ROOT_CONFIG_DIR ConfigName);  \
-	App::Internal::SetUpDefaultLogger();                                      \
-																			  \
-	Engine::Engine& engine = Engine::Engine::Get();                           \
-	engine.SetCommandLine(lpCmdLine);                                         \
-																			  \
-	engine.Run();                                                             \
-																			  \
-	Config::ConfigManager::Get().SaveAll();                                   \
-	RYU_PROFILE_BOOKMARK("END RYU");                                          \
-	return 0;                                                                 \
+#define RYU_ENTRY_POINT(AppName) RYU_MAIN()                                                           \
+{                                                                                                     \
+	using namespace Ryu;                                                                              \
+	RYU_PROFILE_BOOKMARK("BEGIN RYU");         			                                              \
+	Config::ConfigManager::Get().Initialize(RYU_ROOT_DIR RYU_STRING(RYU_CONCAT(/Config, /AppName)));  \
+	App::Internal::SetUpDefaultLogger();                                                              \
+																			                          \
+	Engine::Engine& engine = Engine::Engine::Get();                                                   \
+	engine.SetCommandLine(lpCmdLine);                                                                 \
+																			                          \
+	engine.Run();                                                                                     \
+																			                          \
+	Config::ConfigManager::Get().SaveAll();                                                           \
+	RYU_PROFILE_BOOKMARK("END RYU");                                                                  \
+	return 0;                                                                                         \
 }
 
 // Define the extern function to create the runtime
@@ -48,4 +48,4 @@ std::shared_ptr<::Ryu::App::Application> CreateApplication()  \
 std::shared_ptr<::Ryu::App::Application> CreateApplication()  \
 {                                                             \
 	return std::make_shared<RuntimeClass>(__VA_ARGS__);       \
-} RYU_ENTRY_POINT(RYU_STRING(/RuntimeClass))
+} RYU_ENTRY_POINT(RuntimeClass)

@@ -3,6 +3,7 @@
 #include "App/Application.h"
 #include "Common/Globals.h"
 #include "Config/ConfigManager.h"
+#include "Profiling/Profiling.h"
 #include <Windows.h>
 
 namespace Ryu::Engine { class Runtime; }
@@ -18,21 +19,21 @@ int WINAPI wWinMain(                               \
 
 
 // Default main entry point
-#define RYU_ENTRY_POINT(ConfigName) RYU_MAIN()                                  \
-{                                                                               \
-																				\
-	using namespace Ryu;                                                        \
-																				\
-	Logging::SetUpDefaultLogger(Common::Globals::g_isDebug);                    \
-	Config::ConfigManager::Get().Initialize(RYU_ROOT_CONFIG_DIR ConfigName);    \
-																				\
-	Engine::Engine& engine = Engine::Engine::Get();                             \
-	engine.SetCommandLine(lpCmdLine);                                           \
-																				\
-	engine.Run();                                                               \
-																				\
-	Config::ConfigManager::Get().SaveAll();                                     \
-	return 0;                                                                   \
+#define RYU_ENTRY_POINT(ConfigName) RYU_MAIN()                                \
+{                                                                             \
+	using namespace Ryu;                                                      \
+	RYU_PROFILE_BOOKMARK("BEGIN RYU");         			                      \
+	Config::ConfigManager::Get().Initialize(RYU_ROOT_CONFIG_DIR ConfigName);  \
+	App::Internal::SetUpDefaultLogger();                                      \
+																			  \
+	Engine::Engine& engine = Engine::Engine::Get();                           \
+	engine.SetCommandLine(lpCmdLine);                                         \
+																			  \
+	engine.Run();                                                             \
+																			  \
+	Config::ConfigManager::Get().SaveAll();                                   \
+	RYU_PROFILE_BOOKMARK("END RYU");                                          \
+	return 0;                                                                 \
 }
 
 // Define the extern function to create the runtime

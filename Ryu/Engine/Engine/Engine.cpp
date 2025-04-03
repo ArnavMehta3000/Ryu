@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "Logger/Logger.h"
-#include "GraphicsRHI/Config.h"
+#include "GraphicsRHI/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 #include <External/StepTimer/StepTimer.h>
 
@@ -21,16 +21,18 @@ namespace Ryu::Engine
 	bool Engine::Init()
 	{
 		RYU_PROFILE_SCOPE();
+		RYU_PROFILE_BOOKMARK("Engine Initialize");
+
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Initializing Engine");
 		m_app = CreateApplication();
 
 		// Check if debugger is attached
-		if (::IsDebuggerPresent())
+		if (Common::Globals::IsDebuggerAttached())
 		{
 			LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "--- A debugger is attached to the Engine!---");
 		}
 
-		// Initialize the application
+		RYU_PROFILE_BOOKMARK("Initialize runtime application");
 		if (InitRuntime())
 		{
 			LOG_TRACE(RYU_USE_LOG_CATEGORY(Engine), "Engine application initialized successfully");
@@ -42,6 +44,7 @@ namespace Ryu::Engine
 		}
 		
 
+		RYU_PROFILE_BOOKMARK("Initialize graphics");
 		m_renderer = std::make_unique<Graphics::Renderer>();
 		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), m_app->GetWindow()->GetHandle()); !result)
 		{
@@ -79,6 +82,7 @@ namespace Ryu::Engine
 	void Engine::Shutdown()
 	{
 		RYU_PROFILE_SCOPE();
+		RYU_PROFILE_BOOKMARK("Begin Shutdown");
 		LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Shutting down Engine");
 
 		m_app->Shutdown();
@@ -131,6 +135,7 @@ namespace Ryu::Engine
 	{
 		if (m_app)
 		{
+			RYU_PROFILE_BOOKMARK("Requesting application shutdown");
 			LOG_INFO(RYU_USE_LOG_CATEGORY(Engine), "Rquesting application shutdown");
 			// Send a message to the application window to close
 			::SendMessage(m_app->GetWindow()->GetHandle(), WM_CLOSE, 0, 0);
@@ -139,7 +144,7 @@ namespace Ryu::Engine
 
 	void Engine::DoFrame(f64 dt)
 	{
-		RYU_PROFILE_SCOPE();		
+		RYU_PROFILE_SCOPE();
 		
 		m_app->Tick(dt);
 		m_renderer->BeginFrame();

@@ -90,6 +90,11 @@ namespace Ryu::App
 		Elos::WindowEventConnections m_windowEventConnections;
 		ResizeSignal m_windowResizedSignal;
 	};
+
+	namespace Internal
+	{
+		void SetUpDefaultLogger();
+	}
 }
 
 // Create the runtime to be used by the engine

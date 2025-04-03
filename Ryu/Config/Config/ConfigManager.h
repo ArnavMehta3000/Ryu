@@ -1,6 +1,7 @@
 #pragma once
 #include "Common/ObjectMacros.h"
 #include "Utils/Singleton.h"
+#include "Elos/Event/Signal.h"
 #include <filesystem>
 #include <vector>
 
@@ -21,6 +22,7 @@ namespace Ryu::Config
 		void SaveAll();
 
 		NODISCARD const fs::path& GetConfigDir() const { return m_configDir; }
+		Elos::Signal<bool> OnInitialized;
 
 	private:
 		ConfigManager() = default;

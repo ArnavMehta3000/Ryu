@@ -3,5 +3,5 @@ EnableDebugLayer = true
 EnableGPUBasedValidation = false
 
 [Rendering]
-EnableVSync = false
+EnableVSync = true
 GraphicsAPI = "DirectX11"

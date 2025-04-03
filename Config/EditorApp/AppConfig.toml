@@ -1,5 +1,11 @@
 [Debugging]
-PressEscapeToClose = true
+PressEscapeToClose = false
+
+[Log]
+EnableLogToConsole = true
+EnableLogToFile = true
+ForceLogToOutput = true
+LogFilePath = "Logs/LogEditor.txt"
 
 [Window]
 WindowMinimumSize = [ 800, 600 ]

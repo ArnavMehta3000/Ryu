@@ -1,10 +1,17 @@
 #include "Application.h"
 #include "App/AppConfig.h"
+#include "Logger/Sinks/DebugSink.h"
+#include "Logger/Sinks/ConsoleSink.h"
+#include "Logger/Sinks/FileSink.h"
+#include "Utils/MessageBox.h"
 #include "Profiling/Profiling.h"
 #include <Elos/Window/Utils/WindowExtensions.h>
+#include <libassert/assert.hpp>
 
 namespace Ryu::App
 {
+	//RYU_IMPLEMENT_CONFIG(AppConfig);
+
 	Application::Application() : Elos::AppBase()
 	{
 		RYU_PROFILE_SCOPE();
@@ -78,6 +85,7 @@ namespace Ryu::App
 	{
 		if (m_window)
 		{
+			RYU_PROFILE_BOOKMARK("On window closed event");
 			m_window->Close();
 		}
 	}
@@ -110,4 +118,41 @@ namespace Ryu::App
 		SetUpConnection<const Elos::Event::MouseMoved&>(m_windowEventConnections,          [this](const auto& e) { OnWindowMouseMovedEvent(e);          });
 		SetUpConnection<const Elos::Event::MouseMovedRaw&>(m_windowEventConnections,       [this](const auto& e) { OnWindowMouseMovedRawEvent(e);       });
 	}
+}
+
+void Ryu::App::Internal::SetUpDefaultLogger()
+{
+	using namespace Ryu::Logging;
+	const AppConfig& config = AppConfig::Get();
+
+	Logger& logger = Logger::Get();
+
+	// Log to output window only when debugger is attached
+	if (Common::Globals::IsDebuggerAttached() || config.ForceLogToOutput)
+	{
+		logger.AddSink(std::make_unique<Logging::DebugSink>());
+	}
+	
+	if (config.EnableLogToConsole)
+	{
+		logger.AddSink(std::make_unique<Logging::ConsoleSink>());
+	}
+
+	if (config.EnableLogToFile)
+	{
+		logger.AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
+	}
+
+	logger.SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
+	{
+		Utils::MessageBoxDesc desc;
+		desc.Title = EnumToString(level);
+		desc.Title += " Error";
+		desc.Text = message.Message;
+		desc.Flags.Button = Utils::MessagBoxButton::Ok;
+		desc.Flags.Icon = Utils::MessageBoxIcon::Error;
+
+		Utils::ShowMessageBox(desc);
+		PANIC("FATAL PROBLEMO");
+	});
 }

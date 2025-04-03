@@ -1,21 +1,21 @@
 #pragma once
 #include "Common/ObjectMacros.h"
 #include "Common/Enum.h"
-#include "Logger/LogCategory.h"
-#include <string>
+#include "Logger/Logger.h"
+#include <Elos/Event/Signal.h>
 #include <filesystem>
 #include <toml++/toml.hpp>
-#include <type_traits>
 #include <array>
-#include <vector>
 
 namespace Ryu::Config
 {
 	namespace fs = std::filesystem;
+	class ConfigValueBase;
 
 	class ConfigBase
 	{
 		friend class ConfigManager;
+		friend class ConfigValueBase;
 		RYU_LOG_CATEGORY(ConfigManager);
 	public:
 		ConfigBase(const std::string& filename) : m_filename(filename) {}
@@ -32,104 +32,128 @@ namespace Ryu::Config
 		NODISCARD fs::path GetFullPath() const;
 
 	protected:
-		virtual void Serialize(toml::table& table) const = 0;
-		virtual void Deserialize(const toml::table& table) = 0;
+		virtual void Serialize(toml::table& table) const { SerializeAll(table); }
+		virtual void Deserialize(const toml::table& table) { DeserializeAll(table); }
+
+		void SerializeAll(toml::table& table) const;
+		void DeserializeAll(const toml::table& table);
 
 	private:
 		std::string m_filename;
 		toml::table m_table;
-		bool        m_isDirty = false;
+		bool        m_isDirty      = false;
 		bool        m_isRegistered = false;
+		std::vector<ConfigValueBase*> m_configValues;
 	};
 
 	template<typename T>
-	concept TomlCompatible =
-		std::is_same_v<T, std::string> ||
-		std::is_same_v<T, const char*> ||
-		std::is_integral_v<T> ||
-		std::is_floating_point_v<T> ||
-		std::is_same_v<T, bool> ||
-		std::is_same_v<std::remove_cvref_t<T>, toml::array> ||
-		std::is_same_v<std::remove_cvref_t<T>, toml::table>;
+	concept TomlCompatible = std::is_same_v<T, std::string>
+		|| std::is_same_v<T, const char*>
+		|| std::is_integral_v<T>
+		|| std::is_floating_point_v<T>
+		|| std::is_same_v<T, bool>
+		|| std::is_same_v<std::remove_cvref_t<T>, toml::array>
+		|| std::is_same_v<std::remove_cvref_t<T>, toml::table>;
 
-	template<typename T>
-	class ConfigValue
+	// Base class for all ConfigValue types
+	class ConfigValueBase
 	{
 	public:
-		// Constructor now separates the section name and key
-		ConfigValue(ConfigBase* owner, const std::string& section, const std::string& key, const T& defaultValue = T{})
-			: m_owner(owner), m_section(section), m_key(key), m_value(defaultValue)
+		ConfigValueBase(ConfigBase* owner, const std::string_view& section, const std::string_view& key)
+			: m_owner(owner), m_section(section.data()), m_key(key.data()) 
+		{
+			if (owner)
+			{
+				owner->m_configValues.push_back(this);
+			}
+		}
+
+		virtual ~ConfigValueBase() = default;
+
+		inline NODISCARD const std::string& GetSection() const { return m_section; }
+		inline NODISCARD const std::string& GetKey() const { return m_key; }
+
+		virtual void Serialize(toml::table& table) const = 0;
+		virtual void Deserialize(const toml::table& table) = 0;
+
+	protected:
+		void MarkDirty()
+		{
+			if (m_owner)
+			{
+				m_owner->MarkDirty();
+			}
+		}
+
+		toml::table& GetOrCreateSectionTable(toml::table& table) const;		
+		const toml::table* GetSectionTable(const toml::table& table) const;
+
+	protected:
+		RYU_LOG_CATEGORY(ConfigValue);
+
+		ConfigBase* m_owner;
+		std::string m_section;
+		std::string m_key;
+	};
+
+	template<typename T>
+	class ConfigValue : ConfigValueBase
+	{
+	public:
+		using ValueType = T;
+		using ValidationCallback = std::function<bool(const T&)>;
+		using ChangeCallback = Elos::Signal<const T&, const T&>;
+
+		ConfigValue(ConfigBase* owner, const std::string_view section, const std::string_view key,
+			const ValueType& defaultValue = ValueType{}, ValidationCallback validator = nullptr)
+			: ConfigValueBase(owner, section, key), m_value(defaultValue), m_validator(validator)
 		{
 		}
 
-		// Implicit conversion to T
-		operator T() const { return m_value; }
+		operator ValueType() const { return m_value; }
+		inline NODISCARD const T& Get() const { return m_value; }
 
-		// Assignment operator
-		ConfigValue& operator=(const T& value)
+		ConfigValue& operator=(const ValueType& value)
 		{
-			if (m_value != value)
-			{
-				m_value = value;
-				m_owner->MarkDirty();
-			}
+			Set(value);
 			return *this;
 		}
 
-		NODISCARD const T& Get() const { return m_value; }
-
-		void Set(const T& value)
+		void Set(const ValueType& value)
 		{
-			if (m_value != value)
+			if (m_value != value && IsValid(value))
 			{
+				ValueType oldValue = m_value;
 				m_value = value;
-				m_owner->MarkDirty();
+				MarkDirty();
+				
+				OnChangedSingal.Emit(oldValue, m_value);
 			}
 		}
 
-		NODISCARD const std::string& GetSection() const { return m_section; }
-		NODISCARD const std::string& GetKey() const { return m_key; }
-
 		void Serialize(toml::table& table) const
 		{
-			if constexpr (TomlCompatible<T>)
+			if constexpr (TomlCompatible<ValueType>)
 			{
-				// Make sure section table exists
-				if (!m_section.empty())
-				{
-					if (!table.contains(m_section))
-					{
-						table.insert(m_section, toml::table{});
-					}
-					auto& sectionTable = *table[m_section].as_table();
-					sectionTable.insert_or_assign(m_key, m_value);
-				}
-				else
-				{
-					// Root level key
-					table.insert_or_assign(m_key, m_value);
-				}
+				toml::table& sectionTable = GetOrCreateSectionTable(table);
+				sectionTable.insert_or_assign(m_key, m_value);
 			}
 		}
 
 		void Deserialize(const toml::table& table)
 		{
-			if (!m_section.empty())
+			const toml::table* sectionTable = GetSectionTable(table);
+			if (!sectionTable)
 			{
-				// Look for the section first
-				if (auto sectionNode = table.get(m_section))
-				{
-					if (auto sectionTable = sectionNode->as_table())
-					{
-						DeserializeFromTable(*sectionTable);
-					}
-				}
+				return;
 			}
-			else
-			{
-				// Root level key
-				DeserializeFromTable(table);
-			}
+
+			DeserializeFromTable(*sectionTable);
+		}
+
+		bool IsValid(const ValueType& value) const
+		{
+			return m_validator ? m_validator(value) : true;
 		}
 
 	private:
@@ -143,12 +167,22 @@ namespace Ryu::Config
 					{
 						m_value = val->get();
 					}
+					else
+					{
+						LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigValue),
+							"Type mismatch for '{}': expected string", m_key);
+					}
 				}
 				else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
 				{
 					if (auto val = node->as_integer())
 					{
 						m_value = static_cast<T>(val->get());
+					}
+					else
+					{
+						LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigValue),
+							"Type mismatch for '{}': expected integer", m_key);
 					}
 				}
 				else if constexpr (std::is_floating_point_v<T>)
@@ -157,6 +191,11 @@ namespace Ryu::Config
 					{
 						m_value = static_cast<T>(val->get());
 					}
+					else
+					{
+						LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigValue),
+							"Type mismatch for '{}': expected floating point", m_key);
+					}
 				}
 				else if constexpr (std::is_same_v<T, bool>)
 				{
@@ -164,88 +203,82 @@ namespace Ryu::Config
 					{
 						m_value = val->get();
 					}
+					else
+					{
+						LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigValue),
+							"Type mismatch for '{}': expected boolean", m_key);
+					}
 				}
 			}
 		}
 
-		ConfigBase* m_owner;
-		std::string m_section;
-		std::string m_key;
-		T m_value;
+	public:
+		ChangeCallback OnChangedSingal;
+
+	private:
+		ValueType          m_value;
+		ValidationCallback m_validator;
 	};
 
 	// Specialization for enum
 	template <IsEnum T>
-	class ConfigValue<T>
+	class ConfigValue<T> : public ConfigValueBase
 	{
 	public:
-		ConfigValue(ConfigBase* owner, const std::string& section, const std::string& key, const T& defaultValue = T{})
-			: m_owner(owner), m_section(section), m_key(key), m_value(defaultValue)
+		using ValueType = T;
+		using ValidationCallback = std::function<bool(const T&)>;
+		using ChangeCallback = Elos::Signal<const T&, const T&>;
+
+		ConfigValue(ConfigBase* owner, const std::string_view section, const std::string_view key,
+			const ValueType& defaultValue = ValueType{}, ValidationCallback validator = nullptr)
+			: ConfigValueBase(owner, section, key), m_value(defaultValue), m_validator(validator)
 		{
 		}
 
-		operator T() const { return m_value; }
+		operator ValueType() const { return m_value; }
+		inline NODISCARD const ValueType& Get() const { return m_value; }
 
-		ConfigValue& operator=(const T& value)
+		ConfigValue& operator=(const ValueType& value)
 		{
-			if (m_value != value)
-			{
-				m_value = value;
-				m_owner->MarkDirty();
-			}
+			Set(value);
 			return *this;
 		}
 
-		NODISCARD const T& Get() const { return m_value; }
-
-		void Set(const T& value)
+		void Set(const ValueType& value)
 		{
-			if (m_value != value)
+			if (m_value != value && IsValid(value))
 			{
+				ValueType oldValue = m_value;
 				m_value = value;
-				m_owner->MarkDirty();
+				MarkDirty();
+				
+				OnChangedSingal.Emit(oldValue, m_value);
 			}
 		}
 
 		void Serialize(toml::table& table) const
 		{
-			std::string enumStr = std::string(::Ryu::EnumToString(m_value));
+			static_assert(std::is_enum_v<T>, "T must be an enum type");
 
-			// Make sure section table exists
-			if (!m_section.empty())
-			{
-				if (!table.contains(m_section))
-				{
-					table.insert(m_section, toml::table{});
-				}
-				auto& sectionTable = *table[m_section].as_table();
-				sectionTable.insert_or_assign(m_key, enumStr);
-			}
-			else
-			{
-				// Root level key
-				table.insert_or_assign(m_key, enumStr);
-			}
+			const std::string enumStr(::Ryu::EnumToString(m_value));
+			toml::table& sectionTable = GetOrCreateSectionTable(table);
+			sectionTable.insert_or_assign(m_key, enumStr);
 		}
 
 		void Deserialize(const toml::table& table)
 		{
-			if (!m_section.empty())
+			const toml::table* sectionTable = GetSectionTable(table);
+			if (!sectionTable)
 			{
-				// Look for the section first
-				if (auto sectionNode = table.get(m_section))
-				{
-					if (auto sectionTable = sectionNode->as_table())
-					{
-						DeserializeFromTable(*sectionTable);
-					}
-				}
+				return;
 			}
-			else
-			{
-				// Root level key
-				DeserializeFromTable(table);
-			}
+
+			DeserializeFromTable(*sectionTable);
+		}
+
+		bool IsValid(const ValueType& value) const
+		{
+			return m_validator ? m_validator(value) : true;
 		}
 
 	private:
@@ -255,54 +288,62 @@ namespace Ryu::Config
 			{
 				if (auto strVal = node->as_string())
 				{
-					// Convert string to enum
-					m_value = StringToEnum(strVal->get(), m_value);
+					m_value = ::Ryu::StringToEnum(strVal->get(), m_value);
+				}
+				else
+				{
+					LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigValue),
+						"Type mismatch for '{}': expected string for enum", m_key);
 				}
 			}
 		}
 
-		ConfigBase* m_owner;
-		std::string m_section;
-		std::string m_key;
-		T m_value;
+	public:
+		ChangeCallback OnChangedSingal;
 
+	private:
+		ValueType          m_value;
+		ValidationCallback m_validator;
 	};
 
 
 	// Special handling for BitMaskEnabled enums (flags)
 	template<BitMaskEnabled T>
-	class ConfigValue<T>
+	class ConfigValue<T> : public ConfigValueBase
 	{
 	public:
-		ConfigValue(ConfigBase* owner, const std::string& section, const std::string& key, const T& defaultValue = T{})
-			: m_owner(owner), m_section(section), m_key(key), m_value(defaultValue)
+		using ValueType = T;
+		using ValidationCallback = std::function<bool(const T&)>;
+		using ChangeCallback = Elos::Signal<const T&, const T&>;
+
+		ConfigValue(ConfigBase* owner, const std::string_view section, const std::string_view key,
+			ValueType& defaultValue = ValueType{}, ValidationCallback validator = nullptr)
+			: ConfigValueBase(owner, section, key), m_value(defaultValue), m_validator(validator)
 		{
 		}
 
-		operator T() const { return m_value; }
+		operator ValueType() const { return m_value; }
+		inline NODISCARD const ValueType& Get() const { return m_value; }
 
-		ConfigValue& operator=(const T& value)
+		ConfigValue& operator=(const ValueType& value)
 		{
-			if (m_value != value)
-			{
-				m_value = value;
-				m_owner->MarkDirty();
-			}
+			Set(value);
 			return *this;
 		}
 
-		NODISCARD const T& Get() const { return m_value; }
-
-		void Set(const T& value)
+		void Set(const ValueType& value)
 		{
-			if (m_value != value)
+			if (m_value != value && IsValid(value))
 			{
+				ValueType oldValue = m_value;
 				m_value = value;
-				m_owner->MarkDirty();
+				MarkDirty();
+				
+				OnChangedSingal.Emit(oldValue, m_value);
 			}
 		}
 		
-		bool HasFlag(T flag) const
+		bool HasFlag(ValueType flag) const
 		{
 			return (m_value & flag) == flag;
 		}
@@ -311,13 +352,19 @@ namespace Ryu::Config
 		{
 			if (value && !HasFlag(flag))
 			{
+				ValueType oldValue = m_value;
 				m_value |= flag;
-				m_owner->MarkDirty();
+				MarkDirty();
+
+				OnChangedSingal.Emit(oldValue, m_value);
 			}
 			else if (HasFlag(flag))
 			{
+				ValueType oldValue = m_value;
 				m_value &= ~flag;
-				m_owner->MarkDirty();
+				MarkDirty();
+
+				OnChangedSingal.Emit(oldValue, m_value);
 			}
 		}
 
@@ -343,104 +390,94 @@ namespace Ryu::Config
 				flagsArray.push_back("None");
 			}
 
-			// Make sure section table exists
-			if (!m_section.empty())
-			{
-				if (!table.contains(m_section))
-				{
-					table.insert(m_section, toml::table{});
-				}
-				auto& sectionTable = *table[m_section].as_table();
-				sectionTable.insert_or_assign(m_key, std::move(flagsArray));
-			}
-			else
-			{
-				// Root level key
-				table.insert_or_assign(m_key, std::move(flagsArray));
-			}
+			auto& sectionTable = GetOrCreateSectionTable(table);
+			sectionTable.insert_or_assign(m_key, std::move(flagsArray));
 		}
 
 		void Deserialize(const toml::table& table)
 		{
-			if (!m_section.empty())
+			const toml::table* sectionTable = GetSectionTable(table);
+			if (!sectionTable)
 			{
-				// Look for the section first
-				if (auto sectionNode = table.get(m_section))
-				{
-					if (auto sectionTable = sectionNode->as_table())
-					{
-						DeserializeFromTable(*sectionTable);
-					}
-				}
+				return;
 			}
-			else
-			{
-				// Root level key
-				DeserializeFromTable(table);
-			}
+
+			DeserializeFromTable(*sectionTable);
+		}
+		
+		bool IsValid(const ValueType& value) const
+		{
+			return m_validator ? m_validator(value) : true;
 		}
 
-		private:
-			void DeserializeFromTable(const toml::table& table)
+	private:
+		void DeserializeFromTable(const toml::table& table)
+		{
+			if (auto node = table.get(m_key))
 			{
-				if (auto node = table.get(m_key))
+				if (auto arrayVal = node->as_array())
 				{
-					if (auto arrayVal = node->as_array())
-					{
-						// Start with no flags set
-						m_value = static_cast<T>(0);
+					// Start with no flags set
+					m_value = static_cast<T>(0);
 
-						// Add each flag from the array
-						for (const auto& flagNode : *arrayVal)
+					// Add each flag from the array
+					for (const auto& flagNode : *arrayVal)
+					{
+						if (auto flagStr = flagNode.as_string())
 						{
-							if (auto flagStr = flagNode.as_string())
+							std::string flagName = flagStr->get();
+							if (flagName != "None")
 							{
-								std::string flagName = flagStr->get();
-								if (flagName != "None")
+								// Find the matching enum value
+								for (u32 i = 0; i < 32; ++i) // Assuming 32-bit enum
 								{
-									// Find the matching enum value
-									for (u32 i = 0; i < 32; ++i) // Assuming 32-bit enum
+									T flag = static_cast<T>(1 << i);
+									if (std::string(EnumToString(flag)) == flagName)
 									{
-										T flag = static_cast<T>(1 << i);
-										if (std::string(EnumToString(flag)) == flagName)
-										{
-											m_value |= flag;
-											break;
-										}
+										m_value |= flag;
+										break;
 									}
 								}
 							}
 						}
 					}
-					else if (auto strVal = node->as_string())
+				}
+				else if (auto strVal = node->as_string())
+				{
+					// Handle case where it might be a single string instead of an array
+					std::string flagName = strVal->get();
+					if (flagName != "None")
 					{
-						// Handle case where it might be a single string instead of an array
-						std::string flagName = strVal->get();
-						if (flagName != "None")
+						// Find the matching enum value
+						for (u32 i = 0; i < 32; ++i) // Assuming 32-bit enum
 						{
-							// Find the matching enum value
-							for (u32 i = 0; i < 32; ++i) // Assuming 32-bit enum
+							T flag = static_cast<T>(1 << i);
+							if (std::string(EnumToString(flag)) == flagName)
 							{
-								T flag = static_cast<T>(1 << i);
-								if (std::string(EnumToString(flag)) == flagName)
-								{
-									m_value = flag;
-									break;
-								}
+								m_value = flag;
+								break;
 							}
 						}
-						else
-						{
-							m_value = static_cast<T>(0);
-						}
+					}
+					else
+					{
+						m_value = static_cast<T>(0);
 					}
 				}
+				else
+				{
+					LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigValue),
+						"Type mismatch for '{}': expected array for flags", m_key);
+				}
 			}
+		}
+	
+	public:
+		ChangeCallback OnChangedSingal;
 
-			ConfigBase* m_owner;
-			std::string m_section;
-			std::string m_key;
-			T m_value;
+	private:
+		ValueType          m_value;
+		ValidationCallback m_validator;
 	};
 
 	namespace Internal
@@ -482,36 +519,38 @@ namespace Ryu::Config
 	// ConfigValue specialization for std::vector
 	template<typename T>
 		requires Internal::IsVector_v<T> && TomlCompatible<Internal::ContainerValueType_t<T>>
-	class ConfigValue<T>
+	class ConfigValue<T> : public ConfigValueBase
 	{
 	public:
+		using ValueType = T;
 		using ElementType = Internal::ContainerValueType_t<T>;
+		using ValidationCallback = std::function<bool(const T&)>;
+		using ChangeCallback = Elos::Signal<const T&, const T&>;
 
-		ConfigValue(ConfigBase* owner, const std::string& section, const std::string& key, const T& defaultValue = T{})
-			: m_owner(owner), m_section(section), m_key(key), m_value(defaultValue)
+		ConfigValue(ConfigBase* owner, const std::string_view section, const std::string_view key,
+			const ValueType& defaultValue = ValueType{}, ValidationCallback validator = nullptr)
+			: ConfigValueBase(owner, section, key), m_value(defaultValue), m_validator(validator)
 		{
 		}
 
 		operator const T& () const { return m_value; }
+		inline NODISCARD const T& Get() const { return m_value; }
 
 		ConfigValue& operator=(const T& value)
 		{
-			if (m_value != value)
-			{
-				m_value = value;
-				m_owner->MarkDirty();
-			}
+			Set(value);
 			return *this;
 		}
 
-		NODISCARD const T& Get() const { return m_value; }
-
 		void Set(const T& value)
 		{
-			if (m_value != value)
+			if (m_value != value && IsValid(value))
 			{
+				ValueType oldValue = m_value;
 				m_value = value;
-				m_owner->MarkDirty();
+				MarkDirty();
+
+				OnChangedSingal.Emit(oldValue, m_value);
 			}
 		}
 
@@ -524,8 +563,11 @@ namespace Ryu::Config
 		{
 			if (index < m_value.size() && m_value[index] != value)
 			{
+				ValueType oldValue = m_value;
 				m_value[index] = value;
-				m_owner->MarkDirty();
+				MarkDirty();
+
+				OnChangedSingal.Emit(oldValue, m_value);
 			}
 		}
 
@@ -538,41 +580,24 @@ namespace Ryu::Config
 				arr.push_back(element);
 			}
 
-			// Make sure section table exists
-			if (!m_section.empty())
-			{
-				if (!table.contains(m_section))
-				{
-					table.insert(m_section, toml::table{});
-				}
-				auto& sectionTable = *table[m_section].as_table();
-				sectionTable.insert_or_assign(m_key, std::move(arr));
-			}
-			else
-			{
-				// Root level key
-				table.insert_or_assign(m_key, std::move(arr));
-			}
+			toml::table& sectionTable = GetOrCreateSectionTable(table);
+			sectionTable.insert_or_assign(m_key, std::move(arr));
 		}
 
 		void Deserialize(const toml::table& table)
 		{
-			if (!m_section.empty())
+			const toml::table* sectionTable = GetSectionTable(table);
+			if (!sectionTable)
 			{
-				// Look for the section first
-				if (auto sectionNode = table.get(m_section))
-				{
-					if (auto sectionTable = sectionNode->as_table())
-					{
-						DeserializeFromTable(*sectionTable);
-					}
-				}
+				return;
 			}
-			else
-			{
-				// Root level key
-				DeserializeFromTable(table);
-			}
+
+			DeserializeFromTable(*sectionTable);
+		}
+
+		bool IsValid(const ValueType& value) const
+		{
+			return m_validator ? m_validator(value) : true;
 		}
 
 	private:
@@ -618,53 +643,61 @@ namespace Ryu::Config
 						}
 					}
 				}
+				else
+				{
+					LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigValue),
+						"Type mismatch for '{}': expected array", m_key);
+				}
 			}
 		}
 
-		ConfigBase* m_owner;
-		std::string m_section;
-		std::string m_key;
-		T m_value;
+	public:
+		ChangeCallback OnChangedSingal;
+
+	private:
+		ValueType          m_value;
+		ValidationCallback m_validator;
 	};
 
 	// ConfigValue specialization for std::array
 	template<typename T>
 		requires Internal::IsArray_v<T>&& TomlCompatible<Internal::ContainerValueType_t<T>>
-	class ConfigValue<T>
+	class ConfigValue<T> : public ConfigValueBase
 	{
 	public:
-		using ElementType = Internal::ContainerValueType_t<T>;
+		using ValueType = T;
 		static constexpr std::size_t Size = std::tuple_size_v<T>;
+		using ElementType = Internal::ContainerValueType_t<T>;
+		using ValidationCallback = std::function<bool(const T&)>;
+		using ChangeCallback = Elos::Signal<const T&, const T&>;
 
-		ConfigValue(ConfigBase* owner, const std::string& section, const std::string& key, const T& defaultValue = T{})
-			: m_owner(owner), m_section(section), m_key(key), m_value(defaultValue)
+		ConfigValue(ConfigBase* owner, const std::string_view section, const std::string_view key,
+			const ValueType& defaultValue = ValueType{}, ValidationCallback validator = nullptr)
+			: ConfigValueBase(owner, section, key), m_value(defaultValue), m_validator(validator)
 		{
 		}
 
 		operator const T& () const { return m_value; }
+		inline NODISCARD const T& Get() const { return m_value; }
 
 		ConfigValue& operator=(const T& value)
 		{
-			if (m_value != value)
-			{
-				m_value = value;
-				m_owner->MarkDirty();
-			}
+			Set(value);
 			return *this;
 		}
 
-		NODISCARD const T& Get() const { return m_value; }
-
 		void Set(const T& value)
 		{
-			if (m_value != value)
+			if (m_value != value && IsValid(value))
 			{
+				ValueType oldValue = m_value;
 				m_value = value;
-				m_owner->MarkDirty();
+				MarkDirty();
+
+				OnChangedSingal.Emit(oldValue, m_value);
 			}
 		}
 
-		// Element access
 		NODISCARD const ElementType& operator[](size_t index) const
 		{
 			return m_value[index];
@@ -674,12 +707,13 @@ namespace Ryu::Config
 		{
 			if (index < Size && m_value[index] != value)
 			{
+				ValueType oldValue = m_value;
 				m_value[index] = value;
-				m_owner->MarkDirty();
+				MarkDirty();
+
+				OnChangedSingal.Emit(oldValue, m_value);
 			}
 		}
-
-		NODISCARD constexpr size_t GetSize() const { return Size; }
 
 		void Serialize(toml::table& table) const
 		{
@@ -689,39 +723,19 @@ namespace Ryu::Config
 				arr.push_back(element);
 			}
 
-			if (!m_section.empty())
-			{
-				if (!table.contains(m_section))
-				{
-					table.insert(m_section, toml::table{});
-				}
-				auto& sectionTable = *table[m_section].as_table();
-				sectionTable.insert_or_assign(m_key, std::move(arr));
-			}
-			else
-			{
-				// Root level key
-				table.insert_or_assign(m_key, std::move(arr));
-			}
+			toml::table& sectionTable = GetOrCreateSectionTable(table);
+			sectionTable.insert_or_assign(m_key, std::move(arr));
 		}
 
 		void Deserialize(const toml::table& table)
 		{
-			if (!m_section.empty())
+			const toml::table* sectionTable = GetSectionTable(table);
+			if (!sectionTable)
 			{
-				if (auto sectionNode = table.get(m_section))
-				{
-					if (auto sectionTable = sectionNode->as_table())
-					{
-						DeserializeFromTable(*sectionTable);
-					}
-				}
+				return;
 			}
-			else
-			{
-				// Root level key
-				DeserializeFromTable(table);
-			}
+
+			DeserializeFromTable(*sectionTable);
 		}
 
 	private:
@@ -768,19 +782,13 @@ namespace Ryu::Config
 			}
 		}
 
-		ConfigBase* m_owner;
-		std::string m_section;
-		std::string m_key;
-		T m_value;
-	};
-}
+	public:
+		ChangeCallback OnChangedSingal;
 
-// Macro to help with declaring config structs
-#define RYU_DECLARE_CONFIG(ThisType, filename)                                                     \
-	public:                                                                                        \
-		static ThisType& Get() { return ::Ryu::Utils::Singleton<ThisType>::Get(); }                \
-	private:                                                                                       \
-		friend class ::Ryu::Utils::Singleton<ThisType>;                                            \
-		friend class ::Ryu::Config::ConfigBase;                                                    \
-	public:                                                                                        \
-		ThisType() : ::Ryu::Config::ConfigBase(filename) { Load(); ::Ryu::Config::ConfigManager::Get().RegisterConfig(this); }
+	private:
+		ValueType          m_value;
+		ValidationCallback m_validator;
+	};
+
+	using ConfigSection = std::string_view;
+}

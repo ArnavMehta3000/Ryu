@@ -1,9 +1,53 @@
 #include "ConfigBase.h"
+#include "Profiling/Profiling.h"
 #include "Config/ConfigManager.h"
-#include "Logger/Logger.h"
 
 namespace Ryu::Config
 {
+	toml::table& ConfigValueBase::GetOrCreateSectionTable(toml::table& table) const
+	{
+		if (!m_section.empty())
+		{
+			if (!table.contains(m_section))
+			{
+				table.insert(m_section, toml::table{});
+			}
+			return *table[m_section].as_table();
+		}
+		return table;
+	}
+
+	const toml::table* ConfigValueBase::GetSectionTable(const toml::table& table) const
+	{
+		if (!m_section.empty())
+		{
+			if (auto sectionNode = table.get(m_section))
+			{
+				return sectionNode->as_table();
+			}
+			return nullptr;
+		}
+		return &table;
+	}
+
+	void ConfigBase::SerializeAll(toml::table& table) const
+	{
+		RYU_PROFILE_SCOPE();
+		for (auto& value : m_configValues)
+		{
+			value->Serialize(table);
+		}
+	}
+	
+	void ConfigBase::DeserializeAll(const toml::table& table)
+	{
+		RYU_PROFILE_SCOPE();
+		for (auto& value : m_configValues)
+		{
+			value->Deserialize(table);
+		}
+	}
+
 	ConfigBase::~ConfigBase()
 	{
 		if (m_isRegistered)
@@ -13,15 +57,19 @@ namespace Ryu::Config
 
 		if (m_isDirty)
 		{
-			LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigManager), "Config was marked dirty before exiting. Changes will not be saved!");
+			LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigManager), "Config ({}) was marked dirty before exiting. Changes will not be saved!", m_filename);
 		}
 	}
 	
 	bool ConfigBase::Load()
 	{
+		RYU_PROFILE_SCOPE();
 		try
 		{
-			fs::path path = GetFullPath();
+			const fs::path path = GetFullPath();
+			const std::string dbgMsg = "Load config: " + path.string();
+			RYU_PROFILE_SCOPE_TEXT(dbgMsg);
+			
 			if (!std::filesystem::exists(path))
 			{
 				// File doesn't exist yet, create with default values
@@ -37,7 +85,16 @@ namespace Ryu::Config
 			// Deserialize values
 			Deserialize(m_table);
 
-			m_isDirty = false;
+			// Create temporary table with all current values and compare
+			toml::table currentTable;
+			Serialize(currentTable);
+			if (currentTable != m_table)
+			{
+				// Tables differ - merge new fields into m_table
+				m_table = currentTable;
+				m_isDirty = true;
+			}
+
 			return true;
 		}
 		catch (const std::exception& e)
@@ -49,9 +106,12 @@ namespace Ryu::Config
 	
 	bool ConfigBase::Save() const
 	{
+		RYU_PROFILE_SCOPE();
 		try
 		{
-			fs::path path = GetFullPath();
+			const fs::path path = GetFullPath();
+			const std::string dbgMsg = "Save config: " + path.string();
+			RYU_PROFILE_SCOPE_TEXT(dbgMsg);
 
 			// Make sure the directory exists
 			fs::create_directories(path.parent_path());
@@ -60,9 +120,13 @@ namespace Ryu::Config
 			toml::table table;
 			Serialize(table);
 
+			toml::format_flags flags = toml::format_flags::indentation | toml::format_flags::allow_unicode_strings;
+			std::stringstream ss;
+			ss << toml::toml_formatter{ table, flags };
+
 			// Save to file
 			std::ofstream file(path);
-			file << table;
+			file << ss.str();
 
 			const_cast<ConfigBase*>(this)->m_isDirty = false;
 

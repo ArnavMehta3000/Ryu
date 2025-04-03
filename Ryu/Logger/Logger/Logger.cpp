@@ -65,29 +65,4 @@ namespace Ryu::Logging
 			}
 		}
 	}
-
-	void SetUpDefaultLogger(bool createConsoleSink)
-	{
-		Logger& logger = Logger::Get();
-#if defined(RYU_BUILD_DEBUG)
-		logger.AddSink(std::make_unique<Logging::DebugSink>());
-#endif
-		if (createConsoleSink)
-		{
-			logger.AddSink(std::make_unique<Logging::ConsoleSink>());
-		}
-
-		logger.SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
-		{
-			Utils::MessageBoxDesc desc;
-			desc.Title        = EnumToString(level);
-			desc.Title       += " Error";
-			desc.Text         = message.Message;
-			desc.Flags.Button = Utils::MessagBoxButton::Ok;
-			desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
-
-			Utils::ShowMessageBox(desc);
-			PANIC("FATAL PROBLEMO");
-		});
-	}
 }

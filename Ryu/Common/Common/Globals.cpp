@@ -1,4 +1,5 @@
 #include "Common/Globals.h"
+#include <Windows.h>
 
 namespace Ryu::Common::Globals
 {
@@ -7,4 +8,9 @@ namespace Ryu::Common::Globals
 #else
 	constexpr const bool g_isDebug = false;
 #endif
+	
+	bool IsDebuggerAttached()
+	{
+		return ::IsDebuggerPresent();
+	}
 }

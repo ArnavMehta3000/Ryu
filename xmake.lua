@@ -72,5 +72,7 @@ configDir = configDir:gsub("\\", "/")
 local defineValue = "RYU_ROOT_CONFIG_DIR=\"" .. configDir .. "\""
 add_defines(defineValue)
 
+set_config("ryu-enable-tracy-profiling", true)
+
 -- Include xmake projects
 includes("**/xmake.lua")

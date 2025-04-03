@@ -1,5 +1,11 @@
 [Debugging]
-PressEscapeToClose = false
+PressEscapeToClose = true
+
+[Log]
+EnableLogToConsole = true
+EnableLogToFile = true
+ForceLogToOutput = true
+LogFilePath = "Logs/LogTestbench.txt"
 
 [Window]
 WindowMinimumSize = [ 800, 600 ]

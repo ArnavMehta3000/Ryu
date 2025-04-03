@@ -1,5 +1,5 @@
 #include "DXGISwapChain.h"
-#include "GraphicsRHI/Config.h"
+#include "GraphicsRHI/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 #include "GraphicsRHI/Utils/Logging.h"
 

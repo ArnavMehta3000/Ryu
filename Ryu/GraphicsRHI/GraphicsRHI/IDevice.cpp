@@ -1,7 +1,7 @@
 #include "IDevice.h"
 #include "Common/StandardTypes.h"
 #include "Profiling/Profiling.h"
-#include "GraphicsRHI/Config.h"
+#include "GraphicsRHI/GraphicsConfig.h"
 #include "GraphicsRHI/IRenderer.h"
 #include "GraphicsRHI/Utils/Logging.h"
 #include <dxgidebug.h>

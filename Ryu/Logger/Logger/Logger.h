@@ -55,9 +55,9 @@ namespace Ryu::Logging
 	};
 }
 
-#define LOG_TRACE(category, message, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Trace, ::Ryu::Logging::LogMessage{ std::format(message, __VA_ARGS__), std::stacktrace::current() })
-#define LOG_DEBUG(category, message, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Debug, ::Ryu::Logging::LogMessage{ std::format(message, __VA_ARGS__), std::stacktrace::current() })
-#define LOG_INFO(category, message, ...)  ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Info, ::Ryu::Logging::LogMessage{ std::format(message, __VA_ARGS__), std::stacktrace::current() })
-#define LOG_WARN(category, message, ...)  ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Warn, ::Ryu::Logging::LogMessage{ std::format(message, __VA_ARGS__), std::stacktrace::current() })
-#define LOG_ERROR(category, message, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Error, ::Ryu::Logging::LogMessage{ std::format(message, __VA_ARGS__), std::stacktrace::current() })
-#define LOG_FATAL(category, message, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Fatal, ::Ryu::Logging::LogMessage{ std::format(message, __VA_ARGS__), std::stacktrace::current() })
+#define LOG_TRACE(category, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Trace, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define LOG_DEBUG(category, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Debug, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define LOG_INFO(category, ...)  ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Info, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define LOG_WARN(category,  ...)  ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Warn, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define LOG_ERROR(category, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Error, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define LOG_FATAL(category, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Fatal, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })

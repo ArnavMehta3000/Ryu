@@ -90,7 +90,7 @@ namespace Ryu::App
 		}
 	}
 
-	void Application::OnWindowKeyPressedEvent(const Elos::Event::KeyPressed& e)
+	void Application::OnWindowKeyPressedEvent(MAYBE_UNUSED const Elos::Event::KeyPressed& e)
 	{
 #if defined(RYU_BUILD_DEBUG)
 		if (e.Key == Elos::KeyCode::Escape && AppConfig::Get().EscToClose)
@@ -122,10 +122,24 @@ namespace Ryu::App
 
 void Ryu::App::Internal::SetUpDefaultLogger()
 {
+	RYU_LOG_CATEGORY(Ryu);
 	using namespace Ryu::Logging;
-	const AppConfig& config = AppConfig::Get();
 
 	Logger& logger = Logger::Get();
+	const AppConfig& config = AppConfig::Get();
+
+	logger.SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
+	{
+		Utils::MessageBoxDesc desc;
+		desc.Title        = EnumToString(level);
+		desc.Title       += " Error";
+		desc.Text         = message.Message;
+		desc.Flags.Button = Utils::MessagBoxButton::Ok;
+		desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
+
+		Utils::ShowMessageBox(desc);
+		PANIC("FATAL PROBLEMO");
+	});
 
 	// Log to output window only when debugger is attached
 	if (Common::Globals::IsDebuggerAttached() || config.ForceLogToOutput)
@@ -141,18 +155,8 @@ void Ryu::App::Internal::SetUpDefaultLogger()
 	if (config.EnableLogToFile)
 	{
 		logger.AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
+		LOG_TRACE(RYU_USE_LOG_CATEGORY(Ryu), "Application log file opened: {}", config.LogFilePath.Get());
 	}
 
-	logger.SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
-	{
-		Utils::MessageBoxDesc desc;
-		desc.Title = EnumToString(level);
-		desc.Title += " Error";
-		desc.Text = message.Message;
-		desc.Flags.Button = Utils::MessagBoxButton::Ok;
-		desc.Flags.Icon = Utils::MessageBoxIcon::Error;
-
-		Utils::ShowMessageBox(desc);
-		PANIC("FATAL PROBLEMO");
-	});
+	LOG_INFO(RYU_USE_LOG_CATEGORY(Ryu), "Logging initialized");
 }

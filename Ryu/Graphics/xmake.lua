@@ -12,8 +12,8 @@ target("RyuGraphics")
 
 	add_deps(
 		"RyuGraphicsRHI",
-		"RyuGraphicsDX11"
-		--"RyuGraphicsDX12"
+		"RyuGraphicsDX11",
+		"RyuGraphicsDX12"
 	)
 	add_rules("c++.unity_build")
 target_end()

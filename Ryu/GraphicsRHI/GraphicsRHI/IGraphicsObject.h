@@ -3,7 +3,7 @@
 #include "Utils/StringConv.h"
 #include "GraphicsRHI/Utils/ComPtr.h"
 #include "GraphicsRHI/Utils/Logging.h"
-#include "GraphicsRHI/API.h"
+#include "GraphicsRHI/GraphicsAPI.h"
 #include <any>
 #include <optional>
 #include <memory>
@@ -61,15 +61,12 @@ namespace Ryu::Graphics
 		}
 
 		inline void SetRendererInterface(IRenderer* renderer) { m_renderer = renderer; }
-		inline IRenderer* GetRendererInterface() const { return m_renderer; }
+		inline NODISCARD IRenderer* GetRendererInterface() const { return m_renderer; }
 
 	private:
 		IRenderer* m_renderer{ nullptr };
 	};
 }
-
-// Declare the native type of the graphics object
-#define RYU_DECLARE_GFX_NATIVE_TYPE(Type) using NativeType = Type
 
 // Declare native type implicit conversion operator
 #define RYU_DECLARE_GFX_NATIVE_TYPE_OP(ReturnValue)                        \
@@ -80,7 +77,7 @@ public:                                                                    \
 operator NativeType*() const { return ReturnValue; }
 
 // Get native type of the graphics object
-#define RYU_GET_GFX_NATIVE_TYPE(Object, Type) (Object)->GetNativeObjectAs<Type>().value_or(nullptr)
+#define RYU_GET_GFX_NATIVE_TYPE(Type, Object) (Object)->GetNativeObjectAs<Type>().value_or(nullptr)
 
 namespace Ryu::Graphics
 {
@@ -88,8 +85,8 @@ namespace Ryu::Graphics
 	class IGraphicsRHIObject 
 	{
 	public:
+		using NativeType = TNative;
 		virtual ~IGraphicsRHIObject() = default;
-		RYU_DECLARE_GFX_NATIVE_TYPE(TNative);
 
 		void SetName(std::string_view name)
 		{
@@ -103,8 +100,9 @@ namespace Ryu::Graphics
 		virtual inline TNative* GetNamedNativeObject() const = 0;
 
 	private:
-		void SetNameImpl(MAYBE_UNUSED TNative* native, std::string_view name)
+		void SetNameImpl(MAYBE_UNUSED TNative* native, MAYBE_UNUSED std::string_view name)
 		{
+#if defined(RYU_BUILD_DEBUG)
 			if constexpr (DX12Object<TNative>)
 			{
 				const std::string nameStr(name);
@@ -114,6 +112,7 @@ namespace Ryu::Graphics
 			{
 				DX11_NAME_OBJECT(native, name);
 			}
+#endif
 		}
 	};
 }

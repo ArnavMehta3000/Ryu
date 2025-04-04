@@ -61,6 +61,7 @@ namespace Ryu::Graphics
 		RYU_PROFILE_SCOPE();
 		DXCall(::CoInitializeEx(NULL, COINIT_MULTITHREADED));
 
+
 		auto deviceResult = CreateDevice();
 		if (!deviceResult)
 		{

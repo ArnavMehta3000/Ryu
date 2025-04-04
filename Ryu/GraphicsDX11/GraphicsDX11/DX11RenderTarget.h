@@ -1,5 +1,6 @@
 #pragma once
 #include "GraphicsDX11/DX11Types.h"
+#include "GraphicsDX11/DX11DeviceResource.h"
 #include "GraphicsRHI/IRenderTarget.h"
 #include "GraphicsDX11/DX11Texture2D.h"
 
@@ -18,7 +19,10 @@ namespace Ryu::Graphics::DX11
 		TextureUsage Usage = TextureUsage::RenderTarget;
 	};
 
-	class DX11RenderTarget : public IRenderTarget, public IGraphicsRHIObject<DX11::IDX11RenderTarget>
+	class DX11RenderTarget 
+		: public DX11DeviceResource
+		, public IRenderTarget
+		, public IGraphicsRHIObject<DX11::IDX11RenderTarget>
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_renderTarget.Get())
@@ -36,7 +40,6 @@ namespace Ryu::Graphics::DX11
 		void CreateRenderTargetView();
 
 	private:
-		const DX11Device*              m_device;
 		ComPtr<NativeType>             m_renderTarget;
 		RenderTargetDesc               m_desc;
 		std::unique_ptr<DX11Texture2D> m_texture;

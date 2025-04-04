@@ -1,7 +1,6 @@
 #pragma once
 #include "Common/Result.h"
 #include "GraphicsRHI/IGraphicsObject.h"
-#include "GraphicsRHI/API.h"
 #include <dxgi1_6.h>
 
 namespace Ryu::Graphics

@@ -1,7 +1,7 @@
 #pragma once
 #include "Common/Result.h"
 #include "Common/ObjectMacros.h"
-#include "GraphicsRHI/API.h"
+#include "GraphicsRHI/GraphicsAPI.h"
 #include "GraphicsRHI/ISwapChain.h"
 #include "GraphicsRHI/IDevice.h"
 #include "GraphicsRHI/ICommandList.h"

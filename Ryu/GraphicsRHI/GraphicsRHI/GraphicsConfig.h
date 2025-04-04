@@ -1,7 +1,7 @@
 #pragma once
 #include "Common/Globals.h"
 #include "Config/Config.h"
-#include "GraphicsRHI/API.h"
+#include "GraphicsRHI/GraphicsAPI.h"
 
 namespace Ryu::Graphics
 {

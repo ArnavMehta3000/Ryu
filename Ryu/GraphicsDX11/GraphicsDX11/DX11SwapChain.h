@@ -1,4 +1,5 @@
 #pragma once
+#include "GraphicsDX11/DX11DeviceResource.h"
 #include "GraphicsRHI/DXGI/DXGISwapChain.h"
 
 namespace Ryu::Graphics::DX11
@@ -6,7 +7,9 @@ namespace Ryu::Graphics::DX11
 	class DX11RenderTarget;
 	class DX11Device;
 
-	class DX11SwapChain : public DXGISwapChain
+	class DX11SwapChain 
+		: public DX11DeviceResource
+		, public DXGISwapChain
 	{
 	public:
 		DX11SwapChain(const DX11Device* device, const SwapChainDesc& desc);
@@ -19,7 +22,6 @@ namespace Ryu::Graphics::DX11
 		IRenderTarget* GetBackBufferRenderTarget() const override;
 
 	private:
-		const DX11Device* m_device;
 		std::unique_ptr<DX11RenderTarget> m_renderTarget;
 	};
 }

@@ -9,14 +9,14 @@
 namespace Ryu::Graphics::DX11
 {
 	DX11SwapChain::DX11SwapChain(const DX11Device* device, const SwapChainDesc& desc)
-		: DXGISwapChain(desc)
-		, m_device(device)
+		: DX11DeviceResource(device)
+		, DXGISwapChain(desc)
 	{
 		RYU_PROFILE_SCOPE();
 		CreateSwapChain();
 		CreateBackBufferRenderTarget();
 
-		m_device->InitializeResource(this);
+		GetDevice()->InitializeResource(this);
 		SetName("DX11 Swap Chain");
 	}
 	
@@ -34,8 +34,8 @@ namespace Ryu::Graphics::DX11
 		m_renderTarget.reset();
 		m_swapChain.Reset();
 
-		DX11Device::NativeType* device = *m_device;
-		IDXGIAdapter4* adapter = m_device->GetAdapter();
+		DX11Device::NativeType* device = *GetDevice();
+		IDXGIAdapter4* const adapter = GetDevice()->GetAdapter();
 
 		u32 numerator = 60;
 		u32 denominator = 1;
@@ -98,7 +98,7 @@ namespace Ryu::Graphics::DX11
 		fsDesc.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
 
 		ComPtr<IDXGISwapChain1> swapChain1;
-		DXCall(m_device->GetDXGIFactory()->CreateSwapChainForHwnd(
+		DXCall(GetDevice()->GetDXGIFactory()->CreateSwapChainForHwnd(
 			device,
 			m_desc.WindowHandle,
 			&swapChainDesc1,
@@ -135,10 +135,10 @@ namespace Ryu::Graphics::DX11
 		textureDesc.SampleQuality = desc.SampleDesc.Quality;
 		textureDesc.Usage         = TextureUsage::RenderTarget | TextureUsage::ShaderResource;
 
-		auto backBufferTexture = std::make_unique<DX11Texture2D>(m_device, nativeBackBuffer1.Detach());
+		auto backBufferTexture = std::make_unique<DX11Texture2D>(GetDevice(), nativeBackBuffer1.Detach());
 		backBufferTexture->SetName("DX11 Back Buffer Texture");
 		
-		m_renderTarget = std::make_unique<DX11RenderTarget>(m_device, backBufferTexture.release());
+		m_renderTarget = std::make_unique<DX11RenderTarget>(GetDevice(), backBufferTexture.release());
 	}
 	
 	IRenderTarget* DX11SwapChain::GetBackBufferRenderTarget() const

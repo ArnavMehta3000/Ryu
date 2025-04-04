@@ -7,7 +7,7 @@
 namespace Ryu::Graphics::DX11
 {
 	DX11RenderTarget::DX11RenderTarget(const DX11Device* device, const RenderTargetDesc& desc)
-		: m_device(device)
+		: DX11DeviceResource(device)
 		, m_desc(desc)
 	{
 		RYU_PROFILE_SCOPE();
@@ -27,13 +27,15 @@ namespace Ryu::Graphics::DX11
 		}
 
 		m_texture = std::make_unique<DX11Texture2D>(device, texDesc);
-		m_device->InitializeResource(m_texture.get());
 
 		CreateRenderTargetView();
+		
+		GetDevice()->InitializeResource(m_texture.get());
+		SetName("DX11 Render Target");
 	}
 	
 	DX11RenderTarget::DX11RenderTarget(const DX11Device* device, DX11Texture2D* texture)
-		: m_device(device)
+		: DX11DeviceResource(device)
 	{
 		RYU_PROFILE_SCOPE();
 		DX11Texture2D::NativeType* nativeTexture = *texture;
@@ -57,7 +59,7 @@ namespace Ryu::Graphics::DX11
 		rtvDesc.ViewDimension      = D3D11_RTV_DIMENSION_TEXTURE2D;
 		rtvDesc.Texture2D.MipSlice = 0;
 
-		DX11Device::NativeType* nativeDevice = *m_device;
+		DX11Device::NativeType* nativeDevice = *GetDevice();
 		DXCall(nativeDevice->CreateRenderTargetView1(*m_texture, &rtvDesc, m_renderTarget.ReleaseAndGetAddressOf()));
 	}
 }

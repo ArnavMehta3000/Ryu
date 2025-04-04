@@ -1,12 +1,15 @@
 #pragma once
-#include "GraphicsDX11/DX11Types.h"
+#include "GraphicsDX11/DX11Device.h"
 #include "GraphicsRHI/ITexture2D.h"
 
 namespace Ryu::Graphics::DX11
 {
 	class DX11Device;
 
-	class DX11Texture2D : public ITexture2D, public IGraphicsRHIObject<DX11::IDX11Texture2D>
+	class DX11Texture2D 
+		: public DX11DeviceResource
+		, public ITexture2D
+		, public IGraphicsRHIObject<DX11::IDX11Texture2D>
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_texture.Get())
@@ -25,7 +28,6 @@ namespace Ryu::Graphics::DX11
 
 	private:
 		ComPtr<NativeType> m_texture;
-		const DX11Device*  m_device;
 		Texture2DDesc      m_desc;
 	};
 }

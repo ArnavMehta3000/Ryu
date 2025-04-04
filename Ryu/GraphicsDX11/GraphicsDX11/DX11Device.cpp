@@ -1,20 +1,21 @@
 #include "DX11Device.h"
 #include "Profiling/Profiling.h"
 #include "GraphicsRHI/GraphicsConfig.h"
-#include "GraphicsRHI/IRenderer.h"
 #include "GraphicsRHI/Utils/Logging.h"
-#include "GraphicsRHI/Utils/D3DUtil.h"
 #include "GraphicsDX11/DX11SwapChain.h"
 #include "GraphicsDX11/DX11CommandList.h"
+#include "GraphicsDX11/DX11DeviceResource.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::DX11
 {
+	DX11DeviceResource::operator IDX11Device* () const { return *m_device; }
+
 	DX11Device::DX11Device()
 	{
 		RYU_PROFILE_SCOPE();
 		DEBUG_ASSERT((GraphicsConfig::Get().GraphicsAPI.Get() == API::DirectX11),
-			"DeviceCreateDesc graphics API must be DirectX11!");
+			"Graphics API must be DirectX11!");
 		
 		InitDevice();
 	}
@@ -73,15 +74,13 @@ namespace Ryu::Graphics::DX11
 		RYU_PROFILE_SCOPE();
 		DEBUG_ASSERT(m_device, "DX11Device is not initialized!");
 
-		auto ptr = std::make_unique<DX11CommandList>(this, desc);
-		
-		return std::move(ptr);
+		return std::make_unique<DX11CommandList>(this, desc);
 	}
 
 	void DX11Device::ExecuteCommandList(const ICommandList* commandList) const
 	{
 		RYU_PROFILE_SCOPE();
-		if (DX11CommandList::NativeType* cmdList = RYU_GET_GFX_NATIVE_TYPE(commandList, DX11CommandList::NativeType))
+		if (DX11CommandList::NativeType* cmdList = RYU_GET_GFX_NATIVE_TYPE(DX11CommandList::NativeType, commandList))
 		{
 			m_imContext->ExecuteCommandList(cmdList, FALSE);
 		}
@@ -112,6 +111,10 @@ namespace Ryu::Graphics::DX11
 			return;
 		}
 
+		DEBUG_ASSERT(m_dxgiFactory, "DXGI factory is not initialized!");
+		DEBUG_ASSERT(m_adapter, "Adapter is not initialized!");
+
+		// Create device (scoped for ComPtr)
 		D3D_FEATURE_LEVEL achievedFeatureLevel;
 		{
 			ComPtr<ID3D11Device> device;

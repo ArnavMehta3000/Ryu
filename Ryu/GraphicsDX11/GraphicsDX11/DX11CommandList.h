@@ -1,5 +1,5 @@
 #pragma once
-#include "GraphicsDX11/DX11Types.h"
+#include "GraphicsDX11/DX11DeviceResource.h"
 #include "GraphicsRHI/ICommandList.h"
 
 namespace Ryu::Graphics::DX11
@@ -7,7 +7,10 @@ namespace Ryu::Graphics::DX11
 	class DX11Device;
 	class DX11RenderTarget;
 
-	class DX11CommandList : public ICommandList, public IGraphicsRHIObject<DX11::ID3D11CommandList>
+	class DX11CommandList 
+		: public DX11DeviceResource
+		, public ICommandList
+		, public IGraphicsRHIObject<DX11::ID3D11CommandList>
 	{
 	public:
 		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_cmdList.Get())
@@ -27,7 +30,6 @@ namespace Ryu::Graphics::DX11
 		void ClearRenderTargetViewImpl(DX11RenderTarget* renderTarget, const f32* clearColor);
 
 	private:
-		const DX11Device*                m_device;
 		ComPtr<NativeType>               m_cmdList;
 		ComPtr<DX11::IDX11DeviceContext> m_context;
 	};

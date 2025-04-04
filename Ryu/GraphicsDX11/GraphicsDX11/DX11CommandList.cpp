@@ -1,5 +1,4 @@
 #include "DX11CommandList.h"
-#include "Common/StandardTypes.h"
 #include "Profiling/Profiling.h"
 #include "GraphicsRHI/Utils/Logging.h"
 #include "GraphicsDX11/DX11Device.h"
@@ -11,18 +10,18 @@ namespace Ryu::Graphics::DX11
 	static u32 _count = 0;
 	
 	DX11CommandList::DX11CommandList(const DX11Device* device, const CommandListDesc& desc)
-		: ICommandList(desc)
-		, m_device(device)
+		 : DX11DeviceResource(device)
+		 , ICommandList(desc)
 	{
 		RYU_PROFILE_SCOPE();
-		DX11Device::NativeType* nativeDevice = *m_device;
+		DX11Device::NativeType* nativeDevice = *GetDevice();
 		
 		ComPtr<ID3D11DeviceContext3> baseContext;
 		DXCall(nativeDevice->CreateDeferredContext3(0, &baseContext));
 		DXCall(baseContext->QueryInterface(IID_PPV_ARGS(m_context.ReleaseAndGetAddressOf())));
 
 		SetName(std::format("Deferred Context {}", _count++));
-		m_device->InitializeResource(this);
+		GetDevice()->InitializeResource(this);
 	}
 
 	DX11CommandList::~DX11CommandList()

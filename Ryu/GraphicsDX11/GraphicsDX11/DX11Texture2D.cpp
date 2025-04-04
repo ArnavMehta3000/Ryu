@@ -7,17 +7,18 @@
 namespace Ryu::Graphics::DX11
 {
 	DX11Texture2D::DX11Texture2D(const DX11Device* device, const Texture2DDesc& desc)
-		: m_device(device)
+		: DX11DeviceResource(device)
 		, m_desc(desc)
 	{
 		RYU_PROFILE_SCOPE();
 		CreateNativeTexture();
-		m_device->InitializeResource(this);
+
+		GetDevice()->InitializeResource(this);
 		SetName("DX11 Texture2D");
 	}
 
 	DX11Texture2D::DX11Texture2D(const DX11Device* device, NativeType* texture)
-		: m_device(device)
+		: DX11DeviceResource(device)
 		, m_texture(texture)
 	{
 		RYU_PROFILE_SCOPE();
@@ -51,7 +52,7 @@ namespace Ryu::Graphics::DX11
 			m_desc.Usage |= TextureUsage::UnorderedAccess;
 		}
 
-		m_device->InitializeResource(this);
+		GetDevice()->InitializeResource(this);
 	}
 
 	DX11Texture2D::~DX11Texture2D()
@@ -85,7 +86,7 @@ namespace Ryu::Graphics::DX11
 		if (Ryu::IsEnumMaskBitSet(m_desc.Usage, TextureUsage::UnorderedAccess))
 			texDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-		DX11Device::NativeType* nativeDevice = *m_device;
+		DX11Device::NativeType* nativeDevice = *GetDevice();
 		DXCall(nativeDevice->CreateTexture2D1(&texDesc, nullptr, m_texture.ReleaseAndGetAddressOf()));
 	}
 }

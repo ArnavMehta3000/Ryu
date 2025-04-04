@@ -1,6 +1,5 @@
 set_xmakever("2.9.7")
-add_rules("mode.debug", "mode.release")
-set_allowedmodes("debug", "release")
+add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 -- Project name and version
 set_project("Ryu")
@@ -11,7 +10,7 @@ set_languages("c17", "cxx23")
 
 -- Include other xmake scripts
 add_moduledirs("Xmake/Modules")
-includes("Xmake/Tasks.lua")
+add_plugindirs("Xmake/Plugins")
 includes("Xmake/Packages.lua")
 includes("Xmake/Options.lua")
 includes("Xmake/Rules/RyuPlugin.lua")
@@ -39,21 +38,13 @@ set_policy("build.intermediate_directory", true)
 set_policy("package.requires_lock", false)
 set_policy("build.always_update_configfiles", false)
 
-if is_mode("debug") then
-	-- Enable preprocessor markers in debug mode
-	set_policy("preprocessor.linemarkers", true)
+if is_mode("debug", "releasedbg") then
 	add_defines("RYU_BUILD_DEBUG")
-	set_symbols("debug", "embed")
 end
 
-if is_mode("release") then
-	set_symbols("hidden")
-	set_strip("all")
-end
-
+-- Add common window definitions
 add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "WIN32_LEAN_AND_MEAN")
 add_links("user32.lib")
---set_runtimes(is_mode("debug") and "MDd" or "MD")
 
 -- Bring standard types namespace to global namespace
 if has_config("use-std-types-globally") then
@@ -68,8 +59,6 @@ add_rules("ExportAPI")
 
 -- Add rule to add Ryu root directory
 add_defines("RYU_ROOT_DIR=\"" .. os.projectdir():gsub("\\", "/") .. "\"")
-
-set_config("ryu-enable-tracy-profiling", true)
 
 -- Include xmake projects
 includes("**/xmake.lua")

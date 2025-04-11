@@ -48,6 +48,7 @@ namespace Ryu::Graphics
 			const_cast<GraphicsConfig&>(config).EnableDebugLayer.Set(true);
 		}
 
+
 		const SwapChainDesc swapChainDesc
 		{
 			.Width         = 1280,
@@ -55,7 +56,7 @@ namespace Ryu::Graphics
 			.BufferCount   = GraphicsConfig::FRAME_COUNT,
 			.SampleCount   = 1,
 			.SampleQuality = 0,
-			.Flags         = u32(SwapChainFlag::AllowModeSwitch) | u32(SwapChainFlag::AllowTearing),
+			.Flags         = SwapChainFlag::AllowModeSwitch | SwapChainFlag::AllowTearing,
 			.Format        = Format::R8G8B8A8_UNORM,
 			.SwapEffect    = SwapEffect::FlipSequential,
 			.WindowHandle  = hWnd,

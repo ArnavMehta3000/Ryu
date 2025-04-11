@@ -133,7 +133,7 @@ namespace Ryu::Graphics::DX11
 		textureDesc.MipLevels     = desc.MipLevels;
 		textureDesc.SampleCount   = desc.SampleDesc.Count;
 		textureDesc.SampleQuality = desc.SampleDesc.Quality;
-		textureDesc.Usage         = TextureUsage::RenderTarget | TextureUsage::ShaderResource;
+		textureDesc.Usage         = TextureUsage::ShaderResourceRT;
 
 		auto backBufferTexture = std::make_unique<DX11Texture2D>(GetDevice(), nativeBackBuffer1.Detach());
 		backBufferTexture->SetName("DX11 Back Buffer Texture");

@@ -65,7 +65,7 @@ constexpr Enum& operator^=(Enum& lhs, const Enum rhs) noexcept
 	return lhs;
 }
 
-#define RYU_ENABLE_BITMASK_OPERATORS(Enum)                                                                                                                               
+#define RYU_ENABLE_BITMASK_OPERATORS(Enum)                                                 \
 template<> struct EnableBitMaskOps<Enum> { static constexpr bool Enable = true; };         \
 namespace Ryu                                                                              \
 {                                                                                          \

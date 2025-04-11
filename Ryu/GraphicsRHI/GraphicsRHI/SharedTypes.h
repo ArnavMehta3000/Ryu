@@ -160,7 +160,8 @@ namespace Ryu::Graphics
 		RenderTarget    = RYU_BIT(0),
 		DepthStencil    = RYU_BIT(1),
 		ShaderResource  = RYU_BIT(2),
-		UnorderedAccess = RYU_BIT(3)
+		UnorderedAccess = RYU_BIT(3),
+		ShaderResourceRT = RenderTarget| ShaderResource
 	};
 	RYU_ENABLE_BITMASK_OPERATORS(TextureUsage)
 

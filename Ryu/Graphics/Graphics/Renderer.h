@@ -1,19 +1,18 @@
 #pragma once
 #include "Common/Result.h"
 #include "Common/ObjectMacros.h"
-#include "GraphicsRHI/GraphicsAPI.h"
 #include "GraphicsRHI/ISwapChain.h"
 #include "GraphicsRHI/IDevice.h"
 #include "GraphicsRHI/ICommandList.h"
 #include "GraphicsRHI/IRenderer.h"
 #include "GraphicsRHI/RenderPasses/IClearRenderPass.h"
 #include "GraphicsRHI/RenderPasses/IRenderPassFactory.h"
-#include <vector>
 
 namespace Ryu::Graphics
 {
 	class Renderer : public IRenderer
 	{
+		RYU_LOG_CATEGORY(Renderer);
 	public:
 		NODISCARD VoidResult Init(const SwapChainDesc& swapChainDesc);
 		void Shutdown();

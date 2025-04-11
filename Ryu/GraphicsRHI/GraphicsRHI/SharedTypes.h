@@ -1,6 +1,6 @@
 #pragma once
 #include "Common/Enum.h"
-#include <dxgiformat.h>
+#include <dxgi.h>
 
 namespace Ryu::Graphics
 {
@@ -174,9 +174,19 @@ namespace Ryu::Graphics
 	
 	enum class SwapChainFlag
 	{
-		AllowModeSwitch = RYU_BIT(0),
-		AllowFullscreen = RYU_BIT(1),
-		AllowTearing    = RYU_BIT(2),
+		NonPrerotated                      = DXGI_SWAP_CHAIN_FLAG_NONPREROTATED,
+		AllowModeSwitch                    = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH,
+		GDICompatible                      = DXGI_SWAP_CHAIN_FLAG_GDI_COMPATIBLE,
+		RestrictedContent                  = DXGI_SWAP_CHAIN_FLAG_RESTRICTED_CONTENT,
+		SharedResourceDriver               = DXGI_SWAP_CHAIN_FLAG_RESTRICT_SHARED_RESOURCE_DRIVER,
+		DisplayOnly                        = DXGI_SWAP_CHAIN_FLAG_DISPLAY_ONLY,
+		FrameLatencyWaitableObject         = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT,
+		ForegroundLayer                    = DXGI_SWAP_CHAIN_FLAG_FOREGROUND_LAYER,
+		FullscreenVideo                    = DXGI_SWAP_CHAIN_FLAG_FULLSCREEN_VIDEO,
+		YUVVideo                           = DXGI_SWAP_CHAIN_FLAG_YUV_VIDEO,
+		HWprotected                        = DXGI_SWAP_CHAIN_FLAG_HW_PROTECTED,
+		AllowTearing                       = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING,
+		RestrictedToAllHolographicDisplays = DXGI_SWAP_CHAIN_FLAG_RESTRICTED_TO_ALL_HOLOGRAPHIC_DISPLAYS,
 	};
 	RYU_ENABLE_BITMASK_OPERATORS(SwapChainFlag)
 

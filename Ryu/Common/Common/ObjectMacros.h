@@ -38,10 +38,10 @@
 #define RYU_STRING(x) RYU_STRING_IMPL(x)
 
 // Macro to print a TODO message
-#define RYU_TODO(x) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): TODO: " x))
+#define RYU_TODO(msg) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): TODO: " msg))
 
 // Macro to print a warning
-#define RYU_NOTE(x) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): NOTE: " x))
+#define RYU_NOTE(msg) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): NOTE: " msg))
 
 // Macro to say that the function is not implemented
 #define RYU_NOT_IMPLEMENTED(LogCategory) LOG_WARN(LogCategory, "Function {} not implemented", std::string_view(__FUNCTION__))

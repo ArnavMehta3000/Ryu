@@ -1,6 +1,5 @@
 target("RyuGraphicsDX11")
-	set_enabled(true)
-
+	set_enabled(get_config("ryu-rhi-dx11"))
 	set_kind("static")
 	set_group("Ryu/Graphics")
 

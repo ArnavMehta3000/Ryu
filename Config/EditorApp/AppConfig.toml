@@ -2,7 +2,7 @@
 PressEscapeToClose = false
 
 [Log]
-EnableLogToConsole = true
+EnableLogToConsole = false
 EnableLogToFile = true
 ForceLogToOutput = true
 LogFilePath = "Logs/LogEditor.txt"

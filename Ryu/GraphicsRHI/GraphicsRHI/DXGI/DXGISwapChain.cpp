@@ -5,6 +5,8 @@
 
 namespace Ryu::Graphics
 {
+	RYU_LOG_CATEGORY(DXGISwapChain);
+
 	DXGISwapChain::DXGISwapChain(const SwapChainDesc& desc)
 		: ISwapChain(desc)
 	{
@@ -20,11 +22,25 @@ namespace Ryu::Graphics
 	void DXGISwapChain::Present()
 	{
 		RYU_PROFILE_SCOPE();
-		//const GraphicsConfig& config = GraphicsConfig::Get();
 
-		const u32 presentFlags = m_desc.Flags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		const bool vsync = GraphicsConfig::Get().EnableVSync;
+		const bool allowTearing = m_desc.Flags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+		const u32 syncInterval = vsync ? 1 : 0;
 
-		DXCall(m_swapChain->Present(0, presentFlags));
+		u32 presentFlags = 0;
+		if (!vsync && allowTearing)
+		{
+			presentFlags = DXGI_PRESENT_ALLOW_TEARING;
+		}
+		else if (vsync && allowTearing)
+		{
+			// Warning: Screen tearing is requested but not allowed with vsync
+			LOG_WARN(RYU_USE_LOG_CATEGORY(DXGISwapChain),
+				"DXGISwapChain::Present: Tearing is requested but not allowed with VSync enabled! "
+				"Disable VSync to allow tearing. Presenting with VSync enabled instead.");
+		}
+
+		DXCall(m_swapChain->Present(syncInterval, presentFlags));
 	}
 	
 	void DXGISwapChain::Resize(u32 width, u32 height)

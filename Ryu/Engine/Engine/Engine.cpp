@@ -15,23 +15,23 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Engine Initialize");
 
-		LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
+		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
 		m_app = CreateApplication();
 
 		// Check if debugger is attached
 		if (Common::Globals::IsDebuggerAttached())
 		{
-			LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "--- A debugger is attached to the Engine!---");
+			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "--- A debugger is attached to the Engine!---");
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize runtime application");
 		if (InitRuntime())
 		{
-			LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine application initialized successfully");
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine application initialized successfully");
 		}
 		else
 		{
-			LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine application");
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine application");
 			return false;
 		}
 		
@@ -40,11 +40,11 @@ namespace Ryu::Engine
 		m_renderer = std::make_unique<Graphics::Renderer>();
 		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), m_app->GetWindow()->GetHandle()); !result)
 		{
-			LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Graphics. Error: {}", result.error());
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Graphics. Error: {}", result.error());
 		}
 		else
 		{
-			LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(Graphics::GraphicsConfig::Get().GraphicsAPI.Get()));
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(Graphics::GraphicsConfig::Get().GraphicsAPI.Get()));
 		}
 
 		//m_renderSurface.Window = m_app->GetWindow().get();
@@ -53,7 +53,7 @@ namespace Ryu::Engine
 		//DEBUG_ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
 
 
-		LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialized successfully");
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialized successfully");
 
 		return true;
 	}
@@ -75,12 +75,12 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
-		LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
+		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
 
 		m_app->Shutdown();
 		Graphics::ShutdownGraphics(m_renderer.get());
 
-		LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Shutdown Engine");
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Shutdown Engine");
 	}
 
 	void Engine::SetCommandLine(std::wstring_view cmdLine)
@@ -95,15 +95,15 @@ namespace Ryu::Engine
 
 	void Engine::Run()
 	{
-		LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Running the Engine");
+		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Running the Engine");
 
 		if (!Init())
 		{
-			LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");
 			return;
 		}
 
-		LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Starting Engine main loop");
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Starting Engine main loop");
 
 		auto appWindow = m_app->GetWindow();
 		while (appWindow->IsOpen())
@@ -118,7 +118,7 @@ namespace Ryu::Engine
 			RYU_PROFILE_MARK_FRAME();
 		}
 
-		LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Stopping Engine main loop");
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Stopping Engine main loop");
 
 		Shutdown();
 	}
@@ -128,7 +128,7 @@ namespace Ryu::Engine
 		if (m_app)
 		{
 			RYU_PROFILE_BOOKMARK("Requesting application shutdown");
-			LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Rquesting application shutdown");
+			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Rquesting application shutdown");
 			// Send a message to the application window to close
 			::SendMessage(m_app->GetWindow()->GetHandle(), WM_CLOSE, 0, 0);
 		}
@@ -145,8 +145,8 @@ namespace Ryu::Engine
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept
 	{
-		LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine::OnAppResize -  {}x{}", width, height);
-
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine::OnAppResize -  {}x{}", width, height);
+		RYU_NOT_IMPLEMENTED(RYU_LOG_USE_CATEGORY(Engine));
 		//if (Graphics::IsInitialized())
 		//{
 		//	Graphics::ResizeSurface(width, height);

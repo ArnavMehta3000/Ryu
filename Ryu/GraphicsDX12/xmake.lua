@@ -4,7 +4,7 @@ target("RyuGraphicsDX12")
 	set_kind("static")
 	set_group("Ryu/Graphics")
 
-	if has_config("assert-on-fail-hresult") then
+	if has_config("ryu-assert-on-fail-hresult") then
 		add_defines("RYU_BREAK_ON_FAIL_HRESULT")
 	end
 

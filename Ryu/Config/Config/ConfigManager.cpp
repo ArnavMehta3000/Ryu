@@ -27,7 +27,7 @@ namespace Ryu::Config
 	{
 		if (m_configDir.empty())
 		{
-			LOG_ERROR(RYU_LOG_USE_CATEGORY(ConfigManager), "ConfigManager has not been initialized yet!");
+			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(ConfigManager), "ConfigManager has not been initialized yet!");
 			return;
 		}
 		

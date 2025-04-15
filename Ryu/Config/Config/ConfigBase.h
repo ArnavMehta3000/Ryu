@@ -169,7 +169,7 @@ namespace Ryu::Config
 					}
 					else
 					{
-						LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
+						RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
 							"Type mismatch for '{}': expected string", m_key);
 					}
 				}
@@ -181,7 +181,7 @@ namespace Ryu::Config
 					}
 					else
 					{
-						LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
+						RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
 							"Type mismatch for '{}': expected integer", m_key);
 					}
 				}
@@ -193,7 +193,7 @@ namespace Ryu::Config
 					}
 					else
 					{
-						LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
+						RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
 							"Type mismatch for '{}': expected floating point", m_key);
 					}
 				}
@@ -205,7 +205,7 @@ namespace Ryu::Config
 					}
 					else
 					{
-						LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
+						RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
 							"Type mismatch for '{}': expected boolean", m_key);
 					}
 				}
@@ -292,7 +292,7 @@ namespace Ryu::Config
 				}
 				else
 				{
-					LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
+					RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
 						"Type mismatch for '{}': expected string for enum", m_key);
 				}
 			}
@@ -466,7 +466,7 @@ namespace Ryu::Config
 				}
 				else
 				{
-					LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
+					RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
 						"Type mismatch for '{}': expected array for flags", m_key);
 				}
 			}
@@ -645,7 +645,7 @@ namespace Ryu::Config
 				}
 				else
 				{
-					LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
+					RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigValue),
 						"Type mismatch for '{}': expected array", m_key);
 				}
 			}

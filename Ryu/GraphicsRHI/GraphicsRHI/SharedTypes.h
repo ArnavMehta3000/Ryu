@@ -175,6 +175,7 @@ namespace Ryu::Graphics
 	
 	enum class SwapChainFlag
 	{
+		None                               = 0,
 		NonPrerotated                      = DXGI_SWAP_CHAIN_FLAG_NONPREROTATED,
 		AllowModeSwitch                    = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH,
 		GDICompatible                      = DXGI_SWAP_CHAIN_FLAG_GDI_COMPATIBLE,

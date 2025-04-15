@@ -20,7 +20,7 @@ namespace Ryu::Graphics::Utils
 		case IndexFormat::UInt16: return DXGI_FORMAT_R16_UINT;
 		case IndexFormat::UInt32: return DXGI_FORMAT_R32_UINT;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown index format {}", static_cast<UINT>(format));
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown index format {}", static_cast<UINT>(format));
 			return DXGI_FORMAT_UNKNOWN;
 		}
 	}
@@ -45,7 +45,7 @@ namespace Ryu::Graphics::Utils
 		case SwapEffect::FlipDiscard:    return DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		case SwapEffect::FlipSequential: return DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown swap effect {}. Defaulting to discard", static_cast<UINT>(effect));
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown swap effect {}. Defaulting to discard", static_cast<UINT>(effect));
 			return DXGI_SWAP_EFFECT_DISCARD;
 		}
 	}
@@ -95,7 +95,7 @@ namespace Ryu::Graphics::Utils
 		case PrimitiveTopology::TriangleList:  return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		case PrimitiveTopology::TriangleStrip: return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown primitive topology {}. Defaulting to undefined", static_cast<UINT>(topology));
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown primitive topology {}. Defaulting to undefined", static_cast<UINT>(topology));
 			return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
 		}
 	}
@@ -113,7 +113,7 @@ namespace Ryu::Graphics::Utils
 		case StencilOp::IncrementWrap:     return D3D11_STENCIL_OP_INCR;
 		case StencilOp::DecrementWrap:     return D3D11_STENCIL_OP_DECR;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown stencil op. Defaulting to keep");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown stencil op. Defaulting to keep");
 			return D3D11_STENCIL_OP_KEEP;
 		}
 	}
@@ -131,7 +131,7 @@ namespace Ryu::Graphics::Utils
 		case ComparisonFunc::GreaterEqual: return D3D11_COMPARISON_GREATER_EQUAL;
 		case ComparisonFunc::Always:       return D3D11_COMPARISON_ALWAYS;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown comparison func. Defaulting to never");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown comparison func. Defaulting to never");
 			return D3D11_COMPARISON_NEVER;
 		}
 	}
@@ -143,7 +143,7 @@ namespace Ryu::Graphics::Utils
 		case FillMode::Solid:     return D3D11_FILL_SOLID;
 		case FillMode::Wireframe: return D3D11_FILL_WIREFRAME;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown fill mode. Defaulting to solid");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown fill mode. Defaulting to solid");
 			return D3D11_FILL_SOLID;
 		}
 	}
@@ -156,7 +156,7 @@ namespace Ryu::Graphics::Utils
 		case CullMode::Front: return D3D11_CULL_FRONT;
 		case CullMode::Back:  return D3D11_CULL_BACK;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown cull mode. Defaulting to none");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown cull mode. Defaulting to none");
 			return D3D11_CULL_NONE;
 		}
 	}
@@ -171,7 +171,7 @@ namespace Ryu::Graphics::Utils
 		case BlendOp::Min:             return D3D11_BLEND_OP_MIN;
 		case BlendOp::Max:             return D3D11_BLEND_OP_MAX;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown blend op. Defaulting to add");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown blend op. Defaulting to add");
 			return D3D11_BLEND_OP_ADD;
 		}
 	}
@@ -195,7 +195,7 @@ namespace Ryu::Graphics::Utils
 			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
 
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown primitive topology. Defaulting to point list");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown primitive topology. Defaulting to point list");
 			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 		}
 	}
@@ -213,7 +213,7 @@ namespace Ryu::Graphics::Utils
 		case StencilOp::IncrementWrap:     return D3D12_STENCIL_OP_INCR;
 		case StencilOp::DecrementWrap:     return D3D12_STENCIL_OP_DECR;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown stencil op. Defaulting to keep");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown stencil op. Defaulting to keep");
 			return D3D12_STENCIL_OP_KEEP;
 		}
 	}
@@ -231,7 +231,7 @@ namespace Ryu::Graphics::Utils
 		case ComparisonFunc::GreaterEqual: return D3D12_COMPARISON_FUNC_GREATER_EQUAL;
 		case ComparisonFunc::Always:       return D3D12_COMPARISON_FUNC_ALWAYS;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown comparison func. Defaulting to never");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown comparison func. Defaulting to never");
 			return D3D12_COMPARISON_FUNC_NEVER;
 		}
 	}
@@ -243,7 +243,7 @@ namespace Ryu::Graphics::Utils
 		case FillMode::Solid:     return D3D12_FILL_MODE_SOLID;
 		case FillMode::Wireframe: return D3D12_FILL_MODE_WIREFRAME;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown fill mode. Defaulting to solid");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown fill mode. Defaulting to solid");
 			return D3D12_FILL_MODE_SOLID;
 		}
 	}
@@ -256,7 +256,7 @@ namespace Ryu::Graphics::Utils
 		case CullMode::Front: return D3D12_CULL_MODE_FRONT;
 		case CullMode::Back:  return D3D12_CULL_MODE_BACK;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown cull mode. Defaulting to none");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown cull mode. Defaulting to none");
 			return D3D12_CULL_MODE_NONE;
 		}
 	}
@@ -271,7 +271,7 @@ namespace Ryu::Graphics::Utils
 		case BlendOp::Min:             return D3D12_BLEND_OP_MIN;
 		case BlendOp::Max:             return D3D12_BLEND_OP_MAX;
 		default:
-			LOG_WARN(Internal::GraphicsPanicLog, "Unknown blend op. Defaulting to add");
+			RYU_LOG_WARN(Internal::GraphicsPanicLog, "Unknown blend op. Defaulting to add");
 			return D3D12_BLEND_OP_ADD;
 		}
 	}

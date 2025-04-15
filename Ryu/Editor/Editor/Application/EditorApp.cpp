@@ -24,7 +24,7 @@ namespace Ryu::Editor
 
 		if (!RouteWndProc())
 		{
-			LOG_ERROR(RYU_LOG_USE_CATEGORY(Editor), "Failed to route Editor WndProc!");
+			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(Editor), "Failed to route Editor WndProc!");
 			return false;
 		}
 
@@ -52,7 +52,7 @@ namespace Ryu::Editor
 		const bool success = s_originalWndProc != nullptr;
 		if (success)
 		{
-			LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "WndProc routed to EditorApp");
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "WndProc routed to EditorApp");
 		}
 
 		return success;
@@ -83,7 +83,7 @@ namespace Ryu::Editor
 		}
 
 		
-		LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "ImGui initialized");
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "ImGui initialized");
 	}
 
 	void EditorApp::ShutdownImGui() const
@@ -101,7 +101,7 @@ namespace Ryu::Editor
 		
 		//ImGui_ImplWin32_Shutdown();
 		//ImGui::DestroyContext();
-		LOG_INFO(RYU_LOG_USE_CATEGORY(Editor), "ImGui shutdown");
+		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Editor), "ImGui shutdown");
 	}
 
 	LRESULT EditorApp::EditorWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

@@ -3,9 +3,8 @@
 
 /**
  * @brief Namespace for standard types
- * @note All standard types are defined in the Ryu::Common::StandardTypes namespace
  */
-namespace Ryu::Common::StandardTypes
+namespace Ryu::StandardTypes
 {
 	/**
 	 * @brief Signed 8-bit integer
@@ -43,7 +42,7 @@ namespace Ryu::Common::StandardTypes
 	 */
 	using u32 = std::uint32_t;
 
-/**
+	/**
 	 * @brief Unsigned 64-bit integer
 	 */
 	using u64 = std::uint64_t;
@@ -66,7 +65,4 @@ namespace Ryu::Common::StandardTypes
 	using byte = std::uint8_t;
 }
 
-
-#if defined(RYU_USING_STD_TYPES_GLOBALLY)
-	using namespace Ryu::Common::StandardTypes;
-#endif
+using namespace Ryu::StandardTypes;

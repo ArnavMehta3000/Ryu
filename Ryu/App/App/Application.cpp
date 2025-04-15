@@ -42,10 +42,10 @@ namespace Ryu::App
 		OnShutdown();
 	}
 
-	void Application::Tick(const f64 dt)
+	void Application::Tick(const Utils::TimeInfo& timeInfo)
 	{
 		RYU_PROFILE_SCOPE();
-		OnTick(dt);
+		OnTick(timeInfo);
 	}
 
 	bool Application::OnInit()
@@ -64,9 +64,8 @@ namespace Ryu::App
 		RYU_PROFILE_SCOPE();
 	}
 	
-	void Application::OnTick(MAYBE_UNUSED f64 dt)
+	void Application::OnTick(const Utils::TimeInfo&)
 	{
-		TracyPlot("Delta Time", dt);
 	}
 
 	void Application::GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo)

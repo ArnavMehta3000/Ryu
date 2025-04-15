@@ -2,20 +2,12 @@
 #include "Logger/Logger.h"
 #include "GraphicsRHI/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
-#include <External/StepTimer/StepTimer.h>
 
 namespace Ryu::Engine
 {
-
-	namespace 
-	{
-		DX::StepTimer s_timer;
-	}
-
 	Engine::Engine()
 		: m_app(nullptr)
 	{
-		TracyPlotConfig("Delta Time", tracy::PlotFormatType::Number, false, true, 0);
 	}
 
 	bool Engine::Init()
@@ -98,7 +90,7 @@ namespace Ryu::Engine
 
 	f64 Engine::GetEngineUpTime()
 	{
-		return s_timer.GetTotalSeconds();
+		return m_timer.GetTotalTime();
 	}
 
 	void Engine::Run()
@@ -118,9 +110,9 @@ namespace Ryu::Engine
 		{
 			m_app->ProcessWindowEvents();
 
-			s_timer.Tick([&]()
+			m_timer.Tick([&](const Utils::TimeInfo& info)
 			{
-				DoFrame(s_timer.GetElapsedSeconds());
+				DoFrame(info);
 			});
 			
 			RYU_PROFILE_MARK_FRAME();
@@ -142,11 +134,11 @@ namespace Ryu::Engine
 		}
 	}
 
-	void Engine::DoFrame(f64 dt)
+	void Engine::DoFrame(const Utils::TimeInfo& timeInfo)
 	{
 		RYU_PROFILE_SCOPE();
 		
-		m_app->Tick(dt);
+		m_app->Tick(timeInfo);
 		m_renderer->BeginFrame();
 		m_renderer->EndFrame();
 	}

@@ -4,7 +4,9 @@ target("RyuProfiling")
 	add_includedirs(".", { public = true })
 	add_headerfiles("**.h")
 	add_deps("RyuCommon")
-	add_rules("c++.unity_build")
-	add_packages("tracy", { public = true })
 	add_options("ryu-enable-tracy-profiling", { public = true })
+	
+	if get_config("ryu-enable-tracy-profiling") then
+		add_packages("tracy", { public = true })
+	end
 target_end()

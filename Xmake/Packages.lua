@@ -10,7 +10,7 @@ add_requires("uuid_v4")
 
 add_requires("entt")
 
-add_requires("Elos 98d44a142953be2eaab83030d3d1f527ebf81978")
+add_requires("Elos")
 
 add_requires("toml++")
 

@@ -1,7 +1,7 @@
 #pragma once
-#include <tracy/Tracy.hpp>
 
 #if defined(RYU_PROFILING_ENABLED)
+#include <tracy/Tracy.hpp>
 
 // Check if tracy is enabled
 #define RYU_PROFILER_CHECK() TracyNoop

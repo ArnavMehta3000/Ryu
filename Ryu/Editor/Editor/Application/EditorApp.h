@@ -13,7 +13,7 @@ namespace Ryu::Editor
 	private:
 		bool OnInit() override final;
 		void OnShutdown() override final;
-		void OnTick(f64 dt);
+		void OnTick(const Utils::TimeInfo& timeInfo);
 		
 		bool RouteWndProc() const;
 		void InitImGui();

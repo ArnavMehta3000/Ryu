@@ -9,5 +9,5 @@ public:
 
 	bool OnInit() override;
 	void OnShutdown() override;
-	void OnTick(f64 dt) override;	
+	void OnTick(const Ryu::Utils::TimeInfo& timeInfo) override;
 };

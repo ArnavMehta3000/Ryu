@@ -13,8 +13,8 @@ void TestApp::OnShutdown()
 	Application::OnShutdown();
 }
 
-void TestApp::OnTick(f64 dt)
+void TestApp::OnTick(const Ryu::Utils::TimeInfo& timeInfo)
 {
 	RYU_PROFILE_SCOPE();
-	Application::OnTick(dt);
+	Application::OnTick(timeInfo);
 }

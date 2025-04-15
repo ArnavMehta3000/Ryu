@@ -40,9 +40,9 @@ namespace Ryu::Editor
 		App::Application::OnShutdown();
 	}
 
-	void EditorApp::OnTick(f64 dt)
+	void EditorApp::OnTick(const Utils::TimeInfo& timeInfo)
 	{
-		App::Application::OnTick(dt);
+		App::Application::OnTick(timeInfo);
 	}
 
 	bool EditorApp::RouteWndProc() const

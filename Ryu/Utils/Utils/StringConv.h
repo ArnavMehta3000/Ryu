@@ -6,8 +6,6 @@
 
 namespace Ryu::Utils
 {
-	using namespace Common::StandardTypes;
-
 	/**
 	 * @brief Convert string to wide string
 	 * @param str The string to convert

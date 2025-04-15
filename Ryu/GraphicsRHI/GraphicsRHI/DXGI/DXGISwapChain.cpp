@@ -32,13 +32,15 @@ namespace Ryu::Graphics
 		{
 			presentFlags = DXGI_PRESENT_ALLOW_TEARING;
 		}
+#if defined(RYU_BUILD_DEBUG)
 		else if (vsync && allowTearing)
 		{
 			// Warning: Screen tearing is requested but not allowed with vsync
-			LOG_WARN(RYU_LOG_USE_CATEGORY(DXGISwapChain),
+			RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(DXGISwapChain),
 				"DXGISwapChain::Present: Tearing is requested but not allowed with VSync enabled! "
 				"Disable VSync to allow tearing. Presenting with VSync enabled instead.");
 		}
+#endif
 
 		DXCall(m_swapChain->Present(syncInterval, presentFlags));
 	}

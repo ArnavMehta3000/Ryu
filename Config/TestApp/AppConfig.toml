@@ -2,7 +2,7 @@
 PressEscapeToClose = true
 
 [Log]
-EnableLogToConsole = false
+EnableLogToConsole = true
 EnableLogToFile = true
 ForceLogToOutput = true
 LogFilePath = "Logs/LogTestbench.txt"

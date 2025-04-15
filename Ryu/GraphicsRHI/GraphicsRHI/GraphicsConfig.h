@@ -15,6 +15,7 @@ namespace Ryu::Graphics
 		Config::ConfigValue<bool> EnableDebugLayer        { this, DebuggingSection, "EnableDebugLayer", Common::Globals::g_isDebug   };
 		Config::ConfigValue<bool> EnableGPUBasedValidation{ this, DebuggingSection, "EnableGPUBasedValidation", false                };
 		Config::ConfigValue<bool> EnableVSync             { this, RenderingSection, "EnableVSync", true                              };
+		Config::ConfigValue<bool> AllowTearing            { this, RenderingSection, "AllowTearing", false                            };
 		Config::ConfigValue<API> GraphicsAPI              { this, RenderingSection, "GraphicsAPI", API::DirectX11, &ValidateAPI      };
 
 		static constexpr u32 FRAME_COUNT = 2;

@@ -69,7 +69,7 @@ namespace Ryu::Graphics
 }
 
 // Declare native type implicit conversion operator
-#define RYU_DECLARE_GFX_NATIVE_TYPE_OP(ReturnValue)                        \
+#define RYU_GFX_DECLARE_NATIVE_TYPE_OP(ReturnValue)                        \
 private:                                                                   \
 inline NativeObjectType GetNativeObject() const { return ReturnValue; }    \
 inline NativeType* GetNamedNativeObject() const { return ReturnValue; }    \
@@ -77,7 +77,7 @@ public:                                                                    \
 operator NativeType*() const { return ReturnValue; }
 
 // Get native type of the graphics object
-#define RYU_GET_GFX_NATIVE_TYPE(Type, Object) (Object)->GetNativeObjectAs<Type>().value_or(nullptr)
+#define RYU_GFX_GET_NATIVE_TYPE(Type, Object) (Object)->GetNativeObjectAs<Type>().value_or(nullptr)
 
 namespace Ryu::Graphics
 {

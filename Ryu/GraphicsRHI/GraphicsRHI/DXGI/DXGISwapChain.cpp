@@ -5,7 +5,7 @@
 
 namespace Ryu::Graphics
 {
-	RYU_LOG_CATEGORY(DXGISwapChain);
+	RYU_LOG_DECLARE_CATEGORY(DXGISwapChain);
 
 	DXGISwapChain::DXGISwapChain(const SwapChainDesc& desc)
 		: ISwapChain(desc)
@@ -35,7 +35,7 @@ namespace Ryu::Graphics
 		else if (vsync && allowTearing)
 		{
 			// Warning: Screen tearing is requested but not allowed with vsync
-			LOG_WARN(RYU_USE_LOG_CATEGORY(DXGISwapChain),
+			LOG_WARN(RYU_LOG_USE_CATEGORY(DXGISwapChain),
 				"DXGISwapChain::Present: Tearing is requested but not allowed with VSync enabled! "
 				"Disable VSync to allow tearing. Presenting with VSync enabled instead.");
 		}

@@ -4,7 +4,7 @@
 #include "Config/ConfigManager.h"
 
 // Macro to help with declaring configs
-#define RYU_DECLARE_CONFIG(ThisType, FileName)                                                          \
+#define RYU_CONFIG_DECLARE(ThisType, FileName)                                                          \
 	public:                                                                                             \
 		static ThisType& Get() { return ::Ryu::Utils::Singleton<ThisType>::Get(); }                     \
 		ThisType() : ::Ryu::Config::ConfigBase(FileName) {}                                             \
@@ -27,5 +27,4 @@
 			}                                                                                           \
 	} s_registrar {}
 
-#define RYU_DECLARE_CONFIG_SECTION(Name) static constexpr::Ryu::Config::ConfigSection RYU_CONCAT(Name, Section) = #Name
-#define RYU_CONFIG_VAR_TYPE(Type) Type
+#define RYU_CONFIG_DECLARE_SECTION(Name) static constexpr::Ryu::Config::ConfigSection RYU_CONCAT(Name, Section) = #Name

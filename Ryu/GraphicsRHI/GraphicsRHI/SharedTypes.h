@@ -157,13 +157,13 @@ namespace Ryu::Graphics
 	enum class TextureUsage
 	{
 		None            = 0,
-		RenderTarget    = RYU_BIT(0),
-		DepthStencil    = RYU_BIT(1),
-		ShaderResource  = RYU_BIT(2),
-		UnorderedAccess = RYU_BIT(3),
+		RenderTarget    = RYU_ENUM_BIT(0),
+		DepthStencil    = RYU_ENUM_BIT(1),
+		ShaderResource  = RYU_ENUM_BIT(2),
+		UnorderedAccess = RYU_ENUM_BIT(3),
 		ShaderResourceRT = RenderTarget| ShaderResource
 	};
-	RYU_ENABLE_BITMASK_OPERATORS(TextureUsage)
+	RYU_ENUM_ENABLE_BITMASK_OPERATORS(TextureUsage)
 
 	enum class SwapEffect
 	{
@@ -189,7 +189,7 @@ namespace Ryu::Graphics
 		AllowTearing                       = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING,
 		RestrictedToAllHolographicDisplays = DXGI_SWAP_CHAIN_FLAG_RESTRICTED_TO_ALL_HOLOGRAPHIC_DISPLAYS,
 	};
-	RYU_ENABLE_BITMASK_OPERATORS(SwapChainFlag)
+	RYU_ENUM_ENABLE_BITMASK_OPERATORS(SwapChainFlag)
 
 	enum class IndexFormat
 	{

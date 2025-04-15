@@ -6,6 +6,6 @@ namespace Ryu::Engine
 {
 	class EngineConfig : Config::ConfigBase
 	{
-		RYU_DECLARE_CONFIG(EngineConfig, "EngineConfig.toml");
+		RYU_CONFIG_DECLARE(EngineConfig, "EngineConfig.toml");
 	};
 }

@@ -7,10 +7,10 @@ namespace Ryu::App
 {
 	class AppConfig : Config::ConfigBase
 	{
-		RYU_DECLARE_CONFIG(AppConfig, "AppConfig.toml");
-		RYU_DECLARE_CONFIG_SECTION(Window);
-		RYU_DECLARE_CONFIG_SECTION(Debugging);
-		RYU_DECLARE_CONFIG_SECTION(Log);
+		RYU_CONFIG_DECLARE(AppConfig, "AppConfig.toml");
+		RYU_CONFIG_DECLARE_SECTION(Window);
+		RYU_CONFIG_DECLARE_SECTION(Debugging);
+		RYU_CONFIG_DECLARE_SECTION(Log);
 
 	public:
 		Config::ConfigValue<std::string> WindowTitle         { this, WindowSection, "WindowTitle", "Ryu Window"                                                      };

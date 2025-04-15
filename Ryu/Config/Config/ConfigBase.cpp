@@ -57,7 +57,7 @@ namespace Ryu::Config
 
 		if (m_isDirty)
 		{
-			LOG_WARN(RYU_USE_LOG_CATEGORY(ConfigManager), "Config ({}) was marked dirty before exiting. Changes will not be saved!", m_filename);
+			LOG_WARN(RYU_LOG_USE_CATEGORY(ConfigManager), "Config ({}) was marked dirty before exiting. Changes will not be saved!", m_filename);
 		}
 	}
 	
@@ -73,13 +73,13 @@ namespace Ryu::Config
 			if (!std::filesystem::exists(path))
 			{
 				// File doesn't exist yet, create with default values
-				LOG_TRACE(RYU_USE_LOG_CATEGORY(ConfigManager), "Creating new config file: {}", path.string());
+				LOG_TRACE(RYU_LOG_USE_CATEGORY(ConfigManager), "Creating new config file: {}", path.string());
 				Serialize(m_table);
 				m_isDirty = true;
 				return Save();
 			}
 
-			LOG_INFO(RYU_USE_LOG_CATEGORY(ConfigManager), "Loading config file: {}", path.string());
+			LOG_INFO(RYU_LOG_USE_CATEGORY(ConfigManager), "Loading config file: {}", path.string());
 			m_table = toml::parse_file(path.string());
 
 			// Deserialize values
@@ -99,7 +99,7 @@ namespace Ryu::Config
 		}
 		catch (const std::exception& e)
 		{
-			LOG_ERROR(RYU_USE_LOG_CATEGORY(ConfigManager), "Failed to load config: {}", e.what());
+			LOG_ERROR(RYU_LOG_USE_CATEGORY(ConfigManager), "Failed to load config: {}", e.what());
 			return false;
 		}
 	}
@@ -130,12 +130,12 @@ namespace Ryu::Config
 
 			const_cast<ConfigBase*>(this)->m_isDirty = false;
 
-			LOG_INFO(RYU_USE_LOG_CATEGORY(ConfigManager), "Saved config file: {}", path.string());
+			LOG_INFO(RYU_LOG_USE_CATEGORY(ConfigManager), "Saved config file: {}", path.string());
 			return true;
 		}
 		catch (const std::exception& e)
 		{
-			LOG_ERROR(RYU_USE_LOG_CATEGORY(ConfigManager), "Error saving config file: {}", e.what());
+			LOG_ERROR(RYU_LOG_USE_CATEGORY(ConfigManager), "Error saving config file: {}", e.what());
 			return false;
 		}
 	}

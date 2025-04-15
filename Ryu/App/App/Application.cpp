@@ -121,7 +121,7 @@ namespace Ryu::App
 
 void Ryu::App::Internal::SetUpDefaultLogger()
 {
-	RYU_LOG_CATEGORY(Ryu);
+	RYU_LOG_DECLARE_CATEGORY(Ryu);
 	using namespace Ryu::Logging;
 
 	Logger& logger = Logger::Get();
@@ -154,8 +154,8 @@ void Ryu::App::Internal::SetUpDefaultLogger()
 	if (config.EnableLogToFile)
 	{
 		logger.AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
-		LOG_TRACE(RYU_USE_LOG_CATEGORY(Ryu), "Application log file opened: {}", config.LogFilePath.Get());
+		LOG_TRACE(RYU_LOG_USE_CATEGORY(Ryu), "Application log file opened: {}", config.LogFilePath.Get());
 	}
 
-	LOG_INFO(RYU_USE_LOG_CATEGORY(Ryu), "Logging initialized");
+	LOG_INFO(RYU_LOG_USE_CATEGORY(Ryu), "Logging initialized");
 }

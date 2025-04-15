@@ -7,7 +7,7 @@ namespace Ryu::Editor
 	class EditorApp : public App::Application
 	{
 	public:
-		RYU_LOG_CATEGORY(Editor);
+		RYU_LOG_DECLARE_CATEGORY(Editor);
 		static LRESULT CALLBACK EditorWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	private:

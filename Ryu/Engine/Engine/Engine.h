@@ -14,8 +14,8 @@ namespace Ryu::Engine
 	 */
 	class Engine : public Utils::Singleton<Engine>
 	{
-		RYU_LOG_CATEGORY(Engine);
-		RYU_DECLARE_SINGLETON(Engine);
+		RYU_LOG_DECLARE_CATEGORY(Engine);
+		RYU_SINGLETON_DECLARE(Engine);
 
 	public:
 		~Engine() = default;

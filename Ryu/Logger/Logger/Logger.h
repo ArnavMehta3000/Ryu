@@ -18,7 +18,7 @@ namespace Ryu::Logging
 	 */
 	class Logger : public Utils::Singleton<Logger>
 	{
-		RYU_DECLARE_SINGLETON(Logger);
+		RYU_SINGLETON_DECLARE(Logger);
 	public:
 		/**
 		 * @brief Callback type for when a log message is dispatched

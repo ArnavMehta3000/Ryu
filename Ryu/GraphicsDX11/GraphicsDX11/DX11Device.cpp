@@ -80,7 +80,7 @@ namespace Ryu::Graphics::DX11
 	void DX11Device::ExecuteCommandList(const ICommandList* commandList) const
 	{
 		RYU_PROFILE_SCOPE();
-		if (DX11CommandList::NativeType* cmdList = RYU_GET_GFX_NATIVE_TYPE(DX11CommandList::NativeType, commandList))
+		if (DX11CommandList::NativeType* cmdList = RYU_GFX_GET_NATIVE_TYPE(DX11CommandList::NativeType, commandList))
 		{
 			m_imContext->ExecuteCommandList(cmdList, FALSE);
 		}

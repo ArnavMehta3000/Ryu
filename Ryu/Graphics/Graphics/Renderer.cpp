@@ -18,7 +18,7 @@ namespace Ryu::Graphics
 	VoidResult InitGraphics(Renderer* renderer, HWND hWnd)
 	{
 		RYU_PROFILE_SCOPE();
-		RYU_LOG_CATEGORY(Graphics);
+		RYU_LOG_DECLARE_CATEGORY(Graphics);
 
 		if (!renderer)
 		{
@@ -44,7 +44,7 @@ namespace Ryu::Graphics
 		// If GPU based validation is enabled automatically enable the debug layer as well
 		if (config.EnableGPUBasedValidation && !config.EnableDebugLayer)
 		{
-			LOG_WARN(RYU_USE_LOG_CATEGORY(Graphics), "GPU based validation is enabled, automatically enabling graphics debug layer. GraphicsConfig will be updated");
+			LOG_WARN(RYU_LOG_USE_CATEGORY(Graphics), "GPU based validation is enabled, automatically enabling graphics debug layer. GraphicsConfig will be updated");
 			const_cast<GraphicsConfig&>(config).EnableDebugLayer.Set(true);
 		}
 
@@ -212,7 +212,7 @@ namespace Ryu::Graphics
 #endif
 			case API::Undefined:
 			default:
-				LOG_ERROR(RYU_USE_LOG_CATEGORY(Renderer), "Render pass factory for API {} is not defined", EnumToString(api));
+				LOG_ERROR(RYU_LOG_USE_CATEGORY(Renderer), "Render pass factory for API {} is not defined", EnumToString(api));
 			}
 		}
 

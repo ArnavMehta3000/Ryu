@@ -9,7 +9,7 @@ namespace Ryu::Graphics::DX11
 		, public IGraphicsRHIObject<DX11::IDX11Device>
 	{
 	public:
-		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_device.Get())
+		RYU_GFX_DECLARE_NATIVE_TYPE_OP(m_device.Get())
 
 		DX11Device();
 		virtual ~DX11Device();

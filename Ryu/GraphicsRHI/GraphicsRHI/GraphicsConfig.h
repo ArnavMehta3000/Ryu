@@ -7,9 +7,9 @@ namespace Ryu::Graphics
 {
 	class GraphicsConfig : Config::ConfigBase
 	{
-		RYU_DECLARE_CONFIG(GraphicsConfig, "GraphicsConfig.toml");
-		RYU_DECLARE_CONFIG_SECTION(Rendering);
-		RYU_DECLARE_CONFIG_SECTION(Debugging);
+		RYU_CONFIG_DECLARE(GraphicsConfig, "GraphicsConfig.toml");
+		RYU_CONFIG_DECLARE_SECTION(Rendering);
+		RYU_CONFIG_DECLARE_SECTION(Debugging);
 
 	public:
 		Config::ConfigValue<bool> EnableDebugLayer        { this, DebuggingSection, "EnableDebugLayer", Common::Globals::g_isDebug   };

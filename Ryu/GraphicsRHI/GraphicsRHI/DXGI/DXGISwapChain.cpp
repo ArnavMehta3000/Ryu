@@ -23,9 +23,9 @@ namespace Ryu::Graphics
 	{
 		RYU_PROFILE_SCOPE();
 
-		const bool vsync = GraphicsConfig::Get().EnableVSync;
+		const bool vsync        = GraphicsConfig::Get().EnableVSync;
 		const bool allowTearing = m_desc.Flags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-		const u32 syncInterval = vsync ? 1 : 0;
+		const u32 syncInterval  = vsync ? 1 : 0;
 
 		u32 presentFlags = 0;
 		if (!vsync && allowTearing)

@@ -10,12 +10,12 @@ namespace Ryu::Graphics::Internal
 {
 	void LogHResultError(long hr, std::string_view functionName, std::string_view fileName, unsigned int lineNumber)
 	{
-		const std::string err = Utils::HRToString(hr);
+		const std::string err = ::Ryu::Utils::HRToString(hr);
 
 #if defined(RYU_BREAK_ON_FAIL_HRESULT)
-		LOG_FATAL(RYU_USE_LOG_CATEGORY(GraphicsPanic), "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, err);
+		RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(GraphicsPanic), "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, err);
 #else
-		LOG_ERROR(RYU_USE_LOG_CATEGORY(GraphicsPanic), "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, err);
+		RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GraphicsPanic), "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, err);
 #endif
 	}
 
@@ -23,13 +23,13 @@ namespace Ryu::Graphics::Internal
 	{
 		if (obj != nullptr)
 		{
-			LOG_DEBUG(RYU_USE_LOG_CATEGORY(GraphicsDebug), "DX12 object named: {}", Utils::ToNarrowStr(name));
+			RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GraphicsDebug), "DX12 object named: {}", ::Ryu::Utils::ToNarrowStr(name));
 			obj->SetName(name.c_str());
 		}
 	}
 
 	void LogDX11Naming(const std::string& msg)
 	{
-		LOG_DEBUG(RYU_USE_LOG_CATEGORY(GraphicsDebug), "{}", msg);
+		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GraphicsDebug), "{}", msg);
 	}
 }

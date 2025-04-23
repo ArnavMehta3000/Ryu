@@ -14,7 +14,7 @@ namespace Ryu::Config
 
 	class ConfigManager : public Utils::Singleton<ConfigManager>
 	{
-		RYU_DECLARE_SINGLETON(ConfigManager);
+		RYU_SINGLETON_DECLARE(ConfigManager);
 	public:
 		void Initialize(const fs::path& configDir);
 		void RegisterConfig(ConfigBase* config);

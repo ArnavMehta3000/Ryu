@@ -1,23 +1,27 @@
 #include "DX12Device.h"
-#include "GraphicsRHI/Config.h"
-#include "GraphicsRHI/IRenderer.h"
+#include "Profiling/Profiling.h"
+#include "GraphicsRHI/GraphicsConfig.h"
 #include "GraphicsRHI/Utils/Logging.h"
-#include "GraphicsRHI/Utils/D3DUtil.h"
 #include "GraphicsDX12/DX12SwapChain.h"
 #include "GraphicsDX12/DX12CommandList.h"
 #include <libassert/assert.hpp>
 
 namespace Ryu::Graphics::DX12
 {
-	DX12Device::DX12Device(const DeviceCreateDesc& desc)
-	{
-		DEBUG_ASSERT(desc.GraphicsAPI == API::DirectX12, "DeviceCreateDesc graphics API must be DirectX12!");
+	DX12DeviceResource::operator IDX12Device* () const { return *m_device; }
 
-		InitDevice(desc);
+	DX12Device::DX12Device()
+	{
+		RYU_PROFILE_SCOPE();
+		DEBUG_ASSERT((GraphicsConfig::Get().GraphicsAPI.Get() == API::DirectX12),
+			"Graphics API must be DirectX12!");
+
+		InitDevice();
 	}
 
 	DX12Device::~DX12Device()
 	{
+		RYU_PROFILE_SCOPE();
 		ShutdownDXGI();
 
 		m_cmdQueue.Reset();
@@ -32,8 +36,30 @@ namespace Ryu::Graphics::DX12
 		}
 	}
 	
+	DX12::IDX12Fence* DX12Device::CreateFence(u64 initialValue, D3D12_FENCE_FLAGS flags) const
+	{
+		DX12::IDX12Fence* fence = nullptr;
+		DXCall(m_device->CreateFence(initialValue, flags, IID_PPV_ARGS(&fence)));
+
+		return fence;
+	}
+
+	DX12::IDX12DescriptorHeap* DX12Device::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, u32 count)
+	{
+		DX12::IDX12DescriptorHeap* descHeap = nullptr;
+
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.NumDescriptors = count;
+		desc.Type = type;
+
+		DXCall(m_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descHeap)));
+
+		return descHeap;
+	}
+
 	void DX12Device::ReportLiveObjects(bool releaseBeforeReporting)
 	{
+		RYU_PROFILE_SCOPE();
 		ComPtr<ID3D12DebugDevice> debugDevice;
 		if (SUCCEEDED(m_device.As(&debugDevice)))
 		{
@@ -49,6 +75,7 @@ namespace Ryu::Graphics::DX12
 	
 	IDevice::CreateSwapChainResult DX12Device::CreateSwapChain(const SwapChainDesc& desc) const
 	{
+		RYU_PROFILE_SCOPE();
 		DEBUG_ASSERT(m_dxgiFactory, "DXGI factory is not initialized!");
 		DEBUG_ASSERT(m_adapter, "Adapter is not initialized!");
 		DEBUG_ASSERT(m_cmdQueue, "Adapter is not initialized!");
@@ -63,18 +90,16 @@ namespace Ryu::Graphics::DX12
 
 	IDevice::CreateCommandListResult DX12Device::CreateCommandList(const CommandListDesc& desc) const
 	{
-		auto ptr = std::make_unique<DX12CommandList>(*this, desc);
-		
-		DX12CommandList::NativeType* nativePtr = *ptr.get();
-		ptr->SetName(nativePtr, "DX12 Command List");
-		InitializeResource(ptr.get());
-		
-		return std::move(ptr);
+		RYU_PROFILE_SCOPE();
+		DEBUG_ASSERT(m_device, "DX12Device is not initialized!");
+
+		return std::make_unique<DX12CommandList>(this, desc);
 	}
 
 	void DX12Device::ExecuteCommandList(const ICommandList* commandList) const
 	{
-		if (DX12CommandList::NativeType* cmdList = RYU_GET_GFX_NATIVE_TYPE(commandList, DX12CommandList::NativeType))
+		RYU_PROFILE_SCOPE();
+		if (DX12CommandList::NativeType* cmdList = RYU_GET_GFX_NATIVE_TYPE(DX12CommandList::NativeType, commandList))
 		{
 			DX12::IDX12CommandList* const cmdLists[] = { cmdList };
 			m_cmdQueue->ExecuteCommandLists(1, cmdLists);
@@ -87,8 +112,9 @@ namespace Ryu::Graphics::DX12
 		}
 	}
 	
-	void DX12Device::InitDevice(const DeviceCreateDesc& desc)
+	void DX12Device::InitDevice()
 	{
+		RYU_PROFILE_SCOPE();
 		static constexpr std::array<D3D_FEATURE_LEVEL, 4> featureLevels =
 		{
 			D3D_FEATURE_LEVEL_12_1,
@@ -96,8 +122,9 @@ namespace Ryu::Graphics::DX12
 			D3D_FEATURE_LEVEL_11_1,
 			D3D_FEATURE_LEVEL_11_0
 		};
+		const GraphicsConfig& config = GraphicsConfig::Get();
 
-		if (desc.EnableDebugLayer)
+		if (config.EnableDebugLayer)
 		{
 			ComPtr<ID3D12Debug6> debugController;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
@@ -105,7 +132,7 @@ namespace Ryu::Graphics::DX12
 				debugController->EnableDebugLayer();
 				LOG_DEBUG(Internal::GraphicsDebugLog, "Graphics debug layer enabled");
 
-				if (desc.EnableGPUBasedValidation)
+				if (config.EnableGPUBasedValidation)
 				{
 					LOG_DEBUG(Internal::GraphicsDebugLog, "Enabling GPU-based validation");
 					debugController->SetEnableGPUBasedValidation(TRUE);
@@ -113,7 +140,7 @@ namespace Ryu::Graphics::DX12
 			}
 		}
 
-		if (!InitializeDXGI(desc.EnableDebugLayer))
+		if (!InitializeDXGI(config.EnableDebugLayer))
 		{
 			LOG_ERROR(Internal::GraphicsDebugLog, "Failed to initialize DXGI!");
 			return;
@@ -133,13 +160,11 @@ namespace Ryu::Graphics::DX12
 
 		DEBUG_ASSERT(m_device, "Failed to create DX12 device!");
 			
-
 		CreateCommandQueue();
 		CreateDescriptorHeaps();
 
-
-		// Set up debug messages if enabled
-		if (desc.EnableDebugLayer)
+		// Set up debug messages
+		if (config.EnableDebugLayer)
 		{
 			ComPtr<ID3D12InfoQueue> infoQueue;
 			if (SUCCEEDED(m_device.As(&infoQueue)))
@@ -166,6 +191,7 @@ namespace Ryu::Graphics::DX12
 	
 	void DX12Device::CreateCommandQueue()
 	{
+		RYU_PROFILE_SCOPE();
 		D3D12_COMMAND_QUEUE_DESC queueDesc{};
 		queueDesc.Type     = D3D12_COMMAND_LIST_TYPE_DIRECT;
 		queueDesc.Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -177,5 +203,6 @@ namespace Ryu::Graphics::DX12
 	
 	void DX12Device::CreateDescriptorHeaps()
 	{
+		RYU_PROFILE_SCOPE();
 	}
 }

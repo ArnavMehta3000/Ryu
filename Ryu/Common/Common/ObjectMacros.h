@@ -44,7 +44,7 @@
 #define RYU_NOTE(msg) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): NOTE: " msg))
 
 // Macro to say that the function is not implemented
-#define RYU_NOT_IMPLEMENTED(LogCategory) LOG_WARN(LogCategory, "Function {} not implemented", std::string_view(__FUNCTION__))
+#define RYU_NOT_IMPLEMENTED(LogCategory) RYU_LOG_WARN(LogCategory, "Function {} not implemented", std::string_view(__FUNCTION__))
 
 // Checks if a function exists for a given class
 #define RYU_FUNCTION_CHECK(NAME, ...) namespace Ryu { template<typename T> class HasFunction_##NAME {                        \

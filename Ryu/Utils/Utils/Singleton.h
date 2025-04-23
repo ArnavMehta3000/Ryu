@@ -22,5 +22,5 @@ namespace Ryu::Utils
 		Singleton& operator=(Singleton&&) = delete;
 
 	};
-#define RYU_DECLARE_SINGLETON(ClassName) friend class Singleton<ClassName>
 }
+#define RYU_SINGLETON_DECLARE(ClassName) friend class ::Ryu::Utils::Singleton<ClassName>

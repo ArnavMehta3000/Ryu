@@ -12,7 +12,7 @@ namespace Ryu::Graphics
 {
 	class Renderer : public IRenderer
 	{
-		RYU_LOG_CATEGORY(Renderer);
+		RYU_LOG_DECLARE_CATEGORY(Renderer);
 	public:
 		NODISCARD VoidResult Init(const SwapChainDesc& swapChainDesc);
 		void Shutdown();

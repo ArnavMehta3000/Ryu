@@ -12,7 +12,7 @@ namespace Ryu::Graphics::DX11
 		, public IGraphicsRHIObject<DX11::IDX11Texture2D>
 	{
 	public:
-		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_texture.Get())
+		RYU_GFX_DECLARE_NATIVE_TYPE_OP(m_texture.Get())
 
 		DX11Texture2D(const DX11Device* device, const Texture2DDesc& desc);
 		DX11Texture2D(const DX11Device* device, NativeType* texture);

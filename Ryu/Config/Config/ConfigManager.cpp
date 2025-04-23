@@ -5,7 +5,7 @@
 
 namespace Ryu::Config
 {
-	RYU_LOG_CATEGORY(ConfigManager);
+	RYU_LOG_DECLARE_CATEGORY(ConfigManager);
 
 	void ConfigManager::Initialize(const fs::path& configDir)
 	{
@@ -27,7 +27,7 @@ namespace Ryu::Config
 	{
 		if (m_configDir.empty())
 		{
-			LOG_ERROR(RYU_USE_LOG_CATEGORY(ConfigManager), "ConfigManager has not been initialized yet!");
+			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(ConfigManager), "ConfigManager has not been initialized yet!");
 			return;
 		}
 		

@@ -1,9 +1,9 @@
 #pragma once
 #include "Common/API.h"
 #include "Common/StandardTypes.h"
+#include "Utils/Timer.h"
 #include <Elos/Application/AppBase.h>
 #include <memory>
-
 namespace Ryu::App
 {
 	/**
@@ -40,7 +40,7 @@ namespace Ryu::App
 		 * @brief Update the application
 		 * @param dt delta time
 		 */
-		RYU_API void Tick(f64 dt);
+		RYU_API void Tick(const Utils::TimeInfo& timeInfo);
 
 		/**
 		 * @brief Get the window resized signal
@@ -62,9 +62,9 @@ namespace Ryu::App
 
 		/**
 		 * @brief Called when the application is updates
-		 * @param dt delta time
+		 * @param timeInfo frame time info
 		 */
-		virtual RYU_API void OnTick(f64 dt);
+		virtual RYU_API void OnTick(const Utils::TimeInfo& timeInfo);
 
 		virtual RYU_API void GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo) override;
 

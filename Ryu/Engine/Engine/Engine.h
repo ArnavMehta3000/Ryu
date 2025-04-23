@@ -6,6 +6,7 @@
 #include "Utils/Singleton.h"
 #include <memory>
 
+
 namespace Ryu::Engine
 {
 	/**
@@ -13,8 +14,8 @@ namespace Ryu::Engine
 	 */
 	class Engine : public Utils::Singleton<Engine>
 	{
-		RYU_LOG_CATEGORY(Engine);
-		RYU_DECLARE_SINGLETON(Engine);
+		RYU_LOG_DECLARE_CATEGORY(Engine);
+		RYU_SINGLETON_DECLARE(Engine);
 
 	public:
 		~Engine() = default;
@@ -39,10 +40,16 @@ namespace Ryu::Engine
 		inline RYU_API const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }
 
 		/**
+		 * @brief Get the timer used by the Engine
+		 * @return The timer
+		 */
+		inline RYU_API const Utils::Timer& GetTimer() const { return m_timer; }
+
+		/**
 		 * @brief Get the Engine up time in seconds
 		 * @return How long the engine has been active for
 		 */
-		static RYU_API f64 GetEngineUpTime();
+		RYU_API f64 GetEngineUpTime();
 
 		/**
 		 * @brief Run the main engine loop
@@ -62,11 +69,12 @@ namespace Ryu::Engine
 		bool Init();
 		bool InitRuntime();
 		void Shutdown();
-		void DoFrame(f64 dt);
+		void DoFrame(const Utils::TimeInfo& timeInfo);
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
 		Config::CommandLine                 m_cmdLine;
+		Utils::Timer                        m_timer;
 		std::shared_ptr<App::Application>   m_app;
 		std::unique_ptr<Graphics::Renderer> m_renderer;
 	};

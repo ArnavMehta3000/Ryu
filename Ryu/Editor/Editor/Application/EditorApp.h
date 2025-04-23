@@ -7,13 +7,13 @@ namespace Ryu::Editor
 	class EditorApp : public App::Application
 	{
 	public:
-		RYU_LOG_CATEGORY(Editor);
+		RYU_LOG_DECLARE_CATEGORY(Editor);
 		static LRESULT CALLBACK EditorWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	private:
 		bool OnInit() override final;
 		void OnShutdown() override final;
-		void OnTick(f64 dt);
+		void OnTick(const Utils::TimeInfo& timeInfo);
 		
 		bool RouteWndProc() const;
 		void InitImGui();

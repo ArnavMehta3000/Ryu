@@ -5,9 +5,6 @@
 
 namespace Ryu::Utils
 {
-	using namespace Common::StandardTypes;
-
-	
 	enum class MessagBoxButton : i32
 	{
 		AbortRetryIgnore       = MB_ABORTRETRYIGNORE,

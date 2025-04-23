@@ -6,7 +6,7 @@ target("RyuUtils")
 	add_headerfiles("**.h")
 	add_extrafiles("**.inl")
 
-	add_packages("libassert", "uuid_v4")
+	add_packages("libassert", "uuid_v4", "Elos")
 
 	add_deps("RyuCommon")
 	add_rules("c++.unity_build")

@@ -49,7 +49,7 @@ namespace Ryu::Graphics::DX11
 				m_device.Reset();  // Release the device after acquring its debug interface
 			}
 
-			LOG_DEBUG(Internal::GraphicsDebugLog, "~~~DX11 Report Live Objects~~~");
+			RYU_LOG_DEBUG(Internal::GraphicsDebugLog, "~~~DX11 Report Live Objects~~~");
 			debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL | D3D11_RLDO_SUMMARY);
 		}
 	}
@@ -80,7 +80,7 @@ namespace Ryu::Graphics::DX11
 	void DX11Device::ExecuteCommandList(const ICommandList* commandList) const
 	{
 		RYU_PROFILE_SCOPE();
-		if (DX11CommandList::NativeType* cmdList = RYU_GET_GFX_NATIVE_TYPE(DX11CommandList::NativeType, commandList))
+		if (DX11CommandList::NativeType* cmdList = RYU_GFX_GET_NATIVE_TYPE(DX11CommandList::NativeType, commandList))
 		{
 			m_imContext->ExecuteCommandList(cmdList, FALSE);
 		}
@@ -102,12 +102,12 @@ namespace Ryu::Graphics::DX11
 		if (config.EnableDebugLayer)
 		{
 			createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-			LOG_DEBUG(Internal::GraphicsDebugLog, "Graphics debug layer enabled");
+			RYU_LOG_DEBUG(Internal::GraphicsDebugLog, "Graphics debug layer enabled");
 		}
 
 		if (!InitializeDXGI(config.EnableDebugLayer))
 		{
-			LOG_ERROR(Internal::GraphicsDebugLog, "Failed to initialize DXGI!");
+			RYU_LOG_ERROR(Internal::GraphicsDebugLog, "Failed to initialize DXGI!");
 			return;
 		}
 

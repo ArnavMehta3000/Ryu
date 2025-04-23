@@ -9,10 +9,10 @@ struct ID3D12Object;
 namespace Ryu::Graphics::Internal
 {
 	// Log category only for graphics panic (HRESULT fail)
-	RYU_LOG_CATEGORY(GraphicsPanic);
+	RYU_LOG_DECLARE_CATEGORY(GraphicsPanic);
 
 	// Log category only for graphics debugging
-	RYU_LOG_CATEGORY(GraphicsDebug);
+	RYU_LOG_DECLARE_CATEGORY(GraphicsDebug);
 
 	void LogHResultError(long hr, std::string_view functionName, std::string_view fileName, unsigned int lineNumber);
 

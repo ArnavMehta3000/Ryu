@@ -25,7 +25,7 @@ namespace Ryu::Graphics::DX11
 		, public IGraphicsRHIObject<DX11::IDX11RenderTarget>
 	{
 	public:
-		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_renderTarget.Get())
+		RYU_GFX_DECLARE_NATIVE_TYPE_OP(m_renderTarget.Get())
 
 		DX11RenderTarget(const DX11Device* device, const RenderTargetDesc& desc);
 		DX11RenderTarget(const DX11Device* device, DX11Texture2D* texture);

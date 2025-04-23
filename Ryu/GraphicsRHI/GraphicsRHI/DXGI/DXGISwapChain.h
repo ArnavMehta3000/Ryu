@@ -7,7 +7,7 @@ namespace Ryu::Graphics
 	class DXGISwapChain : public ISwapChain, public IGraphicsRHIObject<IDXGISwapChain4>
 	{
 	public:
-		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_swapChain.Get())
+		RYU_GFX_DECLARE_NATIVE_TYPE_OP(m_swapChain.Get())
 
 		explicit DXGISwapChain(const SwapChainDesc& desc);
 		virtual ~DXGISwapChain();

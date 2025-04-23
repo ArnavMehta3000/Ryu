@@ -13,7 +13,7 @@ namespace Ryu::Graphics::DX11
 		, public IGraphicsRHIObject<DX11::ID3D11CommandList>
 	{
 	public:
-		RYU_DECLARE_GFX_NATIVE_TYPE_OP(m_cmdList.Get())
+		RYU_GFX_DECLARE_NATIVE_TYPE_OP(m_cmdList.Get())
 
 		DX11CommandList(const DX11Device* device, const CommandListDesc& desc);
 		~DX11CommandList();

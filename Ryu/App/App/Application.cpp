@@ -42,10 +42,10 @@ namespace Ryu::App
 		OnShutdown();
 	}
 
-	void Application::Tick(const f64 dt)
+	void Application::Tick(const Utils::TimeInfo& timeInfo)
 	{
 		RYU_PROFILE_SCOPE();
-		OnTick(dt);
+		OnTick(timeInfo);
 	}
 
 	bool Application::OnInit()
@@ -64,9 +64,8 @@ namespace Ryu::App
 		RYU_PROFILE_SCOPE();
 	}
 	
-	void Application::OnTick(MAYBE_UNUSED f64 dt)
+	void Application::OnTick(const Utils::TimeInfo&)
 	{
-		TracyPlot("Delta Time", dt);
 	}
 
 	void Application::GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo)
@@ -122,7 +121,7 @@ namespace Ryu::App
 
 void Ryu::App::Internal::SetUpDefaultLogger()
 {
-	RYU_LOG_CATEGORY(Ryu);
+	RYU_LOG_DECLARE_CATEGORY(Ryu);
 	using namespace Ryu::Logging;
 
 	Logger& logger = Logger::Get();
@@ -155,8 +154,8 @@ void Ryu::App::Internal::SetUpDefaultLogger()
 	if (config.EnableLogToFile)
 	{
 		logger.AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
-		LOG_TRACE(RYU_USE_LOG_CATEGORY(Ryu), "Application log file opened: {}", config.LogFilePath.Get());
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Ryu), "Application log file opened: {}", config.LogFilePath.Get());
 	}
 
-	LOG_INFO(RYU_USE_LOG_CATEGORY(Ryu), "Logging initialized");
+	RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Ryu), "Logging initialized");
 }

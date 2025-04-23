@@ -18,7 +18,7 @@ namespace Ryu::Graphics
 		}
 		else
 		{
-			LOG_WARN(Internal::GraphicsDebugLog, "Renderer is not initialized on device. Failing to initialize resource.");
+			RYU_LOG_WARN(Internal::GraphicsDebugLog, "Renderer is not initialized on device. Failing to initialize resource.");
 		}
 	}
 	
@@ -87,7 +87,7 @@ namespace Ryu::Graphics
 		if (GraphicsConfig::Get().EnableDebugLayer &&
 			SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(dxgiDebug.GetAddressOf()))))
 		{
-			LOG_DEBUG(Internal::GraphicsDebugLog, "~~~DXGI Report Live Objects~~~");
+			RYU_LOG_DEBUG(Internal::GraphicsDebugLog, "~~~DXGI Report Live Objects~~~");
 
 			dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(
 				DXGI_DEBUG_RLO_SUMMARY |

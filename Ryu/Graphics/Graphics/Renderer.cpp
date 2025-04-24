@@ -12,7 +12,6 @@
 #endif
 #include <libassert/assert.hpp>
 
-
 namespace Ryu::Graphics
 {
 	VoidResult InitGraphics(Renderer* renderer, HWND hWnd)
@@ -130,22 +129,6 @@ namespace Ryu::Graphics
 		m_device.reset();
 	
 		::CoUninitialize();
-	}
-	
-	void Renderer::InitializeResource(IGraphicsObject* obj)
-	{
-		RYU_PROFILE_SCOPE();
-		if (obj)
-		{
-			DEBUG_ASSERT(obj->GetRendererInterface() == nullptr, "Graphics object already has a renderer!");
-			
-			if (obj->GetRendererInterface() != nullptr)
-			{
-				return;
-			}
-
-			obj->SetRendererInterface(this);
-		}
 	}
 	
 	void Renderer::BeginFrame()

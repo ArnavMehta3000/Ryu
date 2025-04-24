@@ -1,4 +1,15 @@
 #include "Engine/EntryPoint.h"
 #include "Test.h"
 
-RYU_USE_APP_WITH_MAIN(TestApp)
+RYU_USE_APP(TestApp)
+
+RYU_MAIN()
+{
+	Ryu::Engine::Runner runner;
+	runner.ProjectDir = RYU_ROOT_DIR "/Testbench";
+	runner.CmdLine = lpCmdLine;
+
+	runner.Run();
+
+	return 0;
+}

@@ -49,3 +49,33 @@ std::shared_ptr<::Ryu::App::Application> CreateApplication()  \
 {                                                             \
 	return std::make_shared<RuntimeClass>(__VA_ARGS__);       \
 } RYU_ENTRY_POINT(RuntimeClass)
+
+
+namespace Ryu::Engine
+{
+	struct Runner
+	{
+		// Excluding trailing slash
+		std::string ProjectDir;
+		LPWSTR CmdLine = nullptr;
+
+		void Run()
+		{
+			RYU_PROFILE_BOOKMARK("BEGIN RYU");
+
+			// Setup config
+			Config::ConfigManager::Get().Initialize(ProjectDir + "/Config");
+			App::Internal::SetUpDefaultLogger();
+			
+			auto& engine = Engine::Engine::Get();
+			
+			engine.m_projectDir = ProjectDir;
+			engine.SetCommandLine(CmdLine);
+			engine.Run();
+
+			Config::ConfigManager::Get().SaveAll();
+
+			RYU_PROFILE_BOOKMARK("END RYU");
+		}
+	};
+}

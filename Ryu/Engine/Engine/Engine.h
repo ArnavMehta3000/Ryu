@@ -16,6 +16,7 @@ namespace Ryu::Engine
 	{
 		RYU_LOG_DECLARE_CATEGORY(Engine);
 		RYU_SINGLETON_DECLARE(Engine);
+		friend class Runner;
 
 	public:
 		~Engine() = default;
@@ -73,6 +74,7 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
+		std::string                         m_projectDir;
 		Config::CommandLine                 m_cmdLine;
 		Utils::Timer                        m_timer;
 		std::shared_ptr<App::Application>   m_app;

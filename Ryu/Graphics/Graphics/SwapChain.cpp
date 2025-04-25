@@ -102,7 +102,7 @@ namespace Ryu::Gfx
 		m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
 
 		// Signal and store when the GPU work for the frame we just flipped is finished.
-		CommandQueue* pDirectQueue = GetParent()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
+		CmdQueue* pDirectQueue = GetParent()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 		m_presentFence->Signal(pDirectQueue);
 
 		::WaitForSingleObject(m_waitableObject, INFINITE);

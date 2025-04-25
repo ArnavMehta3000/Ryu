@@ -8,6 +8,8 @@ namespace Ryu::Gfx
 {
 	class Device : public DeviceObject
 	{
+		RYU_LOG_DECLARE_CATEGORY(GraphicsDevice);
+
 		struct LiveObjectReporter
 		{
 			~LiveObjectReporter();
@@ -24,7 +26,7 @@ namespace Ryu::Gfx
 			};
 
 		public:
-			DeferredDeleteQueue(Device* parent);
+			DeferredDeleteQueue(Device* parent) : DeviceObject(parent) {}
 			~DeferredDeleteQueue();
 
 			void Enqueue(DX12::Object* resource, Fence* fence);
@@ -36,11 +38,15 @@ namespace Ryu::Gfx
 		};
 
 	public:
-		Device() = default;
+		Device();
 		~Device();
 
 		inline NODISCARD ComPtr<DX12::Device> GetDevice() const { return m_device; }
 		inline NODISCARD ComPtr<DXGI::Factory> GetFactory() const { return m_factory; }
+		inline NODISCARD std::shared_ptr<Fence> GetFrameFence() const { return m_frameFence; }
+
+		void IdleGPU();
+		void DeferReleaseObject(DX12::Object* object);
 
 	private:
 		LiveObjectReporter m_reporter;

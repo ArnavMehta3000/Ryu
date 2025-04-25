@@ -11,21 +11,26 @@ namespace Ryu::Gfx
 
 	namespace DX12
 	{
-		using Object              = ID3D12Object;
-		using Device              = ID3D12Device14;
-		using GraphicsCommandList = ID3D12GraphicsCommandList10;
-		using Resource            = ID3D12Resource2;
-		using InfoQueue           = ID3D12InfoQueue1;
-		using Fence               = ID3D12Fence1;
+		using Object       = ID3D12Object;
+		using Device       = ID3D12Device14;
+		using GfxCmdList   = ID3D12GraphicsCommandList10;
+		using Resource     = ID3D12Resource2;
+		using InfoQueue    = ID3D12InfoQueue1;
+		using Fence        = ID3D12Fence1;
+		using CmdQueue     = ID3D12CommandQueue;
+		using CmdAllocator = ID3D12CommandAllocator;
 
 		void SetObjectName(DX12::Object* object, const char* name);
 		std::string GetObjectName(DX12::Object* object);
+
+
 	}
 
 	namespace DXGI
 	{
 		using Factory   = IDXGIFactory7;
 		using SwapChain = IDXGISwapChain4;
+		using Adapter   = IDXGIAdapter4;
 		using Output    = IDXGIOutput;
 		using Output6   = IDXGIOutput6;
 

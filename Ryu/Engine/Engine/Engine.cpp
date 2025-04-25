@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "Logger/Logger.h"
-#include "GraphicsRHI/GraphicsConfig.h"
+#include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 
 namespace Ryu::Engine
@@ -35,23 +35,8 @@ namespace Ryu::Engine
 			return false;
 		}
 		
-
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_renderer = std::make_unique<Graphics::Renderer>();
-		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), m_app->GetWindow()->GetHandle()); !result)
-		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Graphics. Error: {}", result.error());
-		}
-		else
-		{
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(Graphics::GraphicsConfig::Get().GraphicsAPI.Get()));
-		}
-
-		//m_renderSurface.Window = m_app->GetWindow().get();
-		//m_renderSurface.Surface = Graphics::CreateSurface(m_renderSurface.Window);
-
-		//DEBUG_ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
-
+		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialized successfully");
 
@@ -61,11 +46,10 @@ namespace Ryu::Engine
 	bool Engine::InitRuntime()
 	{
 		RYU_PROFILE_SCOPE();
-		// Bind the events before initializing the application
-		/*m_app->GetWindowResizedSignal().Connect(([this](const App::Events::OnWindowResize& event)
-		{
-			OnAppResize(event.Width, event.Height);
-		});*/
+		
+		// Bind resize event before initializing the application
+		m_onAppResizedConnection = m_app->GetWindowResizedSignal().Connect(
+			[this](const Elos::Event::Resized& e) {OnAppResize(e.Size.Width, e.Size.Height); });
 
 		// Init the application
 		return m_app->Init();
@@ -77,8 +61,11 @@ namespace Ryu::Engine
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
 
+		// Disconnect resized event
+		m_onAppResizedConnection.Disconnect();
+
 		m_app->Shutdown();
-		Graphics::ShutdownGraphics(m_renderer.get());
+		m_renderer.reset();
 
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Shutdown Engine");
 	}
@@ -139,17 +126,14 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		
 		m_app->Tick(timeInfo);
-		m_renderer->BeginFrame();
-		m_renderer->EndFrame();
 	}
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept
 	{
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine::OnAppResize -  {}x{}", width, height);
-		RYU_NOT_IMPLEMENTED(RYU_LOG_USE_CATEGORY(Engine));
-		//if (Graphics::IsInitialized())
-		//{
-		//	Graphics::ResizeSurface(width, height);
-		//}
+		if (m_renderer)
+		{
+			m_renderer->OnResize(width, height);
+		}
 	}
 }

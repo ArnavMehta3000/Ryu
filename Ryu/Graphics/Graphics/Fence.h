@@ -35,7 +35,8 @@ namespace Ryu::Gfx
 	class SyncPoint
 	{
 	public:
-		explicit SyncPoint(Fence* fence, u64 fenceValue);
+		SyncPoint() = default;
+		SyncPoint(Fence* fence, u64 fenceValue);
 
 		void Wait() const;
 		bool IsComplete() const;

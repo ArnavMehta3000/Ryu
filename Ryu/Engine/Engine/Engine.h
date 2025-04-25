@@ -40,6 +40,8 @@ namespace Ryu::Engine
 		 */
 		inline RYU_API const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }
 
+		inline RYU_API std::string_view GetProjectDir() const { return m_projectDir; }
+
 		/**
 		 * @brief Get the timer used by the Engine
 		 * @return The timer
@@ -74,10 +76,11 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		std::string                         m_projectDir;
-		Config::CommandLine                 m_cmdLine;
-		Utils::Timer                        m_timer;
-		std::shared_ptr<App::Application>   m_app;
-		std::unique_ptr<Graphics::Renderer> m_renderer;
+		std::string                                   m_projectDir;
+		Config::CommandLine                           m_cmdLine;
+		Utils::Timer                                  m_timer;
+		std::shared_ptr<App::Application>             m_app;
+		std::unique_ptr<Gfx::Renderer>                m_renderer;
+		Elos::Connection<const Elos::Event::Resized&> m_onAppResizedConnection;
 	};
 }

@@ -57,7 +57,7 @@ add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 -- Add rule to export shared library
 add_rules("ExportAPI")
 
--- Add rule to add Ryu root directory
+-- Add define to add Ryu root directory
 add_defines("RYU_ROOT_DIR=\"" .. os.projectdir():gsub("\\", "/") .. "\"")
 
 -- Include xmake projects

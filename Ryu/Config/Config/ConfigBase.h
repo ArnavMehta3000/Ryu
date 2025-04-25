@@ -308,7 +308,7 @@ namespace Ryu::Config
 
 
 	// Special handling for BitMaskEnabled enums (flags)
-	template<BitMaskEnabled T>
+	template<typename T> requires std::is_enum_v<T>
 	class ConfigValue<T> : public ConfigValueBase
 	{
 	public:

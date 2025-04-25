@@ -5,7 +5,8 @@ namespace Ryu::Gfx
 {
 	class Device;
 	class SwapChain;
-	class CommandQueue;
+	class CmdQueue;
+	class CommandContext;
 
 	enum class Format : u8
 	{

@@ -9,7 +9,7 @@ namespace Ryu::Gfx
 		, m_lastSignaledValue(0)
 		, m_lastCompletedValue(fenceValue)
 	{
-		DXCallEx(parent->GetDevice()->CreateFence(m_lastCompletedValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_fence.GetAddressOf())), parent->GetDevice());
+		DXCallEx(parent->GetDevice()->CreateFence(m_lastCompletedValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_fence.GetAddressOf())), parent->GetDevice().Get());
 		DX12::SetObjectName(m_fence.Get(), name);
 		m_completeEvent = ::CreateEventExA(nullptr, "Fence Event", 0, EVENT_ALL_ACCESS);
 	}
@@ -66,6 +66,12 @@ namespace Ryu::Gfx
 		return fenceValue <= m_lastCompletedValue;
 	}
 	
+	SyncPoint::SyncPoint(Fence* fence, u64 fenceValue)
+		: m_fence(fence)
+		, m_fenceValue(fenceValue)
+	{
+	}
+
 	void SyncPoint::Wait() const
 	{
 		m_fence->CPUWait(m_fenceValue);

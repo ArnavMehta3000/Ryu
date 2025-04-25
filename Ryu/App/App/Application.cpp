@@ -137,7 +137,7 @@ void Ryu::App::Internal::SetUpDefaultLogger()
 		desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
 
 		Utils::ShowMessageBox(desc);
-		PANIC("FATAL PROBLEMO");
+		PANIC("FATAL PROBLEMO!");
 	});
 
 	// Log to output window only when debugger is attached

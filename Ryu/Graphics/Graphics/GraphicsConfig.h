@@ -1,3 +1,4 @@
+#pragma once
 #include "Common/Globals.h"
 #include "Common/StandardTypes.h"
 #include "Config/Config.h"
@@ -15,7 +16,8 @@ namespace Ryu::Gfx
 		Config::ConfigValue<bool> EnableGPUBasedValidation{ this, DebuggingSection, "EnableGPUBasedValidation", false };
 		Config::ConfigValue<bool> EnableVSync{ this, RenderingSection, "EnableVSync", true };
 		Config::ConfigValue<bool> AllowTearing{ this, RenderingSection, "AllowTearing", false };
+		Config::ConfigValue<bool> UseWARP{ this, RenderingSection, "UseWARP", false };
 
-		static constexpr u32 FRAME_COUNT = 2;
+		static constexpr u32 FRAME_COUNT = 3;
 	};
 }

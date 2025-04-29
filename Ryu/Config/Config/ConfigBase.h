@@ -1,5 +1,6 @@
 #pragma once
 #include "Common/ObjectMacros.h"
+#include "Common/StandardTypes.h"
 #include "Common/Enum.h"
 #include "Logger/Logger.h"
 #include <Elos/Event/Signal.h>

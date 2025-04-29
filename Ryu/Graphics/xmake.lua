@@ -19,4 +19,6 @@ target("RyuGraphics")
 	add_headerfiles("**.h")
 	add_rules("c++.unity_build")
 	add_packages("directx-headers", { public = true })
+
+	add_links("d3d12", "dxgi", "dxguid")
 target_end()

@@ -70,11 +70,6 @@ namespace Ryu::Engine
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Shutdown Engine");
 	}
 
-	void Engine::SetCommandLine(std::wstring_view cmdLine)
-	{
-		m_cmdLine = Config::CommandLine(cmdLine);
-	}
-
 	f64 Engine::GetEngineUpTime()
 	{
 		return m_timer.GetTotalTime();

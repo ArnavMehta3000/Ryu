@@ -7,7 +7,6 @@ RYU_MAIN()
 {
 	Ryu::Engine::Runner runner;
 	runner.ProjectDir = RYU_ROOT_DIR "/Testbench";
-	runner.CmdLine = lpCmdLine;
 
 	runner.Run();
 

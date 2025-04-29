@@ -1,6 +1,5 @@
 #pragma once
 #include "App/Application.h"
-#include "Config/CommandLine.h"
 #include "Graphics/Renderer.h"
 #include "Logger/LogCategory.h"
 #include "Utils/Singleton.h"
@@ -16,7 +15,7 @@ namespace Ryu::Engine
 	{
 		RYU_LOG_DECLARE_CATEGORY(Engine);
 		RYU_SINGLETON_DECLARE(Engine);
-		friend class Runner;
+		friend struct Runner;
 
 	public:
 		~Engine() = default;
@@ -35,11 +34,9 @@ namespace Ryu::Engine
 		inline RYU_API App::Application* GetApplication() const { return m_app.get(); }
 
 		/**
-		 * @brief Get the command line used by the Engine
-		 * @return The parsed command line
+		 * @brief Get the project directory
+		 * @return The project directory
 		 */
-		inline RYU_API const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }
-
 		inline RYU_API std::string_view GetProjectDir() const { return m_projectDir; }
 
 		/**
@@ -77,7 +74,6 @@ namespace Ryu::Engine
 
 	private:
 		std::string                                   m_projectDir;
-		Config::CommandLine                           m_cmdLine;
 		Utils::Timer                                  m_timer;
 		std::shared_ptr<App::Application>             m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;

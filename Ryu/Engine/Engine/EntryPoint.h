@@ -9,7 +9,7 @@
 namespace Ryu::Engine { class Runtime; }
 
 
-#define RYU_DEF_MAIN() int main(int argc, char *argv[])
+#define RYU_DEF_MAIN() int main(MAYBE_UNUSED int argc, MAYBE_UNUSED char *argv[])
 
 
 // WinMain

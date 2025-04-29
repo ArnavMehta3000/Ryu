@@ -1,7 +1,0 @@
-[Debugging]
-EnableDebugLayer = true
-EnableGPUBasedValidation = false
-
-[Rendering]
-AllowTearing = false
-EnableVSync = true

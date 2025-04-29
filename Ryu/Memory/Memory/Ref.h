@@ -106,8 +106,7 @@ namespace Ryu::Memory
 		virtual ~Ref() { DecrementRefCount(); }
 
 		template<typename U, typename... Args>
-		static auto Create(Args&&... args) { return std::move(Ref<U>(new U(std::forward<Args>(args)...))); }
-		//static Ref<U> Create(Args&&... args) { return Ref<U>(new U(std::forward<Args>(args)...)); }
+		static Ref<U> Create(Args&&... args) { return Ref<U>(new U(std::forward<Args>(args)...)); }
 
 		T* Get() const noexcept { return m_ptr; }
 
@@ -251,6 +250,7 @@ namespace Ryu::Memory
 		T* m_ptr = nullptr;
 	};
 
+	template<typename T, typename... Args> Ref<T> CreateRef(Args&&... args) { return Ref<T>(new T(std::forward<Args>(args)...)); }
 	template<typename T> Ref<T> MakeRef(const Ref<T>& ref) { return Ref<T>(ref); }
 	template<typename T> Ref<T> MakeRef(T* ptr) { return Ref<T>(ptr); }
 	template<typename To, typename From> Ref<To> RefCast(const Ref<From>& ref) { return Ref<To>(dynamic_cast<To*>(ref.Get())); }

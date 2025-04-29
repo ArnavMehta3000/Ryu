@@ -1,5 +1,9 @@
 target("RyuTestbench")
-	add_rules("win.sdk.application")
+	-- Use WinMain only in realease mode
+	if is_mode(release) then
+		add_rules("win.sdk.application")
+	end
+
 	set_default(true)
 	set_kind("binary")
 	set_group("Ryu/Testing")

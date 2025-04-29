@@ -9,13 +9,24 @@
 namespace Ryu::Engine { class Runtime; }
 
 
+#define RYU_DEF_MAIN() int main(int argc, char *argv[])
+
+
 // WinMain
-#define RYU_MAIN()                                 \
+#define RYU_WIN_MAIN()                             \
 int WINAPI wWinMain(                               \
 	_In_     MAYBE_UNUSED HINSTANCE hInstance,     \
 	_In_opt_ MAYBE_UNUSED HINSTANCE hPrevInstance, \
 	_In_     MAYBE_UNUSED LPWSTR    lpCmdLine,     \
 	_In_     MAYBE_UNUSED int       nCmdShow)
+
+
+
+#ifdef RYU_BUILD_DEBUG 
+#define RYU_MAIN() RYU_DEF_MAIN()
+#else
+#define RYU_MAIN() RYU_WIN_MAIN()
+#endif
 
 
 // Default main entry point
@@ -27,8 +38,6 @@ int WINAPI wWinMain(                               \
 	App::Internal::SetUpDefaultLogger();                                                              \
 																			                          \
 	Engine::Engine& engine = Engine::Engine::Get();                                                   \
-	engine.SetCommandLine(lpCmdLine);                                                                 \
-																			                          \
 	engine.Run();                                                                                     \
 																			                          \
 	Config::ConfigManager::Get().SaveAll();                                                           \
@@ -57,7 +66,6 @@ namespace Ryu::Engine
 	{
 		// Excluding trailing slash
 		std::string ProjectDir;
-		LPWSTR CmdLine = nullptr;
 
 		void Run()
 		{
@@ -70,7 +78,6 @@ namespace Ryu::Engine
 			auto& engine = Engine::Engine::Get();
 			
 			engine.m_projectDir = ProjectDir;
-			engine.SetCommandLine(CmdLine);
 			engine.Run();
 
 			Config::ConfigManager::Get().SaveAll();

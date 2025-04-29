@@ -21,13 +21,6 @@ namespace Ryu::Engine
 		~Engine() = default;
 
 		/**
-		 * @brief Set the command line used by the Engine
-		 * @param cmdLine Application command line
-		 */
-		void SetCommandLine(std::wstring_view cmdLine);
-		
-
-		/**
 		 * @brief Get the application used by the Engine
 		 * @return The application (owned by the Engine)
 		 */
@@ -75,7 +68,7 @@ namespace Ryu::Engine
 	private:
 		std::string                                   m_projectDir;
 		Utils::Timer                                  m_timer;
-		std::shared_ptr<App::Application>             m_app;
+		std::unique_ptr<App::Application>             m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		Elos::Connection<const Elos::Event::Resized&> m_onAppResizedConnection;
 	};

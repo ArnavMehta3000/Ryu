@@ -47,16 +47,16 @@ int WINAPI wWinMain(                               \
 
 // Define the extern function to create the runtime
 #define RYU_USE_APP(RuntimeClass, ...)                        \
-std::shared_ptr<::Ryu::App::Application> CreateApplication()  \
+std::unique_ptr<::Ryu::App::Application> CreateApplication()  \
 {                                                             \
-	return std::make_shared<RuntimeClass>(__VA_ARGS__);       \
+	return std::make_unique<RuntimeClass>(__VA_ARGS__);       \
 }
 
 // Define the extern function to create the runtime with main definition
 #define RYU_USE_APP_WITH_MAIN(RuntimeClass, ...)              \
-std::shared_ptr<::Ryu::App::Application> CreateApplication()  \
+std::unique_ptr<::Ryu::App::Application> CreateApplication()  \
 {                                                             \
-	return std::make_shared<RuntimeClass>(__VA_ARGS__);       \
+	return std::make_unique<RuntimeClass>(__VA_ARGS__);       \
 } RYU_ENTRY_POINT(RuntimeClass)
 
 

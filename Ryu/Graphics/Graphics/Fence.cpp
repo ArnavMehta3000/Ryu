@@ -1,5 +1,6 @@
 #include "Graphics/Fence.h"
 #include "Graphics/Device.h"
+#include "Graphics/CmdQueue.h"
 
 namespace Ryu::Gfx
 {
@@ -9,7 +10,8 @@ namespace Ryu::Gfx
 		, m_lastSignaledValue(0)
 		, m_lastCompletedValue(fenceValue)
 	{
-		DXCallEx(parent->GetDevice()->CreateFence(m_lastCompletedValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_fence.GetAddressOf())), parent->GetDevice().Get());
+		DX12::Device* const dx12Device = parent->GetDevice();
+		DXCallEx(dx12Device->CreateFence(m_lastCompletedValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_fence.GetAddressOf())), dx12Device);
 		DX12::SetObjectName(m_fence.Get(), name);
 		m_completeEvent = ::CreateEventExA(nullptr, "Fence Event", 0, EVENT_ALL_ACCESS);
 	}
@@ -19,14 +21,14 @@ namespace Ryu::Gfx
 		::CloseHandle(m_completeEvent);
 	}
 	
-	u64 Fence::Signal(CommandQueue* cmdQueue)
+	u64 Fence::Signal(CmdQueue* cmdQueue)
 	{
-		cmdQueue->GetCommandQueue()->Signal(m_fence.Get(), m_currentValue);
+		cmdQueue->GetCmdQueue()->Signal(m_fence.Get(), m_currentValue);
 		m_lastSignaledValue = m_currentValue;
 		m_currentValue++;
 		return m_lastSignaledValue;
 	}
-	
+
 	u64 Fence::Signal(u64 fenceValue)
 	{
 		m_lastSignaledValue = fenceValue;
@@ -45,7 +47,7 @@ namespace Ryu::Gfx
 		std::lock_guard<std::mutex> lockGuard(m_fenceWaitMutex);
 
 		m_fence->SetEventOnCompletion(fenceValue, m_completeEvent);
-		DWORD result = ::WaitForSingleObject(m_completeEvent, INFINITE);
+		::WaitForSingleObject(m_completeEvent, INFINITE);
 
 		m_lastCompletedValue = m_fence->GetCompletedValue();
 	}

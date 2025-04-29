@@ -1,5 +1,6 @@
 #include "Graphics/SwapChain.h"
 #include "Graphics/Device.h"
+#include "Graphics/CmdQueue.h"
 
 namespace Ryu::Gfx
 {
@@ -33,7 +34,7 @@ namespace Ryu::Gfx
 		, m_backBufferIndex(0)
 		, m_frameCount(frameCount)
 	{
-		m_presentFence = std::make_shared<Fence>(parent, "Present Fence");
+		m_presentFence = Memory::CreateRef<Fence>(parent, "Present Fence");
 		RecreateSwapChain();
 	}
 	
@@ -68,12 +69,12 @@ namespace Ryu::Gfx
 
 			DXGI_SWAP_CHAIN_DESC1 desc{};
 			m_swapChain->GetDesc1(&desc);
-			DXCall(m_swapChain->ResizeBuffers(
-				(u32)m_backBuffers.size(),
-				width, height,
-				DXGI::ConvertFormat(m_format),
-				desc.Flags
-			));
+			//DXCall(m_swapChain->ResizeBuffers(
+			//	(u32)m_backBuffers.size(),
+			//	width, height,
+			//	DXGI::ConvertFormat(m_format),
+			//	desc.Flags
+			//));
 
 			UINT colorSpaceSupport = 0;
 			DXGI_COLOR_SPACE_TYPE colorSpace = GetColorSpace(desiredDisplayMode);
@@ -94,16 +95,16 @@ namespace Ryu::Gfx
 	
 	void SwapChain::Present()
 	{
-		auto& config = GraphicsConfig::Get();
-		bool vSync = config.EnableVSync;
+		auto& config      = GraphicsConfig::Get();
+		bool vSync        = config.EnableVSync;
 		bool allowTearing = config.AllowTearing;
 
 		m_swapChain->Present(vSync ? 1 : 0, !vSync && allowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0);
 		m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
 
 		// Signal and store when the GPU work for the frame we just flipped is finished.
-		CmdQueue* pDirectQueue = GetParent()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
-		m_presentFence->Signal(pDirectQueue);
+		CmdQueue* directQueue = GetParent()->GetCmdQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
+		m_presentFence->Signal(directQueue);
 
 		::WaitForSingleObject(m_waitableObject, INFINITE);
 	}
@@ -171,16 +172,16 @@ namespace Ryu::Gfx
 			desc.Flags |= DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 		}
 
-		desc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+		desc.AlphaMode   = DXGI_ALPHA_MODE_IGNORE;
 		desc.BufferCount = m_frameCount;
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		desc.Format = DXGI::ConvertFormat(m_format);
-		desc.Width = 0;
-		desc.Height = 0;
-		desc.Scaling = DXGI_SCALING_NONE;
-		desc.Stereo = FALSE;
-		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		desc.SampleDesc = { 1,0 };
+		desc.Format      = DXGI::ConvertFormat(m_format);
+		desc.Width       = 0;
+		desc.Height      = 0;
+		desc.Scaling     = DXGI_SCALING_NONE;
+		desc.Stereo      = FALSE;
+		desc.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		desc.SampleDesc  = { 1,0 };
 
 		DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc{};
 		fsDesc.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -191,20 +192,20 @@ namespace Ryu::Gfx
 		
 		m_swapChain.Reset();
 		
-		RYU_TODO("Get command queue");
-
-
+		CmdQueue* presentQueue = device->GetCmdQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 		ComPtr<IDXGISwapChain1> swapChain;
+
+
 		DXCall(device->GetFactory()->CreateSwapChainForHwnd(
-			m_presentQueue->GetCommandQueue(),
+			presentQueue->GetCmdQueue(),
 			m_window,
 			&desc,
 			&fsDesc,
 			nullptr,
-			m_swapChain.GetAddressOf()
+			swapChain.GetAddressOf()
 		));
 
-		swapChain.As(&m_swapChain);
+		DXCallEx(swapChain.As(&m_swapChain), device->GetDevice());
 
 		if (m_waitableObject)
 		{
@@ -218,7 +219,7 @@ namespace Ryu::Gfx
 			m_waitableObject = m_swapChain->GetFrameLatencyWaitableObject();
 		}
 
-		m_width = 0;
+		m_width  = 0;
 		m_height = 0;
 
 		DXGI_SWAP_CHAIN_DESC1 descActual{};

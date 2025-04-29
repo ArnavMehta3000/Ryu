@@ -11,7 +11,7 @@ namespace Ryu::Gfx
 		~Fence();
 
 		// Signals on the GPU timeline, increments the next value and return the signaled fence value
-		u64 Signal(CommandQueue* cmdQueue);
+		u64 Signal(CmdQueue* cmdQueue);
 		u64 Signal(u64 fenceValue);
 		// Stall CPU until fence value is signaled on the GPU
 		void CPUWait(u64 fenceValue);
@@ -19,17 +19,17 @@ namespace Ryu::Gfx
 		// Returns true if the fence has reached this value or higher
 		bool IsComplete(u64 fenceValue);
 
-		inline NODISCARD u64 GetCurrentValue() const { return m_currentValue; }
-		inline NODISCARD u64 GetLastSignaledValue() const { return m_lastSignaledValue; }
-		inline NODISCARD ComPtr<DX12::Fence> GetFence() const { return m_fence; }
+		inline NODISCARD u64 GetCurrentValue() const noexcept { return m_currentValue; }
+		inline NODISCARD u64 GetLastSignaledValue() const noexcept { return m_lastSignaledValue; }
+		inline NODISCARD DX12::Fence* GetFence() const noexcept { return m_fence.Get(); }
 
 	private:
 		ComPtr<DX12::Fence> m_fence;
-		std::mutex m_fenceWaitMutex;
-		HANDLE m_completeEvent;
-		u64 m_currentValue;
-		u64 m_lastSignaledValue;
-		u64 m_lastCompletedValue;
+		std::mutex          m_fenceWaitMutex;
+		HANDLE              m_completeEvent;
+		u64                 m_currentValue;
+		u64                 m_lastSignaledValue;
+		u64                 m_lastCompletedValue;
 	};
 
 	class SyncPoint

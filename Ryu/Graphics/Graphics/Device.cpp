@@ -31,19 +31,19 @@ namespace Ryu::Gfx
 		const auto& config = GraphicsConfig::Get();
 
 		// --- Create DXGI factory---
-		u32 flags = 0;
+		u32 factoryCreateFlags = 0;
 		if (config.EnableDebugLayer)
 		{
-			flags |= DXGI_CREATE_FACTORY_DEBUG;
+			factoryCreateFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
 
-		DXCall(::CreateDXGIFactory2(flags, IID_PPV_ARGS(&m_factory)));
+		DXCall(::CreateDXGIFactory2(factoryCreateFlags, IID_PPV_ARGS(&m_factory)));
 
 		// --- Enable debug layer ---
 		if (config.EnableDebugLayer)
 		{
 			ComPtr<ID3D12Debug6> debug;
-			if (SUCCEEDED(m_factory.As(&debug)))
+			if (SUCCEEDED(::D3D12GetDebugInterface(IID_PPV_ARGS(&debug))))
 			{
 				debug->EnableDebugLayer();
 				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GraphicsDevice), "DX12 Debug layer enabled");
@@ -70,14 +70,14 @@ namespace Ryu::Gfx
 				const std::string description = Utils::ToNarrowStr(desc.Description);
 
 				RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GraphicsDevice),
-					"GPU: {} ({}) - {} GB", description, desc.VendorId, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
+					"GPU: {} ({}) - {:.2f} GB", description, desc.VendorId, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
 
 				u32 outputIndex = 0;
 				ComPtr<DXGI::Output> output;
 				while (adapter->EnumOutputs(outputIndex++, &output) == S_OK)
 				{
 					ComPtr<DXGI::Output6> output6;
-					if (output.As(&output6))
+					if (SUCCEEDED(output.As(&output6)))
 					{
 						DXGI_OUTPUT_DESC1 outputDesc{};
 						output6->GetDesc1(&outputDesc);
@@ -96,6 +96,7 @@ namespace Ryu::Gfx
 				}
 			}
 
+			// Get best adapter again
 			m_factory-> EnumAdapterByGpuPreference(0, gpuPreference, IID_PPV_ARGS(&adapter));
 			DXGI_ADAPTER_DESC3 desc{};
 			adapter->GetDesc3(&desc);
@@ -103,7 +104,9 @@ namespace Ryu::Gfx
 
 
 			// --- Create Device ---
-			DXCall(::D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_device)));
+			ComPtr<DXGI::Adapter> adap;
+			GetHardwareAdapter(m_factory.Get(), &adap);
+			DXCall(::D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_device)));
 		}
 
 		// --- Fallback to WARP ---
@@ -158,6 +161,8 @@ namespace Ryu::Gfx
 			}
 		}
 
+		m_frameFence = Memory::CreateRef<Fence>(this, "Frame Fence");
+
 		RYU_TODO("Set up command queues");
 		RYU_TODO("Set up heaps");
 	}
@@ -173,7 +178,7 @@ namespace Ryu::Gfx
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
 		}
 	}
-	
+		
 	void Device::IdleGPU()
 	{
 		RYU_TODO("Tick frame");
@@ -186,8 +191,40 @@ namespace Ryu::Gfx
 	{
 		if (object)
 		{
-			m_deleteQueue.Enqueue(object, m_frameFence.get());
+			m_deleteQueue.Enqueue(object, m_frameFence.Get());
 		}
+	}
+
+	void Device::GetHardwareAdapter(IDXGIFactory7* pFactory, DXGI::Adapter** ppAdapter)
+	{
+		ComPtr<DXGI::Adapter> adapter;
+		*ppAdapter = nullptr;
+
+		for (UINT adapterIndex = 0;
+			SUCCEEDED(pFactory->EnumAdapterByGpuPreference(
+				adapterIndex,
+				DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+				IID_PPV_ARGS(&adapter)));
+			adapterIndex++)
+		{
+			DXGI_ADAPTER_DESC3 desc;
+			adapter->GetDesc3(&desc);
+
+			if (desc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)
+			{
+				continue;  // Don't select the Basic Render Driver adapter.
+			}
+
+			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
+			{
+				const std::string description = Utils::ToNarrowStr(desc.Description);
+				RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GraphicsDevice),
+					"Using GPU: {} ({}) - {:.2f} GB", description, desc.VendorId, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
+				break;
+			}
+		}
+
+		*ppAdapter = adapter.Detach();
 	}
 	
 	Device::DeferredDeleteQueue::~DeferredDeleteQueue()

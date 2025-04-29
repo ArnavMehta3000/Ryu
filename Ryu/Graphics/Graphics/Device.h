@@ -10,10 +10,7 @@ namespace Ryu::Gfx
 	{
 		RYU_LOG_DECLARE_CATEGORY(GraphicsDevice);
 
-		struct LiveObjectReporter
-		{
-			~LiveObjectReporter();
-		};
+		struct LiveObjectReporter { ~LiveObjectReporter(); };
 
 		class DeferredDeleteQueue : public DeviceObject
 		{
@@ -41,22 +38,25 @@ namespace Ryu::Gfx
 		Device();
 		~Device();
 
-		inline NODISCARD ComPtr<DX12::Device> GetDevice() const { return m_device; }
-		inline NODISCARD ComPtr<DXGI::Factory> GetFactory() const { return m_factory; }
-		inline NODISCARD std::shared_ptr<Fence> GetFrameFence() const { return m_frameFence; }
+		inline NODISCARD CmdQueue* GetCmdQueue(D3D12_COMMAND_LIST_TYPE type) const noexcept { return m_cmdQueues.at(type).Get(); }
+		inline NODISCARD DX12::Device* GetDevice() const noexcept { return m_device.Get(); }
+		inline NODISCARD DXGI::Factory* GetFactory() const noexcept { return m_factory.Get(); }
+		inline NODISCARD Fence* const GetFrameFence() const noexcept { return m_frameFence.Get(); }
 
 		void IdleGPU();
 		void DeferReleaseObject(DX12::Object* object);
 
 	private:
-		LiveObjectReporter m_reporter;
+		void GetHardwareAdapter(IDXGIFactory7* pFactory, IDXGIAdapter4** ppAdapter);
 
-		ComPtr<DXGI::Factory> m_factory;
-		ComPtr<DX12::Device> m_device;
-
-		std::shared_ptr<Fence> m_frameFence;
-		std::array<u64, GraphicsConfig::FRAME_COUNT> m_frameFenceValues;
-		u32 m_frameIndex = 0;
-		DeferredDeleteQueue m_deleteQueue;
+	private:
+		LiveObjectReporter                                                      m_reporter;
+		ComPtr<DXGI::Factory>                                                   m_factory;
+		ComPtr<DX12::Device>                                                    m_device;
+		Memory::Ref<Fence>                                                      m_frameFence;
+		std::array<Memory::Ref<CmdQueue>, D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE> m_cmdQueues;
+		std::array<u64, GraphicsConfig::FRAME_COUNT>                            m_frameFenceValues;
+		u32                                                                     m_frameIndex = 0;
+		DeferredDeleteQueue                                                     m_deleteQueue;
 	};
 }

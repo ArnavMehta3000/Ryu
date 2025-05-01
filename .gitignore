@@ -7,3 +7,4 @@ RyuLog.txt
 Docs/html
 Docs/Sphinx
 xmake-requires.lock
+compile_commands.json

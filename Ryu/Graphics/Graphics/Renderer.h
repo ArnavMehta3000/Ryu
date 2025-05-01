@@ -17,6 +17,7 @@ namespace Ryu::Gfx
 		inline NODISCARD Device* GetDevice() const { return m_device.Get(); }
 		inline NODISCARD SwapChain* GetSwapChain() const { return m_swapchain.Get(); }
 
+		void Render();
 		void OnResize(u32 width, u32 height);
 
 	public:

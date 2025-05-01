@@ -132,8 +132,8 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 		CreateDevice();
-		CreateCommandQueue();
-		CreateCommandAllocator();
+		
+		m_cmdCtx = Memory::CreateRef<CommandContext>(this, CmdListType::Direct);
 
 		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
 			"DX12 Device created with max feature level: {}",
@@ -143,8 +143,7 @@ namespace Ryu::Gfx
 	Device::~Device()
 	{
 		m_factory.Reset();
-		m_cmdQueue.Reset();
-		m_cmdAllocator.Reset();
+		m_cmdCtx.Reset();
 
 #if defined(RYU_BUILD_DEBUG)
 		m_debugLayer.SetupSeverityBreaks(m_device, false);
@@ -167,10 +166,12 @@ namespace Ryu::Gfx
 		u32 dxgiFactoryFlags = 0;
 
 		// --- Enable debug layer ---
+#if defined(RYU_BUILD_DEBUG)
 		if (enableDebugLayer)
 		{
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
+#endif
 
 		// --- Create DXGI factory---
 		DXCall(::CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_factory)));
@@ -207,25 +208,6 @@ namespace Ryu::Gfx
 		// --- Set debug name & cache capabilities ---
 		DX12::SetObjectName(m_device.Get(), "Main Device");
 		DXCallEx(m_featureSupport.Init(m_device.Get()), m_device.Get());
-	}
-
-	void Device::CreateCommandQueue()
-	{
-		RYU_PROFILE_SCOPE();
-		D3D12_COMMAND_QUEUE_DESC queueDesc{};
-		queueDesc.Type     = DX12::GetCmdListType(CmdListType::Direct);
-		queueDesc.Flags    = static_cast<D3D12_COMMAND_QUEUE_FLAGS>(CmdListFlags::None);
-		queueDesc.NodeMask = 0;
-
-		DXCallEx(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_cmdQueue)), m_device.Get());
-		DX12::SetObjectName(m_cmdQueue.Get(), "Main Command Queue");
-	}
-
-	void Device::CreateCommandAllocator()
-	{
-		RYU_PROFILE_SCOPE();
-		DXCallEx(m_device->CreateCommandAllocator(DX12::GetCmdListType(CmdListType::Direct), IID_PPV_ARGS(&m_cmdAllocator)), m_device.Get());
-		DX12::SetObjectName(m_cmdAllocator.Get(), "Main Command Allocator");
 	}
 
 	void Device::GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const

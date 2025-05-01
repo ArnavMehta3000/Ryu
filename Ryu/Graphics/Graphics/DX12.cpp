@@ -11,6 +11,7 @@ namespace Ryu::Gfx
 		if (object)
 		{
 			DXCall(object->SetPrivateData(WKPDID_D3DDebugObjectName, (u32)strlen(name) + 1, name));
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(DX12), "Set D3D12 object name: {}", name);
 		}
 	}
 

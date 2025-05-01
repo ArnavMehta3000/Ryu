@@ -1,12 +1,15 @@
 #include "Graphics/CommandContext.h"
 #include "Graphics/Device.h"
 #include "Profiling/Profiling.h"
+#include <libassert/assert.hpp>
 
 namespace Ryu::Gfx
 {
 	CommandContext::CommandContext(Device* parent, CmdListType type)
 		: DeviceObject(parent)
 		, m_frameIndex(0)
+		, m_fenceEvent(nullptr)
+		, m_fenceValue(0)
 	{
 		RYU_PROFILE_SCOPE();
 		DX12::Device* const device = parent->GetDevice();
@@ -36,18 +39,39 @@ namespace Ryu::Gfx
 		m_cmdList->Close();
 
 		DX12::SetObjectName(m_cmdList.Get(), std::format("{} Command List", cmdListTypeName).c_str());
+
+		// Create the fence
+		DXCallEx(device->CreateFence(0, static_cast<D3D12_FENCE_FLAGS>(FenceFlag::None), IID_PPV_ARGS(&m_fence)), device);
+		DX12::SetObjectName(m_fence.Get(), std::format("Command Context ({}) Fence", cmdListTypeName).c_str());
+
+		m_fenceEvent = ::CreateEventEx(nullptr, L"CommandContextFenceEvent", 0, EVENT_ALL_ACCESS);
+		DEBUG_ASSERT(m_fenceEvent);
 	}
 	
 	CommandContext::~CommandContext()
 	{
-		
+		RYU_PROFILE_SCOPE();
+		Flush();
+		m_fence.Reset();
+		m_fenceValue = 0;
+
+		::CloseHandle(m_fenceEvent);
+		m_fenceEvent = nullptr;
+
+		m_cmdQueue.Reset();
+		m_cmdList.Reset();
+
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			m_cmdFrames[i].ReleaseAllocator();
+		}
 	}
 	
 	void CommandContext::BeginFrame()
 	{
 		RYU_PROFILE_SCOPE();
 		CommandFrame& frame = m_cmdFrames[m_frameIndex];
-		frame.Wait();
+		frame.Wait(m_fenceEvent, m_fence.Get());
 
 		// Resetting the allocator will free the memory used by previously recorded commands
 		DXCall(frame.CmdAllocator->Reset());
@@ -65,7 +89,44 @@ namespace Ryu::Gfx
 		// Execute the command list on the GPU
 		ID3D12CommandList* const cmdLists[] = { m_cmdList.Get() };
 		m_cmdQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+
+		// If frames fence value is less than the signalled fence value means that the GPU is 
+		// done executing commands for this frame and we can use it to record new commands
+		u64& fenceValue = m_fenceValue;
+		++fenceValue;
+		CommandFrame& frame = m_cmdFrames[m_frameIndex];
+		frame.FenceValue = fenceValue;
+		
+		DXCall(m_cmdQueue->Signal(m_fence.Get(), m_fenceValue));
 		
 		m_frameIndex = (m_frameIndex + 1) % FRAME_BUFFER_COUNT;  // Wrap frame index
+	}
+
+	void CommandContext::Flush()
+	{
+		RYU_PROFILE_SCOPE();
+		DX12::Fence* const fence = m_fence.Get();
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			m_cmdFrames[i].Wait(m_fenceEvent, fence);
+		}
+		m_frameIndex = 0;
+	}
+	
+	void CommandContext::CommandFrame::Wait(HANDLE fenceEvent, DX12::Fence* fence)
+	{
+		DEBUG_ASSERT(fence && fenceEvent);
+		RYU_PROFILE_SCOPE();
+
+		// If completed value is less than current 'FenceValue' then the GPU is still executing commands
+		// Meaning it has still not yet reached the 'm_cmdQueue->Signal' command
+		if (fence->GetCompletedValue() < FenceValue)
+		{
+			DXCall(fence->SetEventOnCompletion(FenceValue, fenceEvent));
+
+			// Wait until the fence has triggered the event that its current value has reached FenceValue
+			// Indicating the the command queue has finished executing commands
+			::WaitForSingleObject(fenceEvent, INFINITE);
+		}
 	}
 }

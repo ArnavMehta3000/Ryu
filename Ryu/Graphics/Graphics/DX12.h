@@ -14,7 +14,7 @@ namespace Ryu::Gfx
 	{
 		using Object        = ID3D12Object;
 		using Device        = ID3D12Device8;
-		using GfxCmdList    = ID3D12GraphicsCommandList10;
+		using GfxCmdList    = ID3D12GraphicsCommandList6;
 		using Resource      = ID3D12Resource2;
 		using InfoQueue     = ID3D12InfoQueue1;
 		using Fence         = ID3D12Fence1;

@@ -104,7 +104,7 @@ namespace Ryu::Gfx
 
 		ComPtr<IDXGISwapChain1> swapChain;
 		DXCall(factory->CreateSwapChainForHwnd(
-			device->GetCmdQueue(),
+			device->GetCommandContext()->GetCmdQueue(),
 			m_window,
 			&desc,
 			&fsDesc,

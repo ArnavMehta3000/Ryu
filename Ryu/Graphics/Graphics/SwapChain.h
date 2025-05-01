@@ -12,7 +12,7 @@ namespace Ryu::Gfx
 		~SwapChain() = default;
 
 		inline NODISCARD HWND GetWindowHandle() const noexcept { return m_window; }
-		inline NODISCARD DXGI::SwapChain* GetSwapChain() const noexcept { return m_swapChain.Get(); }
+		inline NODISCARD DXGI::SwapChain* const GetSwapChain() const noexcept { return m_swapChain.Get(); }
 
 		void Resize(const u32 width, const u32 height);
 

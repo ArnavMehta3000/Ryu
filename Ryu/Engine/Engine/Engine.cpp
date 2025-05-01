@@ -107,6 +107,8 @@ namespace Ryu::Engine
 			{
 				DoFrame(info);
 			});
+
+			m_renderer->Render();
 			
 			RYU_PROFILE_MARK_FRAME();
 		}

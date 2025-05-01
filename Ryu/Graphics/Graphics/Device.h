@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/DeviceResource.h"
+#include "Graphics/CommandContext.h"
 #include "Graphics/GraphicsConfig.h"
 
 namespace Ryu::Gfx
@@ -23,26 +23,22 @@ namespace Ryu::Gfx
 		Device();
 		~Device();
 
-		inline NODISCARD DX12::Device* GetDevice() const noexcept { return m_device.Get(); }
-		inline NODISCARD DXGI::Factory* GetFactory() const noexcept { return m_factory.Get(); }
-		inline NODISCARD DX12::CmdQueue* GetCmdQueue() const noexcept { return m_cmdQueue.Get(); }
-		inline NODISCARD DX12::CmdAllocator* GetCmdAllocator() const noexcept { return m_cmdAllocator.Get(); }
+		inline NODISCARD DX12::Device* const GetDevice() const noexcept { return m_device.Get(); }
+		inline NODISCARD DXGI::Factory* const GetFactory() const noexcept { return m_factory.Get(); }
+		inline NODISCARD CommandContext* const GetCommandContext() const noexcept { return m_cmdCtx.Get(); }
 		inline NODISCARD const CD3DX12FeatureSupport& GetFeatureSupport() const noexcept { return m_featureSupport; }
 
 	private:
 		void CreateDevice();
-		void CreateCommandQueue();
-		void CreateCommandAllocator();
 		void GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const;
 
 	private:
 #if defined(RYU_BUILD_DEBUG)
-		DebugLayer                 m_debugLayer;
+		DebugLayer                  m_debugLayer;
 #endif
-		CD3DX12FeatureSupport      m_featureSupport;
-		ComPtr<DXGI::Factory>      m_factory;
-		ComPtr<DX12::Device>       m_device;
-		ComPtr<DX12::CmdQueue>     m_cmdQueue;
-		ComPtr<DX12::CmdAllocator> m_cmdAllocator;
+		CD3DX12FeatureSupport       m_featureSupport;
+		ComPtr<DXGI::Factory>       m_factory;
+		ComPtr<DX12::Device>        m_device;
+		Memory::Ref<CommandContext> m_cmdCtx;
 	};
 }

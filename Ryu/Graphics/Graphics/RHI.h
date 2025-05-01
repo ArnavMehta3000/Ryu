@@ -81,6 +81,15 @@ namespace Ryu::Gfx
 		_COUNT,
 	};
 
+	enum class FenceFlag
+	{
+		None               = 0,
+		Shared             = RYU_ENUM_BIT(0),
+		SharedCrossAdapter = RYU_ENUM_BIT(1),
+		Monitored          = RYU_ENUM_BIT(2)
+	};
+	RYU_ENUM_ENABLE_BITMASK_OPERATORS(FenceFlag)
+
 	enum class CmdListType
 	{
 		None = -1,
@@ -97,7 +106,7 @@ namespace Ryu::Gfx
 	
 	enum class CmdListFlags
 	{
-		None = 0,
+		None              = 0,
 		DisableGPUTimeout = RYU_ENUM_BIT(0)
 	};
 	RYU_ENUM_ENABLE_BITMASK_OPERATORS(CmdListFlags)
@@ -121,7 +130,7 @@ namespace Ryu::Gfx
 
 	enum class DescHeapFlags
 	{
-		None = 0,
+		None          = 0,
 		ShaderVisible = RYU_ENUM_BIT(0)
 	};
 	RYU_ENUM_ENABLE_BITMASK_OPERATORS(DescHeapFlags)

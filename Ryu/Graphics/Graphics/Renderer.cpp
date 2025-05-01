@@ -24,6 +24,24 @@ namespace Ryu::Gfx
 		m_device.Reset();
 	}
 	
+	void Renderer::Render()
+	{
+		RYU_PROFILE_SCOPE();
+		if (CommandContext* ctx = m_device->GetCommandContext())
+		{
+			// Wait for the GPU to finish with the command allocator and 
+			// reset the allocator once the GPU is done with it
+			ctx->BeginFrame();
+
+			MAYBE_UNUSED DX12::GfxCmdList* const cmdList = ctx->GetGfxCmdList();
+
+			// RECORD COMMANDS HERE
+
+			// Execute commands -> Signal and increment the fence value for nect frame
+			ctx->EndFrame();
+		}
+	}
+
 	void Renderer::OnResize(u32 width, u32 height)
 	{
 		RYU_PROFILE_SCOPE();

@@ -1,55 +1,37 @@
 #pragma once
 #include "Graphics/DeviceResource.h"
-#include "Graphics/Fence.h"
 
 namespace Ryu::Gfx
 {
-	enum class DisplayMode
-	{
-		SDR,
-		HDR_PQ,
-		HDR_scRGB
-	};
-
 	class SwapChain : public DeviceObject
 	{
+		RYU_LOG_DECLARE_CATEGORY(GFXSwapChain);
+
 	public:
-		explicit SwapChain(Device* parent, DisplayMode displayMode, u32 frameCount, HWND window);
-		~SwapChain();
+		SwapChain(Device* parent, u32 frameCount, HWND window);
+		~SwapChain() = default;
 
-		void OnResize(u32 width, u32 height);
-		void Present();
+		inline NODISCARD HWND GetWindowHandle() const noexcept { return m_window; }
+		inline NODISCARD DXGI::SwapChain* GetSwapChain() const noexcept { return m_swapChain.Get(); }
 
-		void SetFrameCount(u32 frameCount);
-		void SetMaxFrameLatency(u32 maxFrameLatency);
-		void SetUseWaitableSwapChain(bool enabled);
-
-		bool DisplaySupportsHDR() const;
-
-		inline bool GetUseWaitableSwapChain() { return m_useWaitableObject; }
-		inline NODISCARD u32 GetFrameCount() const { return m_frameCount; }
-		inline NODISCARD u32 GetMaxFrameLatency() const { return m_maxFrameLatency; }
-		inline NODISCARD Format GetFormat() const { return m_format; }
-		inline NODISCARD u32 GetBackBufferIndex() const { return m_backBufferIndex; }
-		inline NODISCARD DXGI::SwapChain* GetSwapChain() const { return m_swapChain.Get(); }
+		void Resize(const u32 width, const u32 height);
 
 	private:
-		void RecreateSwapChain();
+		void CreateSwapChain();
+		void CreateDescriptorHeaps();
+		void CreateFrameResources();
 
 	private:
-		HWND                                      m_window;
-		DisplayMode                               m_displayMode;
-		Format                                    m_format;
-		Memory::Ref<Fence>                        m_presentFence;
-		RYU_TODO("Add std::array<ComPtr<Texture>> m_backBuffers");
-		ComPtr<DXGI::SwapChain>                   m_swapChain;
-		u32                                       m_backBufferIndex;
-		u32                                       m_width             = 0;
-		u32                                       m_height            = 0;
-		u32                                       m_frameCount;
-		u32                                       m_maxFrameLatency   = 2;
-		bool                                      m_useWaitableObject = true;
-		bool                                      m_AllowTearing      = false;
-		HANDLE                                    m_waitableObject    = nullptr;
+		HWND                    m_window;
+		Format                  m_format = Format::RGBA8_UNORM;
+		bool                    m_allowTearing;
+		u32                     m_frameCount;
+		u32                     m_width;
+		u32                     m_height;
+		u32                     m_frameIndex;
+		u32                     m_rtvDescriptorSize;
+		ComPtr<DXGI::SwapChain> m_swapChain;
+		ComPtr<DX12::DescHeap>  m_rtvHeap;
+		ComPtr<DX12::Resource>  m_frameBuffers[GraphicsConfig::FRAME_COUNT];
 	};
 }

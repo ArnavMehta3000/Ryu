@@ -2,6 +2,10 @@
 #include "Logger/Logger.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
+#include <DirectXMath.h>
+#include <wrl/event.h>
+
+#pragma comment(lib, "runtimeobject.lib") 
 
 namespace Ryu::Engine
 {
@@ -14,6 +18,12 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Engine Initialize");
+
+		if (!DirectX::XMVerifyCPUSupport())
+		{
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "DirectX is not supported on this system");
+			return false;
+		}
 
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
 		m_app = CreateApplication();
@@ -78,7 +88,8 @@ namespace Ryu::Engine
 	void Engine::Run()
 	{
 		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Running the Engine");
-
+		
+		Microsoft::WRL::Wrappers::RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
 		if (!Init())
 		{
 			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");

@@ -2,4 +2,4 @@
 
 echo Generating project files for Visual Studio...
 
-xmake project -y -k vsxmake build
+xmake project -y -m debug -k vsxmake build

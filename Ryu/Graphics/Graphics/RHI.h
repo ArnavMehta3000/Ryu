@@ -1,12 +1,12 @@
 #pragma once
 #include "Common/StandardTypes.h"
+#include "Common/Enum.h"
 
 namespace Ryu::Gfx
 {
 	class Device;
 	class SwapChain;
 	class CmdQueue;
-	class CommandContext;
 
 	enum class Format : u8
 	{
@@ -79,11 +79,41 @@ namespace Ryu::Gfx
 		_COUNT,
 	};
 
-	enum class FormatType : u8
+	enum class CmdListType
 	{
-		Integer,
-		Normalized,
-		Float,
-		DepthStencil
+		None = -1,
+		Direct = 0,
+		Bundle,
+		Compute,
+		Copy,
+		VideoDecode,
+		VideoProcess,
+		VideoEncode,
+
+		_COUNT = (VideoEncode + 1)
 	};
+	
+	enum class CmdListFlags
+	{
+		None = 0,
+		DisableGPUTimeout = RYU_ENUM_BIT(0)
+	};
+	RYU_ENUM_ENABLE_BITMASK_OPERATORS(CmdListFlags)
+
+	enum class DescHeapType
+	{
+		CBV_SRV_UAV = 0,
+		Sampler,
+		RTV,
+		DSV,
+
+		_COUNT
+	};
+
+	enum class DescHeapFlags
+	{
+		None = 0,
+		ShaderVisible = RYU_ENUM_BIT(0)
+	};
+	RYU_ENUM_ENABLE_BITMASK_OPERATORS(DescHeapFlags)
 }

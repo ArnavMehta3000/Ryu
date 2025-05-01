@@ -47,7 +47,8 @@ namespace Ryu::Gfx
 			}
 			else
 			{
-				GetParent()->DeferReleaseObject(m_resource);
+				RYU_TODO("DeferReleaseObject");
+				//GetParent()->DeferReleaseObject(m_resource);
 			}
 			m_resource = nullptr;
 		}

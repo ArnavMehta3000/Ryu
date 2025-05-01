@@ -2,6 +2,7 @@
 #include "Common/StandardTypes.h"
 #include "Utils/StringConv.h"
 #include "Logger/Logger.h"
+#include "libassert/assert.hpp"
 
 namespace Ryu::Gfx
 {
@@ -28,22 +29,84 @@ namespace Ryu::Gfx
 		return out;
 	}
 
+	constexpr D3D12_COMMAND_LIST_TYPE DX12::GetCmdListType(CmdListType type)
+	{
+		using enum Ryu::Gfx::CmdListType;
+		
+		switch (type)
+		{
+		case None:         return D3D12_COMMAND_LIST_TYPE_NONE;
+		case Direct:       return D3D12_COMMAND_LIST_TYPE_DIRECT;
+		case Bundle:       return D3D12_COMMAND_LIST_TYPE_BUNDLE;
+		case Compute:      return D3D12_COMMAND_LIST_TYPE_COMPUTE;
+		case Copy:         return D3D12_COMMAND_LIST_TYPE_COPY;
+		case VideoDecode:  return D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE;
+		case VideoProcess: return D3D12_COMMAND_LIST_TYPE_VIDEO_PROCESS;
+		case VideoEncode:  return D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE;
+		default:           return D3D12_COMMAND_LIST_TYPE_NONE;
+		}
+	}
+
+	constexpr D3D12_DESCRIPTOR_HEAP_TYPE DX12::GetDescHeapType(DescHeapType type)
+	{
+		using enum Ryu::Gfx::DescHeapType;
+
+		switch (type)
+		{
+		case CBV_SRV_UAV: return D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		case Sampler:     return D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+		case RTV:         return D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		case DSV:         return D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		default:          return D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		}
+	}
+
 
 	constexpr std::string_view Internal::CommandListTypeToString(D3D12_COMMAND_LIST_TYPE type)
 	{
-#define STATE_CASE(name) case D3D12_COMMAND_LIST_TYPE_##name: return #name
 		switch (type)
 		{
-			STATE_CASE(DIRECT);
-			STATE_CASE(COMPUTE);
-			STATE_CASE(COPY);
-			STATE_CASE(BUNDLE);
-			STATE_CASE(VIDEO_DECODE);
-			STATE_CASE(VIDEO_ENCODE);
-			STATE_CASE(VIDEO_PROCESS);
-		default: return "<UNKNOWN>";
+			case D3D12_COMMAND_LIST_TYPE_DIRECT:        return "Direct";
+			case D3D12_COMMAND_LIST_TYPE_COMPUTE:       return "Compute";
+			case D3D12_COMMAND_LIST_TYPE_COPY:          return "Copy";
+			case D3D12_COMMAND_LIST_TYPE_BUNDLE:        return "Bundle";
+			case D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE:  return "VideoDecode";
+			case D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE:  return "VideoEncode";
+			case D3D12_COMMAND_LIST_TYPE_VIDEO_PROCESS: return "VideoProcess";
+			default:                                    return "<UNKNOWN>";
 		}
-#undef STATE_CASE
+	}
+
+	constexpr std::string_view Internal::DescHeapTypeToString(D3D12_DESCRIPTOR_HEAP_TYPE type)
+	{
+		switch (type)
+		{
+			case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV: return "CBV_SRV_UAV";
+			case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:     return "Sampler";
+			case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:         return "RTV";
+			case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:         return "DSV";
+			default:                                     return "<UNKNOWN>";
+		}
+	}
+
+	constexpr std::string_view Internal::FeatureLevelToString(D3D_FEATURE_LEVEL level)
+	{
+		switch(level)
+		{
+			case D3D_FEATURE_LEVEL_12_2:        return "12.2";
+			case D3D_FEATURE_LEVEL_12_1:        return "12.1";
+			case D3D_FEATURE_LEVEL_12_0:        return "12.0";
+			case D3D_FEATURE_LEVEL_11_1:        return "11.1";
+			case D3D_FEATURE_LEVEL_11_0:        return "11.0";
+			case D3D_FEATURE_LEVEL_10_1:        return "10.1";
+			case D3D_FEATURE_LEVEL_10_0:        return "10.0";
+			case D3D_FEATURE_LEVEL_9_3:         return "9.3";
+			case D3D_FEATURE_LEVEL_9_2:         return "9.2";
+			case D3D_FEATURE_LEVEL_9_1:         return "9.1";
+			case D3D_FEATURE_LEVEL_1_0_CORE :   return "1.0 Core";
+			case D3D_FEATURE_LEVEL_1_0_GENERIC: return "1.0 Generic";
+			default:                            return "<UNKNOWN>";
+		}
 	}
 	
 	std::string Internal::GetErrorString(HRESULT errorCode, DX12::Device* device)

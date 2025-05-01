@@ -1,175 +1,90 @@
 #include "Graphics/SwapChain.h"
 #include "Graphics/Device.h"
-#include "Graphics/CmdQueue.h"
+#include "Graphics/GraphicsConfig.h"
+#include "Profiling/Profiling.h"
+#include <libassert/assert.hpp>
 
 namespace Ryu::Gfx
 {
-	Format GetSwapchainFormat(DisplayMode displayMode)
+	static void GetWindowSize(HWND window, u32& outWidth, u32& outHeight)
 	{
-		switch (displayMode)
+		if (!window)
 		{
-		default:
-		case DisplayMode::SDR:		 return Format::RGBA8_UNORM;
-		case DisplayMode::HDR_PQ:	 return Format::RGB10A2_UNORM;
-		case DisplayMode::HDR_scRGB: return Format::RGBA16_FLOAT;
+			outWidth = 0;
+			outHeight = 0;
+			return;
 		}
+
+		RECT r{};
+		::GetClientRect(window, &r);
+		outWidth = static_cast<u32>(r.right - r.left);
+		outHeight = static_cast<u32>(r.bottom - r.top);
 	}
 
-	DXGI_COLOR_SPACE_TYPE GetColorSpace(DisplayMode displayMode)
-	{
-		switch (displayMode)
-		{
-		default:
-		case DisplayMode::SDR:			return DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
-		case DisplayMode::HDR_PQ:		return DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020;
-		case DisplayMode::HDR_scRGB:	return DXGI_COLOR_SPACE_RGB_FULL_G10_NONE_P709;
-		}
-	}
-
-	SwapChain::SwapChain(Device* parent, DisplayMode displayMode, u32 frameCount, HWND window)
+	SwapChain::SwapChain(Device* parent, u32 frameCount, HWND window)
 		: DeviceObject(parent)
 		, m_window(window)
-		, m_displayMode(displayMode)
-		, m_format(GetSwapchainFormat(displayMode))
-		, m_backBufferIndex(0)
 		, m_frameCount(frameCount)
+		, m_width(0)
+		, m_height(0)
+		, m_frameIndex(0)
 	{
-		m_presentFence = Memory::CreateRef<Fence>(parent, "Present Fence");
-		RecreateSwapChain();
+		RYU_PROFILE_SCOPE();
+
+		CreateDescriptorHeaps();
+		CreateSwapChain();
+		
+		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain created");
 	}
-	
-	SwapChain::~SwapChain()
+
+	void SwapChain::Resize(const u32 width, const u32 height)
 	{
-		m_presentFence->CPUWait();
-		m_swapChain->SetFullscreenState(FALSE, nullptr);
-	}
-	
-	void SwapChain::OnResize(u32 width, u32 height)
-	{
-		DisplayMode desiredDisplayMode = m_displayMode;
-		if (!DisplaySupportsHDR())
+		RYU_PROFILE_SCOPE();
+
+		if (!m_window || (m_width == width && m_height == height))
 		{
-			desiredDisplayMode = DisplayMode::SDR;
+			return;
 		}
 
-		Format desiredFormat = GetSwapchainFormat(desiredDisplayMode);
+		m_width  = width;
+		m_height = height;
 
-		if (desiredFormat != m_format || width != m_width || height != m_height)
+		// Release frame buffers before release
+		for (u32 i = 0; i < m_frameCount; i++)
 		{
-			m_width = width;
-			m_height = height;
-			m_format = desiredFormat;
-
-			m_presentFence->CPUWait();
-			
-			for (u64 i = 0; i < GraphicsConfig::FRAME_COUNT; i++)
-			{
-				RYU_TODO("Release swapchain buffers here");
-			}
-
-			DXGI_SWAP_CHAIN_DESC1 desc{};
-			m_swapChain->GetDesc1(&desc);
-			//DXCall(m_swapChain->ResizeBuffers(
-			//	(u32)m_backBuffers.size(),
-			//	width, height,
-			//	DXGI::ConvertFormat(m_format),
-			//	desc.Flags
-			//));
-
-			UINT colorSpaceSupport = 0;
-			DXGI_COLOR_SPACE_TYPE colorSpace = GetColorSpace(desiredDisplayMode);
-			if (SUCCEEDED(m_swapChain->CheckColorSpaceSupport(colorSpace, &colorSpaceSupport)) &&
-				(colorSpaceSupport & DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT) == DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT)
-			{
-				DXCall(m_swapChain->SetColorSpace1(colorSpace));
-			}
-			
-			for (u64 i = 0; i < GraphicsConfig::FRAME_COUNT; i++)
-			{
-				RYU_TODO("Recreate swapchain buffers here");
-			}
-
-			m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
-		}
-	}
-	
-	void SwapChain::Present()
-	{
-		auto& config      = GraphicsConfig::Get();
-		bool vSync        = config.EnableVSync;
-		bool allowTearing = config.AllowTearing;
-
-		m_swapChain->Present(vSync ? 1 : 0, !vSync && allowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0);
-		m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-		// Signal and store when the GPU work for the frame we just flipped is finished.
-		CmdQueue* directQueue = GetParent()->GetCmdQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
-		m_presentFence->Signal(directQueue);
-
-		::WaitForSingleObject(m_waitableObject, INFINITE);
-	}
-	
-	void SwapChain::SetFrameCount(u32 frameCount)
-	{
-		m_frameCount = frameCount;
-		RecreateSwapChain();
-	}
-	
-	void SwapChain::SetMaxFrameLatency(u32 maxFrameLatency)
-	{
-		m_maxFrameLatency = maxFrameLatency;
-		if (m_useWaitableObject)
-		{
-			m_swapChain->SetMaximumFrameLatency(maxFrameLatency);
-		}
-	}
-	
-	void SwapChain::SetUseWaitableSwapChain(bool enabled)
-	{
-		if (m_useWaitableObject != enabled)
-		{
-			m_useWaitableObject = enabled;
-			RecreateSwapChain();
-		}
-	}
-	
-	bool SwapChain::DisplaySupportsHDR() const
-	{
-		ComPtr<DXGI::Output> output;
-		ComPtr<DXGI::Output6> output6;
-
-		if (SUCCEEDED(m_swapChain->GetContainingOutput(output.GetAddressOf())))
-		{
-			if (SUCCEEDED(output.As(&output6)))
-			{
-				DXGI_OUTPUT_DESC1 desc;
-				if (SUCCEEDED(output6->GetDesc1(&desc)))
-				{
-					return desc.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020;
-				}
-			}
+			m_frameBuffers[i].Reset();
 		}
 
-		return false;
-	}
-	
-	void SwapChain::RecreateSwapChain()
-	{
-		m_presentFence->CPUWait();
+		DXGI_SWAP_CHAIN_DESC1 desc{};
+		m_swapChain->GetDesc1(&desc);
+		DXCallEx(m_swapChain->ResizeBuffers(
+			m_frameCount,
+			m_width, m_height,
+			DXGI::ConvertFormat(m_format),
+			desc.Flags
+		), GetParent()->GetDevice());
 
-		Device* device = GetParent();
+		CreateFrameResources();
+		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain resized to {}x{}", m_width, m_height);
+	}
+
+	void SwapChain::CreateSwapChain()
+	{
+		RYU_PROFILE_SCOPE();
+
+		Device* const device = GetParent();
+		DXGI::Factory* const factory = device->GetFactory();
+
+		auto& config = GraphicsConfig::Get();
+		const bool wantsTearing = config.AllowTearing;
 
 		DXGI_SWAP_CHAIN_DESC1 desc{};
 		BOOL allowTearing = FALSE;
-		if (SUCCEEDED(device->GetFactory()->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(BOOL))))
+		if (wantsTearing && SUCCEEDED(device->GetFactory()->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(BOOL))))
 		{
-			m_AllowTearing = allowTearing;
 			desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-		}
-		
-		if (m_useWaitableObject)
-		{
-			desc.Flags |= DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 		}
 
 		desc.AlphaMode   = DXGI_ALPHA_MODE_IGNORE;
@@ -186,44 +101,56 @@ namespace Ryu::Gfx
 		DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc{};
 		fsDesc.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;
 		fsDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		fsDesc.Windowed         = true;
+		fsDesc.Windowed         = TRUE;
 
-		RYU_TODO("Clear back buffer array and resize the vector");
-		
-		m_swapChain.Reset();
-		
-		CmdQueue* presentQueue = device->GetCmdQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 		ComPtr<IDXGISwapChain1> swapChain;
-
-
-		DXCall(device->GetFactory()->CreateSwapChainForHwnd(
-			presentQueue->GetCmdQueue(),
+		DXCall(factory->CreateSwapChainForHwnd(
+			device->GetCmdQueue(),
 			m_window,
 			&desc,
 			&fsDesc,
 			nullptr,
-			swapChain.GetAddressOf()
+			&swapChain
 		));
+
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXSwapChain), "This SwapChain does not support fullscreen transitions");
+		DXCallEx(factory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER), device->GetDevice());
 
 		DXCallEx(swapChain.As(&m_swapChain), device->GetDevice());
 
-		if (m_waitableObject)
+		// Reuse desc width and height to get window size
+		GetWindowSize(m_window, desc.Width, desc.Height);
+		Resize(desc.Width, desc.Height);
+	}
+
+	void SwapChain::CreateDescriptorHeaps()
+	{
+		RYU_PROFILE_SCOPE();
+
+		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
+		rtvHeapDesc.NumDescriptors = GraphicsConfig::FRAME_COUNT;
+		rtvHeapDesc.Type           = DX12::GetDescHeapType(DescHeapType::RTV);
+		rtvHeapDesc.Flags          = static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(DescHeapFlags::None);
+		
+		DX12::Device* const device = GetParent()->GetDevice();
+		DXCallEx(device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)), device);
+
+		m_rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(DX12::GetDescHeapType(DescHeapType::RTV));
+	}
+	
+	void SwapChain::CreateFrameResources()
+	{
+		RYU_PROFILE_SCOPE();
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+
+		DX12::Device* const device = GetParent()->GetDevice();
+
+		// Create a RTV for each frame
+		for (u32 i = 0; i < m_frameCount; i++)
 		{
-			::CloseHandle(m_waitableObject);
-			m_waitableObject = nullptr;
+			DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_frameBuffers[i])), device);
+			device->CreateRenderTargetView(m_frameBuffers[i].Get(), nullptr, rtvHandle);
+			rtvHandle.Offset(1, m_rtvDescriptorSize);
 		}
-
-		if (m_useWaitableObject)
-		{
-			m_swapChain->SetMaximumFrameLatency(m_maxFrameLatency);
-			m_waitableObject = m_swapChain->GetFrameLatencyWaitableObject();
-		}
-
-		m_width  = 0;
-		m_height = 0;
-
-		DXGI_SWAP_CHAIN_DESC1 descActual{};
-		m_swapChain->GetDesc1(&descActual);
-		OnResize(descActual.Width, descActual.Height);
 	}
 }

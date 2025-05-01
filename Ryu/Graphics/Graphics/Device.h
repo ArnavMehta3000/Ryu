@@ -1,62 +1,43 @@
 #pragma once
 #include "Graphics/DeviceResource.h"
 #include "Graphics/GraphicsConfig.h"
-#include "Graphics/Fence.h"
-#include <queue>
 
 namespace Ryu::Gfx
 {
 	class Device : public DeviceObject
 	{
-		RYU_LOG_DECLARE_CATEGORY(GraphicsDevice);
+		RYU_LOG_DECLARE_CATEGORY(GFXDevice);
 
-		struct LiveObjectReporter { ~LiveObjectReporter(); };
-
-		class DeferredDeleteQueue : public DeviceObject
+		struct DebugLayer 
 		{
-		private:
-			struct FencedObject
-			{
-				Fence* Fence;
-				u64 FenceValue;
-				DX12::Object* Resource;
-			};
+			DebugLayer(); 
+			~DebugLayer();
 
-		public:
-			DeferredDeleteQueue(Device* parent) : DeviceObject(parent) {}
-			~DeferredDeleteQueue();
-
-			void Enqueue(DX12::Object* resource, Fence* fence);
-			void Clean();
-
-		private:
-			std::mutex m_queueMutex;
-			std::queue<FencedObject> m_deletionQueue;
+			void SetupSeverityBreaks(ComPtr<DX12::Device>& device, bool enable);
 		};
 
 	public:
 		Device();
 		~Device();
 
-		inline NODISCARD CmdQueue* GetCmdQueue(D3D12_COMMAND_LIST_TYPE type) const noexcept { return m_cmdQueues.at(type).Get(); }
 		inline NODISCARD DX12::Device* GetDevice() const noexcept { return m_device.Get(); }
 		inline NODISCARD DXGI::Factory* GetFactory() const noexcept { return m_factory.Get(); }
-		inline NODISCARD Fence* const GetFrameFence() const noexcept { return m_frameFence.Get(); }
-
-		void IdleGPU();
-		void DeferReleaseObject(DX12::Object* object);
-
-	private:
-		void GetHardwareAdapter(IDXGIFactory7* pFactory, IDXGIAdapter4** ppAdapter);
+		inline NODISCARD DX12::CmdQueue* GetCmdQueue() const noexcept { return m_cmdQueue.Get(); }
+		inline NODISCARD DX12::CmdAllocator* GetCmdAllocator() const noexcept { return m_cmdAllocator.Get(); }
+		inline NODISCARD const CD3DX12FeatureSupport& GetFeatureSupport() const noexcept { return m_featureSupport; }
 
 	private:
-		LiveObjectReporter                                                      m_reporter;
-		ComPtr<DXGI::Factory>                                                   m_factory;
-		ComPtr<DX12::Device>                                                    m_device;
-		Memory::Ref<Fence>                                                      m_frameFence;
-		std::array<Memory::Ref<CmdQueue>, D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE> m_cmdQueues;
-		std::array<u64, GraphicsConfig::FRAME_COUNT>                            m_frameFenceValues;
-		u32                                                                     m_frameIndex = 0;
-		DeferredDeleteQueue                                                     m_deleteQueue;
+		void CreateDevice();
+		void CreateCommandQueue();
+		void CreateCommandAllocator();
+		void GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const;
+
+	private:
+		DebugLayer                 m_debugLayer;
+		CD3DX12FeatureSupport      m_featureSupport;
+		ComPtr<DXGI::Factory>      m_factory;
+		ComPtr<DX12::Device>       m_device;
+		ComPtr<DX12::CmdQueue>     m_cmdQueue;
+		ComPtr<DX12::CmdAllocator> m_cmdAllocator;
 	};
 }

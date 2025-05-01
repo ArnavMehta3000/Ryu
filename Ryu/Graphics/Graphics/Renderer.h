@@ -1,5 +1,4 @@
 #pragma once
-#include "Common/Result.h"
 #include "Logger/LogCategory.h"
 #include "Graphics/Device.h"
 #include "Graphics/SwapChain.h"

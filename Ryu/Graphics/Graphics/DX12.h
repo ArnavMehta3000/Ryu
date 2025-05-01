@@ -4,6 +4,7 @@
 #include "Graphics/RHI.h"
 #include <directx/d3dx12.h>
 #include <dxgi1_6.h>
+#include <dxgidebug.h>
 
 namespace Ryu::Gfx
 {
@@ -11,19 +12,22 @@ namespace Ryu::Gfx
 
 	namespace DX12
 	{
-		using Object       = ID3D12Object;
-		using Device       = ID3D12Device14;
-		using GfxCmdList   = ID3D12GraphicsCommandList10;
-		using Resource     = ID3D12Resource2;
-		using InfoQueue    = ID3D12InfoQueue1;
-		using Fence        = ID3D12Fence1;
-		using CmdQueue     = ID3D12CommandQueue;
-		using CmdAllocator = ID3D12CommandAllocator;
+		using Object        = ID3D12Object;
+		using Device        = ID3D12Device8;
+		using GfxCmdList    = ID3D12GraphicsCommandList10;
+		using Resource      = ID3D12Resource2;
+		using InfoQueue     = ID3D12InfoQueue1;
+		using Fence         = ID3D12Fence1;
+		using CmdQueue      = ID3D12CommandQueue;
+		using CmdAllocator  = ID3D12CommandAllocator;
+		using DescHeap      = ID3D12DescriptorHeap;
+		using PipelineState = ID3D12PipelineState;
 
 		void SetObjectName(DX12::Object* object, const char* name);
 		std::string GetObjectName(DX12::Object* object);
 
-
+		constexpr D3D12_COMMAND_LIST_TYPE GetCmdListType(CmdListType type);
+		constexpr D3D12_DESCRIPTOR_HEAP_TYPE GetDescHeapType(DescHeapType type);
 	}
 
 	namespace DXGI
@@ -31,8 +35,6 @@ namespace Ryu::Gfx
 		using Factory   = IDXGIFactory7;
 		using SwapChain = IDXGISwapChain4;
 		using Adapter   = IDXGIAdapter4;
-		using Output    = IDXGIOutput;
-		using Output6   = IDXGIOutput6;
 
 		constexpr DXGI_FORMAT ConvertFormat(Format format);
 		constexpr DXGI_FORMAT GetFormatSRGB(DXGI_FORMAT format, bool srgb);
@@ -41,6 +43,8 @@ namespace Ryu::Gfx
 	namespace Internal
 	{
 		constexpr std::string_view CommandListTypeToString(D3D12_COMMAND_LIST_TYPE type);
+		constexpr std::string_view DescHeapTypeToString(D3D12_DESCRIPTOR_HEAP_TYPE type);
+		constexpr std::string_view FeatureLevelToString(D3D_FEATURE_LEVEL level);
 		std::string GetErrorString(HRESULT errorCode, DX12::Device* device);
 		bool LogHRESULT(
 			MAYBE_UNUSED HRESULT hr,

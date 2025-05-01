@@ -8,13 +8,16 @@ namespace Ryu::Gfx
 	{
 		RYU_LOG_DECLARE_CATEGORY(GFXDevice);
 
+#if defined(RYU_BUILD_DEBUG)
 		struct DebugLayer 
 		{
 			DebugLayer(); 
 			~DebugLayer();
 
 			void SetupSeverityBreaks(ComPtr<DX12::Device>& device, bool enable);
+			void ReportLiveDeviceObjectsAndReleaseDevice(ComPtr<DX12::Device>& device);
 		};
+#endif
 
 	public:
 		Device();
@@ -33,7 +36,9 @@ namespace Ryu::Gfx
 		void GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const;
 
 	private:
+#if defined(RYU_BUILD_DEBUG)
 		DebugLayer                 m_debugLayer;
+#endif
 		CD3DX12FeatureSupport      m_featureSupport;
 		ComPtr<DXGI::Factory>      m_factory;
 		ComPtr<DX12::Device>       m_device;

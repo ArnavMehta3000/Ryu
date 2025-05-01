@@ -1,6 +1,6 @@
 target("RyuTestbench")
-	-- Use WinMain only in realease mode
-	if is_mode(release) then
+	-- Use WinMain only in release mode
+	if not is_mode("debug", "releasedbg") then
 		add_rules("win.sdk.application")
 	end
 

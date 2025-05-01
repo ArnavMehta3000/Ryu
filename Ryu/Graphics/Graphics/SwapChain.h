@@ -8,7 +8,7 @@ namespace Ryu::Gfx
 		RYU_LOG_DECLARE_CATEGORY(GFXSwapChain);
 
 	public:
-		SwapChain(Device* parent, u32 frameCount, HWND window);
+		SwapChain(Device* parent, HWND window);
 		~SwapChain() = default;
 
 		inline NODISCARD HWND GetWindowHandle() const noexcept { return m_window; }
@@ -32,6 +32,6 @@ namespace Ryu::Gfx
 		u32                     m_rtvDescriptorSize;
 		ComPtr<DXGI::SwapChain> m_swapChain;
 		ComPtr<DX12::DescHeap>  m_rtvHeap;
-		ComPtr<DX12::Resource>  m_frameBuffers[GraphicsConfig::FRAME_COUNT];
+		ComPtr<DX12::Resource>  m_frameBuffers[FRAME_BUFFER_COUNT];
 	};
 }

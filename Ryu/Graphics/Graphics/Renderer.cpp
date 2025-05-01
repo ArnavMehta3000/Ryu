@@ -10,7 +10,7 @@ namespace Ryu::Gfx
 		RYU_PROFILE_SCOPE();
 
 		m_device    = Memory::CreateRef<Device>();
-		m_swapchain = Memory::CreateRef<SwapChain>(GetDevice(), GraphicsConfig::FRAME_COUNT, window);
+		m_swapchain = Memory::CreateRef<SwapChain>(GetDevice(), window);
 	}
 	
 	Renderer::~Renderer()

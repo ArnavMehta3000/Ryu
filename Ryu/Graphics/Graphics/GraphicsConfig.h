@@ -17,7 +17,5 @@ namespace Ryu::Gfx
 		Config::ConfigValue<bool> EnableVSync{ this, RenderingSection, "EnableVSync", true };
 		Config::ConfigValue<bool> AllowTearing{ this, RenderingSection, "AllowTearing", false };
 		Config::ConfigValue<bool> UseWARP{ this, RenderingSection, "UseWARP", false };
-
-		static constexpr u32 FRAME_COUNT = 3;
 	};
 }

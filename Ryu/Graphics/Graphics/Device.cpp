@@ -6,6 +6,7 @@
 
 namespace Ryu::Gfx
 {
+#if defined(RYU_BUILD_DEBUG)
 	DWORD g_callbackCookie = 0;
 
 	Device::DebugLayer::DebugLayer()
@@ -62,6 +63,7 @@ namespace Ryu::Gfx
 		{
 			DXCall(dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL)));
 		}
+
 	}
 
 	void Device::DebugLayer::SetupSeverityBreaks(ComPtr<DX12::Device>& device, bool enable)
@@ -74,8 +76,6 @@ namespace Ryu::Gfx
 			DXCallEx(d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, enable), device.Get());
 			DXCallEx(d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, enable), device.Get());
 			DXCallEx(d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable), device.Get());
-			DXCallEx(d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_INFO, enable), device.Get());
-			DXCallEx(d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_MESSAGE, enable), device.Get());
 
 			ComPtr<ID3D12InfoQueue1> infoQueue1;
 			if (SUCCEEDED(d3dInfoQueue.As(&infoQueue1)))
@@ -116,6 +116,17 @@ namespace Ryu::Gfx
 		}
 	}
 
+	void Device::DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(ComPtr<DX12::Device>& device)
+	{
+		ComPtr<ID3D12DebugDevice2> debugDevice;
+		if (SUCCEEDED(device.As(&debugDevice)))
+		{
+			device.Reset();
+			DXCall(debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL));
+		}
+	}
+#endif
+
 	Device::Device()
 		: DeviceObject(this)
 	{
@@ -124,15 +135,23 @@ namespace Ryu::Gfx
 		CreateCommandQueue();
 		CreateCommandAllocator();
 
-		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(GFXDevice),
+		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
 			"DX12 Device created with max feature level: {}",
 			Internal::FeatureLevelToString(m_featureSupport.MaxSupportedFeatureLevel()));
 	}
 
 	Device::~Device()
 	{
-		// Revert security breaks
+		m_factory.Reset();
+		m_cmdQueue.Reset();
+		m_cmdAllocator.Reset();
+
+#if defined(RYU_BUILD_DEBUG)
 		m_debugLayer.SetupSeverityBreaks(m_device, false);
+		m_debugLayer.ReportLiveDeviceObjectsAndReleaseDevice(m_device);
+#else
+		m_device.Reset();  // Manually release device
+#endif
 	}
 
 	void Device::CreateDevice()
@@ -181,7 +200,9 @@ namespace Ryu::Gfx
 		}
 
 		// Enable security breaks
+#if defined(RYU_BUILD_DEBUG)
 		m_debugLayer.SetupSeverityBreaks(m_device, true);
+#endif
 
 		// --- Set debug name & cache capabilities ---
 		DX12::SetObjectName(m_device.Get(), "Main Device");
@@ -197,12 +218,14 @@ namespace Ryu::Gfx
 		queueDesc.NodeMask = 0;
 
 		DXCallEx(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_cmdQueue)), m_device.Get());
+		DX12::SetObjectName(m_cmdQueue.Get(), "Main Command Queue");
 	}
 
 	void Device::CreateCommandAllocator()
 	{
 		RYU_PROFILE_SCOPE();
 		DXCallEx(m_device->CreateCommandAllocator(DX12::GetCmdListType(CmdListType::Direct), IID_PPV_ARGS(&m_cmdAllocator)), m_device.Get());
+		DX12::SetObjectName(m_cmdAllocator.Get(), "Main Command Allocator");
 	}
 
 	void Device::GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const

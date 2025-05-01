@@ -21,10 +21,9 @@ namespace Ryu::Gfx
 		outHeight = static_cast<u32>(r.bottom - r.top);
 	}
 
-	SwapChain::SwapChain(Device* parent, u32 frameCount, HWND window)
+	SwapChain::SwapChain(Device* parent, HWND window)
 		: DeviceObject(parent)
 		, m_window(window)
-		, m_frameCount(frameCount)
 		, m_width(0)
 		, m_height(0)
 		, m_frameIndex(0)
@@ -50,7 +49,7 @@ namespace Ryu::Gfx
 		m_height = height;
 
 		// Release frame buffers before release
-		for (u32 i = 0; i < m_frameCount; i++)
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
 			m_frameBuffers[i].Reset();
 		}
@@ -58,7 +57,7 @@ namespace Ryu::Gfx
 		DXGI_SWAP_CHAIN_DESC1 desc{};
 		m_swapChain->GetDesc1(&desc);
 		DXCallEx(m_swapChain->ResizeBuffers(
-			m_frameCount,
+			FRAME_BUFFER_COUNT,
 			m_width, m_height,
 			DXGI::ConvertFormat(m_format),
 			desc.Flags
@@ -88,7 +87,7 @@ namespace Ryu::Gfx
 		}
 
 		desc.AlphaMode   = DXGI_ALPHA_MODE_IGNORE;
-		desc.BufferCount = m_frameCount;
+		desc.BufferCount = FRAME_BUFFER_COUNT;
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		desc.Format      = DXGI::ConvertFormat(m_format);
 		desc.Width       = 0;
@@ -128,7 +127,7 @@ namespace Ryu::Gfx
 		RYU_PROFILE_SCOPE();
 
 		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
-		rtvHeapDesc.NumDescriptors = GraphicsConfig::FRAME_COUNT;
+		rtvHeapDesc.NumDescriptors = FRAME_BUFFER_COUNT;
 		rtvHeapDesc.Type           = DX12::GetDescHeapType(DescHeapType::RTV);
 		rtvHeapDesc.Flags          = static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(DescHeapFlags::None);
 		
@@ -146,7 +145,7 @@ namespace Ryu::Gfx
 		DX12::Device* const device = GetParent()->GetDevice();
 
 		// Create a RTV for each frame
-		for (u32 i = 0; i < m_frameCount; i++)
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
 			DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_frameBuffers[i])), device);
 			device->CreateRenderTargetView(m_frameBuffers[i].Get(), nullptr, rtvHandle);

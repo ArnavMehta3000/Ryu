@@ -8,6 +8,8 @@ namespace Ryu::Gfx
 	class SwapChain;
 	class CmdQueue;
 
+	constexpr u32 FRAME_BUFFER_COUNT = 3;
+
 	enum class Format : u8
 	{
 		Unknown,
@@ -99,6 +101,13 @@ namespace Ryu::Gfx
 		DisableGPUTimeout = RYU_ENUM_BIT(0)
 	};
 	RYU_ENUM_ENABLE_BITMASK_OPERATORS(CmdListFlags)
+
+	enum class CmdQueuePriority : i32
+	{
+		Normal   = 0,
+		High     = 100,
+		Realtime = 10000
+	};
 
 	enum class DescHeapType
 	{

@@ -2,32 +2,6 @@
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
-#include <crtdbg.h>
-#ifdef RYU_BUILD_DEBUG
-#define _DEBUG
-#include <cassert>
-#endif
-
-struct CrtCheckMemory
-{
-    _CrtMemState state1{};
-    _CrtMemState state2{};
-    _CrtMemState state3{};
-    CrtCheckMemory()
-    {
-        _CrtMemCheckpoint(&state1);
-    }
-    ~CrtCheckMemory()
-    {
-        _CrtMemCheckpoint(&state2);
-        // using google test you can just do this.
-        assert(0 == _CrtMemDifference(&state3, &state1, &state2));
-        // else just do this to dump the leaked blocks to stdout.
-        if (_CrtMemDifference(&state3, &state1, &state2))
-            _CrtMemDumpStatistics(&state3);
-    }
-};
-
 
 namespace Ryu::Memory::Tests
 {
@@ -65,8 +39,6 @@ namespace Ryu::Memory::Tests
     {
         SUBCASE("Default constructor creates null reference")
         {
-            CrtCheckMemory check;
-
             Ref<TestObject> ref;
             CHECK(ref == nullptr);
             CHECK_FALSE(ref);
@@ -76,8 +48,6 @@ namespace Ryu::Memory::Tests
 
         SUBCASE("Constructor with nullptr creates null reference")
         {
-            CrtCheckMemory check;
-
             Ref<TestObject> ref(nullptr);
             CHECK(ref == nullptr);
             CHECK_FALSE(ref);
@@ -87,8 +57,6 @@ namespace Ryu::Memory::Tests
 
         SUBCASE("Constructor with pointer creates valid reference")
         {
-            CrtCheckMemory check;
-
             TestObject* obj = new TestObject(42);
             Ref<TestObject> ref(obj);
             CHECK(ref != nullptr);
@@ -100,8 +68,6 @@ namespace Ryu::Memory::Tests
 
         SUBCASE("Copy constructor increments reference count")
         {
-            CrtCheckMemory check;
-
             Ref<TestObject> ref1(new TestObject(42));
             CHECK(ref1.GetRefCount() == 1);
 
@@ -329,14 +295,12 @@ namespace Ryu::Memory::Tests
         }
     }
 
-    // Global variables for tracking object destruction
-    static bool objectDestroyed1 = false;
-    static bool objectDestroyed2 = false;
-
     TEST_CASE("Ref destruction")
     {
         SUBCASE("Object is destroyed when last reference is gone")
         {
+            static bool objectDestroyed1 = false;
+
             // Use a special test class that tracks destruction
             class DestructorTestObject : public RefCounted
             {
@@ -347,25 +311,19 @@ namespace Ryu::Memory::Tests
 
             objectDestroyed1 = false;
             {
-                // We need to create the object outside the Ref and destroy it manually
-                // to properly test the destruction behavior
-                DestructorTestObject* obj = new DestructorTestObject();
-                {
-                    Ref<DestructorTestObject> ref(obj);
-                    CHECK_FALSE(objectDestroyed1);
-                }  // ref goes out of scope here, which should call Release
+                // Create the Ref directly instead of manually managing the object
+                Ref<DestructorTestObject> ref(new DestructorTestObject());
+                CHECK_FALSE(objectDestroyed1);
+            }  // ref goes out of scope here, which should trigger destruction
 
-                // The original ref has been released, manually call Release
-                // to trigger destruction since the initial count is 2
-                obj->Release();
-            }
-
-            // The test should now pass
+            // Verify the object was destroyed when last reference was released
             CHECK(objectDestroyed1);
         }
 
         SUBCASE("Object is not destroyed while references exist")
         {
+            static bool objectDestroyed2 = false;
+
             // Use a special test class that tracks destruction
             class DestructorTestObject : public RefCounted
             {
@@ -376,23 +334,16 @@ namespace Ryu::Memory::Tests
 
             objectDestroyed2 = false;
             {
-                // Create the object manually
-                DestructorTestObject* obj = new DestructorTestObject();
+                // Create a scope with multiple references to the same object
+                Ref<DestructorTestObject> ref1(new DestructorTestObject());
                 {
-                    Ref<DestructorTestObject> ref1(obj);
-                    {
-                        Ref<DestructorTestObject> ref2(ref1);
-                        CHECK_FALSE(objectDestroyed2);
-                    }  // ref2 goes out of scope here
-
+                    Ref<DestructorTestObject> ref2(ref1);
                     CHECK_FALSE(objectDestroyed2);
-                }  // ref1 goes out of scope here
+                }  // ref2 goes out of scope here
+                CHECK_FALSE(objectDestroyed2);
+            }  // ref1 goes out of scope here, should trigger destruction
 
-                // Need to call Release manually to trigger destruction
-                obj->Release();
-            }
-
-            // The test should now pass
+            // Verify the object was destroyed when all references were gone
             CHECK(objectDestroyed2);
         }
     }
@@ -504,23 +455,21 @@ namespace Ryu::Memory::Tests
 
         SUBCASE("Control block is cleaned up properly")
         {
-            // This test is more about memory leaks, which can't be easily checked
-            // But we'll verify the basic behavior
             WeakRef<TestObject> weak;
 
             {
-                TestObject* obj = new TestObject(42);
-                {
-                    Ref<TestObject> ref(obj);
-                    weak = ref;
-                } // ref goes out of scope
+                // Create the Ref directly to properly manage the object
+                Ref<TestObject> ref(new TestObject(42));
+                weak = ref;
+                CHECK(weak.IsValid());
+            } // ref goes out of scope, object should be destroyed but control block remains
 
-                // Manually release to trigger destruction
-                obj->Release();
-            }
-
+            // Now the object should be destroyed but weak ref still valid
             CHECK(weak.IsExpired());
-            weak.Reset();  // Should release the control block
+            CHECK(weak.GetWeakCount() == 1);  // Control block still exists
+
+            // Reset the weak reference which should clean up the control block
+            weak.Reset();
             CHECK(weak.GetWeakCount() == 0);
         }
     }

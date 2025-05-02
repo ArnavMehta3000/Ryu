@@ -134,6 +134,7 @@ namespace Ryu::Gfx
 		CreateDevice();
 		
 		m_cmdCtx = Memory::CreateRef<CommandContext>(this, CmdListType::Direct);
+		CreateDescriptorHeaps();
 
 		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
 			"DX12 Device created with max feature level: {}",
@@ -143,6 +144,12 @@ namespace Ryu::Gfx
 	Device::~Device()
 	{
 		m_factory.Reset();
+
+		m_rtvHeap.Reset();
+		m_dsvHeap.Reset();
+		m_srvHeap.Reset();
+		m_uavHeap.Reset();
+
 		m_cmdCtx.Reset();
 
 #if defined(RYU_BUILD_DEBUG)
@@ -151,6 +158,27 @@ namespace Ryu::Gfx
 #else
 		m_device.Reset();  // Manually release device
 #endif
+	}
+
+	void Device::SetDeferredReleaseFlag()
+	{
+		m_deferredReleaseFlag[m_cmdCtx->GetFrameIndex()] = 1;
+	}
+
+	bool Device::CheckDeferredReleaseFlag(const u32 frameIndex) const
+	{
+		return m_deferredReleaseFlag[frameIndex] == 1;
+	}
+
+	void Device::ProcessDeferredReleases(const u32 frameIndex)
+	{
+		std::lock_guard lock(m_deferredReleaseMutex);
+
+		m_deferredReleaseFlag[frameIndex] = 0;
+		m_rtvHeap->ProcessDeferredFree(frameIndex);
+		m_dsvHeap->ProcessDeferredFree(frameIndex);
+		m_srvHeap->ProcessDeferredFree(frameIndex);
+		m_uavHeap->ProcessDeferredFree(frameIndex);
 	}
 
 	void Device::CreateDevice()
@@ -208,6 +236,30 @@ namespace Ryu::Gfx
 		// --- Set debug name & cache capabilities ---
 		DX12::SetObjectName(m_device.Get(), "Main Device");
 		DXCallEx(m_featureSupport.Init(m_device.Get()), m_device.Get());
+	}
+
+	void Device::CreateDescriptorHeaps()
+	{
+		m_rtvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::RTV);
+		m_dsvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::DSV);
+		m_srvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::CBV_SRV_UAV);
+		m_uavHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::CBV_SRV_UAV);
+
+		bool result = true;
+		result &= m_rtvHeap->Init(512, DescHeapFlags::None);
+		result &= m_dsvHeap->Init(512, DescHeapFlags::None);
+		result &= m_srvHeap->Init(4096, DescHeapFlags::ShaderVisible);
+		result &= m_uavHeap->Init(512, DescHeapFlags::None);
+
+		if (!result)
+		{
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(GFXDevice), "Failed to create descriptor heaps");
+		}
+
+		DX12::SetObjectName(m_rtvHeap->GetHeap(), "RTV Descriptor Heap");
+		DX12::SetObjectName(m_dsvHeap->GetHeap(), "DSV Descriptor Heap");
+		DX12::SetObjectName(m_srvHeap->GetHeap(), "SRV Descriptor Heap");
+		DX12::SetObjectName(m_uavHeap->GetHeap(), "UAV Descriptor Heap");
 	}
 
 	void Device::GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const

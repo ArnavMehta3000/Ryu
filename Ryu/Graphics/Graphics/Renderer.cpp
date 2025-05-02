@@ -19,8 +19,16 @@ namespace Ryu::Gfx
 
 		DEBUG_ASSERT(m_swapchain.GetRefCount() == 1);
 		DEBUG_ASSERT(m_device.GetRefCount() == 1);
+
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			m_device->ProcessDeferredReleases(i);
+		}
 		
 		m_swapchain.Reset();
+		
+		
+		m_device->ProcessDeferredReleases(0);
 		m_device.Reset();
 	}
 	
@@ -35,6 +43,12 @@ namespace Ryu::Gfx
 
 			MAYBE_UNUSED DX12::GfxCmdList* const cmdList = ctx->GetGfxCmdList();
 
+			// Do we want to release anything this frame?
+			const u32 frameIndex = ctx->GetFrameIndex();
+			if (m_device->CheckDeferredReleaseFlag(frameIndex))
+			{
+				m_device->ProcessDeferredReleases(frameIndex);
+			}
 			// RECORD COMMANDS HERE
 
 			// Execute commands -> Signal and increment the fence value for nect frame

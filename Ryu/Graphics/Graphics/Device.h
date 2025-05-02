@@ -1,5 +1,6 @@
 #pragma once
 #include "Graphics/CommandContext.h"
+#include "Graphics/DescriptorHeap.h"
 #include "Graphics/GraphicsConfig.h"
 
 namespace Ryu::Gfx
@@ -28,8 +29,13 @@ namespace Ryu::Gfx
 		inline NODISCARD CommandContext* const GetCommandContext() const noexcept { return m_cmdCtx.Get(); }
 		inline NODISCARD const CD3DX12FeatureSupport& GetFeatureSupport() const noexcept { return m_featureSupport; }
 
+		void SetDeferredReleaseFlag();
+		bool CheckDeferredReleaseFlag(const u32 frameIndex) const;
+		void ProcessDeferredReleases(const u32 frameIndex);
+
 	private:
 		void CreateDevice();
+		void CreateDescriptorHeaps();
 		void GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const;
 
 	private:
@@ -40,5 +46,11 @@ namespace Ryu::Gfx
 		ComPtr<DXGI::Factory>       m_factory;
 		ComPtr<DX12::Device>        m_device;
 		Memory::Ref<CommandContext> m_cmdCtx;
+		u32                         m_deferredReleaseFlag[FRAME_BUFFER_COUNT]{};
+		std::mutex                  m_deferredReleaseMutex;
+		Memory::Ref<DescriptorHeap> m_rtvHeap;
+		Memory::Ref<DescriptorHeap> m_dsvHeap;
+		Memory::Ref<DescriptorHeap> m_srvHeap;
+		Memory::Ref<DescriptorHeap> m_uavHeap;
 	};
 }

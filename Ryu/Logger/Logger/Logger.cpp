@@ -1,11 +1,7 @@
 #include "Logger.h"
 #include "Common/Enum.h"
-#include "Sinks/ConsoleSink.h"
-#include "Sinks/DebugSink.h"
-#include "Utils/MessageBox.h"
 #include <fmt/core.h>
 #include <fmt/chrono.h>
-#include <libassert/assert.hpp>
 
 namespace Ryu::Logging
 {

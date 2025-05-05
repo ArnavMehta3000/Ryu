@@ -48,6 +48,9 @@ namespace Ryu::Engine
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 
+		RYU_PROFILE_BOOKMARK("Initialize script engine");
+		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>(m_projectDir + "/Scripts/");
+
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialized successfully");
 
 		return true;
@@ -70,6 +73,8 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
+
+		m_scriptEngine.reset();
 
 		// Disconnect resized event
 		m_onAppResizedConnection.Disconnect();

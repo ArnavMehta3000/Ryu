@@ -1,5 +1,3 @@
 @echo off
-
-echo Generating project files for Visual Studio...
-
-xmake project -y -m debug -k vsxmake build
+REM Pass'x' to run the script in extended mode
+powershell -ExecutionPolicy Bypass -File ./Xmake/GenerateProjectFiles.ps1 %*

@@ -2,7 +2,6 @@
 #include "Common/StandardTypes.h"
 #include "Utils/StringConv.h"
 #include "Logger/Logger.h"
-#include "libassert/assert.hpp"
 
 namespace Ryu::Gfx
 {

@@ -6,6 +6,7 @@
 
 namespace Ryu::Gfx
 {
+	// --- Debug Layer ---
 #if defined(RYU_BUILD_DEBUG)
 	DWORD g_callbackCookie = 0;
 
@@ -28,11 +29,19 @@ namespace Ryu::Gfx
 					RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "DX12 GPU based validation enabled");
 				}
 			}
+			else
+			{
+				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "DX12 Debug layer not available");
+			}
 
 			ComPtr<IDXGIDebug1> dxgiDebug;
 			if (SUCCEEDED(::DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
 			{
 				dxgiDebug->EnableLeakTrackingForThread();
+			}
+			else
+			{
+				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "DXGI Debug layer not available");
 			}
 
 			ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
@@ -50,6 +59,10 @@ namespace Ryu::Gfx
 				filter.DenyList.NumIDs = _countof(hide);
 				filter.DenyList.pIDList = hide;
 				dxgiInfoQueue->AddStorageFilterEntries(DXGI_DEBUG_DXGI, &filter);
+			}
+			else
+			{
+				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "DXGI Info Queue not available");
 			}
 		}
 	}
@@ -121,11 +134,12 @@ namespace Ryu::Gfx
 		ComPtr<ID3D12DebugDevice2> debugDevice;
 		if (SUCCEEDED(device.As(&debugDevice)))
 		{
-			device.Reset();
+			device.Reset();  // Release the device so that when we report we have the lowest possible nummber of refs
 			DXCall(debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL));
 		}
 	}
 #endif
+	// --- Debug Layer ---
 
 	Device::Device()
 		: DeviceObject(this)
@@ -145,11 +159,17 @@ namespace Ryu::Gfx
 	{
 		m_factory.Reset();
 
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			ProcessDeferredReleases(i);
+		}
+
 		m_rtvHeap.Reset();
 		m_dsvHeap.Reset();
 		m_srvHeap.Reset();
 		m_uavHeap.Reset();
 
+		ProcessDeferredReleases(0);
 		m_cmdCtx.Reset();
 
 #if defined(RYU_BUILD_DEBUG)
@@ -175,10 +195,33 @@ namespace Ryu::Gfx
 		std::lock_guard lock(m_deferredReleaseMutex);
 
 		m_deferredReleaseFlag[frameIndex] = 0;
-		m_rtvHeap->ProcessDeferredFree(frameIndex);
-		m_dsvHeap->ProcessDeferredFree(frameIndex);
-		m_srvHeap->ProcessDeferredFree(frameIndex);
-		m_uavHeap->ProcessDeferredFree(frameIndex);
+
+		if (m_rtvHeap) m_rtvHeap->ProcessDeferredFree(frameIndex);
+		if (m_dsvHeap) m_dsvHeap->ProcessDeferredFree(frameIndex);
+		if (m_srvHeap) m_srvHeap->ProcessDeferredFree(frameIndex);
+		if (m_uavHeap) m_uavHeap->ProcessDeferredFree(frameIndex);
+
+		std::span<DX12::Object*> objects(m_deferredReleases[frameIndex]);
+		if (!objects.empty())
+		{
+			for (DX12::Object* object : objects)
+			{
+				if (object)
+				{
+					object->Release();
+				}
+			}
+			m_deferredReleases[frameIndex].clear();
+		}
+	}
+
+	void Device::DeferReleaseObject(DX12::Object* object)
+	{
+		const u32 frameIndex = m_cmdCtx->GetFrameIndex();
+		std::lock_guard lock(m_deferredReleaseMutex);
+
+		m_deferredReleases[frameIndex].push_back(object);
+		SetDeferredReleaseFlag();
 	}
 
 	void Device::CreateDevice()
@@ -186,7 +229,6 @@ namespace Ryu::Gfx
 		RYU_PROFILE_SCOPE();
 
 		const auto& config = GraphicsConfig::Get();
-		const bool enableDebugLayer = config.EnableDebugLayer;
 		const bool useWarpDevice = config.UseWARP;
 
 		// Debug layer should be enabled by now if needed
@@ -195,7 +237,7 @@ namespace Ryu::Gfx
 
 		// --- Enable debug layer ---
 #if defined(RYU_BUILD_DEBUG)
-		if (enableDebugLayer)
+		if (config.EnableDebugLayer)
 		{
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}

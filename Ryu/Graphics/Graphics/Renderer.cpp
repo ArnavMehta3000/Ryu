@@ -20,15 +20,7 @@ namespace Ryu::Gfx
 		DEBUG_ASSERT(m_swapchain.GetRefCount() == 1);
 		DEBUG_ASSERT(m_device.GetRefCount() == 1);
 
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
-		{
-			m_device->ProcessDeferredReleases(i);
-		}
-		
 		m_swapchain.Reset();
-		
-		
-		m_device->ProcessDeferredReleases(0);
 		m_device.Reset();
 	}
 	

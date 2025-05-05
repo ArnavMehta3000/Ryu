@@ -2,6 +2,7 @@
 #include "Graphics/CommandContext.h"
 #include "Graphics/DescriptorHeap.h"
 #include "Graphics/GraphicsConfig.h"
+#include <vector>
 
 namespace Ryu::Gfx
 {
@@ -32,6 +33,7 @@ namespace Ryu::Gfx
 		void SetDeferredReleaseFlag();
 		bool CheckDeferredReleaseFlag(const u32 frameIndex) const;
 		void ProcessDeferredReleases(const u32 frameIndex);
+		void DeferReleaseObject(DX12::Object* object);  // Called by detaching the ComPtr
 
 	private:
 		void CreateDevice();
@@ -52,5 +54,6 @@ namespace Ryu::Gfx
 		Memory::Ref<DescriptorHeap> m_dsvHeap;
 		Memory::Ref<DescriptorHeap> m_srvHeap;
 		Memory::Ref<DescriptorHeap> m_uavHeap;
+		std::vector<DX12::Object*>  m_deferredReleases[FRAME_BUFFER_COUNT];
 	};
 }

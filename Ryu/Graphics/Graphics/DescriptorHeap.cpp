@@ -86,8 +86,10 @@ namespace Ryu::Gfx
 
 	void DescriptorHeap::ReleaseHeap()
 	{
+		DEBUG_ASSERT(m_size == 0);
 		m_freeHandles.reset();
-		m_heap.Reset();
+
+		GetParent()->DeferReleaseObject(m_heap.Detach());
 	}
 
 	DescriptorHeap::Handle DescriptorHeap::Allocate()
@@ -107,10 +109,8 @@ namespace Ryu::Gfx
 			handle.GPUHandle.InitOffsetted(m_gpuHandle, offset);
 		}
 
-#if defined(RYU_BUILD_DEBUG)
-		handle.m_ownerHeap = this;
-		handle.m_index     = index;
-#endif
+		RYU_DEBUG_OP(handle.m_ownerHeap = this);
+		RYU_DEBUG_OP(handle.m_index = index);
 
 		return handle;
 	}
@@ -130,10 +130,10 @@ namespace Ryu::Gfx
 
 		std::lock_guard lock(m_mutex);
 
-		DEBUG_ASSERT(handle.m_ownerHeap == this, "Descriptor heap handle does not match this heap");
+		RYU_DEBUG_OP(DEBUG_ASSERT(handle.m_ownerHeap == this, "Descriptor heap handle does not match this heap"));
 		DEBUG_ASSERT(handle.CPUHandle.ptr >= m_cpuHandle.ptr, "Descriptor heap handle does not match this heap");
 		DEBUG_ASSERT((handle.CPUHandle.ptr - m_cpuHandle.ptr) % m_descriptorSize == 0, "Descriptor heap handle does not match this heap");
-		DEBUG_ASSERT(handle.m_index < m_capacity);
+		RYU_DEBUG_OP(DEBUG_ASSERT(handle.m_index < m_capacity));
 
 		const u32 index = static_cast<u32>(handle.CPUHandle.ptr - m_cpuHandle.ptr) / m_descriptorSize;
 		DEBUG_ASSERT(handle.m_index == index, "Descriptor heap handle does not match this heap");

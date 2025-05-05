@@ -27,6 +27,7 @@ namespace Ryu::Gfx
 			void ReleaseAllocator()
 			{
 				CmdAllocator.Reset();
+				FenceValue = 0;
 			}
 			
 			void Wait(HANDLE fenceEvent, DX12::Fence* fence);

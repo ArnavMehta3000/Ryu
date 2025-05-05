@@ -1,7 +1,6 @@
 #pragma once
 #include <type_traits>
 
-
 #define RYU_DISABLE_COPY(T)      \
 	explicit T(const T&) = delete; \
 	T& operator=(const T&) = delete;
@@ -51,3 +50,10 @@
 	template<typename U> constexpr static auto Check(int) -> decltype(std::declval<U>().__VA_ARGS__, bool()) { return true; }\
 	template<typename> constexpr static bool Check(...) { return false; } public:                                            \
 	static constexpr bool Value = Check<T>(0); }; }
+
+// Only executes code if RYU_BUILD_DEBUG is defined
+#if defined(RYU_BUILD_DEBUG)
+#define RYU_DEBUG_OP(X) X
+#else
+#define RYU_DEBUG_OP(X) do {} while (false)
+#endif

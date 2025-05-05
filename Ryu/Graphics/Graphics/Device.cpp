@@ -196,11 +196,6 @@ namespace Ryu::Gfx
 
 		m_deferredReleaseFlag[frameIndex] = 0;
 
-		if (m_rtvHeap) m_rtvHeap->ProcessDeferredFree(frameIndex);
-		if (m_dsvHeap) m_dsvHeap->ProcessDeferredFree(frameIndex);
-		if (m_srvHeap) m_srvHeap->ProcessDeferredFree(frameIndex);
-		if (m_uavHeap) m_uavHeap->ProcessDeferredFree(frameIndex);
-
 		std::span<DX12::Object*> objects(m_deferredReleases[frameIndex]);
 		if (!objects.empty())
 		{
@@ -217,6 +212,11 @@ namespace Ryu::Gfx
 
 	void Device::DeferReleaseObject(DX12::Object* object)
 	{
+		if (!object)
+		{
+			return;
+		}
+
 		const u32 frameIndex = m_cmdCtx->GetFrameIndex();
 		std::lock_guard lock(m_deferredReleaseMutex);
 
@@ -282,21 +282,10 @@ namespace Ryu::Gfx
 
 	void Device::CreateDescriptorHeaps()
 	{
-		m_rtvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::RTV);
-		m_dsvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::DSV);
-		m_srvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::CBV_SRV_UAV);
-		m_uavHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::CBV_SRV_UAV);
-
-		bool result = true;
-		result &= m_rtvHeap->Init(512, DescHeapFlags::None);
-		result &= m_dsvHeap->Init(512, DescHeapFlags::None);
-		result &= m_srvHeap->Init(4096, DescHeapFlags::ShaderVisible);
-		result &= m_uavHeap->Init(512, DescHeapFlags::None);
-
-		if (!result)
-		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(GFXDevice), "Failed to create descriptor heaps");
-		}
+		m_rtvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::RTV, DescHeapFlags::None, 512);
+		m_dsvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::DSV, DescHeapFlags::None, 512);
+		m_srvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::CBV_SRV_UAV, DescHeapFlags::ShaderVisible, 4096);
+		m_uavHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::CBV_SRV_UAV, DescHeapFlags::None, 512);
 
 		DX12::SetObjectName(m_rtvHeap->GetHeap(), "RTV Descriptor Heap");
 		DX12::SetObjectName(m_dsvHeap->GetHeap(), "DSV Descriptor Heap");

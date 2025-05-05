@@ -21,19 +21,31 @@ namespace Ryu::Gfx
 		outHeight = static_cast<u32>(r.bottom - r.top);
 	}
 
-	SwapChain::SwapChain(Device* parent, HWND window)
+	SwapChain::SwapChain(Device* parent, HWND window, Format format)
 		: DeviceObject(parent)
 		, m_window(window)
+		, m_format(format)
 		, m_width(0)
 		, m_height(0)
 		, m_frameIndex(0)
 	{
 		RYU_PROFILE_SCOPE();
 
-		CreateDescriptorHeaps();
 		CreateSwapChain();
 		
 		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain created");
+	}
+
+	SwapChain::~SwapChain()
+	{
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			SurfaceData& data = m_surfaceData[i];
+			data.Resource.Reset();
+			GetParent()->GetRTVHeap()->Free(data.RTV);
+		}
+		
+		m_swapChain.Reset();
 	}
 
 	void SwapChain::Resize(const u32 width, const u32 height)
@@ -48,11 +60,12 @@ namespace Ryu::Gfx
 		m_width  = width;
 		m_height = height;
 
-		// Release frame buffers before release
+		// Release frame buffers before resize
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
-			m_frameBuffers[i].Reset();
+			m_surfaceData[i].Resource.Reset();
 		}
+
 
 		DXGI_SWAP_CHAIN_DESC1 desc{};
 		m_swapChain->GetDesc1(&desc);
@@ -63,10 +76,26 @@ namespace Ryu::Gfx
 			desc.Flags
 		), GetParent()->GetDevice());
 
-		CreateFrameResources();
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			m_surfaceData[i].RTV = GetParent()->GetRTVHeap()->Allocate();
+		}
+		
+		CreateFrameResources();
+
+		// Set viewport and rect
+		m_viewport    = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
+		m_scissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
+
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain resized to {}x{}", m_width, m_height);
+	}
+
+	void SwapChain::Present() const
+	{
+		DXCallEx(m_swapChain->Present(0, 0), GetParent()->GetDevice());
+		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 	}
 
 	void SwapChain::CreateSwapChain()
@@ -89,7 +118,7 @@ namespace Ryu::Gfx
 		desc.AlphaMode   = DXGI_ALPHA_MODE_IGNORE;
 		desc.BufferCount = FRAME_BUFFER_COUNT;
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		desc.Format      = DXGI::ConvertFormat(m_format);
+		desc.Format      = DXGI::ConvertFormat(m_format);  // SRGB format not enforced
 		desc.Width       = 0;
 		desc.Height      = 0;
 		desc.Scaling     = DXGI_SCALING_NONE;
@@ -121,35 +150,26 @@ namespace Ryu::Gfx
 		GetWindowSize(m_window, desc.Width, desc.Height);
 		Resize(desc.Width, desc.Height);
 	}
-
-	void SwapChain::CreateDescriptorHeaps()
-	{
-		RYU_PROFILE_SCOPE();
-
-		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
-		rtvHeapDesc.NumDescriptors = FRAME_BUFFER_COUNT;
-		rtvHeapDesc.Type           = DX12::GetDescHeapType(DescHeapType::RTV);
-		rtvHeapDesc.Flags          = static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(DescHeapFlags::None);
-		
-		DX12::Device* const device = GetParent()->GetDevice();
-		DXCallEx(device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)), device);
-
-		m_rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(DX12::GetDescHeapType(DescHeapType::RTV));
-	}
 	
 	void SwapChain::CreateFrameResources()
 	{
 		RYU_PROFILE_SCOPE();
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 
 		DX12::Device* const device = GetParent()->GetDevice();
 
 		// Create a RTV for each frame
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
-			DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_frameBuffers[i])), device);
-			device->CreateRenderTargetView(m_frameBuffers[i].Get(), nullptr, rtvHandle);
-			rtvHandle.Offset(1, m_rtvDescriptorSize);
+			SurfaceData& data = m_surfaceData[i];
+
+			DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&data.Resource)), device);
+
+			D3D12_RENDER_TARGET_VIEW_DESC desc{};
+			desc.Format        = DXGI::GetFormatSRGB(DXGI::ConvertFormat(DEFAULT_RTV_FORMAT));
+			desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+			device->CreateRenderTargetView(data.Resource.Get(), &desc, data.RTV.CPUHandle);
+			DX12::SetObjectName(data.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
 		}
 	}
 }

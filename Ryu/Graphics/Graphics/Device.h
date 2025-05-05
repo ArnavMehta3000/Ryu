@@ -29,6 +29,11 @@ namespace Ryu::Gfx
 		inline NODISCARD DXGI::Factory* const GetFactory() const noexcept { return m_factory.Get(); }
 		inline NODISCARD CommandContext* const GetCommandContext() const noexcept { return m_cmdCtx.Get(); }
 		inline NODISCARD const CD3DX12FeatureSupport& GetFeatureSupport() const noexcept { return m_featureSupport; }
+		inline NODISCARD DescriptorHeap* const GetRTVHeap() const noexcept { return m_rtvHeap.Get(); }
+		inline NODISCARD DescriptorHeap* const GetDSVHeap() const noexcept { return m_dsvHeap.Get(); }
+		inline NODISCARD DescriptorHeap* const GetSRVHeap() const noexcept { return m_srvHeap.Get(); }
+		inline NODISCARD DescriptorHeap* const GetUAVHeap() const noexcept { return m_uavHeap.Get(); }
+
 
 		void SetDeferredReleaseFlag();
 		bool CheckDeferredReleaseFlag(const u32 frameIndex) const;

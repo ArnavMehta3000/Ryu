@@ -5,6 +5,8 @@
 #include <directx/d3dx12.h>
 #include <dxgi1_6.h>
 #include <dxgidebug.h>
+#include <numeric>
+#include <vector>
 
 namespace Ryu::Gfx
 {
@@ -37,7 +39,7 @@ namespace Ryu::Gfx
 		using Adapter   = IDXGIAdapter4;
 
 		constexpr DXGI_FORMAT ConvertFormat(Format format);
-		constexpr DXGI_FORMAT GetFormatSRGB(DXGI_FORMAT format, bool srgb);
+		constexpr DXGI_FORMAT GetFormatSRGB(DXGI_FORMAT format);
 	}
 
 	namespace Internal
@@ -54,6 +56,21 @@ namespace Ryu::Gfx
 			MAYBE_UNUSED const char* functionName,
 			MAYBE_UNUSED u32 lineNumber);
 	}
+
+	class FreeList
+	{
+	public:
+		explicit FreeList(u32 size);		
+		~FreeList();
+
+		u32 Allocate();
+		void Free(u32 index);		
+		bool CanAllocate() const noexcept;
+
+	private:
+		std::vector<u32> m_freeList;
+		u32 m_numAllocations;
+	};
 }
 
 #define DXCall(hr) ::Ryu::Gfx::Internal::LogHRESULT(hr, nullptr, #hr, __FILE__, __FUNCTION__, __LINE__)

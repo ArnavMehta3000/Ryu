@@ -2,6 +2,7 @@
 #include "Common/StandardTypes.h"
 #include "Utils/StringConv.h"
 #include "Logger/Logger.h"
+#include <libassert/assert.hpp>
 
 namespace Ryu::Gfx
 {
@@ -235,6 +236,38 @@ namespace Ryu::Gfx
 	};
 	
 	static_assert(ARRAYSIZE(g_DXGIFormatMap) == (u32)::Ryu::Gfx::Format::_COUNT);
+
+	FreeList::FreeList(u32 size)
+		: m_numAllocations(0)
+	{
+		m_freeList.resize(size);
+		std::iota(m_freeList.begin(), m_freeList.end(), 0);
+	}
+
+	FreeList::~FreeList()
+	{
+		ASSERT(m_numAllocations == 0, "Free list not fully released");
+	}
+
+	u32 FreeList::Allocate()
+	{
+		const u32 slot = m_numAllocations++;
+		ASSERT(slot < (u32)m_freeList.size());
+		return m_freeList[slot];
+	}
+
+	void FreeList::Free(u32 index)
+	{
+		u32 freeIndex = m_numAllocations--;
+		ASSERT(freeIndex > 0);
+
+		m_freeList[freeIndex] = index;
+	}
+
+	bool FreeList::CanAllocate() const noexcept 
+	{
+		return m_numAllocations < static_cast<u32>(m_freeList.size());
+	}
 }
 
 constexpr DXGI_FORMAT Ryu::Gfx::DXGI::ConvertFormat(Format format)
@@ -242,13 +275,8 @@ constexpr DXGI_FORMAT Ryu::Gfx::DXGI::ConvertFormat(Format format)
 	return g_DXGIFormatMap[(u32)format];
 }
 
-constexpr DXGI_FORMAT Ryu::Gfx::DXGI::GetFormatSRGB(DXGI_FORMAT format, bool srgb)
+constexpr DXGI_FORMAT Ryu::Gfx::DXGI::GetFormatSRGB(DXGI_FORMAT format)
 {
-	if (!srgb)
-	{
-		return format;
-	}
-
 	switch (format)
 	{
 	case DXGI_FORMAT_B8G8R8A8_UNORM: return DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;

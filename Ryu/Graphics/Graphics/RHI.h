@@ -134,4 +134,26 @@ namespace Ryu::Gfx
 		ShaderVisible = RYU_ENUM_BIT(0)
 	};
 	RYU_ENUM_ENABLE_BITMASK_OPERATORS(DescHeapFlags)
+
+	enum class TextureFlags
+	{
+		None            = 0,
+		UnorderedAccess = RYU_ENUM_BIT(0),
+		ShaderResource  = RYU_ENUM_BIT(1),
+		RenderTarget    = RYU_ENUM_BIT(2),
+		DepthStencil    = RYU_ENUM_BIT(3),
+		SRGB            = RYU_ENUM_BIT(4),
+	};
+	RYU_ENUM_ENABLE_BITMASK_OPERATORS(TextureFlags)
+
+	enum class TextureType
+	{
+		Texture1D,
+		Texture1DArray,
+		Texture2D,
+		Texture2DArray,
+		Texture3D,
+		TextureCube,
+		TextureCubeArray,
+	};
 }

@@ -63,6 +63,7 @@ function Get-OutputDirectory
 function Run-Default
 {
     Write-Host "Running default xmake build (debug, build directory)..." -ForegroundColor Cyan
+    Write-Host "=> Run in extended mode by passing 'x' as an argument" -ForegroundColor Cyan
     xmake project -k vsxmake -m debug build
 }
 

@@ -88,7 +88,7 @@ namespace Ryu::Scripting
 		{
 			if (asIScriptFunction* func = ctx->GetFunction())
 			{
-				callInfo = std::format("[{}({})]",
+				callInfo = std::format("{}({})",
 					func->GetScriptSectionName(), ctx->GetLineNumber());
 			}
 		}
@@ -97,22 +97,22 @@ namespace Ryu::Scripting
 		switch (level)
 		{
 		case Trace:
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript: {} - {}", callInfo, message);
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Debug:
-			RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript: {} - {}", callInfo, message);
+			RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Info:
-			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript: {} - {}", callInfo, message);
+			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Warn:
-			RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript: {} - {}", callInfo, message);
+			RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Error:
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript: {} - {}", callInfo, message);
+			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Fatal:
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript: {} - {}", callInfo, message);
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
 			return;
 		}
 	}

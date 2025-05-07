@@ -10,6 +10,7 @@ target("RyuTestbench")
 
 	add_includedirs(".")
 	add_files("**.cpp")
+	add_extrafiles("Scripts/**.as")
 	add_headerfiles("**.h")
 	add_deps("RyuEngine")
 target_end()

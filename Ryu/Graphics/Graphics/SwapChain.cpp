@@ -2,7 +2,6 @@
 #include "Graphics/Device.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
-#include <libassert/assert.hpp>
 
 namespace Ryu::Gfx
 {

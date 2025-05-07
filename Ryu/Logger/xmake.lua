@@ -5,7 +5,7 @@ target("RyuLogger")
 	add_files("**.cpp", { unity_group = "Logger" })
 	add_headerfiles("**.h")
 
-	add_packages("fmt", "libassert", { public = true })
+	add_packages("fmt", { public = true })
 
 	add_options(
 		"ryu-log-trace-enabled",

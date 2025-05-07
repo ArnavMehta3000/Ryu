@@ -2,8 +2,8 @@ target("RyuGraphics")
 	set_kind("static")
 	set_group("Ryu/Graphics")
 
-	if has_config("ryu-assert-on-fail-hresult") then
-		add_defines("RYU_BREAK_ON_FAIL_HRESULT")
+	if has_config("ryu-throw-on-fail-hresult") then
+		add_defines("RYU_THROW_ON_FAIL_HRESULT")
 	end
 
 	add_deps(

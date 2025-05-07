@@ -114,7 +114,7 @@ function Get-ProjectConfiguration
     $config.ryuInfo = Get-UserChoice -Prompt "Enable info logs? (y/n)" -OptionName "Info logs"
 
     # Assert options
-    $config.assertOnFail = Get-UserChoice -Prompt "Enable assert on HRESULT failure? (y/n)" -OptionName "Assert on HRESULT failure"
+    $config.assertOnFail = Get-UserChoice -Prompt "Throw exceptions on HRESULT failure? (y/n)" -OptionName "Throw exceptions on HRESULT failure"
 
     # Profiling options
     $config.enableProfiling = Get-UserChoice -Prompt "Enable Tracy profiling? (y/n)" -DefaultValue "n" -OptionName "Tracy profiling"
@@ -136,7 +136,7 @@ function Apply-ProjectConfiguration
         --ryu-log-warn-enabled=$($Config.ryuWarn) `
         --ryu-log-trace-enabled=$($Config.ryuTrace) `
         --ryu-log-info-enabled=$($Config.ryuInfo) `
-        --ryu-assert-on-fail-hresult=$($Config.assertOnFail) `
+        --ryu-throw-on-fail-hresult=$($Config.assertOnFail) `
         --ryu-enable-tracy-profiling=$($Config.enableProfiling)
 }
 

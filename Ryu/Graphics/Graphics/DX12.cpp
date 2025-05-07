@@ -2,7 +2,7 @@
 #include "Common/StandardTypes.h"
 #include "Utils/StringConv.h"
 #include "Logger/Logger.h"
-#include <libassert/assert.hpp>
+#include "Logger/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -156,7 +156,7 @@ namespace Ryu::Gfx
 	{
 		if (FAILED(hr))
 		{
-#if defined(RYU_BREAK_ON_FAIL_HRESULT)
+#if defined(RYU_THROW_ON_FAIL_HRESULT)
 			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(DX12), "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
 #else
 			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(DX12), "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
@@ -246,20 +246,20 @@ namespace Ryu::Gfx
 
 	FreeList::~FreeList()
 	{
-		ASSERT(m_numAllocations == 0, "Free list not fully released");
+		RYU_ASSERT(m_numAllocations == 0, "Free list not fully released");
 	}
 
 	u32 FreeList::Allocate()
 	{
 		const u32 slot = m_numAllocations++;
-		ASSERT(slot < (u32)m_freeList.size());
+		RYU_ASSERT(slot < (u32)m_freeList.size());
 		return m_freeList[slot];
 	}
 
 	void FreeList::Free(u32 index)
 	{
 		u32 freeIndex = m_numAllocations--;
-		ASSERT(freeIndex > 0);
+		RYU_ASSERT(freeIndex > 0);
 
 		m_freeList[freeIndex] = index;
 	}

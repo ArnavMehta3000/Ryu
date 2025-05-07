@@ -45,15 +45,16 @@
 // Macro to say that the function is not implemented
 #define RYU_NOT_IMPLEMENTED(LogCategory) RYU_LOG_WARN(LogCategory, "Function {} not implemented", std::string_view(__FUNCTION__))
 
-// Checks if a function exists for a given class
-#define RYU_FUNCTION_CHECK(NAME, ...) namespace Ryu { template<typename T> class HasFunction_##NAME {                        \
-	template<typename U> constexpr static auto Check(int) -> decltype(std::declval<U>().__VA_ARGS__, bool()) { return true; }\
-	template<typename> constexpr static bool Check(...) { return false; } public:                                            \
-	static constexpr bool Value = Check<T>(0); }; }
-
 // Only executes code if RYU_BUILD_DEBUG is defined
 #if defined(RYU_BUILD_DEBUG)
 #define RYU_DEBUG_OP(X) X
 #else
 #define RYU_DEBUG_OP(X) do {} while (false)
+#endif
+
+// Only executes code if RYU_BUILD_DEBUG is defined
+#if defined(RYU_BUILD_DEBUG)
+#define RYU_DEBUG_BLOCK(X) X
+#else
+#define RYU_DEBUG_BLOCK(X)
 #endif

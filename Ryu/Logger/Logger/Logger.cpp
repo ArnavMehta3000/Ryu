@@ -5,7 +5,6 @@
 
 namespace Ryu::Logging
 {
-
 	void Logger::AddSink(std::unique_ptr<ILogSink> sink)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);

@@ -1,7 +1,7 @@
 #include "Graphics/CommandContext.h"
 #include "Graphics/Device.h"
 #include "Profiling/Profiling.h"
-#include <libassert/assert.hpp>
+#include "Logger/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -45,7 +45,7 @@ namespace Ryu::Gfx
 		DX12::SetObjectName(m_fence.Get(), std::format("Command Context ({}) Fence", cmdListTypeName).c_str());
 
 		m_fenceEvent = ::CreateEventEx(nullptr, L"CommandContextFenceEvent", 0, EVENT_ALL_ACCESS);
-		DEBUG_ASSERT(m_fenceEvent);
+		RYU_ASSERT(m_fenceEvent);
 	}
 	
 	CommandContext::~CommandContext()
@@ -115,7 +115,7 @@ namespace Ryu::Gfx
 	
 	void CommandContext::CommandFrame::Wait(HANDLE fenceEvent, DX12::Fence* fence)
 	{
-		DEBUG_ASSERT(fence && fenceEvent);
+		RYU_ASSERT(fence && fenceEvent);
 		RYU_PROFILE_SCOPE();
 
 		// If completed value is less than current 'FenceValue' then the GPU is still executing commands

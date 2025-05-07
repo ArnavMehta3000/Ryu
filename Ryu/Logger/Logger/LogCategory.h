@@ -1,7 +1,6 @@
 #pragma once
 #include <string_view>
 #include "Common/ObjectMacros.h"
-#include "Common/API.h"
 
 namespace Ryu::Logging
 {

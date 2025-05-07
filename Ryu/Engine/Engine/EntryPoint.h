@@ -1,4 +1,5 @@
 #pragma once
+#include "Logger/Assert.h"
 #include "Engine/Engine.h"
 #include "App/Application.h"
 #include "Common/Globals.h"
@@ -67,22 +68,47 @@ namespace Ryu::Engine
 		// Excluding trailing slash
 		std::string ProjectDir;
 
+		/**
+		 * @brief Consider this to be Ryu's main entry point. Use this as reference for custom implementations
+		 * @note Always initialize config manager and then the logger otherwise unexpected behavior may occur
+		 */
 		void Run()
 		{
-			RYU_PROFILE_BOOKMARK("BEGIN RYU");
+			try
+			{
+				RYU_PROFILE_BOOKMARK("BEGIN RYU");
 
-			// Setup config
-			Config::ConfigManager::Get().Initialize(ProjectDir + "/Config");
-			App::Internal::SetUpDefaultLogger();
-			
-			auto& engine = Engine::Engine::Get();
-			
-			engine.m_projectDir = ProjectDir;
-			engine.Run();
+				// Setup config
+				Config::ConfigManager::Get().Initialize(ProjectDir + "/Config");
 
-			Config::ConfigManager::Get().SaveAll();
+				// Setup logger
+				App::Internal::SetUpDefaultLogger();
 
-			RYU_PROFILE_BOOKMARK("END RYU");
+				// Run the engine
+				auto& engine = Engine::Engine::Get();
+				engine.m_projectDir = ProjectDir;
+				engine.Run();
+
+				// Save configs (if any)
+				Config::ConfigManager::Get().SaveAll();
+
+				RYU_PROFILE_BOOKMARK("END RYU");
+			}
+			catch (const Exception& e)
+			{
+				using namespace ::Ryu::Logging;
+
+				// Custom version of the RYU_LOG_FATAL macro that includes a stack our
+				Logger::Get().Log(
+					AssertLog, 
+					LogLevel::Fatal, 
+					LogMessage
+					{ 
+						.Message    = e.what(),
+						.Stacktrace = e.GetTrace() 
+					}
+				);
+			}
 		}
 	};
 }

@@ -1,6 +1,7 @@
 #include "Scripting/ScriptEngine.h"
 #include "Common/StandardTypes.h"
 #include "Logger/Logger.h"
+#include "Logger/Assert.h"
 #include "Profiling/Profiling.h"
 #include <scriptstdstring/scriptstdstring.h>
 #include <scriptbuilder/scriptbuilder.h>
@@ -9,11 +10,9 @@
 #include <scriptfile/scriptfile.h>
 #include <scriptfile/scriptfilesystem.h>
 #include <datetime/datetime.h>
-#include <libassert/assert.hpp>
 #include <filesystem>
 
 namespace fs = std::filesystem;
-
 namespace Ryu::Scripting
 {
 	ScriptEngine::ScriptEngine(const std::string& scriptDir)
@@ -121,21 +120,21 @@ namespace Ryu::Scripting
 	{
 		RYU_PROFILE_SCOPE();
 		i32 r = 0;
-		r = m_engine->SetDefaultNamespace("Ryu");                DEBUG_ASSERT(r >= 0);
-		r = m_engine->RegisterEnum("LogLevel");                  DEBUG_ASSERT(r >= 0);
-		r = m_engine->RegisterEnumValue("LogLevel", "Trace", 0); DEBUG_ASSERT(r >= 0);
-		r = m_engine->RegisterEnumValue("LogLevel", "Debug", 1); DEBUG_ASSERT(r >= 0);
-		r = m_engine->RegisterEnumValue("LogLevel", "Info", 2);  DEBUG_ASSERT(r >= 0);
-		r = m_engine->RegisterEnumValue("LogLevel", "Warn", 3);  DEBUG_ASSERT(r >= 0);
-		r = m_engine->RegisterEnumValue("LogLevel", "Error", 4); DEBUG_ASSERT(r >= 0);
-		r = m_engine->RegisterEnumValue("LogLevel", "Fatal", 5); DEBUG_ASSERT(r >= 0);
+		r = m_engine->SetDefaultNamespace("Ryu");                RYU_ASSERT(r >= 0);
+		r = m_engine->RegisterEnum("LogLevel");                  RYU_ASSERT(r >= 0);
+		r = m_engine->RegisterEnumValue("LogLevel", "Trace", 0); RYU_ASSERT(r >= 0);
+		r = m_engine->RegisterEnumValue("LogLevel", "Debug", 1); RYU_ASSERT(r >= 0);
+		r = m_engine->RegisterEnumValue("LogLevel", "Info", 2);  RYU_ASSERT(r >= 0);
+		r = m_engine->RegisterEnumValue("LogLevel", "Warn", 3);  RYU_ASSERT(r >= 0);
+		r = m_engine->RegisterEnumValue("LogLevel", "Error", 4); RYU_ASSERT(r >= 0);
+		r = m_engine->RegisterEnumValue("LogLevel", "Fatal", 5); RYU_ASSERT(r >= 0);
 
 		r = m_engine->RegisterGlobalFunction(
 			"void Log(LogLevel level, string &in)",
 			asFUNCTION(ScriptEngine::ScriptLogMessageCallback),
-			asCALL_CDECL); DEBUG_ASSERT(r >= 0);
+			asCALL_CDECL); RYU_ASSERT(r >= 0);
 
-		r = m_engine->SetDefaultNamespace(""); DEBUG_ASSERT(r >= 0);
+		r = m_engine->SetDefaultNamespace(""); RYU_ASSERT(r >= 0);
 	}
 	
 	void ScriptEngine::LoadScriptFiles()
@@ -169,17 +168,17 @@ namespace Ryu::Scripting
 		
 		i32 r = 0;
 		ScriptBuilder builder;
-		r = builder.StartNewModule(m_engine, ScriptBuilder::MODULE_NAME); DEBUG_ASSERT(r >= 0);
+		r = builder.StartNewModule(m_engine, ScriptBuilder::MODULE_NAME); RYU_ASSERT(r >= 0);
 		for (const auto& file : scriptFiles)
 		{
 			// Get file name
 			std::string fileName = file.filename().string();
-			r = builder.AddSectionFromFile(file.string().c_str()); DEBUG_ASSERT(r >= 0);
+			r = builder.AddSectionFromFile(file.string().c_str()); RYU_ASSERT(r >= 0);
 
 			m_contexts[fileName] = m_engine->CreateContext();
 		}
 		
-		r = builder.BuildModule(); DEBUG_ASSERT(r >= 0);
+		r = builder.BuildModule(); RYU_ASSERT(r >= 0);
 		m_module = builder.GetModule();
 	}
 }

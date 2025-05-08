@@ -1,11 +1,7 @@
 #include "Engine.h"
 #include "Logger/Logger.h"
-#include "Graphics/GraphicsConfig.h"
+#include "GraphicsRHI/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
-#include <DirectXMath.h>
-#include <wrl/event.h>
-
-#pragma comment(lib, "runtimeobject.lib") 
 
 namespace Ryu::Engine
 {
@@ -18,12 +14,6 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Engine Initialize");
-
-		if (!DirectX::XMVerifyCPUSupport())
-		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "DirectX is not supported on this system");
-			return false;
-		}
 
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
 		m_app = CreateApplication();
@@ -45,11 +35,23 @@ namespace Ryu::Engine
 			return false;
 		}
 		
-		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 
-		RYU_PROFILE_BOOKMARK("Initialize script engine");
-		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>(m_projectDir + "/Scripts/");
+		RYU_PROFILE_BOOKMARK("Initialize graphics");
+		m_renderer = std::make_unique<Graphics::Renderer>();
+		if (VoidResult result = Graphics::InitGraphics(m_renderer.get(), m_app->GetWindow()->GetHandle()); !result)
+		{
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Graphics. Error: {}", result.error());
+		}
+		else
+		{
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Graphics ({}) initialized successfully", EnumToString(Graphics::GraphicsConfig::Get().GraphicsAPI.Get()));
+		}
+
+		//m_renderSurface.Window = m_app->GetWindow().get();
+		//m_renderSurface.Surface = Graphics::CreateSurface(m_renderSurface.Window);
+
+		//DEBUG_ASSERT(m_renderSurface.Surface != nullptr, "Failed to create render surface");
+
 
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialized successfully");
 
@@ -59,10 +61,11 @@ namespace Ryu::Engine
 	bool Engine::InitRuntime()
 	{
 		RYU_PROFILE_SCOPE();
-		
-		// Bind resize event before initializing the application
-		m_onAppResizedConnection = m_app->GetWindowResizedSignal().Connect(
-			[this](const Elos::Event::Resized& e) {OnAppResize(e.Size.Width, e.Size.Height); });
+		// Bind the events before initializing the application
+		/*m_app->GetWindowResizedSignal().Connect(([this](const App::Events::OnWindowResize& event)
+		{
+			OnAppResize(event.Width, event.Height);
+		});*/
 
 		// Init the application
 		return m_app->Init();
@@ -74,15 +77,15 @@ namespace Ryu::Engine
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
 
-		m_scriptEngine.reset();
-
-		// Disconnect resized event
-		m_onAppResizedConnection.Disconnect();
-
 		m_app->Shutdown();
-		m_renderer.reset();
+		Graphics::ShutdownGraphics(m_renderer.get());
 
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Shutdown Engine");
+	}
+
+	void Engine::SetCommandLine(std::wstring_view cmdLine)
+	{
+		m_cmdLine = Config::CommandLine(cmdLine);
 	}
 
 	f64 Engine::GetEngineUpTime()
@@ -93,8 +96,7 @@ namespace Ryu::Engine
 	void Engine::Run()
 	{
 		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Running the Engine");
-		
-		Microsoft::WRL::Wrappers::RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
+
 		if (!Init())
 		{
 			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");
@@ -112,8 +114,6 @@ namespace Ryu::Engine
 			{
 				DoFrame(info);
 			});
-
-			m_renderer->Render();
 			
 			RYU_PROFILE_MARK_FRAME();
 		}
@@ -139,14 +139,17 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		
 		m_app->Tick(timeInfo);
+		m_renderer->BeginFrame();
+		m_renderer->EndFrame();
 	}
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept
 	{
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine::OnAppResize -  {}x{}", width, height);
-		if (m_renderer)
-		{
-			m_renderer->OnResize(width, height);
-		}
+		RYU_NOT_IMPLEMENTED(RYU_LOG_USE_CATEGORY(Engine));
+		//if (Graphics::IsInitialized())
+		//{
+		//	Graphics::ResizeSurface(width, height);
+		//}
 	}
 }

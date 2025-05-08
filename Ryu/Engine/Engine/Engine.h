@@ -1,9 +1,9 @@
 #pragma once
 #include "App/Application.h"
+#include "Config/CommandLine.h"
 #include "Graphics/Renderer.h"
 #include "Logger/LogCategory.h"
 #include "Utils/Singleton.h"
-#include "Scripting/ScriptEngine.h"
 #include <memory>
 
 
@@ -16,10 +16,16 @@ namespace Ryu::Engine
 	{
 		RYU_LOG_DECLARE_CATEGORY(Engine);
 		RYU_SINGLETON_DECLARE(Engine);
-		friend struct Runner;
 
 	public:
 		~Engine() = default;
+
+		/**
+		 * @brief Set the command line used by the Engine
+		 * @param cmdLine Application command line
+		 */
+		void SetCommandLine(std::wstring_view cmdLine);
+		
 
 		/**
 		 * @brief Get the application used by the Engine
@@ -28,10 +34,10 @@ namespace Ryu::Engine
 		inline RYU_API App::Application* GetApplication() const { return m_app.get(); }
 
 		/**
-		 * @brief Get the project directory
-		 * @return The project directory
+		 * @brief Get the command line used by the Engine
+		 * @return The parsed command line
 		 */
-		inline RYU_API std::string_view GetProjectDir() const { return m_projectDir; }
+		inline RYU_API const Config::CommandLine& GetCommdandLine() const { return m_cmdLine; }
 
 		/**
 		 * @brief Get the timer used by the Engine
@@ -67,11 +73,9 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		std::string                                   m_projectDir;
-		Utils::Timer                                  m_timer;
-		std::unique_ptr<App::Application>             m_app;
-		std::unique_ptr<Gfx::Renderer>                m_renderer;
-		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
-		Elos::Connection<const Elos::Event::Resized&> m_onAppResizedConnection;
+		Config::CommandLine                 m_cmdLine;
+		Utils::Timer                        m_timer;
+		std::shared_ptr<App::Application>   m_app;
+		std::unique_ptr<Graphics::Renderer> m_renderer;
 	};
 }

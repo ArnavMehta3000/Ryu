@@ -1,6 +1,6 @@
 #include "Random.h"
-#include <cassert>
 #include <numbers>
+#include <libassert/assert.hpp>
 
 namespace Ryu::Utils
 {
@@ -9,7 +9,7 @@ namespace Ryu::Utils
 		template<typename T>
 		T GetRandomImpl(Random::Generator& gen, T lower, T upper)
 		{
-			assert(lower <= upper && "lower must be less than or equal to upper");
+			ASSERT(lower <= upper, "lower must be less than or equal to upper");
 
 			auto period = upper - lower + 1; // Get(..., 3, 3) -> 3
 			auto number = static_cast<T>(gen() % std::numeric_limits<T>::max());

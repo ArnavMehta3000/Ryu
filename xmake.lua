@@ -39,10 +39,7 @@ set_policy("package.requires_lock", false)
 set_policy("build.always_update_configfiles", false)
 
 if is_mode("debug", "releasedbg") then
-	add_defines("RYU_BUILD_DEBUG", "_DEBUG")
-	set_runtimes("MDd")
-else
-	set_runtimes("MD")
+	add_defines("RYU_BUILD_DEBUG")
 end
 
 -- Add common window definitions
@@ -60,7 +57,7 @@ add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 -- Add rule to export shared library
 add_rules("ExportAPI")
 
--- Add define to add Ryu root directory
+-- Add rule to add Ryu root directory
 add_defines("RYU_ROOT_DIR=\"" .. os.projectdir():gsub("\\", "/") .. "\"")
 
 -- Include xmake projects

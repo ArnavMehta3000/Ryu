@@ -1,0 +1,19 @@
+#pragma once
+
+namespace Ryu
+{
+	inline const PluginData* GetGeneratedPluginData()
+	{
+		static constexpr PluginData data = 
+		{
+			.Name        = "${PLUGIN_NAME}",
+			.Version     = "${PLUGIN_VERSION}",
+			.LoadOrder   = ${PLUGIN_LOAD_ORDER},
+			.TickOrder   = ${PLUGIN_TICK_ORDER},
+			.RenderOrder = ${PLUGIN_RENDER_ORDER},
+		};
+
+		return &data;
+	}
+}
+

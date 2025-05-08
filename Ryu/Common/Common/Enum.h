@@ -6,31 +6,77 @@
 #include <limits>
 #include <algorithm>
 
-#define RYU_ENUM_ENABLE_BITMASK_OPERATORS(Enum)                                                                                                            \
-	inline constexpr Enum& operator|=(Enum& lhs, Enum rhs) { return lhs = (Enum)((std::underlying_type_t<Enum>)lhs | (std::underlying_type_t<Enum>)rhs); } \
-	inline constexpr Enum& operator&=(Enum& lhs, Enum rhs) { return lhs = (Enum)((std::underlying_type_t<Enum>)lhs & (std::underlying_type_t<Enum>)rhs); } \
-	inline constexpr Enum& operator^=(Enum& lhs, Enum rhs) { return lhs = (Enum)((std::underlying_type_t<Enum>)lhs ^ (std::underlying_type_t<Enum>)rhs); } \
-	inline constexpr Enum  operator| (Enum  lhs, Enum rhs) { return (Enum)((std::underlying_type_t<Enum>)lhs | (std::underlying_type_t<Enum>)rhs); }       \
-	inline constexpr Enum  operator& (Enum  lhs, Enum rhs) { return (Enum)((std::underlying_type_t<Enum>)lhs & (std::underlying_type_t<Enum>)rhs); }       \
-	inline constexpr Enum  operator^ (Enum  lhs, Enum rhs) { return (Enum)((std::underlying_type_t<Enum>)lhs ^ (std::underlying_type_t<Enum>)rhs); }       \
-	inline constexpr bool  operator! (Enum  e) { return !(std::underlying_type_t<Enum>)e; }                                                                \
-	inline constexpr Enum  operator~ (Enum  e) { return (Enum)~(std::underlying_type_t<Enum>)e; }
+template <typename T>
+struct EnableBitMaskOps { static constexpr bool Enable = false; };
 
+template <typename T>
+concept BitMaskEnabled = std::is_enum_v<T> && EnableBitMaskOps<T>::Enable;
+
+template <BitMaskEnabled Enum>
+constexpr std::underlying_type_t<Enum> operator|(Enum lhs, Enum rhs) noexcept
+{
+	using UnderlyingType = std::underlying_type_t<Enum>;
+	return static_cast<UnderlyingType>(lhs) | static_cast<UnderlyingType>(rhs);
+}
+
+template <BitMaskEnabled Enum>
+constexpr std::underlying_type_t<Enum> operator&(Enum lhs, Enum rhs) noexcept
+{
+	using UnderlyingType = std::underlying_type_t<Enum>;
+	return static_cast<UnderlyingType>(lhs) & static_cast<UnderlyingType>(rhs);
+}
+
+template <BitMaskEnabled Enum>
+constexpr std::underlying_type_t<Enum> operator^(Enum lhs, Enum rhs) noexcept
+{
+	using UnderlyingType = std::underlying_type_t<Enum>;
+	return static_cast<UnderlyingType>(lhs) ^ static_cast<UnderlyingType>(rhs);
+}
+
+template <BitMaskEnabled Enum>
+constexpr std::underlying_type_t<Enum> operator~(Enum rhs) noexcept
+{
+	using UnderlyingType = std::underlying_type_t<Enum>;
+	return ~static_cast<UnderlyingType>(rhs);
+}
+
+// For assignment operators, we still need to modify the enum value itself
+template <BitMaskEnabled Enum>
+constexpr Enum& operator|=(Enum& lhs, const Enum rhs) noexcept
+{
+	using UnderlyingType = std::underlying_type_t<Enum>;
+	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) | static_cast<UnderlyingType>(rhs));
+	return lhs;
+}
+
+template <BitMaskEnabled Enum>
+constexpr Enum& operator&=(Enum& lhs, const Enum rhs) noexcept
+{
+	using UnderlyingType = std::underlying_type_t<Enum>;
+	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) & static_cast<UnderlyingType>(rhs));
+	return lhs;
+}
+
+template <BitMaskEnabled Enum>
+constexpr Enum& operator^=(Enum& lhs, const Enum rhs) noexcept
+{
+	using UnderlyingType = std::underlying_type_t<Enum>;
+	lhs = static_cast<Enum>(static_cast<UnderlyingType>(lhs) ^ static_cast<UnderlyingType>(rhs));
+	return lhs;
+}
+
+#define RYU_ENUM_ENABLE_BITMASK_OPERATORS(Enum)                                                 \
+template<> struct EnableBitMaskOps<Enum> { static constexpr bool Enable = true; };         \
+namespace Ryu                                                                              \
+{                                                                                          \
+	constexpr bool IsEnumMaskBitSet(const Enum mask, const Enum component) noexcept        \
+	{                                                                                      \
+		return (mask & component) == static_cast<std::underlying_type_t<Enum>>(component); \
+	}                                                                                      \
+}
 
 namespace Ryu
 {
-	template<typename Enum, typename = std::enable_if_t<std::is_enum_v<Enum>>>
-	constexpr inline bool EnumHasAllFlags(Enum flags, Enum contains)
-	{
-		return (((std::underlying_type_t<Enum>)flags) & (std::underlying_type_t<Enum>)contains) == ((std::underlying_type_t<Enum>)contains);
-	}
-
-	template<typename Enum, typename = std::enable_if_t<std::is_enum_v<Enum>>>
-	constexpr inline bool EnumHasAnyFlags(Enum flags, Enum contains)
-	{
-		return (((std::underlying_type_t<Enum>)flags) & (std::underlying_type_t<Enum>)contains) != 0;
-	}
-
 	template <typename T> requires Ryu::IsEnum<T>
 	inline constexpr RYU_API std::string_view EnumToString(T value);
 

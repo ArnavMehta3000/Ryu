@@ -1,0 +1,14 @@
+[Debugging]
+PressEscapeToClose = false
+
+[Log]
+EnableLogToConsole = false
+EnableLogToFile = true
+ForceLogToOutput = true
+LogFilePath = "Logs/LogEditor.txt"
+
+[Window]
+WindowMinimumSize = [ 800, 600 ]
+WindowPosition = [ -2147483648, -2147483648 ]
+WindowSize = [ 1280, 720 ]
+WindowTitle = "Ryu Editor"

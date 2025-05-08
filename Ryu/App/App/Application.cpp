@@ -6,6 +6,7 @@
 #include "Utils/MessageBox.h"
 #include "Profiling/Profiling.h"
 #include <Elos/Window/Utils/WindowExtensions.h>
+#include <libassert/assert.hpp>
 
 namespace Ryu::App
 {
@@ -136,7 +137,7 @@ void Ryu::App::Internal::SetUpDefaultLogger()
 		desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
 
 		Utils::ShowMessageBox(desc);
-		std::abort();
+		PANIC("FATAL PROBLEMO");
 	});
 
 	// Log to output window only when debugger is attached

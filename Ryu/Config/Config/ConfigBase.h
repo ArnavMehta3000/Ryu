@@ -1,6 +1,5 @@
 #pragma once
 #include "Common/ObjectMacros.h"
-#include "Common/StandardTypes.h"
 #include "Common/Enum.h"
 #include "Logger/Logger.h"
 #include <Elos/Event/Signal.h>
@@ -309,7 +308,7 @@ namespace Ryu::Config
 
 
 	// Special handling for BitMaskEnabled enums (flags)
-	template<typename T> requires std::is_enum_v<T>
+	template<BitMaskEnabled T>
 	class ConfigValue<T> : public ConfigValueBase
 	{
 	public:

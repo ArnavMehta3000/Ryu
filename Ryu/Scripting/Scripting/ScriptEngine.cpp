@@ -13,6 +13,7 @@
 #include <filesystem>
 
 namespace fs = std::filesystem;
+
 namespace Ryu::Scripting
 {
 	ScriptEngine::ScriptEngine(const std::string& scriptDir)
@@ -120,8 +121,10 @@ namespace Ryu::Scripting
 	void ScriptEngine::RegisterLogging()
 	{
 		RYU_PROFILE_SCOPE();
+
 		i32 r = 0;
 		r = m_engine->SetDefaultNamespace("Ryu");                RYU_ASSERT(r >= 0);
+
 		r = m_engine->RegisterEnum("LogLevel");                  RYU_ASSERT(r >= 0);
 		r = m_engine->RegisterEnumValue("LogLevel", "Trace", 0); RYU_ASSERT(r >= 0);
 		r = m_engine->RegisterEnumValue("LogLevel", "Debug", 1); RYU_ASSERT(r >= 0);

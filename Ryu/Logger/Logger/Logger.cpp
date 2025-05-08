@@ -1,15 +1,10 @@
 #include "Logger.h"
 #include "Common/Enum.h"
-#include "Sinks/ConsoleSink.h"
-#include "Sinks/DebugSink.h"
-#include "Utils/MessageBox.h"
 #include <fmt/core.h>
 #include <fmt/chrono.h>
-#include <libassert/assert.hpp>
 
 namespace Ryu::Logging
 {
-
 	void Logger::AddSink(std::unique_ptr<ILogSink> sink)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
@@ -29,7 +24,7 @@ namespace Ryu::Logging
 		std::string formattedMessage;
 
 		// Add stacktrace if needed
-		if (level == LogLevel::Fatal || level == LogLevel::Error)
+		if (level == LogLevel::Fatal)
 		{
 			auto entry = *message.Stacktrace.begin();
 			formattedMessage = std::format("[{}] [{}] [{}]: {}\n{}({}):{}", timeStr,

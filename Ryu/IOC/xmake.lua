@@ -1,0 +1,7 @@
+target("RyuIOC")
+	set_kind("headeronly")
+	set_group("Ryu/Core")
+	add_deps("RyuUtils")
+	add_includedirs(".", { public = true })
+	add_headerfiles("**.h")
+target_end()

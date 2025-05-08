@@ -98,4 +98,4 @@ namespace Ryu::App
 }
 
 // Create the runtime to be used by the engine
-extern std::shared_ptr<::Ryu::App::Application> CreateApplication();
+extern std::unique_ptr<::Ryu::App::Application> CreateApplication();

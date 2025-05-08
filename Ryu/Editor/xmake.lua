@@ -1,4 +1,5 @@
 target("RyuEditor")
+	set_enabled(false)
 	add_rules("win.sdk.application")
 	set_default(true)
 	set_kind("binary")

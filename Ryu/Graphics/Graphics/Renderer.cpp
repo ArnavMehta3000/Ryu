@@ -1,229 +1,88 @@
 #include "Renderer.h"
-#include "Graphics/RHIEnabled.h"
 #include "Profiling/Profiling.h"
-#include "GraphicsRHI/GraphicsConfig.h"
-#include "GraphicsRHI/Utils/Logging.h"
-#if RYU_RHI_HAS_D3D11
-#include "GraphicsDX11/DX11Device.h"
-#include "GraphicsDX11/RenderPasses/DX11RenderPassFactory.h"
-#endif
-#if RYU_RHI_HAS_D3D12
-#include "GraphicsDX12/DX12Device.h"
-#endif
-#include <libassert/assert.hpp>
+#include "Graphics/GraphicsConfig.h"
+#include "Logger/Assert.h"
 
-
-namespace Ryu::Graphics
+namespace Ryu::Gfx
 {
-	VoidResult InitGraphics(Renderer* renderer, HWND hWnd)
+	Renderer::Renderer(HWND window)
 	{
 		RYU_PROFILE_SCOPE();
-		RYU_LOG_DECLARE_CATEGORY(Graphics);
 
-		if (!renderer)
-		{
-			return MakeResultError{ "Renderer is nullptr!" };
-		}
-
-		const GraphicsConfig& config = GraphicsConfig::Get();
-
-		// Check for API support
-#if !defined(RYU_RHI_D3D12)  // D3D12 not enabled, but requested
-		if (config.GraphicsAPI.Get() == API::DirectX12)
-		{
-			return MakeResultError{ std::format("Trying to initialize Renderer with {} failed as it is not enabled via build config.", EnumToString(config.GraphicsAPI.Get())) };
-		}
-#endif
-#if !defined(RYU_RHI_D3D11)  // D3D11 not enabled, but requested
-		if (config.GraphicsAPI.Get() == API::DirectX11)
-		{
-			return MakeResultError{ std::format("Trying to initialize Renderer with {} failed as it is not enabled via build config.", EnumToString(config.GraphicsAPI.Get())) };
-		}
-#endif
-
-		// If GPU based validation is enabled automatically enable the debug layer as well
-		if (config.EnableGPUBasedValidation && !config.EnableDebugLayer)
-		{
-			RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(Graphics), "GPU based validation is enabled, automatically enabling graphics debug layer. GraphicsConfig will be updated");
-			const_cast<GraphicsConfig&>(config).EnableDebugLayer.Set(true);
-		}
-
-
-		const SwapChainDesc swapChainDesc
-		{
-			.Width         = 1280,
-			.Height        = 720,
-			.BufferCount   = GraphicsConfig::FRAME_COUNT,
-			.SampleCount   = 1,
-			.SampleQuality = 0,
-			.Flags         = u32(SwapChainFlag::AllowModeSwitch | (config.AllowTearing ? SwapChainFlag::AllowTearing : SwapChainFlag::None)),
-			.Format        = Format::R8G8B8A8_UNORM,
-			.SwapEffect    = SwapEffect::FlipSequential,
-			.WindowHandle  = hWnd,
-			.Windowed      = true
-		};
-
-		return renderer->Init(swapChainDesc);
-	}
-
-	void ShutdownGraphics(Renderer* renderer)
-	{
-		RYU_PROFILE_SCOPE();
-		DEBUG_ASSERT(renderer, "Renderer is nullptr!");
-		if (!renderer)
-		{
-			return;
-		}
-
-		renderer->Shutdown();
-	}
-
-
-	VoidResult Renderer::Init(const SwapChainDesc& swapChainDesc)
-	{
-		RYU_PROFILE_SCOPE();
-		DXCall(::CoInitializeEx(NULL, COINIT_MULTITHREADED));
-
-
-		auto deviceResult = CreateDevice();
-		if (!deviceResult)
-		{
-			return MakeResultError{ deviceResult.error() };
-		}
-
-		m_device = std::move(*deviceResult);
-		InitializeResource(m_device.get());
-
-		auto swapChainResult = m_device->CreateSwapChain(swapChainDesc);
-		if (!swapChainResult)
-		{
-			return MakeResultError{ swapChainResult.error() };
-		}
-
-		m_swapchain = std::move(*swapChainResult);
-
-
-		CommandListDesc cmdListDesc{ CommandListType::Graphics };
-
-		if (auto createCmdListResult = m_device->CreateCommandList(cmdListDesc))
-		{
-			m_commandList = std::move(*createCmdListResult);
-		}
-		else
-		{
-			return MakeResultError{ "Failed to create command list" };
-		}
-		
-		CreateRenderPasses();
-		
-		return {};
+		m_device    = Memory::CreateRef<Device>();
+		m_swapchain = Memory::CreateRef<SwapChain>(GetDevice(), window);
 	}
 	
-	void Renderer::Shutdown()
+	Renderer::~Renderer()
 	{
 		RYU_PROFILE_SCOPE();
-		m_renderPassFactory.reset();
-		m_backBufferClearPass.reset();
 
-		m_commandList.reset();
-		m_swapchain.reset();
-		m_device.reset();
-	
-		::CoUninitialize();
+		RYU_ASSERT(m_swapchain.GetRefCount() == 1);
+		RYU_ASSERT(m_device.GetRefCount() == 1);
+
+		m_swapchain.Reset();
+		m_device.Reset();
 	}
 	
-	void Renderer::InitializeResource(IGraphicsObject* obj)
+	void Renderer::Render()
 	{
 		RYU_PROFILE_SCOPE();
-		if (obj)
+		if (CommandContext* ctx = m_device->GetCommandContext())
 		{
-			DEBUG_ASSERT(obj->GetRendererInterface() == nullptr, "Graphics object already has a renderer!");
-			
-			if (obj->GetRendererInterface() != nullptr)
+			// Wait for the GPU to finish with the command allocator and 
+			// reset the allocator once the GPU is done with it
+
+			/*if (m_resizeRequested)
 			{
-				return;
+				m_resizeRequested = false;
+				m_swapchain->Resize(m_width, m_height);
+			}*/
+			ctx->BeginFrame();
+
+			MAYBE_UNUSED DX12::GfxCmdList* const cmdList = ctx->GetGfxCmdList();
+
+			// Do we want to release anything this frame?
+			const u32 frameIndex = ctx->GetFrameIndex();
+			if (m_device->CheckDeferredReleaseFlag(frameIndex))
+			{
+				m_device->ProcessDeferredReleases(frameIndex);
 			}
+			
+			auto& surfaceData = m_swapchain->GetCurrentSurfaceData();
+			
+			// RECORD COMMANDS HERE
+			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+				surfaceData.Resource.Get(),
+				D3D12_RESOURCE_STATE_PRESENT,
+				D3D12_RESOURCE_STATE_RENDER_TARGET
+			);
+			cmdList->ResourceBarrier(1, &barrier);
 
-			obj->SetRendererInterface(this);
+			cmdList->RSSetViewports(1, &m_swapchain->GetViewport());
+			cmdList->RSSetScissorRects(1, &m_swapchain->GetScissorRect());
+
+			const f32 clearColor[] = { 1.0f, 0.2f, 0.4f, 1.0f };
+			cmdList->ClearRenderTargetView(surfaceData.RTV.CPUHandle, clearColor, 0, nullptr);
+
+			cmdList->OMSetRenderTargets(1, &surfaceData.RTV.CPUHandle, FALSE, nullptr);
+
+			barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+				surfaceData.Resource.Get(),
+				D3D12_RESOURCE_STATE_RENDER_TARGET,
+				D3D12_RESOURCE_STATE_PRESENT
+			);
+			cmdList->ResourceBarrier(1, &barrier);
+
+			// Execute commands -> Signal and increment the fence value for next frame
+			ctx->EndFrame();
 		}
-	}
-	
-	void Renderer::BeginFrame()
-	{
-		RYU_PROFILE_SCOPE();
-		m_commandList->Begin();
 
-		m_backBufferClearPass->Begin(m_commandList.get());
-		m_backBufferClearPass->End(m_commandList.get());
-
-		m_commandList->End();
-
-		m_device->ExecuteCommandList(m_commandList.get());
-	}
-	
-	void Renderer::EndFrame()
-	{
-		RYU_PROFILE_SCOPE();
 		m_swapchain->Present();
 	}
-	
-	IDevice::CreateDeviceResult Renderer::CreateDevice()
+
+	void Renderer::OnResize(u32 width, u32 height)
 	{
 		RYU_PROFILE_SCOPE();
-		
-		const API api = GraphicsConfig::Get().GraphicsAPI.Get();
-
-		switch (api)
-		{
-#if RYU_RHI_HAS_D3D11
-		case API::DirectX11:
-			return std::make_unique<DX11::DX11Device>();
-#endif
-#if RYU_RHI_HAS_D3D12
-		case API::DirectX12:
-			return std::make_unique<DX12::DX12Device>();
-#endif
-		case API::Undefined:
-		default:
-			return MakeResultError{ std::format(
-				"Unsupported graphics device API - {}", EnumToString(api)) };
-		}
-	}
-	
-	void Renderer::CreateRenderPasses()
-	{
-		RYU_PROFILE_SCOPE();
-
-		const API api = GraphicsConfig::Get().GraphicsAPI.Get();
-		
-		if (!m_renderPassFactory)
-		{
-			switch (api)
-			{
-#if RYU_RHI_HAS_D3D11
-			case API::DirectX11:
-				m_renderPassFactory = std::make_unique<DX11::DX11RenderPassFactory>();
-				break;
-#endif
-#if RYU_RHI_HAS_D3D12
-			case API::DirectX12:
-				m_renderPassFactory = std::make_unique<DX11::DX12RenderPassFactory>();
-				break;
-#endif
-			case API::Undefined:
-			default:
-				RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(Renderer), "Render pass factory for API {} is not defined", EnumToString(api));
-			}
-		}
-
-		// Create back buffer clear render pass
-		if (!m_backBufferClearPass)
-		{
-			IClearRenderPass::Desc desc;
-			desc.RenderTargets = { m_swapchain->GetBackBufferRenderTarget() };
-			desc.ClearColor = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-			m_backBufferClearPass = m_renderPassFactory->CreateClearRenderPass(desc);
-		}
+		m_swapchain->Resize(width, height);
 	}
 }

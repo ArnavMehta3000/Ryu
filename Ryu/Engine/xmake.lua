@@ -18,6 +18,7 @@ target("RyuEngine")
 		"RyuGraphics",
 		"RyuMath",
 		"RyuProfiling",
+		"RyuScripting",
 		"RyuExternals", { public = true})
 		add_rules("c++.unity_build")
 target_end()

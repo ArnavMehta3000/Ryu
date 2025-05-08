@@ -1,41 +1,27 @@
 #pragma once
-#include "Common/Result.h"
-#include "Common/ObjectMacros.h"
-#include "GraphicsRHI/ISwapChain.h"
-#include "GraphicsRHI/IDevice.h"
-#include "GraphicsRHI/ICommandList.h"
-#include "GraphicsRHI/IRenderer.h"
-#include "GraphicsRHI/RenderPasses/IClearRenderPass.h"
-#include "GraphicsRHI/RenderPasses/IRenderPassFactory.h"
+#include "Logger/LogCategory.h"
+#include "Graphics/Device.h"
+#include "Graphics/SwapChain.h"
 
-namespace Ryu::Graphics
+namespace Ryu::Gfx
 {
-	class Renderer : public IRenderer
+	class Renderer
 	{
 		RYU_LOG_DECLARE_CATEGORY(Renderer);
+
 	public:
-		NODISCARD VoidResult Init(const SwapChainDesc& swapChainDesc);
-		void Shutdown();
+		Renderer() = delete;
+		explicit Renderer(HWND window);
+		~Renderer();
 
-		inline ISwapChain* GetSwapChain() const override { return m_swapchain.get(); }
-		inline IDevice* GetDevice() const override { return m_device.get(); }
+		inline NODISCARD Device* GetDevice() const { return m_device.Get(); }
+		inline NODISCARD SwapChain* GetSwapChain() const { return m_swapchain.Get(); }
 
-		void InitializeResource(IGraphicsObject* obj) override;
-		void BeginFrame();
-		void EndFrame();
+		void Render();
+		void OnResize(u32 width, u32 height);
 
-	private:
-		IDevice::CreateDeviceResult CreateDevice();
-		void CreateRenderPasses();
-
-	private:
-		std::unique_ptr<IDevice>            m_device;
-		std::unique_ptr<ISwapChain>         m_swapchain;
-		std::unique_ptr<ICommandList>       m_commandList;		
-		std::unique_ptr<IRenderPassFactory> m_renderPassFactory;
-		std::unique_ptr<IClearRenderPass>   m_backBufferClearPass;
+	public:
+		Memory::Ref<Device>    m_device;
+		Memory::Ref<SwapChain> m_swapchain;
 	};
-	
-	NODISCARD VoidResult InitGraphics(Renderer* renderer, HWND hWnd);
-	void ShutdownGraphics(Renderer* renderer);
 }

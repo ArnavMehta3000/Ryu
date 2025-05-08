@@ -1,7 +1,6 @@
 #include "Graphics/DescriptorHeap.h"
 #include "Graphics/Device.h"
 #include "Logger/Logger.h"
-#include <libassert/assert.hpp>
 #include <scoped_allocator>
 
 namespace Ryu::Gfx

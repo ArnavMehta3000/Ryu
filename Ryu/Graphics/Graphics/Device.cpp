@@ -2,7 +2,6 @@
 #include "Math/Math.h"
 #include "Utils/StringConv.h"
 #include "Profiling/Profiling.h"
-#include <libassert/assert.hpp>
 
 namespace Ryu::Gfx
 {

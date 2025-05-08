@@ -1,7 +1,7 @@
 #include "Renderer.h"
 #include "Profiling/Profiling.h"
 #include "Graphics/GraphicsConfig.h"
-#include <libassert/assert.hpp>
+#include "Logger/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -17,8 +17,8 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		DEBUG_ASSERT(m_swapchain.GetRefCount() == 1);
-		DEBUG_ASSERT(m_device.GetRefCount() == 1);
+		RYU_ASSERT(m_swapchain.GetRefCount() == 1);
+		RYU_ASSERT(m_device.GetRefCount() == 1);
 
 		m_swapchain.Reset();
 		m_device.Reset();

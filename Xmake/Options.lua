@@ -26,7 +26,7 @@ option("ryu-log-warn-enabled")
 	set_description("Compile time switch to enable warn verbosity logs")
 option_end()
 
-option("ryu-assert-on-fail-hresult")
+option("ryu-throw-on-fail-hresult")
 	set_showmenu(true)
 	set_default(true)
 	set_description("Assert on failure of HRESULT")

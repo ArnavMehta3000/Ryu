@@ -3,6 +3,7 @@
 #include "Graphics/Renderer.h"
 #include "Logger/LogCategory.h"
 #include "Utils/Singleton.h"
+#include "Scripting/ScriptEngine.h"
 #include <memory>
 
 
@@ -70,6 +71,7 @@ namespace Ryu::Engine
 		Utils::Timer                                  m_timer;
 		std::unique_ptr<App::Application>             m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
+		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
 		Elos::Connection<const Elos::Event::Resized&> m_onAppResizedConnection;
 	};
 }

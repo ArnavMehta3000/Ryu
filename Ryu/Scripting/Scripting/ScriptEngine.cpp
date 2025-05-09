@@ -81,7 +81,7 @@ namespace Ryu::Scripting
 		}
 	}
 
-	void ScriptEngine::ScriptLogMessageCallback(Logging::LogLevel level, std::string& message)
+	void ScriptEngine::ScriptLogMessageCallback(Logging::LogLevel level, const std::string& message)
 	{
 		std::string callInfo;
 		if (asIScriptContext* ctx = asGetActiveContext())

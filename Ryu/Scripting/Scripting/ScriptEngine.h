@@ -20,7 +20,7 @@ namespace Ryu::Scripting
 
 	private:
 		static void EngineLogMessageCallback(asSMessageInfo* msg, void* param);
-		static void ScriptLogMessageCallback(Logging::LogLevel level, std::string& message);
+		static void ScriptLogMessageCallback(Logging::LogLevel level, const std::string& message);
 
 		void RegisterLogging();
 		void LoadScriptFiles();

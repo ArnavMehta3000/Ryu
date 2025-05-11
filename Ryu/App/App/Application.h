@@ -60,7 +60,7 @@ namespace Ryu::App
 		 * @brief Called when the application is updates
 		 * @param timeInfo frame time info
 		 */
-		virtual RYU_API void OnTick(const Utils::TimeInfo& timeInfo);
+		virtual RYU_API void OnTick(const Utils::TimeInfo&) {}
 
 		virtual RYU_API void GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo) override;
 

@@ -63,10 +63,6 @@ namespace Ryu::App
 		RYU_PROFILE_SCOPE();
 	}
 	
-	void Application::OnTick(const Utils::TimeInfo&)
-	{
-	}
-
 	void Application::GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo)
 	{
 		RYU_PROFILE_SCOPE();

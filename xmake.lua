@@ -1,4 +1,4 @@
-set_xmakever("2.9.7")
+set_xmakever("2.9.9")
 add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 -- Project name and version

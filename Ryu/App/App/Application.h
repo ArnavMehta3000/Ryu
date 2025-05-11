@@ -69,9 +69,9 @@ namespace Ryu::App
 		virtual void RYU_API OnWindowFocusGainedEvent(const Elos::Event::FocusGained&) {}
 		virtual void RYU_API OnWindowMouseEnteredEvent(const Elos::Event::MouseEntered&) {}
 		virtual void RYU_API OnWindowMouseLeftEvent(const Elos::Event::MouseLeft&) {}
-		virtual void RYU_API OnWindowResizedEvent(const Elos::Event::Resized& e) {}
+		virtual void RYU_API OnWindowResizedEvent(const Elos::Event::Resized&) {}
 		virtual void RYU_API OnWindowTextInputEvent(const Elos::Event::TextInput&) {}
-		virtual void RYU_API OnWindowKeyPressedEvent(const Elos::Event::KeyPressed&);
+		virtual void RYU_API OnWindowKeyPressedEvent(const Elos::Event::KeyPressed&) {};
 		virtual void RYU_API OnWindowKeyReleasedEvent(const Elos::Event::KeyReleased&) {}
 		virtual void RYU_API OnWindowMouseWheelScrolledEvent(const Elos::Event::MouseWheelScrolled&) {}
 		virtual void RYU_API OnWindowMouseButtonPressedEvent(const Elos::Event::MouseButtonPressed&) {}

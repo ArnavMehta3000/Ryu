@@ -10,4 +10,7 @@ public:
 	bool OnInit() override;
 	void OnShutdown() override;
 	void OnTick(const Ryu::Utils::TimeInfo& timeInfo) override;
+
+private:
+	void OnWindowKeyPressedEvent(const Elos::Event::KeyPressed& e) override;
 };

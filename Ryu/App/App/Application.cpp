@@ -84,16 +84,6 @@ namespace Ryu::App
 		}
 	}
 
-	void Application::OnWindowKeyPressedEvent(MAYBE_UNUSED const Elos::Event::KeyPressed& e)
-	{
-#if defined(RYU_BUILD_DEBUG)
-		if (e.Key == Elos::KeyCode::Escape && AppConfig::Get().EscToClose)
-		{
-			m_window->Close();
-		}
-#endif
-	}
-
 	void Application::ConfigureConnections()
 	{
 		RYU_PROFILE_SCOPE();

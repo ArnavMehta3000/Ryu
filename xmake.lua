@@ -3,7 +3,7 @@ add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 -- Project name and version
 set_project("Ryu")
-set_version("0.0.3")
+set_version("0.0.3", {build = "%Y%m%d%H%M"})
 
 -- Set C/C++ language version
 set_languages("c17", "cxx23")

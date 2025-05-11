@@ -22,14 +22,16 @@ namespace Ryu::Logging
 		std::string timeStr = fmt::format("{:%Y-%m-%d %H:%M:%S}", timeInfo);
 
 		std::string formattedMessage;
+		std::string logLevelStr(EnumToString(level));
+		std::transform(logLevelStr.begin(), logLevelStr.end(), logLevelStr.begin(), [](unsigned char c) { return std::toupper(c); });
 
 		// Add stacktrace if needed
 		if (level == LogLevel::Fatal)
 		{
 			auto entry = *message.Stacktrace.begin();
 			formattedMessage = std::format("[{}] [{}] [{}]: {}\n{}({}):{}", timeStr,
+			  logLevelStr,
 				category.Name,
-				EnumToString(level),
 				message.Message,
 				entry.source_file(),
 				entry.source_line(),
@@ -39,8 +41,8 @@ namespace Ryu::Logging
 		{
 			formattedMessage = fmt::format("[{}] [{}] [{}]: {}",
 				timeStr,
+				logLevelStr,
 				category.Name,
-				EnumToString(level),
 				message.Message);
 		}
 

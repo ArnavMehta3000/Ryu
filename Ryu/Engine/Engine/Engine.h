@@ -25,7 +25,7 @@ namespace Ryu::Engine
 		 * @brief Get the application used by the Engine
 		 * @return The application (owned by the Engine)
 		 */
-		inline RYU_API App::Application* GetApplication() const { return m_app.get(); }
+		inline RYU_API App::Application* GetApplication() const { return m_app.Get(); }
 
 		/**
 		 * @brief Get the project directory
@@ -69,7 +69,7 @@ namespace Ryu::Engine
 	private:
 		std::string                                   m_projectDir;
 		Utils::Timer                                  m_timer;
-		std::unique_ptr<App::Application>             m_app;
+		Memory::Ref<App::Application>                 m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
 		Elos::Connection<const Elos::Event::Resized&> m_onAppResizedConnection;

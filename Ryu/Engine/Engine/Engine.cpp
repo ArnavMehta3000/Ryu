@@ -26,7 +26,7 @@ namespace Ryu::Engine
 		}
 
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
-		m_app = CreateApplication();
+		m_app = Memory::MakeRef<App::Application>(CreateApplication());
 
 		// Check if debugger is attached
 		if (Common::Globals::IsDebuggerAttached())
@@ -61,8 +61,8 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		
 		// Bind resize event before initializing the application
-		m_onAppResizedConnection = m_app->GetWindowResizedSignal().Connect(
-			[this](const Elos::Event::Resized& e) {OnAppResize(e.Size.Width, e.Size.Height); });
+		m_onAppResizedConnection = m_app->GetWindowEventSignals ().OnResized.Connect(
+			[this](const Elos::Event::Resized& e) { OnAppResize(e.Size.Width, e.Size.Height); });
 
 		// Init the application
 		return m_app->Init();

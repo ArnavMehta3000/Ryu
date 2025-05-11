@@ -2,17 +2,17 @@
 #include "Common/API.h"
 #include "Common/StandardTypes.h"
 #include "Utils/Timer.h"
+#include "Memory/Ref.h"
 #include <Elos/Application/AppBase.h>
 #include <memory>
+
 namespace Ryu::App
 {
 	/**
 	 * @brief The Application class
 	 */
-	class Application : public Elos::AppBase
+	class Application : public Elos::AppBase, public Memory::RefCounted
 	{
-		using ResizeSignal = Elos::Signal<const Elos::Event::Resized&>;
-
 	public:
 		/**
 		 * @brief Construct a new Application object
@@ -42,11 +42,7 @@ namespace Ryu::App
 		 */
 		RYU_API void Tick(const Utils::TimeInfo& timeInfo);
 
-		/**
-		 * @brief Get the window resized signal
-		 * @return Reference to the window resized signal
-		 */
-		inline RYU_API NODISCARD ResizeSignal& GetWindowResizedSignal() { return m_windowResizedSignal; }
+		RYU_API inline NODISCARD Elos::WindowEventSignals& GetWindowEventSignals() { return m_windowEventSignals; }
 
 	protected:
 		/**
@@ -73,7 +69,7 @@ namespace Ryu::App
 		virtual void RYU_API OnWindowFocusGainedEvent(const Elos::Event::FocusGained&) {}
 		virtual void RYU_API OnWindowMouseEnteredEvent(const Elos::Event::MouseEntered&) {}
 		virtual void RYU_API OnWindowMouseLeftEvent(const Elos::Event::MouseLeft&) {}
-		virtual void RYU_API OnWindowResizedEvent(const Elos::Event::Resized& e) { m_windowResizedSignal.Emit(e); }
+		virtual void RYU_API OnWindowResizedEvent(const Elos::Event::Resized& e) {}
 		virtual void RYU_API OnWindowTextInputEvent(const Elos::Event::TextInput&) {}
 		virtual void RYU_API OnWindowKeyPressedEvent(const Elos::Event::KeyPressed&);
 		virtual void RYU_API OnWindowKeyReleasedEvent(const Elos::Event::KeyReleased&) {}
@@ -88,7 +84,6 @@ namespace Ryu::App
 
 	protected:
 		Elos::WindowEventConnections m_windowEventConnections;
-		ResizeSignal m_windowResizedSignal;
 	};
 
 	namespace Internal
@@ -98,4 +93,4 @@ namespace Ryu::App
 }
 
 // Create the runtime to be used by the engine
-extern std::unique_ptr<::Ryu::App::Application> CreateApplication();
+extern ::Ryu::App::Application* CreateApplication();

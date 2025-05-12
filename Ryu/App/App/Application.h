@@ -91,6 +91,3 @@ namespace Ryu::App
 		void SetUpDefaultLogger();
 	}
 }
-
-// Create the runtime to be used by the engine
-extern ::Ryu::App::Application* CreateApplication();

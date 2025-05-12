@@ -5,6 +5,10 @@
 #include <DirectXMath.h>
 #include <wrl/event.h>
 
+#if !defined(RYU_GAME_AS_DLL)
+#include "App/ApplicationCreator.h"
+#endif
+
 #pragma comment(lib, "runtimeobject.lib") 
 
 namespace Ryu::Engine
@@ -26,7 +30,10 @@ namespace Ryu::Engine
 		}
 
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
+		
+#if !defined(RYU_GAME_AS_DLL)  // If the game is not compiled as a DLL then create the application
 		m_app = Memory::MakeRef<App::Application>(CreateApplication());
+#endif
 
 		// Check if debugger is attached
 		if (Common::Globals::IsDebuggerAttached())
@@ -79,7 +86,14 @@ namespace Ryu::Engine
 		// Disconnect resized event
 		m_onAppResizedConnection.Disconnect();
 
+
+		// If we are building the game as DLL, then let the game module handle the shutdown
+#if defined(RYU_GAME_AS_DLL)
+		UnloadGameModule();
+#else
 		m_app->Shutdown();
+#endif
+		m_app.Release();
 		m_renderer.reset();
 
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Shutdown Engine");
@@ -132,6 +146,39 @@ namespace Ryu::Engine
 			// Send a message to the application window to close
 			::SendMessage(m_app->GetWindow()->GetHandle(), WM_CLOSE, 0, 0);
 		}
+	}
+
+	void RYU_API Engine::RunWithGameModule(const std::string& gameDllPath)
+	{
+		if (!LoadGameModule(gameDllPath))
+		{
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to load game module: {}", gameDllPath);
+			return;
+		}
+
+		m_app = m_gameModuleLoader->GetApplication();
+
+		Run();
+	}
+
+	bool RYU_API Engine::LoadGameModule(const std::string& gameDllPath)
+	{
+		m_gameModuleLoader = std::make_unique<GameModuleLoader>();
+		return m_gameModuleLoader->LoadModule(gameDllPath);
+	}
+
+	void RYU_API Engine::UnloadGameModule()
+	{
+		if (m_gameModuleLoader)
+		{
+			m_gameModuleLoader->UnloadModule();
+			m_gameModuleLoader.reset();
+		}
+	}
+
+	bool RYU_API Engine::IsGameModuleLoaded() const
+	{
+		return m_gameModuleLoader && m_gameModuleLoader->IsModuleLoaded();
 	}
 
 	void Engine::DoFrame(const Utils::TimeInfo& timeInfo)

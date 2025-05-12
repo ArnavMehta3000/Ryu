@@ -4,6 +4,7 @@
 #include "Logger/LogCategory.h"
 #include "Utils/Singleton.h"
 #include "Scripting/ScriptEngine.h"
+#include "Engine/Game/GameModuleLoader.h"
 #include <memory>
 
 
@@ -56,6 +57,13 @@ namespace Ryu::Engine
 		 */
 		void Quit() const noexcept;
 
+		void RYU_API RunWithGameModule(const std::string& gameDllPath);
+		bool RYU_API LoadGameModule(const std::string& gameDllPath);
+		void RYU_API UnloadGameModule();
+		bool RYU_API IsGameModuleLoaded() const;
+		inline RYU_API NODISCARD GameModuleLoader* GetGameModuleLoader() const { return m_gameModuleLoader.get(); }
+
+		std::string                                   m_projectDir;
 	protected:
 		Engine();
 
@@ -67,11 +75,11 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		std::string                                   m_projectDir;
 		Utils::Timer                                  m_timer;
 		Memory::Ref<App::Application>                 m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
+		std::unique_ptr<GameModuleLoader>             m_gameModuleLoader;
 		Elos::Connection<const Elos::Event::Resized&> m_onAppResizedConnection;
 	};
 }

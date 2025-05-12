@@ -6,6 +6,6 @@
 #endif
 #else
 #ifndef RYU_API
-#define RYU_API __declspec(dllimport)
+#define RYU_API
 #endif
 #endif

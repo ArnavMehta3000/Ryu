@@ -54,6 +54,11 @@ if has_config("use-std-types-globally") then
 	add_defines("RYU_USING_STD_TYPES_GLOBALLY")
 end
 
+-- If the game is being built as a DLL
+if has_config("ryu-game-as-dll") then
+	add_defines("RYU_GAME_AS_DLL")
+end
+
 -- Add compilation success to all targets
 add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 

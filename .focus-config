@@ -2,7 +2,9 @@
 
 [[workspace]]
 # These directories and files will be scanned when a workspace is opened so that search etc. works.
-../Ryu/
+./Ryu/
+./Testbench/
+./Xmake/
 
 [ignore]
 .git
@@ -10,13 +12,6 @@
 .vs
 build
 vsxmake2022
-RyuLog.txt
-
-[allow]
-*.ryuplugin
-
-[file associations]
-*.ryuplugin : json
 
 [[build commands]]
 build_working_dir: %PROJECT_CONFIG_DIR%
@@ -26,7 +21,7 @@ clear_build_output_before_running: true
 
 [Build Debug And Run]   # <- command name. Can be arbitrary
 build_command: xmake f -m debug
-run_command: xmake run RyuEditor
+run_command: xmake run RyuTestbenchRunner
 run_working_dir: %PROJECT_CONFIG_DIR%
 key_binding: F5
 

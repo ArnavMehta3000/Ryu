@@ -1,11 +1,11 @@
 #include "Engine/EntryPoint.h"
-#include "Module/TestGameModule.h"
+#include "Testbench/Module/TestModule.h"
+#include "Testbench/TestApp.h"
 
 #if defined(RYU_BUILD_DEBUG)
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #endif
-
 
 #if !defined(RYU_GAME_AS_DLL)
 	RYU_USE_APP(TestApp)

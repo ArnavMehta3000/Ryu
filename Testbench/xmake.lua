@@ -1,17 +1,17 @@
 target("RyuTestbench")
-	-- Use WinMain only in release mode
-	if not is_mode("debug", "releasedbg") then
-		add_rules("win.sdk.application")
+	-- If building as DLL
+	if has_config("ryu-game-as-dll") then
+		set_kind("shared")
+		add_defines("RYU_GAME_AS_DLL")
+	else
+		set_kind("binary")
+		
+		-- Use WinMain only in release mode
+		if not is_mode("debug", "releasedbg") then
+			add_rules("win.sdk.application")
+		end
 	end
 
-	-- If building as DLL
-    if has_config("ryu-game-as-dll") then
-        set_kind("shared")
-        add_defines("RYU_GAME_AS_DLL", "RYU_EXPORTS")
-    else
-        set_kind("binary")
-    end
-	
 	set_default(not get_config("ryu-game-as-dll"))
 	set_group("Ryu/Testing")
 
@@ -19,20 +19,21 @@ target("RyuTestbench")
 	add_files("Testbench/**.cpp")
 	add_extrafiles("Scripts/**.as")
 	add_headerfiles("Testbench/**.h")
+	remove_files("Testbench/Runner/**.cpp") -- Don't include runner's files
 	add_deps("RyuEngine")
 target_end()
 
 
 target("RyuTestbenchRunner")
-    if not is_mode("debug", "releasedbg") then
-        add_rules("win.sdk.application")
-    end
+	if not is_mode("debug", "releasedbg") then
+		add_rules("win.sdk.application")
+	end
 
-    set_default(get_config("ryu-game-as-dll"))
-    set_kind("binary")
-    set_group("Ryu/Testing")
+	set_default(get_config("ryu-game-as-dll"))
+	set_kind("binary")
+	set_group("Ryu/Testing")
 
-    add_includedirs(".")
-    add_files("Runner/**.cpp")
-    add_deps("RyuTestbench")
+	add_includedirs(".")
+	add_files("Testbench/Runner/TestbenchRunner.cpp")
+	add_deps("RyuTestbench")
 target_end()

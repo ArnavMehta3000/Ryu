@@ -1,4 +1,4 @@
-#include "Test.h"
+#include "Testbench/TestApp.h"
 #include "Profiling/Profiling.h"
 #include "App/AppConfig.h"
 
@@ -20,7 +20,7 @@ void TestApp::OnTick(const Ryu::Utils::TimeInfo& timeInfo)
 	Application::OnTick(timeInfo);
 }
 
-void TestApp::OnWindowKeyPressedEvent(const Elos::Event::KeyPressed& e)
+void TestApp::OnWindowKeyPressedEvent(MAYBE_UNUSED const Elos::Event::KeyPressed& e)
 {
 #if defined(RYU_BUILD_DEBUG)
 	if (e.Key == Elos::KeyCode::Escape && Ryu::App::AppConfig::Get().EscToClose)

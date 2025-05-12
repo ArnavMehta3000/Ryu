@@ -1,9 +1,16 @@
 #include "Engine/Engine.h"
 #include "Engine/EntryPoint.h"
-#include "Testbench/Test.h"
+#include "Testbench/TestApp.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;
+
+/*
+* This script/project demos how to run the game project as a DLL
+*	- Build with --ryu-game-as-dll=y which will make RyuTestbench be built as a dll
+*	- The runner is an example main that shows how to load the DLL
+*	- This is how the editor will load the game module
+*/
 
 RYU_MAIN()
 {

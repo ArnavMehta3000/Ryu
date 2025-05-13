@@ -63,7 +63,6 @@ namespace Ryu::Engine
 		bool RYU_API IsGameModuleLoaded() const;
 		inline RYU_API NODISCARD GameModuleLoader* GetGameModuleLoader() const { return m_gameModuleLoader.get(); }
 
-		std::string                                   m_projectDir;
 	protected:
 		Engine();
 
@@ -75,6 +74,7 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
+		std::string                                   m_projectDir;
 		Utils::Timer                                  m_timer;
 		Memory::Ref<App::Application>                 m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;

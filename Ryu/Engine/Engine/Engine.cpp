@@ -1,4 +1,4 @@
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "Logger/Logger.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
@@ -9,7 +9,7 @@
 #include "App/ApplicationCreator.h"
 #endif
 
-#pragma comment(lib, "runtimeobject.lib") 
+#pragma comment(lib, "runtimeobject.lib")
 
 namespace Ryu::Engine
 {
@@ -30,7 +30,7 @@ namespace Ryu::Engine
 		}
 
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
-		
+
 #if !defined(RYU_GAME_AS_DLL)  // If the game is not compiled as a DLL then create the application
 		m_app = Memory::MakeRef<App::Application>(CreateApplication());
 #endif
@@ -51,7 +51,7 @@ namespace Ryu::Engine
 			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine application");
 			return false;
 		}
-		
+
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 
@@ -66,7 +66,7 @@ namespace Ryu::Engine
 	bool Engine::InitRuntime()
 	{
 		RYU_PROFILE_SCOPE();
-		
+
 		// Bind resize event before initializing the application
 		m_onAppResizedConnection = m_app->GetWindowEventSignals ().OnResized.Connect(
 			[this](const Elos::Event::Resized& e) { OnAppResize(e.Size.Width, e.Size.Height); });
@@ -107,7 +107,7 @@ namespace Ryu::Engine
 	void Engine::Run()
 	{
 		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Running the Engine");
-		
+
 		Microsoft::WRL::Wrappers::RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
 		if (!Init())
 		{
@@ -128,7 +128,7 @@ namespace Ryu::Engine
 			});
 
 			m_renderer->Render();
-			
+
 			RYU_PROFILE_MARK_FRAME();
 		}
 
@@ -184,7 +184,7 @@ namespace Ryu::Engine
 	void Engine::DoFrame(const Utils::TimeInfo& timeInfo)
 	{
 		RYU_PROFILE_SCOPE();
-		
+
 		m_app->Tick(timeInfo);
 	}
 

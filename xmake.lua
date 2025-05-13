@@ -18,6 +18,10 @@ includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/CopyToBuildDir.lua")
 includes("Xmake/Rules/EnumAutogen.lua")
 
+-- Update compile commands
+add_rules("plugin.vsxmake.autoupdate")
+add_rules("plugin.compile_commands.autoupdate", { outputdir = "build", lsp = "clangd" })
+
 -- Build debug mode by default
 set_defaultmode("debug")
 

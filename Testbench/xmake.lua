@@ -19,7 +19,6 @@ target("RyuTestbench")
 	add_files("Testbench/**.cpp")
 	add_extrafiles("Scripts/**.as")
 	add_headerfiles("Testbench/**.h")
-	remove_files("Testbench/Runner/**.cpp") -- Don't include runner's files
 	add_deps("RyuEngine")
 target_end()
 
@@ -34,6 +33,6 @@ target("RyuTestbenchRunner")
 	set_group("Ryu/Testing")
 
 	add_includedirs(".")
-	add_files("Testbench/Runner/TestbenchRunner.cpp")
+	add_files("Testbench/Main.cpp")
 	add_deps("RyuTestbench")
 target_end()

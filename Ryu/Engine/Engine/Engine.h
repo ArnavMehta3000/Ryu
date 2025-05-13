@@ -17,7 +17,6 @@ namespace Ryu::Engine
 	{
 		RYU_LOG_DECLARE_CATEGORY(Engine);
 		RYU_SINGLETON_DECLARE(Engine);
-		friend struct Runner;
 
 	public:
 		~Engine() = default;
@@ -27,12 +26,6 @@ namespace Ryu::Engine
 		 * @return The application (owned by the Engine)
 		 */
 		inline RYU_API App::Application* GetApplication() const { return m_app.Get(); }
-
-		/**
-		 * @brief Get the project directory
-		 * @return The project directory
-		 */
-		inline RYU_API std::string_view GetProjectDir() const { return m_projectDir; }
 
 		/**
 		 * @brief Get the timer used by the Engine
@@ -58,10 +51,8 @@ namespace Ryu::Engine
 		void Quit() const noexcept;
 
 		void RYU_API RunWithGameModule(const std::string& gameDllPath);
-		bool RYU_API LoadGameModule(const std::string& gameDllPath);
-		void RYU_API UnloadGameModule();
 		bool RYU_API IsGameModuleLoaded() const;
-		inline RYU_API NODISCARD GameModuleLoader* GetGameModuleLoader() const { return m_gameModuleLoader.get(); }
+		inline NODISCARD GameModuleLoader* GetGameModuleLoader() const { return m_gameModuleLoader.get(); }
 
 	protected:
 		Engine();
@@ -70,11 +61,12 @@ namespace Ryu::Engine
 		bool Init();
 		bool InitRuntime();
 		void Shutdown();
+		bool LoadGameModule(const std::string& gameDllPath);
+		void UnloadGameModule();
 		void DoFrame(const Utils::TimeInfo& timeInfo);
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		std::string                                   m_projectDir;
 		Utils::Timer                                  m_timer;
 		Memory::Ref<App::Application>                 m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;

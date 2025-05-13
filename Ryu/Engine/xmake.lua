@@ -11,6 +11,7 @@ target("RyuEngine")
 	add_packages("entt")
 
 	add_deps(
+		"RyuCore",
 		"RyuUtils",
 		"RyuConfig",
 		"RyuLogger",

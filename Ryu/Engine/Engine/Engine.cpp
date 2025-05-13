@@ -1,4 +1,6 @@
 #include "Engine/Engine.h"
+#include "Core/PathManager.h"
+#include "Logger/Assert.h"
 #include "Logger/Logger.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
@@ -56,7 +58,8 @@ namespace Ryu::Engine
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
-		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>(m_projectDir + "/Scripts/");
+		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
+			Core::PathManager::Get().GetProjectDir() / "Scripts").string());
 
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialized successfully");
 
@@ -115,6 +118,7 @@ namespace Ryu::Engine
 			return;
 		}
 
+		RYU_ASSERT(m_app, "Application not initialized");
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Starting Engine main loop");
 
 		auto appWindow = m_app->GetWindow();
@@ -150,6 +154,7 @@ namespace Ryu::Engine
 
 	void RYU_API Engine::RunWithGameModule(const std::string& gameDllPath)
 	{
+#if defined(RYU_GAME_AS_DLL)
 		if (!LoadGameModule(gameDllPath))
 		{
 			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to load game module: {}", gameDllPath);
@@ -159,26 +164,37 @@ namespace Ryu::Engine
 		m_app = m_gameModuleLoader->GetApplication();
 
 		Run();
+#endif
 	}
 
 	bool RYU_API Engine::LoadGameModule(const std::string& gameDllPath)
 	{
+#if defined(RYU_GAME_AS_DLL)
 		m_gameModuleLoader = std::make_unique<GameModuleLoader>();
 		return m_gameModuleLoader->LoadModule(gameDllPath);
+#else
+		return false;  // Sould never get here
+#endif
 	}
 
 	void RYU_API Engine::UnloadGameModule()
 	{
+#if defined(RYU_GAME_AS_DLL)
 		if (m_gameModuleLoader)
 		{
 			m_gameModuleLoader->UnloadModule();
 			m_gameModuleLoader.reset();
 		}
+#endif
 	}
 
 	bool RYU_API Engine::IsGameModuleLoaded() const
 	{
+#if defined(RYU_GAME_AS_DLL)
 		return m_gameModuleLoader && m_gameModuleLoader->IsModuleLoaded();
+#else
+		return true;
+#endif
 	}
 
 	void Engine::DoFrame(const Utils::TimeInfo& timeInfo)

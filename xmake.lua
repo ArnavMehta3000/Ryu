@@ -13,10 +13,7 @@ add_moduledirs("Xmake/Modules")
 add_plugindirs("Xmake/Plugins")
 includes("Xmake/Packages.lua")
 includes("Xmake/Options.lua")
-includes("Xmake/Rules/RyuPlugin.lua")
 includes("Xmake/Rules/ExportAPI.lua")
-includes("Xmake/Rules/CopyToBuildDir.lua")
-includes("Xmake/Rules/EnumAutogen.lua")
 
 -- Update compile commands
 add_rules("plugin.compile_commands.autoupdate", { outputdir = "build", lsp = "clangd" })

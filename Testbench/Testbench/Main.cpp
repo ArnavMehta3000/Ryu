@@ -1,21 +1,14 @@
-#include "Engine/EntryPoint.h"
+#include "Engine/Entry/EntryPoint.h"
 #include "Testbench/Module/TestModule.h"
 #include "Testbench/TestApp.h"
 
-#if defined(RYU_BUILD_DEBUG)
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
 
-#if !defined(RYU_GAME_AS_DLL)
-	RYU_USE_APP(TestApp)
-#endif
+
+RYU_USE_APP(TestApp)
 
 RYU_MAIN()
 {
-#if defined(RYU_BUILD_DEBUG)  // Enable memory leak checking
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif
+	RYU_DBG_TRACK_MEM();
 
 	Ryu::Engine::Runner
 	{

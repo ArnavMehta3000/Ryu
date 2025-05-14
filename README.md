@@ -18,64 +18,93 @@ Ryu Engine is an experimentation playground for making game engines<br>
 
 - To build Ryu you **need to ensure** you have the xmake build system installed and added to you path.
 
-## Build All Default Projects
+## Configuration
 
-To build the default projects of Ryu (and their dependencies) simply run xmake.
-Additionally provided `.bat` scripts can be run (from repo root directory) in the [Scripts folder](/Scripts/)
+`--ryu-game-as-dll=[y|n]` Build the game as a loadable DLL (Testbench needs to be run via the 'Runner' project)
+
+`--ryu-throw-on-fail-hresult=[y|n]` Assert on failure of HRESULT (default: y)
+
+`--ryu-enable-tracy-profiling=[y|n]` Enable profiling via tracy (default: n)
+
+`--ryu-log-info-enabled=[y|n]` Compile time switch to enable info verbosity logs (default: y)
+
+`--ryu-log-warn-enabled=[y|n]` Compile time switch to enable warn verbosity logs (default: y)
+
+`--ryu-log-debug-enabled=[y|n]` Compile time switch to enable debug verbosity logs (default: y)
+
+`--ryu-log-trace-enabled=[y|n]` Compile time switch to enable trace verbosity logs (default: y)
+
+These configs can be set using the project generator in extended mode or the following command:
+
+```bash
+xmake f <config=value>
+```
+
+## Generating Project Files
+
+- Run the `GenerateProjectFiles.bat` to create a Visual Studio solution in the `build` folder with only the `debug` configuration
+- Run `GenerateProjectFiles.bat x` (pass 'x' as an argument) to run the project generator in extended mode to allow further custom configuration
+
+## Building
+
+Run the following command to build all targets
 
 ```bash
 xmake
 ```
 
-By default xmake will build Ryu in `debug` configuration. This can be changed by running the following command **before** running any build command. Optionally provided `Scripts/*.bat` can be used.
-
-```bash
-xmake f -m <debug|release>
-```
-
-## Build a Specifc Project
-
-To build a specific project run the build command with the project name
-
-```bash
-xmake build <project name>
-```
-
-## Generating IDE Project Files
-
-IDE files for are generated with the help of [xmake](https://xmake.io/). To see how to generate IDE specific project files using xmake [click here](https://xmake.io/#/plugin/builtin_plugins).
-
-## Generating Documentation
-
-Documentation can be generated (using doxygen). Simply run [GenerateDocs.bat](/Scripts/GenerateDocs.bat) from the repo root folder.
-
-Documentation will be generated in the `./build/documentation/` folder
-
-# Architecture
-
-Ryu is architected in a very modular way which makes it easy to extend and modify.
-
-To see a list of all the projects (referred to as *targets* by xmake), you can run the following command
+All Ryu's modules/targets (in xmake terms) are prefixed with 'Ryu', external modules will not have that prefix. To see all the available targets run:
 
 ```bash
 xmake show -l targets
 ```
 
-- All of the targets build into a static library. Except the `RyuEditor` and `RyuTestbench`. They build into executables.
-- `RyuCore` is a phony target which will build all core targets
-- `RyuEngine` is a special static library where it merge archives all dependent static libraries into a single `RyuEngine.lib`
-- `RyuTestbench` is a test 'game' project where current engine functionality is being tested. This project may or may not always compile
+Optionally only build a target
 
-## Dependencies
+```bash
+xmake build <target_name>
+```
 
-The packages can be seen in the [Packages.lua](Xmake/Packages.lua) file
-- [fmt](https://github.com/fmtlib/fmt)
-- [DirectX-Headers](https://github.com/microsoft/DirectX-Headers)
-- [imgui](https://github.com/ocornut/imgui/tree/docking)
-- [libassert](https://github.com/jeremy-rifkin/libassert)
-- [uuid_v4](https://github.com/crashoz/uuid_v4)
-- [entt](https://github.com/skypjack/entt)
-- [Angelscript](https://www.angelcode.com/angelscript/) (addons included in the repo)
+## Ryu Config
+
+Ryu identifies its root directory by looking for the `Ryu.toml` configuration file. If this file is not found, Ryu cannot be launched. Currently it is configured to run the Testbench project and by default will build in `debug` mode
+
+- Paths
+	- `ProjectDir` - Which project directory to look for assets/scripts/config files (defines the active project). This is relative to the engine root directory
+	- `GameDLLName` - Project DLL name can differ from project name. This can be ignored if building the game as standalone, but is required if `--ryu-game-as-dll` is enabled
+
+## The Testbench
+
+The Testbench is a dummy game project that is used for testing purposes. By default Testbench is run as a standalone executable. But if it was to be loaded in another executable (for example an editor [WIP]) tt can be built as a dll using `--ryu-game-as-dll=y`. When that config is enabled, run Testbench using the `RyuTestbenchRunner` project. It will load the DLL and run the game.
+
+### Testbench Config
+
+The Testbench project has a couple config `.toml` files.
+
+#### App Config
+
+- Debugging
+	- `PressEscapeToClose` - Press Esc on the keyboard to close the window (debug builds only)
+- Logging
+	- `EnableLogToConsole` - Opens a console logger even in release builds
+	- `EnableLogToFile` - Opens a log output file
+	- `ForceLogToOutput` - Force log messages to debug output even when a debugger is not attached (eg. VS Output Window)
+	- `LogFilePath` - String to the output log file relative to the executable directory
+- Window
+	- `WindowMinimumSize` - 2 element array defining the minimum window size
+	- `WindowPosition` - Window position on launch (centered by default)
+	- `WindowSize` - Window size on launch
+	- `WindowTitle` - Title of the application window
+
+#### Graphics Config
+
+- Debugging
+	- `EnableDebugLayer` - Enables graphics debug layer (only in debug builds)
+	- `EnableGPUBasedValidation` - Enabled GPU based validation, requires debug layer to be enabled (only in debug builds)
+- Rendering
+	- `AllowTearing` - Allow swapchain screen tearing
+	- `EnableVSync` - Enable VSync
+	- `UseWARP` - Use (or fallback to) WARP renderer
 
 ## Testing
 

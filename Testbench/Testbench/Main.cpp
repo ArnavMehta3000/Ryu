@@ -5,8 +5,7 @@ RYU_USE_APP(TestApp)
 
 RYU_MAIN()
 {
-	RYU_DBG_TRACK_MEM();
-	_CrtSetBreakAlloc(4870);
+	//RYU_DBG_TRACK_MEM();
 	Ryu::Engine::Run();
 
 	return 0;

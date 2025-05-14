@@ -3,5 +3,5 @@
 # Project directory (relative to engine root)
 ProjectDir = "Testbench"
 
-# Game DLL file name (will be combined with current working directory)
+# Game DLL file name (will be combined with current (build) working directory)
 GameDLLName = "RyuTestbench.dll"

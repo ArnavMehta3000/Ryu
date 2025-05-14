@@ -25,7 +25,7 @@ namespace Ryu::Engine
 		 * @brief Get the application used by the Engine
 		 * @return The application (owned by the Engine)
 		 */
-		inline RYU_API App::Application* GetApplication() const { return m_app.Get(); }
+		inline RYU_API App::Application* GetApplication() const { return m_app.get(); }
 
 		/**
 		 * @brief Get the timer used by the Engine
@@ -68,7 +68,7 @@ namespace Ryu::Engine
 
 	private:
 		Utils::Timer                                  m_timer;
-		Memory::Ref<App::Application>                 m_app;
+		std::unique_ptr<App::Application>             m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
 		std::unique_ptr<GameModuleLoader>             m_gameModuleLoader;

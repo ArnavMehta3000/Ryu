@@ -49,11 +49,7 @@ namespace Ryu::Engine
 	
 	void GameModuleLoader::UnloadModule()
 	{
-		if (m_application)
-		{
-			m_application->Shutdown();
-			m_application.Reset();
-		}
+		// The engine should be the application owner
 
 		if (m_gameModule)
 		{
@@ -69,7 +65,7 @@ namespace Ryu::Engine
 		}
 	}
 	
-	Memory::Ref<App::Application> GameModuleLoader::GetApplication()
+	App::Application* GameModuleLoader::GetApplication()
 	{
 		if (!m_gameModule)
 		{
@@ -78,7 +74,7 @@ namespace Ryu::Engine
 
 		if (!m_application)
 		{
-			m_application = Memory::MakeRef<Ryu::App::Application>(m_gameModule->CreateApplication());
+			m_application = m_gameModule->CreateApplication();
 		}
 
 		return m_application;

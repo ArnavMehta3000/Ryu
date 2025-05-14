@@ -17,11 +17,11 @@ namespace Ryu::Engine
 		inline NODISCARD IGameModule* GetGameModule() const { return m_gameModule; }
 		inline NODISCARD bool IsModuleLoaded() const { return m_gameModule != nullptr; }
 		
-		NODISCARD Memory::Ref<App::Application> GetApplication();
+		NODISCARD App::Application* GetApplication();
 
 	private:
-		void* m_dllHandle = nullptr;
-		IGameModule* m_gameModule = nullptr;
-		Memory::Ref<App::Application> m_application;
+		void*             m_dllHandle = nullptr;
+		IGameModule*      m_gameModule = nullptr;
+		App::Application* m_application;  // Unsafe pointer to the application
 	};
 }

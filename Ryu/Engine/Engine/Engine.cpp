@@ -34,7 +34,7 @@ namespace Ryu::Engine
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
 
 #if !defined(RYU_GAME_AS_DLL)  // If the game is not compiled as a DLL then create the application
-		m_app = Memory::MakeRef<App::Application>(CreateApplication());
+		m_app = std::move(std::unique_ptr<App::Application>(CreateApplication()));
 #endif
 
 		// Check if debugger is attached
@@ -90,13 +90,12 @@ namespace Ryu::Engine
 		m_onAppResizedConnection.Disconnect();
 
 
-		// If we are building the game as DLL, then let the game module handle the shutdown
+		m_app->Shutdown();
+		m_app.reset();
+		
 #if defined(RYU_GAME_AS_DLL)
 		UnloadGameModule();
-#else
-		m_app->Shutdown();
 #endif
-		m_app.Release();
 		m_renderer.reset();
 
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Shutdown Engine");
@@ -152,7 +151,7 @@ namespace Ryu::Engine
 		}
 	}
 
-	void RYU_API Engine::RunWithGameModule(const std::string& gameDllPath)
+	void RYU_API Engine::RunWithGameModule(MAYBE_UNUSED const std::string& gameDllPath)
 	{
 #if defined(RYU_GAME_AS_DLL)
 		if (!LoadGameModule(gameDllPath))
@@ -161,13 +160,13 @@ namespace Ryu::Engine
 			return;
 		}
 
-		m_app = m_gameModuleLoader->GetApplication();
+		m_app = std::move(std::unique_ptr<App::Application>(m_gameModuleLoader->GetApplication()));
 
 		Run();
 #endif
 	}
 
-	bool RYU_API Engine::LoadGameModule(const std::string& gameDllPath)
+	bool RYU_API Engine::LoadGameModule(MAYBE_UNUSED const std::string& gameDllPath)
 	{
 #if defined(RYU_GAME_AS_DLL)
 		m_gameModuleLoader = std::make_unique<GameModuleLoader>();

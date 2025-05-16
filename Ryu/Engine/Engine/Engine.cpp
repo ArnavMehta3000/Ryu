@@ -15,6 +15,9 @@
 
 namespace Ryu::Engine
 {
+	static bool g_resizeRequested = false;
+	Elos::Event::Resized g_resizeData{};
+
 	Engine::Engine()
 		: m_app(nullptr)
 	{
@@ -70,9 +73,9 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 
-		// Bind resize event before initializing the application
+		// Make the application request a resize
 		m_onAppResizedConnection = m_app->GetWindowEventSignals ().OnResized.Connect(
-			[this](const Elos::Event::Resized& e) { OnAppResize(e.Size.Width, e.Size.Height); });
+			[this](const Elos::Event::Resized& e) { g_resizeData = e; g_resizeRequested = true; });
 
 		// Init the application
 		return m_app->Init();
@@ -199,6 +202,13 @@ namespace Ryu::Engine
 	void Engine::DoFrame(const Utils::TimeInfo& timeInfo)
 	{
 		RYU_PROFILE_SCOPE();
+
+		// Resize before doing the frame
+		if (g_resizeRequested)
+		{
+			OnAppResize(g_resizeData.Size.Width, g_resizeData.Size.Height);
+			g_resizeRequested = false;
+		}
 
 		m_app->Tick(timeInfo);
 	}

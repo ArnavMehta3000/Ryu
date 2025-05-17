@@ -7,6 +7,8 @@
 
 namespace Ryu::Logging
 {
+	struct FormattedLogMessage;
+
 	/**
 	 * @brief Interface for logging sinks.
 	 */
@@ -22,8 +24,9 @@ namespace Ryu::Logging
 		 * @brief Called when a log message is dispatched to the sink
 		 * @param level The `LogLevel` of the message
 		 * @param message The `LogMessage` of the message
+		 * @param formattedMsg The `FormattedLogMessage` of the message
 		 */
-		virtual void Log(const LogCategory& category, LogLevel level, const LogMessage& message) const = 0;
+		virtual void Log(const LogCategory& category, LogLevel level, const LogMessage& message, const FormattedLogMessage& formattedMsg) const = 0;
 
 		/**
 		 * @brief Returns the name of the sink

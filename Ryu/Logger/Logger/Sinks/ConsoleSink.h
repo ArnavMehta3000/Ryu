@@ -27,7 +27,7 @@ namespace Ryu::Logging
 		 * @param level The `LogLevel` of the message
 		 * @param message The `LogMessage` to write
 		 */
-		void Log(const LogCategory& category, LogLevel level, const LogMessage& message) const override;
+		void Log(const LogCategory& category, LogLevel level, const LogMessage& message, const FormattedLogMessage& formattedMsg) const override;
 
 		/**
 		 * @brief Returns the name of the sink

@@ -28,13 +28,33 @@ namespace Ryu::Logging
 		}
 	}
 
-	void ConsoleSink::Log(const LogCategory& category, LogLevel level, const LogMessage& message) const
+	void ConsoleSink::Log(const LogCategory&, LogLevel level, const LogMessage&, const FormattedLogMessage& formattedMsg) const
 	{
-		SetConsoleColor(level);
-		std::println(stdout, "{}", DefaultFormatter(level, DefaultFormatter(category, level, message, level == LogLevel::Fatal)));
+		HANDLE hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);
 
-		// Reset to default color
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), m_defaultConsoleAttributes);
+		// For Error and Fatal levels, color the entire line
+		if (level == LogLevel::Error || level == LogLevel::Fatal)
+		{
+			SetConsoleColor(level);
+			std::println(stdout, "[{}] [{}] [{}]: {}{}",
+				formattedMsg.Timestamp,
+				formattedMsg.Level,
+				formattedMsg.Category,
+				formattedMsg.Message,
+				formattedMsg.Stacktrace.empty() ? "" : ("\n" + formattedMsg.Stacktrace));
+
+			SetConsoleTextAttribute(hConsole, m_defaultConsoleAttributes);
+			return;
+		}
+
+		// For other levels, color only the level  and categrory part
+		std::print(stdout, "[{}] ", formattedMsg.Timestamp);
+
+		SetConsoleColor(level);
+		std::print(stdout, "[{}] [{}]: ", formattedMsg.Level, formattedMsg.Category);
+		SetConsoleTextAttribute(hConsole, m_defaultConsoleAttributes);
+
+		std::println(stdout, "{}",formattedMsg.Message);
 	}
 
 	std::string_view ConsoleSink::GetName() const
@@ -44,9 +64,15 @@ namespace Ryu::Logging
 
 	WORD ConsoleSink::GetDefaultConsoleAttributes() const
 	{
-		CONSOLE_SCREEN_BUFFER_INFO info;
-		::GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
-		return info.wAttributes;
+		constexpr WORD DEFALT_CONSOLE_ATTRIBUTES = FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+
+		CONSOLE_SCREEN_BUFFER_INFO info{};
+		if (::GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info))
+		{
+			return info.wAttributes == 0 ? DEFALT_CONSOLE_ATTRIBUTES : info.wAttributes;
+		}
+
+		return DEFALT_CONSOLE_ATTRIBUTES;
 	}
 
 	void ConsoleSink::SetConsoleColor(LogLevel level) const

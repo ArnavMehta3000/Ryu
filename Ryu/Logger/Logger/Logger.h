@@ -53,6 +53,18 @@ namespace Ryu::Logging
 		mutable std::mutex                     m_mutex;  // Marked mutable to allow std::lock_guard
 		OnLogCallback                          m_onFatalCallback = [](MAYBE_UNUSED LogLevel, MAYBE_UNUSED const LogMessage&) { std::abort(); };
 	};
+
+	struct FormattedLogMessage
+	{
+		std::string Timestamp;
+		std::string Level;
+		std::string Category;
+		std::string Message;
+		std::string Stacktrace;
+	};
+
+	static FormattedLogMessage DefaultFormatter(const LogCategory& category, LogLevel level, const LogMessage& message, bool captureStackTrace);
+	static std::string DefaultFormatter(LogLevel level, const FormattedLogMessage& message);
 }
 
 

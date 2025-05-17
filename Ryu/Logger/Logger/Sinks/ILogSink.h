@@ -2,6 +2,7 @@
 #include "Common/API.h"
 #include "Logger/LogLevel.h"
 #include "Logger/LogMessage.h"
+#include "Logger/LogCategory.h"
 #include <string>
 
 namespace Ryu::Logging
@@ -22,7 +23,7 @@ namespace Ryu::Logging
 		 * @param level The `LogLevel` of the message
 		 * @param message The `LogMessage` of the message
 		 */
-		virtual void Log(LogLevel level, const LogMessage& message) const = 0;
+		virtual void Log(const LogCategory& category, LogLevel level, const LogMessage& message) const = 0;
 
 		/**
 		 * @brief Returns the name of the sink

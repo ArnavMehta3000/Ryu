@@ -1,4 +1,5 @@
 #include "ConsoleSink.h"
+#include "Logger/Logger.h"
 #include <print>
 
 namespace Ryu::Logging
@@ -27,10 +28,10 @@ namespace Ryu::Logging
 		}
 	}
 
-	void ConsoleSink::Log(LogLevel level, const LogMessage& message) const
+	void ConsoleSink::Log(const LogCategory& category, LogLevel level, const LogMessage& message) const
 	{
 		SetConsoleColor(level);
-		std::println(stdout, "{}", message.Message);
+		std::println(stdout, "{}", DefaultFormatter(level, DefaultFormatter(category, level, message, level == LogLevel::Fatal)));
 
 		// Reset to default color
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), m_defaultConsoleAttributes);

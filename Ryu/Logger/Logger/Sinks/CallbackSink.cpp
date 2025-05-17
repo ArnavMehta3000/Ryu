@@ -1,17 +1,18 @@
 #include "CallbackSink.h"
+#include "Logger/Logger.h"
 
 namespace Ryu::Logging
 {
-	CallbackSink::CallbackSink(std::function<void(LogLevel, const LogMessage&)> callback)
+	CallbackSink::CallbackSink(std::function<void(const LogCategory&, LogLevel, const LogMessage&)> callback)
 		: m_callback(std::move(callback))
 	{
 	}
 
-	void CallbackSink::Log(LogLevel level, const LogMessage& message) const
+	void CallbackSink::Log(const LogCategory& category, LogLevel level, const LogMessage& message) const
 	{
 		if (m_callback)
 		{
-			m_callback(level, message);
+			m_callback(category, level, message);
 		}
 	}
 

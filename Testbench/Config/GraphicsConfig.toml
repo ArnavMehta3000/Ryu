@@ -1,6 +1,6 @@
 [Debugging]
 EnableDebugLayer = true
-EnableGPUBasedValidation = false
+EnableGPUBasedValidation = true
 
 [Rendering]
 AllowTearing = false

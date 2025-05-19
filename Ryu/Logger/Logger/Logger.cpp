@@ -12,13 +12,17 @@ namespace Ryu::Logging
 	}
 
 	void Logger::Log(const LogCategory& category, LogLevel level, const LogMessage& message) const
-	{		
+	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
-		FormattedLogMessage formattedMsg = DefaultFormatter(category, level, message, level == LogLevel::Fatal);
-		for (const auto& sink : m_sinks)
+		// Skip logging completely if we have no sinks
+		if (!m_sinks.empty())
 		{
-			sink->Log(category, level, message, formattedMsg);
+			FormattedLogMessage formattedMsg = DefaultFormatter(category, level, message, level == LogLevel::Fatal);
+			for (const auto& sink : m_sinks)
+			{
+				sink->Log(category, level, message, formattedMsg);
+			}
 		}
 
 		// Check if fatal error
@@ -31,7 +35,7 @@ namespace Ryu::Logging
 			}
 		}
 	}
-	
+
 	FormattedLogMessage DefaultFormatter(const LogCategory& category, LogLevel level, const LogMessage& message, bool captureStackTrace)
 	{
 		FormattedLogMessage output{};
@@ -61,7 +65,7 @@ namespace Ryu::Logging
 
 		return output;
 	}
-	
+
 	std::string DefaultFormatter(LogLevel level, const FormattedLogMessage& message)
 	{
 		std::string formattedMessage;

@@ -19,7 +19,7 @@ target("RyuTestbench")
 	add_files("Testbench/**.cpp")
 	add_extrafiles("Scripts/**.as")
 	add_headerfiles("Testbench/**.h")
-	add_deps("RyuEngine")
+	add_deps("RyuEngine", "RyuWindow")
 target_end()
 
 

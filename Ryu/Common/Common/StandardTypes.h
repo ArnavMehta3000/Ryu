@@ -58,6 +58,15 @@ namespace Ryu::StandardTypes
 	 */
 	using f64  = double;
 
+	/**
+	 * @brief 16-bit character
+	 */
+	using char16 = char16_t;
+
+	/**
+	 * @brief 32-bit character
+	 */
+	using char32 = char32_t;
 
 	/**
 	 * @brief 8-bit byte

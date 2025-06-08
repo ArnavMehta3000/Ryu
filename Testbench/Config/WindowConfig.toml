@@ -1,0 +1,15 @@
+[Position]
+PosX = -2147483648  # Centered
+PosY = -2147483648  # Centered
+
+[Properties]
+HasCloseButton = true
+HasMaximizeButton = true
+HasMinimizeButton = true
+IsResizable = true
+IsVisible = true
+Title = "Ryu App Window"
+
+[Size]
+Height = 720
+Width = 1280

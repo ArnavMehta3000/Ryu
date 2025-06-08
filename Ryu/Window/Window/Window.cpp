@@ -4,7 +4,7 @@
 
 namespace Ryu::Window
 {
-	Window::Window(const WindowConfig& config)
+	Window::Window(const Window::Config& config)
 		: m_config(config)
 		, m_prevSize(config.Width, config.Height)
 		, m_currentSize(config.Width, config.Height)

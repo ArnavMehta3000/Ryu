@@ -13,7 +13,37 @@ namespace Ryu::Window
 	{
 		RYU_DISABLE_COPY_AND_MOVE(Window);
 	public:
-		explicit Window(const WindowConfig& config = {});
+		struct Config  // Internal config representation
+		{
+			i32 Width;
+			i32 Height;
+			i32 X;
+			i32 Y;
+			std::string Title;
+			bool IsResizable;
+			bool HasMinimizeButton;
+			bool HasMaximizeButton;
+			bool HasCloseButton;
+			bool IsVisible;
+
+			Config(const WindowConfig& config)
+				: Width(config.Width)
+				, Height(config.Height)
+				, X(config.X)
+				, Y(config.Y)
+				, Title(config.Title)
+				, IsResizable(config.IsResizable)
+				, HasMinimizeButton(config.HasMinimizeButton)
+				, HasMaximizeButton(config.HasMaximizeButton)
+				, HasCloseButton(config.HasCloseButton)
+				, IsVisible(config.IsVisible)
+			{
+			}
+
+			Config() = delete;
+		};
+	public:
+		explicit Window(const Window::Config& config = WindowConfig::Get());
 		~Window();
 
 		bool Create();
@@ -96,7 +126,7 @@ namespace Ryu::Window
 		static inline std::vector<WindowEvent> s_pendingEvents;
 
 		HWND m_hwnd = nullptr;
-		WindowConfig m_config;
+		Window::Config m_config;
 		InputSystem m_input;
 		std::vector<std::function<void(const WindowEvent&)>> m_eventListeners;
 		std::pair<i32, i32> m_prevSize;

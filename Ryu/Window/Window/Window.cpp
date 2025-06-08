@@ -63,6 +63,7 @@ namespace Ryu::Window
 		}
 
 		s_windowMap[m_hwnd] = this;
+		m_input.Initialize(m_hwnd);
 
 		if (m_config.IsVisible)
 		{
@@ -76,6 +77,7 @@ namespace Ryu::Window
 	{
 		if (m_hwnd) 
 		{
+			m_input.Shutdown();
 			s_windowMap.erase(m_hwnd);
 			::DestroyWindow(m_hwnd);
 			m_hwnd = nullptr;
@@ -101,6 +103,8 @@ namespace Ryu::Window
 
 	void Window::Update()
 	{
+		m_input.UpdateStates();
+
 		MSG msg{};
 		while (PeekMessageW(&msg, m_hwnd, 0, 0, PM_REMOVE))
 		{
@@ -179,9 +183,11 @@ namespace Ryu::Window
 		m_config.HasCloseButton = hasCloseButton;
 		if (m_hwnd) 
 		{
-			HMENU system_menu = ::GetSystemMenu(m_hwnd, FALSE);
-			::EnableMenuItem(system_menu, SC_CLOSE, 
-				MF_BYCOMMAND | (system_menu && hasCloseButton) ? MF_ENABLED : MF_GRAYED);
+			if (HMENU system_menu = ::GetSystemMenu(m_hwnd, FALSE))
+			{
+				::EnableMenuItem(system_menu, SC_CLOSE,
+					MF_BYCOMMAND | ((system_menu && hasCloseButton) ? MF_ENABLED : MF_GRAYED));
+			}
 		}
 	}
 	
@@ -193,137 +199,6 @@ namespace Ryu::Window
 	void Window::ClearPendingEvents()
 	{
 		s_pendingEvents.clear();
-	}
-
-	LRESULT Window::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-	{
-		switch (msg)
-		{
-		case WM_CLOSE:
-		{
-			DispatchEvent(CloseEvent{ hwnd });
-			break;
-		}
-
-		case WM_ENTERSIZEMOVE:
-		{
-			HandleResizeTracking();
-			break;
-		}
-
-		case WM_EXITSIZEMOVE: 
-		{
-			EndResizeTracking();
-			break;
-		}
-
-		case WM_SIZE:
-		{
-			const i32 width = LOWORD(lParam);
-			const i32 height = HIWORD(lParam);
-			m_config.Width = width;
-			m_config.Height = height;
-			m_currentSize = { width, height };
-
-			// Handle minimize/maximize/restore (but not regular resize)
-			if (wParam == SIZE_MINIMIZED)
-			{
-				MinimizeEvent event{ hwnd };
-				DispatchEvent(event);
-			}
-			else if (wParam == SIZE_MAXIMIZED)
-			{
-				DispatchEvent(MaximizeEvent{ hwnd });
-				// For maximize, also fire resize immediately since it's not a drag operation
-				if (m_currentSize != m_prevSize)
-				{
-					DispatchEvent(ResizeEvent{ hwnd, width, height });
-					m_prevSize = m_currentSize;
-				}
-			}
-			else if (wParam == SIZE_RESTORED && !m_isResizing)
-			{
-				DispatchEvent(RestoreEvent{ hwnd });
-				// For restore, also fire resize immediately
-				if (m_currentSize != m_prevSize)
-				{
-					DispatchEvent(ResizeEvent{ hwnd, width, height });
-					m_prevSize = m_currentSize;
-				}
-			}
-			break;
-		}
-		
-		case WM_MOVE:
-		{
-			const i32 xPos = (i32)(short)LOWORD(lParam);   // horizontal position 
-			const i32 yPos = (i32)(short)HIWORD(lParam);   // vertical position
-
-			m_config.X = xPos;
-			m_config.Y = yPos;
-
-			DispatchEvent(MoveEvent{ hwnd, xPos, yPos });
-			break;
-		}
-
-		case WM_KEYDOWN:
-		case WM_KEYUP: 
-		{
-			bool IsDown = (msg == WM_KEYDOWN);
-			bool IsRepeat = (lParam & 0x40000000) != 0;
-			DispatchEvent(KeyEvent{ hwnd, static_cast<i32>(wParam), IsRepeat, IsDown });
-			break;
-		}
-
-		case WM_LBUTTONDOWN:
-		case WM_RBUTTONDOWN:
-		case WM_MBUTTONDOWN:
-		case WM_LBUTTONUP:
-		case WM_RBUTTONUP:
-		case WM_MBUTTONUP:
-		{
-			const bool IsDown = (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN);
-			i32 button = 0;
-			
-			if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP)
-			{
-				button = 1;
-			}
-			else if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP)
-			{
-				button = 2;
-			}
-
-			DispatchEvent(MouseButtonEvent{ hwnd, LOWORD(lParam), HIWORD(lParam), button, IsDown });
-			break;
-		}
-
-		case WM_MOUSEMOVE: 
-		{
-			DispatchEvent(MouseMoveEvent{ hwnd, LOWORD(lParam), HIWORD(lParam) });
-			break;
-		}
-
-		case WM_MOUSEWHEEL:
-		case WM_MOUSEHWHEEL:
-		{
-			POINT pt = { LOWORD(lParam), HIWORD(lParam) };
-			::ScreenToClient(hwnd, &pt);
-			
-			i32 delta = GET_WHEEL_DELTA_WPARAM(wParam) / 120;
-			DispatchEvent(
-				MouseWheelEvent
-				{ 
-					hwnd, pt.x, pt.y, delta, 
-					(msg == WM_MOUSEWHEEL) 
-						? MouseWheelEvent::WheelType:: Vertical 
-						: MouseWheelEvent::WheelType::Horizontal 
-				});
-			break;
-		}
-		}
-
-		return ::DefWindowProcW(hwnd, msg, wParam, lParam);
 	}
 
 	LRESULT Window::StaticWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -424,9 +299,12 @@ namespace Ryu::Window
 	{
 		s_pendingEvents.push_back(event);
 
-		for (const auto& listener : m_eventListeners)
+		if (m_eventListeners.size() > 0)
 		{
-			listener(event);
+			for (const auto& listener : m_eventListeners)
+			{
+				listener(event);
+			}
 		}
 	}
 

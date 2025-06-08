@@ -1,18 +1,18 @@
 #pragma	once
-#include "Common/StandardTypes.h"
-#include <Windows.h>
+#include "Window/Input/KeyCode.h"
 #include <variant>
+#include <type_traits>
 
 namespace Ryu::Window
 {
-	struct CloseEvent    { HWND WindowHandle; };
+	struct CloseEvent { HWND WindowHandle; };
 	struct MinimizeEvent { HWND WindowHandle; };
 	struct MaximizeEvent { HWND WindowHandle; };
-	struct RestoreEvent  { HWND WindowHandle; };
+	struct RestoreEvent { HWND WindowHandle; };
 
 	struct MoveEvent
 	{
-		HWND WindowHandle; 
+		HWND WindowHandle;
 		i32 X;
 		i32 Y;
 	};
@@ -26,51 +26,55 @@ namespace Ryu::Window
 	struct ResizeEvent
 	{
 		HWND WindowHandle;
-		i32 Width = 0;
+		i32 Width  = 0;
 		i32 Height = 0;
 	};
 
 	struct KeyEvent
 	{
 		HWND WindowHandle;
-		i32 KeyCode      = -1;
-		bool IsRepeating = false;
-		bool IsDown      = false;
+		KeyCode KeyCode        = KeyCode::None;
+		KeyState State         = KeyState::Up;
+		ModifierKeys Modifiers = ModifierKeys::None;
+		bool IsRepeating       = false;
 	};
 
 	struct MouseButtonEvent
 	{
 		HWND WindowHandle;
-		i32 X = 0;
-		i32 Y = 0;
-		i32 Button = -1; // 0=left, 1=right, 2=middle
-		bool IsDown = false;
+		i32 X                  = 0;
+		i32 Y                  = 0;
+		KeyCode Button         = KeyCode::None;
+		KeyState State         = KeyState::Up;
+		ModifierKeys Modifiers = ModifierKeys::None;
 	};
 
 	struct MouseMoveEvent
 	{
 		HWND WindowHandle;
-		i32 X = 0;
-		i32 Y = 0;
+		i32 X                  = 0;
+		i32 Y                  = 0;
+		ModifierKeys Modifiers = ModifierKeys::None;
 	};
-	
+
 	struct MouseMoveRawEvent
 	{
 		HWND WindowHandle;
 		i32 X = 0;
 		i32 Y = 0;
+		ModifierKeys Modifiers = ModifierKeys::None;
 	};
-
 
 	struct MouseWheelEvent
 	{
 		enum class WheelType { Vertical, Horizontal };
 
 		HWND WindowHandle;
-		i32 X = 0;
-		i32 Y = 0;
-		i32 Delta = 0;
-		WheelType Type = WheelType::Vertical;
+		i32 X                  = 0;
+		i32 Y                  = 0;
+		i32 Delta              = 0;
+		WheelType Type         = WheelType::Vertical;
+		ModifierKeys Modifiers = ModifierKeys::None;
 	};
 
 	struct TextInputEvent
@@ -100,8 +104,18 @@ namespace Ryu::Window
 	>;
 
 	template<typename T>
-	concept EventListener = requires(T t, const WindowEvent& event)
+	concept EventListener = requires(T t, const WindowEvent & event)
 	{
 		{ t(event) } -> std::same_as<void>;
-	};		
+	};
+
+	template <typename T>
+	using EventType = std::decay_t<T>;
+
+	template <typename T, typename U>
+	static constexpr bool IsEventType()
+	{
+		return std::is_same_v<T, U>;
+	}
+
 }

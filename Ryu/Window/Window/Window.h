@@ -2,6 +2,7 @@
 #include "Common/ObjectMacros.h"
 #include "Window/Events.h"
 #include "Window/WindowConfig.h"
+#include "Window/Input/InputSystem.h"
 #include <unordered_map>
 #include <vector>
 #include <functional>
@@ -60,6 +61,9 @@ namespace Ryu::Window
 		
 		RYU_GET_ONLY_PROPERTY(IsResizable, bool);
 		NODISCARD bool GetIsResizable() const noexcept;
+		
+		RYU_GET_ONLY_PROPERTY(Input, InputSystem);
+		NODISCARD const InputSystem& GetInput() const noexcept { return m_input; }
 
 		template <EventListener T>
 		void AddEventListener(T&& listener)
@@ -93,12 +97,11 @@ namespace Ryu::Window
 
 		HWND m_hwnd = nullptr;
 		WindowConfig m_config;
+		InputSystem m_input;
 		std::vector<std::function<void(const WindowEvent&)>> m_eventListeners;
-		bool m_shouldClose= false;
-
-		// Resize tracking
-		bool m_isResizing = false;
 		std::pair<i32, i32> m_prevSize;
 		std::pair<i32, i32> m_currentSize;
+		bool m_shouldClose= false;
+		bool m_isResizing = false;
 	};
 }

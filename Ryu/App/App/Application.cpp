@@ -3,6 +3,7 @@
 #include "Logger/Sinks/DebugSink.h"
 #include "Logger/Sinks/ConsoleSink.h"
 #include "Logger/Sinks/FileSink.h"
+#include "Logger/Assert.h"
 #include "Utils/MessageBox.h"
 #include "Profiling/Profiling.h"
 #include <Elos/Window/Utils/WindowExtensions.h>
@@ -101,6 +102,18 @@ namespace Ryu::App
 		SetUpConnection<const Elos::Event::MouseButtonReleased&>(m_windowEventConnections, [this](const auto& e) { OnWindowMouseButtonReleasedEvent(e); });
 		SetUpConnection<const Elos::Event::MouseMoved&>(m_windowEventConnections,          [this](const auto& e) { OnWindowMouseMovedEvent(e);          });
 		SetUpConnection<const Elos::Event::MouseMovedRaw&>(m_windowEventConnections,       [this](const auto& e) { OnWindowMouseMovedRawEvent(e);       });
+	}
+
+	void App::Run()
+	{
+		RYU_ASSERT(m_window, "Application window not set");
+		RYU_ASSERT(m_window->IsOpen, "Application window is not open");
+
+		while (m_window->IsOpen)
+		{
+			m_window->Update();
+			m_window->ClearPendingEvents();
+		}
 	}
 }
 

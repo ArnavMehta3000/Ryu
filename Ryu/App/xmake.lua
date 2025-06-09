@@ -10,7 +10,8 @@ target("RyuApp")
 		"RyuUtils",
 		"RyuConfig",
 		"RyuProfiling",
-		"RyuMemory"
+		"RyuMemory",
+		"RyuWindow"
 	)
 
 	add_links("Dwmapi")

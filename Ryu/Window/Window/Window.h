@@ -6,10 +6,11 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
+#include <memory>
 
 namespace Ryu::Window
 {
-	class Window
+	class Window : public std::enable_shared_from_this<Ryu::Window::Window>
 	{
 		RYU_DISABLE_COPY_AND_MOVE(Window);
 	public:
@@ -53,19 +54,19 @@ namespace Ryu::Window
 		void Update();
 
 		RYU_PROPERTY(Title, std::string);
-		inline NODISCARD const std::string& GetTitle() const noexcept { return m_config.Title; }
+		inline const std::string& GetTitle() const noexcept { return m_config.Title; }
 		void SetTitle(const std::string& title);
 		
 		RYU_PROPERTY(Size, std::pair<i32, i32>);
-		inline NODISCARD const std::pair<i32, i32> GetSize() const noexcept { return { m_config.Width, m_config.Height }; }
+		inline const std::pair<i32, i32> GetSize() const noexcept { return { m_config.Width, m_config.Height }; }
 		void SetSize(i32 width, i32 height);
 		
 		RYU_PROPERTY(Position, std::pair<i32, i32>);
-		inline NODISCARD const std::pair<i32, i32> GetPosition() const noexcept { return { m_config.X, m_config.Y }; }
+		inline const std::pair<i32, i32> GetPosition() const noexcept { return { m_config.X, m_config.Y }; }
 		void SetPosition(i32 x, i32 y);
 		
 		RYU_PROPERTY(CanResize, bool);
-		NODISCARD bool GetCanResize() const noexcept;
+		bool GetCanResize() const noexcept;
 		void SetCanResize(bool canResize);
 		
 		RYU_SET_ONLY_PROPERTY(HasMaximizeButton, bool);
@@ -77,23 +78,26 @@ namespace Ryu::Window
 		RYU_SET_ONLY_PROPERTY(HasCloseButton, bool);
 		void SetHasCloseButton(bool hasCloseButton);
 
+		RYU_GET_ONLY_PROPERTY(IsOpen, bool);
+		bool GetIsOpen() const noexcept { return !m_shouldClose; }
+
 		RYU_GET_ONLY_PROPERTY(Handle, HWND);
-		NODISCARD HWND GetHandle() const noexcept { return m_hwnd; }
+		HWND GetHandle() const noexcept { return m_hwnd; }
 		
 		RYU_GET_ONLY_PROPERTY(IsVisible, bool);
-		NODISCARD bool GetIsVisible() const noexcept;
+		bool GetIsVisible() const noexcept;
 		
 		RYU_GET_ONLY_PROPERTY(IsMaximized, bool);
-		NODISCARD bool GetIsMaximized() const noexcept;
+		bool GetIsMaximized() const noexcept;
 		
 		RYU_GET_ONLY_PROPERTY(IsMinimized, bool);
-		NODISCARD bool GetIsMinimized() const noexcept;
+		bool GetIsMinimized() const noexcept;
 		
 		RYU_GET_ONLY_PROPERTY(IsResizable, bool);
-		NODISCARD bool GetIsResizable() const noexcept;
+		bool GetIsResizable() const noexcept;
 		
 		RYU_GET_ONLY_PROPERTY(Input, InputSystem);
-		NODISCARD const InputSystem& GetInput() const noexcept { return m_input; }
+		const InputSystem& GetInput() const noexcept { return m_input; }
 
 		template <EventListener T>
 		void AddEventListener(T&& listener)
@@ -120,18 +124,18 @@ namespace Ryu::Window
 		void HandleResizeTracking();
 		void EndResizeTracking();
 
-		static inline bool s_isWindowClassRegistered = false;
-		static inline const wchar_t* s_className = L"RyuWindow";
+		static inline bool                              s_isWindowClassRegistered = false;
+		static inline const wchar_t*                    s_className = L"RyuWindow";
 		static inline std::unordered_map<HWND, Window*> s_windowMap;
-		static inline std::vector<WindowEvent> s_pendingEvents;
+		static inline std::vector<WindowEvent>          s_pendingEvents;
 
-		HWND m_hwnd = nullptr;
-		Window::Config m_config;
-		InputSystem m_input;
+		HWND                                                 m_hwnd = nullptr;
+		Window::Config                                       m_config;
+		InputSystem                                          m_input;
 		std::vector<std::function<void(const WindowEvent&)>> m_eventListeners;
-		std::pair<i32, i32> m_prevSize;
-		std::pair<i32, i32> m_currentSize;
-		bool m_shouldClose= false;
-		bool m_isResizing = false;
+		std::pair<i32, i32>                                  m_prevSize;
+		std::pair<i32, i32>                                  m_currentSize;
+		bool                                                 m_shouldClose = true;
+		bool                                                 m_isResizing  = false;
 	};
 }

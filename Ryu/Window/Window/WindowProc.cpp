@@ -1,4 +1,5 @@
 #include "Window/Window.h"
+#include "Profiling/Profiling.h"
 
 /**
  * This file implements the Ryu::Window::Window::WWindowProc
@@ -8,10 +9,12 @@ namespace Ryu::Window
 {
 	LRESULT Window::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		RYU_PROFILE_SCOPE();
 		switch (msg)
 		{
 		case WM_CLOSE:
 		{
+			m_shouldClose = true;
 			DispatchEvent(CloseEvent{ hwnd });
 			break;
 		}

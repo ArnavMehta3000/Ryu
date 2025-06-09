@@ -3,6 +3,7 @@
 #include "Common/StandardTypes.h"
 #include "Utils/Timer.h"
 #include "Memory/Ref.h"
+#include "Window/Window.h"
 #include <Elos/Application/AppBase.h>
 #include <memory>
 
@@ -90,4 +91,20 @@ namespace Ryu::App
 	{
 		void SetUpDefaultLogger();
 	}
+
+
+	class App
+	{
+	public:
+		App() = default;
+
+		void Run();
+
+		RYU_PROPERTY(Window, std::shared_ptr<Window::Window>);
+		inline void SetWindow(std::shared_ptr<Window::Window> window) { m_window = window; }
+		inline NODISCARD std::shared_ptr<Window::Window> GetWindow() const { return m_window; }
+
+	private:
+		std::shared_ptr<Window::Window> m_window;
+	};
 }

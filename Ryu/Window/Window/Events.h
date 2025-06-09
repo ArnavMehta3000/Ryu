@@ -1,7 +1,9 @@
 #pragma	once
+#include "Common/Overload.h"
 #include "Window/Input/KeyCode.h"
 #include <variant>
 #include <type_traits>
+#include <utility>
 
 namespace Ryu::Window
 {
@@ -112,10 +114,42 @@ namespace Ryu::Window
 	template <typename T>
 	using EventType = std::decay_t<T>;
 
+	// Function to check if two types are the same (useful for visiting variants)
 	template <typename T, typename U>
 	static constexpr bool IsEventType()
 	{
 		return std::is_same_v<T, U>;
 	}
 
+	// Function to check if variant holds a specific type
+	template <typename T>
+	static constexpr bool HasEventType(const WindowEvent& event)
+	{
+		return std::holds_alternative<T>(event);
+	}
+
+	// Alias for std::get
+	template <typename T>
+	static constexpr auto AsEventType(const WindowEvent& event)
+	{
+		return std::get<T>(event);
+	}
+
+	namespace Internal
+	{
+		struct DefaultEventHandler
+		{
+			constexpr void operator()(const auto&) const noexcept {}
+		};
+	}
+
+
+	template<typename... T>
+	struct WindowEventVisitor : public Common::Overload<T..., Internal::DefaultEventHandler>
+	{
+		constexpr WindowEventVisitor(T... visitors)
+			: Common::Overload<T..., Internal::DefaultEventHandler>(visitors..., Internal::DefaultEventHandler{})
+		{
+		}
+	};
 }

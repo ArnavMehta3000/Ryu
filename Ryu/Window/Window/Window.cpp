@@ -1,5 +1,6 @@
 #include "Window/Window.h"
 #include "Utils/StringConv.h"
+#include "Profiling/Profiling.h"
 #include <stdexcept>
 
 namespace Ryu::Window
@@ -9,16 +10,20 @@ namespace Ryu::Window
 		, m_prevSize(config.Width, config.Height)
 		, m_currentSize(config.Width, config.Height)
 	{
+		RYU_PROFILE_SCOPE();
 		RegisterWindowClass();
 	}
 
 	Window::~Window()
 	{
+		RYU_PROFILE_SCOPE();
 		Destroy();
 	}
 
 	bool Window::Create()
 	{
+		RYU_PROFILE_SCOPE();
+
 		if (m_hwnd)
 		{
 			return true;
@@ -69,12 +74,14 @@ namespace Ryu::Window
 		{
 			Show();
 		}
-
+		
+		m_shouldClose = false;  // Set to true when window is closed
 		return true;
 	}
 
 	void Window::Destroy()
 	{
+		RYU_PROFILE_SCOPE();
 		if (m_hwnd) 
 		{
 			m_input.Shutdown();
@@ -103,6 +110,12 @@ namespace Ryu::Window
 
 	void Window::Update()
 	{
+		if (!m_hwnd)
+		{
+			return;
+		}
+
+		RYU_PROFILE_SCOPE();
 		m_input.UpdateStates();
 
 		MSG msg{};
@@ -231,6 +244,7 @@ namespace Ryu::Window
 		{
 			return;
 		}
+		RYU_PROFILE_SCOPE();
 
 		WNDCLASSEXW wc   = {};
 		wc.cbSize        = sizeof(WNDCLASSEXW);
@@ -297,6 +311,7 @@ namespace Ryu::Window
 
 	void Window::DispatchEvent(WindowEvent event)
 	{
+		RYU_PROFILE_SCOPE();
 		s_pendingEvents.push_back(event);
 
 		if (m_eventListeners.size() > 0)

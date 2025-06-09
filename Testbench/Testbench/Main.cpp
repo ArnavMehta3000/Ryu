@@ -16,6 +16,7 @@ RYU_MAIN()
 	std::shared_ptr<Window::Window> window = std::make_shared<Window::Window>();
 	window->Input.EnableRawMouseInput(true);
 	window->Create();
+	window->IsDarkMode = true;
 
 	const auto visitor = Window::WindowEventVisitor
 	{

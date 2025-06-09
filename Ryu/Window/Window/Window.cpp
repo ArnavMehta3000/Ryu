@@ -2,6 +2,7 @@
 #include "Utils/StringConv.h"
 #include "Profiling/Profiling.h"
 #include <stdexcept>
+#include <dwmapi.h>
 
 namespace Ryu::Window
 {
@@ -201,6 +202,17 @@ namespace Ryu::Window
 				::EnableMenuItem(system_menu, SC_CLOSE,
 					MF_BYCOMMAND | ((system_menu && hasCloseButton) ? MF_ENABLED : MF_GRAYED));
 			}
+		}
+	}
+
+	void Window::SetIsDarkMode(bool isDarkMode) const
+	{
+		if (m_hwnd)
+		{
+			BOOL enable = isDarkMode;
+
+			::DwmSetWindowAttribute(m_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &enable, sizeof(enable));
+			::SetWindowPos(m_hwnd, nullptr, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		}
 	}
 	

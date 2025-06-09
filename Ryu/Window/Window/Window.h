@@ -77,6 +77,9 @@ namespace Ryu::Window
 		
 		RYU_SET_ONLY_PROPERTY(HasCloseButton, bool);
 		void SetHasCloseButton(bool hasCloseButton);
+		
+		RYU_SET_ONLY_PROPERTY(IsDarkMode, bool);
+		void SetIsDarkMode(bool isDarkMode) const;
 
 		RYU_GET_ONLY_PROPERTY(IsOpen, bool);
 		bool GetIsOpen() const noexcept { return !m_shouldClose; }

@@ -7,7 +7,6 @@
 #include "Engine/Game/GameModuleLoader.h"
 #include <memory>
 
-
 namespace Ryu::Engine
 {
 	/**

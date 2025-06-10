@@ -17,6 +17,20 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
+		if (m_device)
+		{
+			m_device->GetCommandContext()->Flush();
+		}
+
+		// Process any pending releases for all frames
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			if (m_device)
+			{
+				m_device->ProcessDeferredReleases(i);
+			}
+		}
+
 		RYU_ASSERT(m_swapchain.GetRefCount() == 1);
 		RYU_ASSERT(m_device.GetRefCount() == 1);
 
@@ -32,11 +46,6 @@ namespace Ryu::Gfx
 			// Wait for the GPU to finish with the command allocator and 
 			// reset the allocator once the GPU is done with it
 
-			/*if (m_resizeRequested)
-			{
-				m_resizeRequested = false;
-				m_swapchain->Resize(m_width, m_height);
-			}*/
 			ctx->BeginFrame();
 
 			MAYBE_UNUSED DX12::GfxCmdList* const cmdList = ctx->GetGfxCmdList();

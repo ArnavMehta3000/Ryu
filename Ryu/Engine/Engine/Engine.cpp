@@ -74,8 +74,8 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 
 		// Make the application request a resize
-		m_onAppResizedConnection = m_app->GetWindowEventSignals ().OnResized.Connect(
-			[this](const Elos::Event::Resized& e) { g_resizeData = e; g_resizeRequested = true; });
+		m_onAppResizedConnection = m_app->GetWindowEventSignals().OnResized.Connect(
+			[](const Elos::Event::Resized& e) { g_resizeData = e; g_resizeRequested = true; });
 
 		// Init the application
 		return m_app->Init();

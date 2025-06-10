@@ -4,8 +4,20 @@
 #include <print>
 #include <iostream>
 
+
+/*
+Target user interface
+- Application (Standalone game/Editor) creates a window
+- 
+*/
+
+
 using namespace Ryu;
 
+struct TestInterface : public App::IApplication
+{
+	i32 X = 5;
+};
 
 RYU_USE_APP(TestApp)
 
@@ -13,31 +25,18 @@ RYU_MAIN()
 {
 	RYU_DBG_TRACK_MEM();
 
+	// Create window
 	std::shared_ptr<Window::Window> window = std::make_shared<Window::Window>();
-	window->Input.EnableRawMouseInput(true);
 	window->Create();
+	window->Input.EnableRawMouseInput(true);
 	window->IsDarkMode = true;
 
-	const auto visitor = Window::WindowEventVisitor
-	{
-		[](const Window::ResizeEvent& e)
-		{
-			std::println("Resizing window {}x{}", e.Width, e.Height);
-		},
-		[](const Window::CloseEvent& e)
-		{
-			std::println("Closing window");
-		},
-	};
-	
-
-	window->AddEventListener([&visitor](const Window::WindowEvent& event)
-	{
-		std::visit(visitor, event);
-	});
+	// Create application interface
+	std::shared_ptr<App::IApplication> appInterface = std::make_shared<TestInterface>();
 
     App::App app;
     app.Window = window;
+	app.Application = appInterface;
     app.Run();
 
 	//Ryu::Engine::Run();

@@ -10,7 +10,11 @@
 
 namespace Ryu::App
 {
-	//RYU_IMPLEMENT_CONFIG(AppConfig);
+	namespace Internal
+	{
+		static std::string_view g_appWindowNotSetError = "Application window not set";
+		static std::string_view g_appWindowNotOpenError = "Application window not open";
+	}
 
 	Application::Application() : Elos::AppBase()
 	{
@@ -106,10 +110,10 @@ namespace Ryu::App
 
 	void App::Run()
 	{
-		RYU_ASSERT(m_window, "Application window not set");
-		RYU_ASSERT(m_window->IsOpen, "Application window is not open");
+		RYU_ASSERT(m_window, Internal::g_appWindowNotSetError);
+		RYU_ASSERT(m_window->IsOpen, Internal::g_appWindowNotOpenError);
 
-		while (m_window->IsOpen)
+		while (m_window && m_window->IsOpen)
 		{
 			m_window->Update();
 			m_window->ClearPendingEvents();

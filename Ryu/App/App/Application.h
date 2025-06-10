@@ -92,6 +92,14 @@ namespace Ryu::App
 		void SetUpDefaultLogger();
 	}
 
+	// The application interface class (contains core systems)
+	class IApplication
+	{
+	public:
+		virtual ~IApplication() = default;
+		i32 Y = 2;
+	};
+
 
 	class App
 	{
@@ -104,7 +112,24 @@ namespace Ryu::App
 		inline void SetWindow(std::shared_ptr<Window::Window> window) { m_window = window; }
 		inline NODISCARD std::shared_ptr<Window::Window> GetWindow() const { return m_window; }
 
+		RYU_PROPERTY(Application, std::shared_ptr<IApplication>);
+		inline void SetApplication(std::shared_ptr<IApplication> app) { m_appInterface = app; }
+		
+		template <class T = IApplication> requires std::is_base_of_v<IApplication, T>
+		inline NODISCARD auto GetApplication() const
+		{
+			if constexpr (std::is_same_v<T, IApplication>)
+			{
+				return m_appInterface;
+			}
+			else 
+			{
+				return std::dynamic_pointer_cast<T>(m_appInterface);
+			}
+		}
+
 	private:
 		std::shared_ptr<Window::Window> m_window;
+		std::shared_ptr<IApplication> m_appInterface;
 	};
 }

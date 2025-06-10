@@ -1,11 +1,18 @@
 #include "Window/Window.h"
 #include "Utils/StringConv.h"
+#include "Logger/Assert.h"
 #include "Profiling/Profiling.h"
 #include <stdexcept>
 #include <dwmapi.h>
 
 namespace Ryu::Window
 {
+	namespace Internal
+	{
+		static const char* g_windowNotCreatedError = "Window not created. Call Window::Create() first.";
+		static const char* g_windowAlreadyCreatedError = "Trying to create already created window.";
+	}
+
 	Window::Window(const Window::Config& config)
 		: m_config(config)
 		, m_prevSize(config.Width, config.Height)
@@ -24,6 +31,7 @@ namespace Ryu::Window
 	bool Window::Create()
 	{
 		RYU_PROFILE_SCOPE();
+		RYU_ASSERT(!m_hwnd, Internal::g_windowAlreadyCreatedError);
 
 		if (m_hwnd)
 		{
@@ -83,6 +91,7 @@ namespace Ryu::Window
 	void Window::Destroy()
 	{
 		RYU_PROFILE_SCOPE();
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		if (m_hwnd) 
 		{
 			m_input.Shutdown();
@@ -94,6 +103,7 @@ namespace Ryu::Window
 
 	void Window::Show()
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		if (m_hwnd)
 		{
 			ShowWindow(m_hwnd, SW_SHOW);
@@ -103,14 +113,16 @@ namespace Ryu::Window
 
 	void Window::Hide()
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		if (m_hwnd)
 		{
-			ShowWindow(m_hwnd, SW_HIDE);
+			::ShowWindow(m_hwnd, SW_HIDE);
 		}
 	}
 
 	void Window::Update()
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		if (!m_hwnd)
 		{
 			return;
@@ -129,6 +141,7 @@ namespace Ryu::Window
 
 	void Window::SetTitle(const std::string& title)
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		m_config.Title = title;
 
 		if (m_hwnd)
@@ -139,6 +152,8 @@ namespace Ryu::Window
 
 	void Window::SetSize(i32 width, i32 height)
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
+
 		m_config.Width  = width;
 		m_config.Height = height;
 		m_prevSize = m_currentSize = { width, height };
@@ -160,6 +175,8 @@ namespace Ryu::Window
 
 	void Window::SetPosition(i32 x, i32 y)
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
+
 		m_config.X = x;
 		m_config.Y = y;
 
@@ -171,6 +188,7 @@ namespace Ryu::Window
 
 	bool Window::GetCanResize() const noexcept
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		return m_hwnd && m_config.IsResizable;
 	}
 
@@ -194,6 +212,7 @@ namespace Ryu::Window
 
 	void Window::SetHasCloseButton(bool hasCloseButton)
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		m_config.HasCloseButton = hasCloseButton;
 		if (m_hwnd) 
 		{
@@ -207,6 +226,7 @@ namespace Ryu::Window
 
 	void Window::SetIsDarkMode(bool isDarkMode) const
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		if (m_hwnd)
 		{
 			BOOL enable = isDarkMode;
@@ -277,6 +297,7 @@ namespace Ryu::Window
 
 	void Window::UpdateWindowStyle()
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		if (!m_hwnd)
 		{
 			return;
@@ -359,16 +380,19 @@ namespace Ryu::Window
 	
 	bool Window::GetIsVisible() const noexcept
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		return m_hwnd && ::IsWindowVisible(m_hwnd);
 	}
-	
+
 	bool Window::GetIsMaximized() const noexcept
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		return m_hwnd && ::IsZoomed(m_hwnd);
 	}
-	
+
 	bool Window::GetIsMinimized() const noexcept
 	{
+		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		return m_hwnd && ::IsIconic(m_hwnd);
 	}
 	

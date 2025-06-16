@@ -8,16 +8,12 @@
 #include <wrl/event.h>
 
 #if !defined(RYU_GAME_AS_DLL)
-#include "App/ApplicationCreator.h"
 #endif
 
 #pragma comment(lib, "runtimeobject.lib")
 
 namespace Ryu::Engine
 {
-	static bool g_resizeRequested = false;
-	Elos::Event::Resized g_resizeData{};
-
 	Engine::Engine()
 		: m_app(nullptr)
 	{
@@ -36,9 +32,9 @@ namespace Ryu::Engine
 
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
 
-#if !defined(RYU_GAME_AS_DLL)  // If the game is not compiled as a DLL then create the application
-		m_app = std::move(std::unique_ptr<App::Application>(CreateApplication()));
-#endif
+//#if !defined(RYU_GAME_AS_DLL)  // If the game is not compiled as a DLL then create the application
+//		m_app = std::move(std::unique_ptr<App::Application>(CreateApplication()));
+//#endif
 
 		// Check if debugger is attached
 		if (Common::Globals::IsDebuggerAttached())
@@ -46,19 +42,11 @@ namespace Ryu::Engine
 			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "--- A debugger is attached to the Engine!---");
 		}
 
-		RYU_PROFILE_BOOKMARK("Initialize runtime application");
-		if (InitRuntime())
+		if (m_app && m_app->GetWindow())
 		{
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine application initialized successfully");
+			RYU_PROFILE_BOOKMARK("Initialize graphics");
+			m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 		}
-		else
-		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine application");
-			return false;
-		}
-
-		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
@@ -69,18 +57,6 @@ namespace Ryu::Engine
 		return true;
 	}
 
-	bool Engine::InitRuntime()
-	{
-		RYU_PROFILE_SCOPE();
-
-		// Make the application request a resize
-		m_onAppResizedConnection = m_app->GetWindowEventSignals().OnResized.Connect(
-			[](const Elos::Event::Resized& e) { g_resizeData = e; g_resizeRequested = true; });
-
-		// Init the application
-		return m_app->Init();
-	}
-
 	void Engine::Shutdown()
 	{
 		RYU_PROFILE_SCOPE();
@@ -88,12 +64,6 @@ namespace Ryu::Engine
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
 
 		m_scriptEngine.reset();
-
-		// Disconnect resized event
-		m_onAppResizedConnection.Disconnect();
-
-
-		m_app->Shutdown();
 		m_app.reset();
 		
 #if defined(RYU_GAME_AS_DLL)
@@ -109,40 +79,6 @@ namespace Ryu::Engine
 		return m_timer.GetTotalTime();
 	}
 
-	void Engine::Run()
-	{
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Running the Engine");
-
-		Microsoft::WRL::Wrappers::RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
-		if (!Init())
-		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");
-			return;
-		}
-
-		RYU_ASSERT(m_app, "Application not initialized");
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Starting Engine main loop");
-
-		auto appWindow = m_app->GetWindow();
-		while (appWindow->IsOpen())
-		{
-			m_app->ProcessWindowEvents();
-
-			m_timer.Tick([&](const Utils::TimeInfo& info)
-			{
-				DoFrame(info);
-			});
-
-			m_renderer->Render();
-
-			RYU_PROFILE_MARK_FRAME();
-		}
-
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Stopping Engine main loop");
-
-		Shutdown();
-	}
-
 	void Engine::Quit() const noexcept
 	{
 		if (m_app)
@@ -152,6 +88,65 @@ namespace Ryu::Engine
 			// Send a message to the application window to close
 			::SendMessage(m_app->GetWindow()->GetHandle(), WM_CLOSE, 0, 0);
 		}
+	}
+
+	void Engine::RunApp(std::shared_ptr<App::App> app)
+	{
+		RYU_ASSERT(app, "Application cannot be nullptr");
+
+		Microsoft::WRL::Wrappers::RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
+		m_app = app;
+		m_app->PreInit();  // todo maybe move logic to engine
+
+		// Init engine
+		if (!Init())
+		{
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");
+			return;
+		}
+
+		// TODO: Hookup window events (eg. resize for renderer)
+		try
+		{
+			m_app->m_isRunning = m_app->OnInit();
+			if (m_app->IsRunning())
+			{
+				while (m_app->IsRunning())
+				{
+					m_timer.Tick([this](const Utils::TimeInfo& info)
+					{
+						m_app->ProcessWindowEvents();
+						m_app->OnTick(info);
+					});
+				}
+			}
+			else
+			{
+				RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize application! Exiting.");
+			}
+			m_app->OnShutdown();
+			m_app->PostShutdown();
+		}
+		catch (const Exception& e)
+		{
+			using namespace Ryu::Logging;
+			// Custom version of the RYU_LOG_FATAL macro that includes a stack our assertion exception
+			Logger::Get().Log(
+				AssertLog,
+				LogLevel::Fatal,
+				LogMessage
+				{
+					.Message = e.what(),
+					.Stacktrace = e.GetTrace()
+				});
+		}
+		catch (const std::exception& e)
+		{
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Unhandled exception: {}", e.what());
+		}
+
+		// Shutdown engine
+		Shutdown();
 	}
 
 	void RYU_API Engine::RunWithGameModule(MAYBE_UNUSED const std::string& gameDllPath)
@@ -197,20 +192,6 @@ namespace Ryu::Engine
 #else
 		return true;
 #endif
-	}
-
-	void Engine::DoFrame(const Utils::TimeInfo& timeInfo)
-	{
-		RYU_PROFILE_SCOPE();
-
-		// Resize before doing the frame
-		if (g_resizeRequested)
-		{
-			OnAppResize(g_resizeData.Size.Width, g_resizeData.Size.Height);
-			g_resizeRequested = false;
-		}
-
-		m_app->Tick(timeInfo);
 	}
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept

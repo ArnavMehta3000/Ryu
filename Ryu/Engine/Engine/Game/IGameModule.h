@@ -26,10 +26,10 @@ namespace Ryu::Engine
 
 #if defined(RYU_GAME_AS_DLL)
 #define RYU_IMPLEMENT_GAME_MODULE(GameModuleClass)                       \
-    extern "C" RYU_GAME_API Ryu::Engine::IGameModule* CreateGameModule() \
+	extern "C" RYU_GAME_API Ryu::Engine::IGameModule* CreateGameModule() \
 	{                                                                    \
-        return new GameModuleClass();                                    \
-    }
+		return new GameModuleClass();                                    \
+	}
 #else
 #define RYU_IMPLEMENT_GAME_MODULE(GameModuleClass)
 #endif

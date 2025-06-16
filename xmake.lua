@@ -14,6 +14,7 @@ add_plugindirs("Xmake/Plugins")
 includes("Xmake/Packages.lua")
 includes("Xmake/Options.lua")
 includes("Xmake/Rules/ExportAPI.lua")
+includes("Xmake/Rules/RyuGame.lua")
 
 -- Update compile commands
 add_rules("plugin.compile_commands.autoupdate", { outputdir = "build", lsp = "clangd" })
@@ -52,11 +53,6 @@ add_links("user32.lib")
 -- Bring standard types namespace to global namespace
 if has_config("use-std-types-globally") then
 	add_defines("RYU_USING_STD_TYPES_GLOBALLY")
-end
-
--- If the game is being built as a DLL
-if has_config("ryu-game-as-dll") then
-	add_defines("RYU_GAME_AS_DLL")
 end
 
 -- Add compilation success to all targets

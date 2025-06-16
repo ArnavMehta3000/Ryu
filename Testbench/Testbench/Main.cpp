@@ -1,24 +1,34 @@
 #include "Engine/Entry/EntryPoint.h"
-#include "Testbench/TestApp.h"
-#include <Window/Window.h>
-#include <print>
-#include <iostream>
-
+#include "Engine/Engine.h"
+#include "Testbench/TestbenchApp.h"
 
 using namespace Ryu;
 
-RYU_USE_APP(TestApp)
+RYU_USE_APP(TestbenchApp)
 
 RYU_MAIN()
 {
 	RYU_DBG_TRACK_MEM();
 
-	App::App app(Window::WindowConfig::Get());
-	std::shared_ptr<Window::Window> window = app.GetWindow();
-	
-	app.Run();
+	auto app = std::make_shared<App::App>(Window::WindowConfig::Get());
+	auto window = app->GetWindow();
 
-	//Ryu::Engine::Run();
+	auto visitor = Window::WindowEventVisitor
+	{
+		[&](const Window::KeyEvent& e)
+		{
+			using namespace Ryu::Window;
+
+			if (e.KeyCode == KeyCode::Escape)
+			{
+				app->Exit();
+			}
+		}
+	};
+
+	window->AddEventListener([&visitor](const Window::WindowEvent& e) { std::visit(visitor, e); });
+
+	Ryu::Engine::Engine::Get().RunApp(app);
 
 	return 0;
 }

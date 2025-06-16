@@ -11,78 +11,6 @@
 
 namespace Ryu::App
 {
-	Application::Application() : Elos::AppBase()
-	{
-		RYU_PROFILE_SCOPE();
-	}
-
-	Application::~Application()
-	{
-		RYU_PROFILE_SCOPE();
-		m_windowEventConnections.DisconnectAll();
-	}
-
-	bool Application::Init()
-	{
-		RYU_PROFILE_SCOPE();
-		::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-		
-		AppBase::InitializeWindow();
-		Elos::WindowExtensions::EnableDarkMode(m_window->GetHandle(), true);
-		m_window->RequestFocus();
-
-		return OnInit();
-	}
-
-	void Application::Shutdown()
-	{
-		RYU_PROFILE_SCOPE();
-		OnShutdown();
-	}
-
-	void Application::Tick(const Utils::TimeInfo& timeInfo)
-	{
-		RYU_PROFILE_SCOPE();
-		OnTick(timeInfo);
-	}
-
-	bool Application::OnInit()
-	{
-		RYU_PROFILE_SCOPE();
-
-		const AppConfig& config = AppConfig::Get();
-		const auto& minSize = config.WindowMinSize.Get();
-		m_window->SetMinimumSize({ minSize[0], minSize[1] });
-
-		return true;
-	}
-
-	void Application::OnShutdown()
-	{
-		RYU_PROFILE_SCOPE();
-	}
-	
-	void Application::GetWindowCreateInfo(Elos::WindowCreateInfo& outCreateInfo)
-	{
-		RYU_PROFILE_SCOPE();
-		const AppConfig& config = AppConfig::Get();
-		const auto& size        = config.WindowSize.Get();
-		const auto& pos         = config.WindowPos.Get();
-
-		outCreateInfo.Title    = config.WindowTitle;
-		outCreateInfo.Size     = { size[0], size[1] };
-		outCreateInfo.Position = { pos[0], pos[1] };
-	}
-
-	void Application::OnWindowClosedEvent()
-	{
-		if (m_window)
-		{
-			RYU_PROFILE_BOOKMARK("On window closed event");
-			m_window->Close();
-		}
-	}
-
 	App::App(const Window::Window::Config& config)
 	{
 		RYU_PROFILE_SCOPE();
@@ -94,33 +22,14 @@ namespace Ryu::App
 		m_window->IsDarkMode = true;
 	}
 
-	void App::Run()
+	void App::Exit()
 	{
-		RYU_ASSERT(m_window, "Application window not set");
-		RYU_ASSERT(m_window->IsOpen, "Application window not open");
-
-		try
+		m_isRunning = false;
+		
+		// Send a close message to the window
+		if (m_window && m_window->IsOpen)
 		{
-			PreInit();
-			RunInternal();
-			PostShutdown();
-		}
-		catch (const Exception& e)
-		{
-			using namespace Ryu::Logging;
-			// Custom version of the RYU_LOG_FATAL macro that includes a stack our assertion exception
-			Logger::Get().Log(
-				AssertLog,
-				LogLevel::Fatal,
-				LogMessage
-				{
-					.Message = e.what(),
-					.Stacktrace = e.GetTrace()
-				});
-		}
-		catch (const std::exception& e)
-		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(App), "Unhandled exception: {}", e.what());
+			::SendMessage(m_window->GetHandle(), WM_CLOSE, 0, 0);
 		}
 	}
 
@@ -139,7 +48,7 @@ namespace Ryu::App
 		SetupDefaultLogger();
 	}
 
-	void App::RunInternal()
+	void App::ProcessWindowEvents()
 	{
 		// Update window events
 		while (m_window && m_window->IsOpen)

@@ -8,6 +8,7 @@ namespace fs = std::filesystem;
 
 namespace Ryu::App
 {
+	// TODO: Make this a member of the App class and not a Singleton
 	class RYU_API PathManager : public Utils::Singleton<PathManager>
 	{
 		RYU_SINGLETON_DECLARE(PathManager);

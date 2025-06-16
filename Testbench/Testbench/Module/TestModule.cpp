@@ -1,9 +1,9 @@
 #include "TestModule.h"
-#include "Testbench/TestApp.h"
+#include "Testbench/TestbenchApp.h"
 
 Ryu::App::Application* TestModule::CreateApplication()
 {
-	return new TestApp();
+	return nullptr;
 }
 
 constexpr const char* TestModule::GetName() const

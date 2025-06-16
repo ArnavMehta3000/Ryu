@@ -1,16 +1,5 @@
 target("RyuTestbench")
-	-- If building as DLL
-	if has_config("ryu-game-as-dll") then
-		set_kind("shared")
-		add_defines("RYU_GAME_AS_DLL")
-	else
-		set_kind("binary")
-		
-		-- Use WinMain only in release mode
-		if not is_mode("debug", "releasedbg") then
-			add_rules("win.sdk.application")
-		end
-	end
+	add_rules("RyuGame")  -- Build this target as the game project
 
 	set_default(not get_config("ryu-game-as-dll"))
 	set_group("Ryu/Testing")

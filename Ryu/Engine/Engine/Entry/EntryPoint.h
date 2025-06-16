@@ -6,7 +6,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Entry/EngineMain.h"
 #include "Profiling/Profiling.h"
-#include "Core/PathManager.h"
+#include "App/Utils/PathManager.h"
 
 #if !defined(RYU_GAME_AS_DLL)
 // Define the extern function to create the runtime
@@ -27,14 +27,11 @@ namespace Ryu::Engine
 		static void PreInit()
 		{
 			// Init path manager to get paths
-			auto& pathManager = Core::PathManager::Get();
+			auto& pathManager = App::PathManager::Get();
 			pathManager.Init();
 
 			// Setup config
 			Config::ConfigManager::Get().Initialize((pathManager.GetProjectDir() / "Config").string());
-
-			// Setup logger
-			App::Internal::SetUpDefaultLogger();
 		}
 
 		static void PostShutdown()
@@ -47,7 +44,7 @@ namespace Ryu::Engine
 		{
 			RYU_LOG_DECLARE_CATEGORY(EngineRunner);
 
-			auto& pathManager = Core::PathManager::Get();
+			auto& pathManager = App::PathManager::Get();
 			auto& engine = Engine::Engine::Get();
 
 			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(EngineRunner),

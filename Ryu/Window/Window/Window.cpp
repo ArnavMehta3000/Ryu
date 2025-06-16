@@ -15,10 +15,11 @@ namespace Ryu::Window
 
 	Window::Window(const Window::Config& config)
 		: m_config(config)
-		, m_prevSize(config.Width, config.Height)
-		, m_currentSize(config.Width, config.Height)
+		, m_prevSize(config.WindowSize[0], config.WindowSize[1])
+		, m_currentSize(config.WindowSize[0], config.WindowSize[1])
 	{
 		RYU_PROFILE_SCOPE();
+		::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 		RegisterWindowClass();
 	}
 
@@ -41,20 +42,23 @@ namespace Ryu::Window
 		DWORD style = GetWindowStyle();
 		DWORD exStyle = GetExtendedWindowStyle();
 
-		RECT windowRect{ 0, 0, static_cast<LONG>(m_config.Width), static_cast<LONG>(m_config.Height) };
+		RECT windowRect{ 0, 0, static_cast<LONG>(m_config.WindowSize[0]), static_cast<LONG>(m_config.WindowSize[1]) };
 		::AdjustWindowRectEx(&windowRect, style, FALSE, exStyle);
 
-		const i32 windowWidth = windowRect.right - windowRect.left;
+		const i32 windowWidth  = windowRect.right - windowRect.left;
 		const i32 windowHeight = windowRect.bottom - windowRect.top;
 
 		const std::wstring windowTitle = Utils::ToWideStr(m_config.Title);
 
 		// Center on screen
-		if (m_config.X == CW_USEDEFAULT && m_config.Y == CW_USEDEFAULT)
+		if (m_config.WindowPos[0] == CW_USEDEFAULT && m_config.WindowPos[1] == CW_USEDEFAULT)
 		{
 			const HDC screenDC = ::GetDC(nullptr);
-			m_config.X         = ::GetDeviceCaps(screenDC, HORZRES) / 2 - windowWidth / 2;
-			m_config.Y         = ::GetDeviceCaps(screenDC, VERTRES) / 2 - windowHeight / 2;
+			m_config.WindowPos =
+			{
+				::GetDeviceCaps(screenDC, HORZRES) / 2 - windowWidth / 2,
+				::GetDeviceCaps(screenDC, VERTRES) / 2 - windowHeight / 2
+			};
 			::ReleaseDC(nullptr, screenDC);
 		}
 
@@ -63,7 +67,7 @@ namespace Ryu::Window
 			s_className,
 			windowTitle.c_str(),
 			style,
-			m_config.X, m_config.Y,
+			m_config.WindowPos[0], m_config.WindowPos[1],
 			windowWidth, windowHeight,
 			nullptr,  // Parent
 			nullptr,  // Menu
@@ -101,7 +105,7 @@ namespace Ryu::Window
 		}
 	}
 
-	void Window::Show()
+	void Window::Show() const
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		if (m_hwnd)
@@ -111,7 +115,7 @@ namespace Ryu::Window
 		}
 	}
 
-	void Window::Hide()
+	void Window::Hide() const
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		if (m_hwnd)
@@ -154,8 +158,7 @@ namespace Ryu::Window
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 
-		m_config.Width  = width;
-		m_config.Height = height;
+		m_config.WindowSize = { width, height };
 		m_prevSize = m_currentSize = { width, height };
 
 		if (m_hwnd)
@@ -177,9 +180,7 @@ namespace Ryu::Window
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 
-		m_config.X = x;
-		m_config.Y = y;
-
+		m_config.WindowPos = { x, y };
 		if (m_hwnd)
 		{
 			::SetWindowPos(m_hwnd, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
@@ -265,6 +266,7 @@ namespace Ryu::Window
 			}
 		}
 
+		// Pass messages to window if valid
 		return window 
 			? window->WindowProc(hwnd, msg, wParam, lParam) 
 			: ::DefWindowProcW(hwnd, msg, wParam, lParam);

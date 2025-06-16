@@ -1,5 +1,5 @@
 #include "Engine/Engine.h"
-#include "Core/PathManager.h"
+#include "App/Utils/PathManager.h"
 #include "Logger/Assert.h"
 #include "Logger/Logger.h"
 #include "Graphics/GraphicsConfig.h"
@@ -62,7 +62,7 @@ namespace Ryu::Engine
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
-			Core::PathManager::Get().GetProjectDir() / "Scripts").string());
+			App::PathManager::Get().GetProjectDir() / "Scripts").string());
 
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialized successfully");
 

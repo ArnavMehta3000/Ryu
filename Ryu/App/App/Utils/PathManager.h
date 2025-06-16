@@ -6,7 +6,7 @@
 
 namespace fs = std::filesystem;
 
-namespace Ryu::Core
+namespace Ryu::App
 {
 	class RYU_API PathManager : public Utils::Singleton<PathManager>
 	{

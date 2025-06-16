@@ -1,7 +1,7 @@
-#include "Core/PathManager.h"
+#include "App/Utils/PathManager.h"
 #include <toml++/toml.hpp>
 
-namespace Ryu::Core
+namespace Ryu::App
 {
 	void PathManager::Init()
 	{
@@ -11,14 +11,14 @@ namespace Ryu::Core
 
 	fs::path PathManager::FindRootDirectory()
 	{
-        // Start from current path and look for Ryu.toml marker file that identifies root Ryu directory
-        fs::path currentPath = fs::current_path();
-        while (!fs::exists(currentPath / "Ryu.toml")
+		// Start from current path and look for Ryu.toml marker file that identifies root Ryu directory
+		fs::path currentPath = fs::current_path();
+		while (!fs::exists(currentPath / "Ryu.toml")
 			&& currentPath.has_parent_path())
 		{
-            currentPath = currentPath.parent_path();
-        }
-        return currentPath;
+			currentPath = currentPath.parent_path();
+		}
+		return currentPath;
 	}
 
 	void PathManager::LoadConfig()

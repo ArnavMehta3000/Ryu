@@ -16,10 +16,9 @@ namespace Ryu::Window
 	public:
 		struct Config  // Internal config representation
 		{
-			i32 Width;
-			i32 Height;
-			i32 X;
-			i32 Y;
+			std::array<i32, 2> WindowSize;
+			std::array<i32, 2> WindowMinSize;
+			std::array<i32, 2> WindowPos;			
 			std::string Title;
 			bool IsResizable;
 			bool HasMinimizeButton;
@@ -28,10 +27,9 @@ namespace Ryu::Window
 			bool IsVisible;
 
 			Config(const WindowConfig& config)
-				: Width(config.Width)
-				, Height(config.Height)
-				, X(config.X)
-				, Y(config.Y)
+				: WindowSize(config.WindowSize.Get())
+				, WindowMinSize(config.WindowMinSize.Get())
+				, WindowPos(config.WindowPos.Get())
 				, Title(config.Title)
 				, IsResizable(config.IsResizable)
 				, HasMinimizeButton(config.HasMinimizeButton)
@@ -49,8 +47,8 @@ namespace Ryu::Window
 
 		bool Create();
 		void Destroy();
-		void Show();
-		void Hide();
+		void Show() const;
+		void Hide() const;
 		void Update();
 
 		RYU_PROPERTY(Title, std::string);
@@ -58,11 +56,11 @@ namespace Ryu::Window
 		void SetTitle(const std::string& title);
 		
 		RYU_PROPERTY(Size, std::pair<i32, i32>);
-		inline const std::pair<i32, i32> GetSize() const noexcept { return { m_config.Width, m_config.Height }; }
+		inline const std::pair<i32, i32> GetSize() const noexcept { return m_config.WindowSize; }
 		void SetSize(i32 width, i32 height);
 		
 		RYU_PROPERTY(Position, std::pair<i32, i32>);
-		inline const std::pair<i32, i32> GetPosition() const noexcept { return { m_config.X, m_config.Y }; }
+		inline const std::pair<i32, i32> GetPosition() const noexcept { return m_config.WindowPos; }
 		void SetPosition(i32 x, i32 y);
 		
 		RYU_PROPERTY(CanResize, bool);

@@ -5,7 +5,7 @@ target("RyuApp")
 	add_files("**.cpp", { unity_group = "Application" })
 	add_headerfiles("**.h")
 
-	add_packages("Elos", { public = true })
+	add_packages("Elos", "entt", { public = true })
 	add_deps(
 		"RyuUtils",
 		"RyuConfig",

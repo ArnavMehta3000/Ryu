@@ -19,6 +19,14 @@ namespace Ryu::Window
 			break;
 		}
 
+		case WM_GETMINMAXINFO:
+		{
+			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+			lpMMI->ptMinTrackSize.x = static_cast<LONG>(m_config.WindowMinSize[0]);
+			lpMMI->ptMinTrackSize.y = static_cast<LONG>(m_config.WindowMinSize[1]);
+			break;
+		}
+
 		case WM_ENTERSIZEMOVE:
 		{
 			HandleResizeTracking();
@@ -33,11 +41,10 @@ namespace Ryu::Window
 
 		case WM_SIZE:
 		{
-			const i32 width  = LOWORD(lParam);
-			const i32 height = HIWORD(lParam);
-			m_config.Width   = width;
-			m_config.Height  = height;
-			m_currentSize    = { width, height };
+			const i32 width     = LOWORD(lParam);
+			const i32 height    = HIWORD(lParam);
+			m_config.WindowSize = { width, height };
+			m_currentSize       = { width, height };
 
 			if (wParam == SIZE_MINIMIZED)
 			{
@@ -69,8 +76,7 @@ namespace Ryu::Window
 			const i32 xPos = (i32)(short)LOWORD(lParam);
 			const i32 yPos = (i32)(short)HIWORD(lParam);
 
-			m_config.X = xPos;
-			m_config.Y = yPos;
+			m_config.WindowPos = { xPos, yPos };
 
 			DispatchEvent(MoveEvent{ hwnd, xPos, yPos });
 			break;

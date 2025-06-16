@@ -6,20 +6,14 @@
 #include "Logger/Assert.h"
 #include "Utils/MessageBox.h"
 #include "Profiling/Profiling.h"
+#include "App/Utils/PathManager.h"
 #include <Elos/Window/Utils/WindowExtensions.h>
 
 namespace Ryu::App
 {
-	namespace Internal
-	{
-		static std::string_view g_appWindowNotSetError = "Application window not set";
-		static std::string_view g_appWindowNotOpenError = "Application window not open";
-	}
-
 	Application::Application() : Elos::AppBase()
 	{
 		RYU_PROFILE_SCOPE();
-		ConfigureConnections();
 	}
 
 	Application::~Application()
@@ -89,75 +83,119 @@ namespace Ryu::App
 		}
 	}
 
-	void Application::ConfigureConnections()
+	App::App(const Window::Window::Config& config)
 	{
 		RYU_PROFILE_SCOPE();
-		SetUpConnection<const Elos::Event::Closed&>(m_windowEventConnections,              [this](const auto&)   { OnWindowClosedEvent();               });
-		SetUpConnection<const Elos::Event::FocusLost&>(m_windowEventConnections,           [this](const auto& e) { OnWindowFocusLostEvent(e);           });
-		SetUpConnection<const Elos::Event::FocusGained&>(m_windowEventConnections,         [this](const auto& e) { OnWindowFocusGainedEvent(e);         });
-		SetUpConnection<const Elos::Event::MouseEntered&>(m_windowEventConnections,        [this](const auto& e) { OnWindowMouseEnteredEvent(e);        });
-		SetUpConnection<const Elos::Event::MouseLeft&>(m_windowEventConnections,           [this](const auto& e) { OnWindowMouseLeftEvent(e);           });
-		SetUpConnection<const Elos::Event::Resized&>(m_windowEventConnections,             [this](const auto& e) { OnWindowResizedEvent(e);             });
-		SetUpConnection<const Elos::Event::TextInput&>(m_windowEventConnections,           [this](const auto& e) { OnWindowTextInputEvent(e);           });
-		SetUpConnection<const Elos::Event::KeyPressed&>(m_windowEventConnections,          [this](const auto& e) { OnWindowKeyPressedEvent(e);          });
-		SetUpConnection<const Elos::Event::KeyReleased&>(m_windowEventConnections,         [this](const auto& e) { OnWindowKeyReleasedEvent(e);         });
-		SetUpConnection<const Elos::Event::MouseWheelScrolled&>(m_windowEventConnections,  [this](const auto& e) { OnWindowMouseWheelScrolledEvent(e);  });
-		SetUpConnection<const Elos::Event::MouseButtonPressed&>(m_windowEventConnections,  [this](const auto& e) { OnWindowMouseButtonPressedEvent(e);  });
-		SetUpConnection<const Elos::Event::MouseButtonReleased&>(m_windowEventConnections, [this](const auto& e) { OnWindowMouseButtonReleasedEvent(e); });
-		SetUpConnection<const Elos::Event::MouseMoved&>(m_windowEventConnections,          [this](const auto& e) { OnWindowMouseMovedEvent(e);          });
-		SetUpConnection<const Elos::Event::MouseMovedRaw&>(m_windowEventConnections,       [this](const auto& e) { OnWindowMouseMovedRawEvent(e);       });
+
+		m_window = std::make_shared<Window::Window>(config);
+		m_window->Create();
+		
+		m_window->Input.EnableRawMouseInput(true);
+		m_window->IsDarkMode = true;
 	}
 
 	void App::Run()
 	{
-		RYU_ASSERT(m_window, Internal::g_appWindowNotSetError);
-		RYU_ASSERT(m_window->IsOpen, Internal::g_appWindowNotOpenError);
+		RYU_ASSERT(m_window, "Application window not set");
+		RYU_ASSERT(m_window->IsOpen, "Application window not open");
 
+		try
+		{
+			PreInit();
+			RunInternal();
+			PostShutdown();
+		}
+		catch (const Exception& e)
+		{
+			using namespace Ryu::Logging;
+			// Custom version of the RYU_LOG_FATAL macro that includes a stack our assertion exception
+			Logger::Get().Log(
+				AssertLog,
+				LogLevel::Fatal,
+				LogMessage
+				{
+					.Message = e.what(),
+					.Stacktrace = e.GetTrace()
+				});
+		}
+		catch (const std::exception& e)
+		{
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(App), "Unhandled exception: {}", e.what());
+		}
+	}
+
+	void App::PreInit()
+	{
+		RYU_PROFILE_SCOPE();
+
+		// Init path manager to get paths
+		auto& pathManager = PathManager::Get();
+		pathManager.Init();
+
+		// Setup config
+		Config::ConfigManager::Get().Initialize((pathManager.GetProjectDir() / "Config").string());
+	
+		// Setup logger
+		SetupDefaultLogger();
+	}
+
+	void App::RunInternal()
+	{
+		// Update window events
 		while (m_window && m_window->IsOpen)
 		{
 			m_window->Update();
 			m_window->ClearPendingEvents();
 		}
 	}
-}
-
-void Ryu::App::Internal::SetUpDefaultLogger()
-{
-	RYU_LOG_DECLARE_CATEGORY(Ryu);
-	using namespace Ryu::Logging;
-
-	Logger& logger = Logger::Get();
-	const AppConfig& config = AppConfig::Get();
-
-	logger.SetOnFatalCallback([](Logging::LogLevel level, const Logging::LogMessage& message)
-	{
-		Utils::MessageBoxDesc desc;
-		desc.Title        = EnumToString(level);
-		desc.Title       += " Error";
-		desc.Text         = message.Message;
-		desc.Flags.Button = Utils::MessagBoxButton::Ok;
-		desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
-
-		Utils::ShowMessageBox(desc);
-		std::abort();
-	});
-
-	// Log to output window only when debugger is attached
-	if (Common::Globals::IsDebuggerAttached() || config.ForceLogToOutput)
-	{
-		logger.AddSink(std::make_unique<Logging::DebugSink>());
-	}
 	
-	if (config.EnableLogToConsole)
+	void App::PostShutdown()
 	{
-		logger.AddSink(std::make_unique<Logging::ConsoleSink>());
+		RYU_PROFILE_SCOPE();
+		Config::ConfigManager::Get().SaveAll();
 	}
 
-	if (config.EnableLogToFile)
+	void App::SetupDefaultLogger()
 	{
-		logger.AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Ryu), "Application log file opened: {}", config.LogFilePath.Get());
-	}
+		RYU_PROFILE_SCOPE();
 
-	RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Ryu), "Logging initialized");
+		using namespace Ryu::Logging;
+		using namespace Ryu::Utils;
+		using namespace Ryu::Common;
+
+		Logger& logger = Logger::Get();
+		const AppConfig& config = AppConfig::Get();
+
+		logger.SetOnFatalCallback([](LogLevel level, const LogMessage& message)
+		{
+			Utils::MessageBoxDesc desc;
+			desc.Title        = EnumToString(level);
+			desc.Title       += " Error";
+			desc.Text         = message.Message;
+			desc.Flags.Button = Utils::MessagBoxButton::Ok;
+			desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
+
+			Utils::ShowMessageBox(desc);
+			std::abort();
+		});
+
+		// Log to output window only when debugger is attached
+		if (Globals::IsDebuggerAttached() || config.ForceLogToOutput)
+		{
+			logger.AddSink(std::make_unique<Logging::DebugSink>());
+		}
+
+		if (config.EnableLogToConsole)
+		{
+			logger.AddSink(std::make_unique<Logging::ConsoleSink>());
+		}
+
+		if (config.EnableLogToFile)
+		{
+			logger.AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(App), "Application log file opened: {}", config.LogFilePath.Get());
+		}
+
+		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(App), "Logging initialized");
+	}
 }

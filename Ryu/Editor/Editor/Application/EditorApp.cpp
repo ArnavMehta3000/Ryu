@@ -133,7 +133,7 @@ namespace Ryu::Editor
 		RYU_PROFILE_SCOPE();
 		if (m_gameModuleLoader.LoadModule(GetPathManager().GetGameDLLName()))
 		{
-			if (Engine::IGameModule* gameModule = m_gameModuleLoader.GetGameModule())
+			if (Game::IGameModule* gameModule = m_gameModuleLoader.GetGameModule())
 			{
 				// Create the game application but use the editor's window
 				m_userApp = gameModule->CreateApplication(GetWindow());

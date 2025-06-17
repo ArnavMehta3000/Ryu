@@ -1,8 +1,8 @@
 #pragma once
-#include "Engine/Game/IGameModule.h"
+#include "Game/IGameModule.h"
 #include <string>
 
-namespace Ryu::Engine
+namespace Ryu::Game
 {
 	class RYU_API GameModuleLoader
 	{

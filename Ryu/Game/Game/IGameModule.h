@@ -6,7 +6,7 @@
 namespace Ryu::App { class App; }
 namespace Ryu::Window { class Window; }
 
-namespace Ryu::Engine
+namespace Ryu::Game
 {
 	class RYU_API IGameModule
 	{
@@ -28,7 +28,7 @@ namespace Ryu::Engine
 
 #if defined(RYU_GAME_AS_DLL)
 #define RYU_IMPLEMENT_GAME_MODULE(GameModuleClass)                       \
-	extern "C" RYU_GAME_API Ryu::Engine::IGameModule* CreateGameModule() \
+	extern "C" RYU_GAME_API Ryu::Game::IGameModule* CreateGameModule() \
 	{                                                                    \
 		return new GameModuleClass();                                    \
 	}

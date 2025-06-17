@@ -51,6 +51,10 @@ namespace Ryu::Gfx
 			{
 				parent->DeferReleaseObject(m_heap.Detach());
 			}
+			else
+			{
+				RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(DescriptorHeap), "Parent device is null");
+			}
 		}
 	}
 

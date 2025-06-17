@@ -35,6 +35,8 @@ namespace Ryu::Gfx
 		RYU_ASSERT(m_device.use_count() == 1);
 
 		m_swapchain.reset();
+		
+		Device::Destroy(*m_device);
 		m_device.reset();
 	}
 	

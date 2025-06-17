@@ -10,7 +10,7 @@ namespace Ryu::Gfx
 		{
 			DX12::Device* const device = parentDevice->GetDevice();
 
-			m_srv = GetParent()->GetSRVHeap()->Allocate();
+			m_srv = parentDevice->GetSRVHeap()->Allocate();
 			device->CreateShaderResourceView(m_resource.Get(), nullptr, m_srv.CPUHandle);
 		}
 	}
@@ -19,7 +19,10 @@ namespace Ryu::Gfx
 	{
 		if (m_resource)
 		{
-			GetParent()->DeferReleaseObject(m_resource.Detach());
+			if (auto parent = GetParent())
+			{
+				parent->DeferReleaseObject(m_resource.Detach());
+			}
 		}
 	}
 }

@@ -45,7 +45,15 @@ namespace Ryu::Gfx
 		{
 			SurfaceData& data = m_surfaceData[i];
 			data.Resource.Reset();
-			GetParent()->GetRTVHeap()->Free(data.RTV);
+			
+			if (auto parent = GetParent())
+			{
+				parent->GetRTVHeap()->Free(data.RTV);
+			}
+			else
+			{
+				RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXSwapChain), "Parent device is null");
+			}
 		}
 		
 		m_swapChain.Reset();
@@ -60,7 +68,7 @@ namespace Ryu::Gfx
 			return;
 		}
 
-		m_width  = width;
+		m_width = width;
 		m_height = height;
 
 		// Release frame buffers before resize
@@ -70,35 +78,45 @@ namespace Ryu::Gfx
 		}
 
 
-		DXGI_SWAP_CHAIN_DESC1 desc{};
-		m_swapChain->GetDesc1(&desc);
-		DXCallEx(m_swapChain->ResizeBuffers(
-			FRAME_BUFFER_COUNT,
-			m_width, m_height,
-			DXGI::ConvertFormat(m_format),
-			desc.Flags
-		), GetParent()->GetDevice());
-
-		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		if (auto parent = GetParent())
 		{
-			m_surfaceData[i].RTV = GetParent()->GetRTVHeap()->Allocate();
+			DXGI_SWAP_CHAIN_DESC1 desc{};
+			m_swapChain->GetDesc1(&desc);
+			DXCallEx(m_swapChain->ResizeBuffers(
+				FRAME_BUFFER_COUNT,
+				m_width, m_height,
+				DXGI::ConvertFormat(m_format),
+				desc.Flags
+			), parent->GetDevice());
+
+			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+			{
+				m_surfaceData[i].RTV = parent->GetRTVHeap()->Allocate();
+			}
+
+			CreateFrameResources();
+
+			// Set viewport and rect
+			m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<f32>(m_width), static_cast<f32>(m_height));
+			m_scissorRect = CD3DX12_RECT(0l, 0l, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
+
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain resized to {}x{}", m_width, m_height);
 		}
-		
-		CreateFrameResources();
-
-		// Set viewport and rect
-		m_viewport    = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<f32>(m_width), static_cast<f32>(m_height));
-		m_scissorRect = CD3DX12_RECT(0l, 0l, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
-
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain resized to {}x{}", m_width, m_height);
+		else
+		{
+			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain resize failed, parent device is null");
+		}
 	}
 
 	void SwapChain::Present() const
 	{
-		DXCallEx(m_swapChain->Present(0, 0), GetParent()->GetDevice());
-		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+		if (auto parent = GetParent())
+		{
+			DXCallEx(m_swapChain->Present(0, 0), parent->GetDevice());
+			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+		}
 	}
 
 	void SwapChain::CreateSwapChain()
@@ -160,21 +178,24 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		DX12::Device* const device = GetParent()->GetDevice();
-
-		// Create a RTV for each frame
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		if (auto parent = GetParent())
 		{
-			SurfaceData& data = m_surfaceData[i];
+			DX12::Device* const device = parent->GetDevice();
 
-			DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&data.Resource)), device);
+			// Create a RTV for each frame
+			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+			{
+				SurfaceData& data = m_surfaceData[i];
 
-			D3D12_RENDER_TARGET_VIEW_DESC desc{};
-			desc.Format        = DXGI::GetFormatSRGB(DXGI::ConvertFormat(DEFAULT_RTV_FORMAT));
-			desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+				DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&data.Resource)), device);
 
-			device->CreateRenderTargetView(data.Resource.Get(), &desc, data.RTV.CPUHandle);
-			DX12::SetObjectName(data.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
+				D3D12_RENDER_TARGET_VIEW_DESC desc{};
+				desc.Format = DXGI::GetFormatSRGB(DXGI::ConvertFormat(DEFAULT_RTV_FORMAT));
+				desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+				device->CreateRenderTargetView(data.Resource.Get(), &desc, data.RTV.CPUHandle);
+				DX12::SetObjectName(data.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
+			}
 		}
 	}
 }

@@ -24,8 +24,7 @@ namespace Ryu::Gfx
 
 	public:
 		static std::shared_ptr<Device> Create();
-
-		~Device();
+		static void Destroy(Device& device);
 
 		inline NODISCARD DX12::Device* const GetDevice() const noexcept { return m_device.Get(); }
 		inline NODISCARD DXGI::Factory* const GetFactory() const noexcept { return m_factory.Get(); }
@@ -42,7 +41,6 @@ namespace Ryu::Gfx
 		void DeferReleaseObject(DX12::Object* object);  // Called by detaching the ComPtr
 
 	private:
-		Device() = default;
 		void Initialize();
 		void CreateDevice();
 		void CreateDescriptorHeaps();

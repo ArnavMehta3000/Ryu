@@ -148,28 +148,28 @@ namespace Ryu::Gfx
 		return device;
 	}
 
-	Device::~Device()
+	void Device::Destroy(Device& device)
 	{
-		m_rtvHeap.reset();
-		m_dsvHeap.reset();
-		m_srvHeap.reset();
-		m_uavHeap.reset();
+		device.m_rtvHeap.reset();
+		device.m_dsvHeap.reset();
+		device.m_srvHeap.reset();
+		device.m_uavHeap.reset();
 
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
-			ProcessDeferredReleases(i);
+			device.ProcessDeferredReleases(i);
 		}
 
-		m_cmdCtx.reset();
+		device.m_cmdCtx.reset();
 
-		ProcessDeferredReleases(0);
+		device.ProcessDeferredReleases(0);
 
-		m_factory.Reset();
+		device.m_factory.Reset();
 #if defined(RYU_BUILD_DEBUG)
-		m_debugLayer.SetupSeverityBreaks(m_device, false);
-		m_debugLayer.ReportLiveDeviceObjectsAndReleaseDevice(m_device);
+		device.m_debugLayer.SetupSeverityBreaks(device.m_device, false);
+		device.m_debugLayer.ReportLiveDeviceObjectsAndReleaseDevice(device.m_device);
 #else
-		m_device.Reset();  // Manually release device
+		device.m_device.Reset();  // Manually release device
 #endif
 	}
 

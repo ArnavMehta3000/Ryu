@@ -1,5 +1,6 @@
 #pragma once
 #include "Common/Common.h"
+#include "App/Utils/PathManager.h"
 #include "Utils/Timer.h"
 #include "Window/Window.h"
 #include "Logger/LogCategory.h"
@@ -21,8 +22,9 @@ namespace Ryu::App
 		void Exit();
 
 		inline void SetWindow(std::shared_ptr<Window::Window> window) { m_window = window; }
-		inline NODISCARD std::shared_ptr<Window::Window> GetWindow() const { return m_window; }
-		inline NODISCARD bool IsRunning() const { return m_isRunning; }
+		inline NODISCARD std::shared_ptr<Window::Window> GetWindow() const noexcept{ return m_window; }
+		inline NODISCARD bool IsRunning() const noexcept { return m_isRunning; }
+		inline NODISCARD const PathManager& GetPathManager() const noexcept{ return m_pathManager; }
 
 	protected:
 		virtual bool OnInit() { return true; }
@@ -30,13 +32,11 @@ namespace Ryu::App
 		virtual void OnShutdown() {}
 
 	private:
-		void PreInit();
 		void ProcessWindowEvents();
-		void PostShutdown();
-		void SetupDefaultLogger();
 
 	private:
 		bool m_isRunning = false;
+		PathManager m_pathManager;
 		std::shared_ptr<Window::Window> m_window;
 	};
 }

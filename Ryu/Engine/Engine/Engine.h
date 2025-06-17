@@ -36,6 +36,7 @@ namespace Ryu::Engine
 		bool LoadGameModule(const std::string& gameDllPath);
 		void UnloadGameModule();
 		void OnAppResize(u32 width, u32 height) const noexcept;
+		void SetupLogger();
 
 	private:
 		Utils::Timer                                  m_timer;

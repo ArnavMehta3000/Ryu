@@ -3,7 +3,7 @@
 
 namespace Ryu::App
 {
-	void PathManager::Init()
+	PathManager::PathManager()
 	{
 		m_rootDir = FindRootDirectory();
 		LoadConfig();

@@ -1,7 +1,12 @@
 #include "Engine/Engine.h"
 #include "App/Utils/PathManager.h"
-#include "Logger/Assert.h"
+#include "App/AppConfig.h"
+#include "Logger/Sinks/DebugSink.h"
+#include "Logger/Sinks/ConsoleSink.h"
+#include "Logger/Sinks/FileSink.h"
 #include "Logger/Logger.h"
+#include "Logger/Assert.h"
+#include "Utils/MessageBox.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 #include <DirectXMath.h>
@@ -24,13 +29,18 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Engine Initialize");
 
+		const App::PathManager& pathManager = m_app->GetPathManager();
+		Config::ConfigManager::Get().Initialize((pathManager.GetProjectDir() / "Config").string());
+
+		SetupLogger();
+
+		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
+
 		if (!DirectX::XMVerifyCPUSupport())
 		{
 			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "DirectX is not supported on this system");
 			return false;
 		}
-
-		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
 
 //#if !defined(RYU_GAME_AS_DLL)  // If the game is not compiled as a DLL then create the application
 //		m_app = std::move(std::unique_ptr<App::Application>(CreateApplication()));
@@ -41,18 +51,17 @@ namespace Ryu::Engine
 		{
 			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "--- A debugger is attached to the Engine!---");
 		}
-
-		if (m_app && m_app->GetWindow())
-		{
-			RYU_PROFILE_BOOKMARK("Initialize graphics");
-			m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
-		}
+		
+		// Load configs
+		RYU_PROFILE_BOOKMARK("Initialize graphics");
+		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
+		
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
-			App::PathManager::Get().GetProjectDir() / "Scripts").string());
+			pathManager.GetProjectDir() / "Scripts").string());
 
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialized successfully");
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialization completed");
 
 		return true;
 	}
@@ -61,7 +70,7 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
-		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
+		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
 
 		m_scriptEngine.reset();
 		m_app.reset();
@@ -70,8 +79,10 @@ namespace Ryu::Engine
 		UnloadGameModule();
 #endif
 		m_renderer.reset();
+		
+		Config::ConfigManager::Get().SaveAll();
 
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Shutdown Engine");
+		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Engine shutdown completed");
 	}
 
 	f64 Engine::GetEngineUpTime()
@@ -96,7 +107,6 @@ namespace Ryu::Engine
 
 		Microsoft::WRL::Wrappers::RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
 		m_app = app;
-		m_app->PreInit();  // todo maybe move logic to engine
 
 		// Init engine
 		if (!Init())
@@ -105,7 +115,20 @@ namespace Ryu::Engine
 			return;
 		}
 
-		// TODO: Hookup window events (eg. resize for renderer)
+		// Close engine on application exit
+		auto visitor = Window::WindowEventVisitor
+		{
+			[this](const Window::CloseEvent&)
+			{
+				if (m_app)
+				{
+					RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Application window closed, shutting down...");
+					m_app->m_isRunning = false;
+				}
+			}
+		};
+		m_app->GetWindow()->AddEventListener([&visitor](const Window::WindowEvent& e) { std::visit(visitor, e); });
+		
 		try
 		{
 			m_app->m_isRunning = m_app->OnInit();
@@ -125,7 +148,6 @@ namespace Ryu::Engine
 				RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize application! Exiting.");
 			}
 			m_app->OnShutdown();
-			m_app->PostShutdown();
 		}
 		catch (const Exception& e)
 		{
@@ -201,5 +223,48 @@ namespace Ryu::Engine
 		{
 			m_renderer->OnResize(width, height);
 		}
+	}
+
+	void Engine::SetupLogger()
+	{
+		using namespace Ryu::App;
+		using namespace Ryu::Logging;
+		using namespace Ryu::Utils;
+		using namespace Ryu::Common;
+
+		Logger& logger = Logger::Get();
+		const AppConfig& config = AppConfig::Get();
+
+		logger.SetOnFatalCallback([](LogLevel level, const LogMessage& message)
+		{
+			Utils::MessageBoxDesc desc;
+			desc.Title        = EnumToString(level);
+			desc.Title       += " Error";
+			desc.Text         = message.Message;
+			desc.Flags.Button = Utils::MessagBoxButton::Ok;
+			desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
+
+			Utils::ShowMessageBox(desc);
+			std::abort();
+		});
+
+		// Log to output window only when debugger is attached
+		if (Globals::IsDebuggerAttached() || config.ForceLogToOutput)
+		{
+			logger.AddSink(std::make_unique<Logging::DebugSink>());
+		}
+
+		if (config.EnableLogToConsole)
+		{
+			logger.AddSink(std::make_unique<Logging::ConsoleSink>());
+		}
+
+		if (config.EnableLogToFile)
+		{
+			logger.AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Application log file opened: {}", config.LogFilePath.Get());
+		}
+
+		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Logger initialized");
 	}
 }

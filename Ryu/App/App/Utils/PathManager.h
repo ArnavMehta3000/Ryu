@@ -8,14 +8,10 @@ namespace fs = std::filesystem;
 
 namespace Ryu::App
 {
-	// TODO: Make this a member of the App class and not a Singleton
-	class RYU_API PathManager : public Utils::Singleton<PathManager>
+	class RYU_API PathManager
 	{
-		RYU_SINGLETON_DECLARE(PathManager);
-
 	public:
-		~PathManager() = default;
-		void Init();
+		PathManager();
 
 		inline NODISCARD const fs::path& GetRootDir() const { return m_rootDir; }
 		inline NODISCARD const fs::path& GetProjectDir() const { return m_projectDir; }
@@ -23,7 +19,6 @@ namespace Ryu::App
 		inline NODISCARD const std::string& GetGameDLLName() const { return m_gameDLLName; }
 
 	private:
-		PathManager() = default;
 		fs::path FindRootDirectory();
 		void LoadConfig();
 

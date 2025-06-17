@@ -8,9 +8,8 @@ namespace Ryu::Editor
 	// Abstraction around the user application loaded via the game module
 	class EditorApp : public App::App
 	{
-	public:
 		RYU_LOG_DECLARE_CATEGORY(Editor);
-
+	public:
 		EditorApp(std::shared_ptr<Window::Window> window);
 
 	private:

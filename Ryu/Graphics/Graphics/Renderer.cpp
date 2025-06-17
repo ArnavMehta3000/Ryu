@@ -9,8 +9,8 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_device    = Memory::CreateRef<Device>();
-		m_swapchain = Memory::CreateRef<SwapChain>(GetDevice(), window);
+		m_device    = Device::Create();
+		m_swapchain = SwapChain::Create(m_device, window);
 	}
 	
 	Renderer::~Renderer()
@@ -31,17 +31,19 @@ namespace Ryu::Gfx
 			}
 		}
 
-		RYU_ASSERT(m_swapchain.GetRefCount() == 1);
-		RYU_ASSERT(m_device.GetRefCount() == 1);
+		RYU_ASSERT(m_swapchain.use_count() == 1);
+		RYU_ASSERT(m_device.use_count() == 1);
 
-		m_swapchain.Reset();
-		m_device.Reset();
+		m_swapchain.reset();
+		
+		Device::Destroy(*m_device);
+		m_device.reset();
 	}
 	
 	void Renderer::Render()
 	{
 		RYU_PROFILE_SCOPE();
-		if (CommandContext* ctx = m_device->GetCommandContext())
+		if (auto ctx = m_device->GetCommandContext())
 		{
 			// Wait for the GPU to finish with the command allocator and 
 			// reset the allocator once the GPU is done with it

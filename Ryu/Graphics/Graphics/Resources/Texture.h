@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/DeviceResource.h"
+#include "Graphics/Core/DeviceObject.h"
 
 namespace Ryu::Gfx
 {
@@ -22,7 +22,7 @@ namespace Ryu::Gfx
 	{
 		RYU_DISABLE_COPY(Texture)
 	public:
-		Texture(Device* parent, const TextureDesc& desc);
+		Texture(std::weak_ptr<Device> parent, const TextureDesc& desc);
 		~Texture();
 
 		inline NODISCARD DX12::Resource* GetResource() const noexcept { return m_resource.Get(); }

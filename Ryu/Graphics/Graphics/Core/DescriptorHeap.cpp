@@ -1,11 +1,11 @@
-#include "Graphics/DescriptorHeap.h"
-#include "Graphics/Device.h"
+#include "Graphics/Core/DescriptorHeap.h"
+#include "Graphics/Core/Device.h"
 #include "Logger/Logger.h"
 #include <scoped_allocator>
 
 namespace Ryu::Gfx
 {
-	DescriptorHeap::DescriptorHeap(Device* parent, DescHeapType type, DescHeapFlags flags, u32 numDescriptors)
+	DescriptorHeap::DescriptorHeap(std::weak_ptr<Device> parent, DescHeapType type, DescHeapFlags flags, u32 numDescriptors)
 		: DeviceObject(parent)
 		, m_numDescriptors(numDescriptors)
 		, m_freeList(numDescriptors)
@@ -23,24 +23,38 @@ namespace Ryu::Gfx
 			isShaderVisible = false;
 		}
 
-		DX12::Device* const device = GetParent()->GetDevice();
+		if (auto parentDevice = GetParent())
+		{
+			DX12::Device* const device = parentDevice->GetDevice();
 
-		D3D12_DESCRIPTOR_HEAP_DESC desc{};
-		desc.NumDescriptors = FRAME_BUFFER_COUNT;
-		desc.Type           = DX12::GetDescHeapType(m_type);
-		desc.Flags          = static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(flags);
-		desc.NodeMask       = 0;
-		DXCallEx(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_heap)), device);
-		DX12::SetObjectName(m_heap.Get(), std::format("{} Descriptor Heap", Internal::DescHeapTypeToString(desc.Type)).c_str());
-		
-		m_descriptorSize = device->GetDescriptorHandleIncrementSize(desc.Type);
+			D3D12_DESCRIPTOR_HEAP_DESC desc{};
+			desc.NumDescriptors = FRAME_BUFFER_COUNT;
+			desc.Type           = DX12::GetDescHeapType(m_type);
+			desc.Flags          = static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(flags);
+			desc.NodeMask       = 0;
+			DXCallEx(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_heap)), device);
+			DX12::SetObjectName(m_heap.Get(), std::format("{} Descriptor Heap", Internal::DescHeapTypeToString(desc.Type)).c_str());
+
+			m_descriptorSize = device->GetDescriptorHandleIncrementSize(desc.Type);
+		}
+		else
+		{
+			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(DescriptorHeap), "Parent device is null");
+		}
 	}
 	
 	DescriptorHeap::~DescriptorHeap()
 	{
 		if (m_heap)
 		{
-			GetParent()->DeferReleaseObject(m_heap.Detach());
+			if (auto parent = GetParent())
+			{
+				parent->DeferReleaseObject(m_heap.Detach());
+			}
+			else
+			{
+				RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(DescriptorHeap), "Parent device is null");
+			}
 		}
 	}
 

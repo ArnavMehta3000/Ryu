@@ -43,10 +43,7 @@ namespace Ryu::Editor
 
 		// Init user application
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "Initializing user application");
-		m_userApp->OnInit();
-		
-		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Editor), "Editor application initialized");
-		return true;
+		return m_userApp->OnInit();
 	}
 
 	void EditorApp::OnShutdown()
@@ -136,7 +133,7 @@ namespace Ryu::Editor
 		RYU_PROFILE_SCOPE();
 		if (m_gameModuleLoader.LoadModule(GetPathManager().GetGameDLLName()))
 		{
-			if (Engine::IGameModule* gameModule = m_gameModuleLoader.GetGameModule())
+			if (Game::IGameModule* gameModule = m_gameModuleLoader.GetGameModule())
 			{
 				// Create the game application but use the editor's window
 				m_userApp = gameModule->CreateApplication(GetWindow());

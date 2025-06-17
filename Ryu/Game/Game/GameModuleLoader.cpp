@@ -1,9 +1,9 @@
-#include "Engine/Game/GameModuleLoader.h"
+#include "Game/GameModuleLoader.h"
 #include "App/Application.h"
 #include "Logger/Logger.h"
 #include <Windows.h>
 
-namespace Ryu::Engine
+namespace Ryu::Game
 {
 	RYU_LOG_DECLARE_CATEGORY(GameModule);
 	

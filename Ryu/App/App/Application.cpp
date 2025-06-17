@@ -1,7 +1,5 @@
 #include "Application.h"
-#include "App/AppConfig.h"
 #include "Profiling/Profiling.h"
-#include <Elos/Window/Utils/WindowExtensions.h>
 
 namespace Ryu::App
 {
@@ -49,10 +47,7 @@ namespace Ryu::App
 	void App::ProcessWindowEvents()
 	{
 		// Update window events
-		while (m_window && m_window->IsOpen)
-		{
-			m_window->Update();
-			m_window->ClearPendingEvents();
-		}
+		m_window->Update();
+		m_window->ClearPendingEvents();
 	}
 }

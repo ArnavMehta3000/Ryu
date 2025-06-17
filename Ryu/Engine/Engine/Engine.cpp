@@ -78,6 +78,31 @@ namespace Ryu::Engine
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Engine shutdown completed");
 	}
 
+	void Engine::MainLoop()
+	{
+		m_app->m_isRunning = m_app->OnInit();
+		if (m_app->IsRunning())
+		{
+			while (m_app->IsRunning())
+			{
+				m_timer.Tick([this](const Utils::TimeInfo& info)
+				{
+					m_app->ProcessWindowEvents();
+					m_app->OnTick(info);
+				});
+
+				if (m_renderer)
+				{
+					m_renderer->Render();
+				}
+			}
+		}
+		else
+		{
+			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize application! Exiting.");
+		}
+	}
+
 	f64 Engine::GetEngineUpTime()
 	{
 		return m_timer.GetTotalTime();
@@ -109,35 +134,25 @@ namespace Ryu::Engine
 		// Close engine on application exit
 		auto visitor = Window::WindowEventVisitor
 		{
-			[this](const Window::CloseEvent&)
+			[this](const Window::CloseEvent&)  // Handle window close event
 			{
 				if (m_app)
 				{
 					RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Application window closed, shutting down...");
 					m_app->m_isRunning = false;
 				}
+			},
+			[this](const Window::ResizeEvent& e)  // Handle window resize event
+			{
+				OnAppResize(e.Width, e.Height);
 			}
 		};
 		m_app->GetWindow()->AddEventListener([&visitor](const Window::WindowEvent& e) { std::visit(visitor, e); });
-		
+
+		// Main loop
 		try
 		{
-			m_app->m_isRunning = m_app->OnInit();
-			if (m_app->IsRunning())
-			{
-				while (m_app->IsRunning())
-				{
-					m_timer.Tick([this](const Utils::TimeInfo& info)
-					{
-						m_app->ProcessWindowEvents();
-						m_app->OnTick(info);
-					});
-				}
-			}
-			else
-			{
-				RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize application! Exiting.");
-			}
+			MainLoop();
 			m_app->OnShutdown();
 		}
 		catch (const Exception& e)

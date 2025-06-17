@@ -4,9 +4,7 @@
 #include "Logger/LogCategory.h"
 #include "Utils/Singleton.h"
 #include "Scripting/ScriptEngine.h"
-#include "Engine/Game/GameModuleLoader.h"
 #include <memory>
-#include <Elos/Window/Window.h>
 
 namespace Ryu::Engine
 {
@@ -30,6 +28,7 @@ namespace Ryu::Engine
 	private:
 		bool Init();
 		void Shutdown();
+		void MainLoop();
 		void OnAppResize(u32 width, u32 height) const noexcept;
 		void SetupLogger();
 

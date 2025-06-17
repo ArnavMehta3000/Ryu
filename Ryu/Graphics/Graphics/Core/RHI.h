@@ -8,7 +8,7 @@ namespace Ryu::Gfx
 	class SwapChain;
 	class CmdQueue;
 
-	constexpr u32 FRAME_BUFFER_COUNT = 3;
+	constexpr u32 FRAME_BUFFER_COUNT = 2;
 
 	enum class Format : u8
 	{

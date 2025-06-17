@@ -1,11 +1,9 @@
 #pragma once
-#include "Graphics/ComPtr.h"
+#include "Graphics/Core/ComPtr.h"
+#include "Graphics/Core/RHI.h"
 #include "Logger/LogCategory.h"
-#include "Graphics/RHI.h"
 #include <directx/d3dx12.h>
 #include <dxgi1_6.h>
-#include <dxgidebug.h>
-#include <numeric>
 #include <vector>
 
 namespace Ryu::Gfx

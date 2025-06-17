@@ -1,7 +1,7 @@
 #pragma once
 #include "Logger/LogCategory.h"
-#include "Graphics/Device.h"
-#include "Graphics/SwapChain.h"
+#include "Graphics/Core/Device.h"
+#include "Graphics/Core/SwapChain.h"
 
 namespace Ryu::Gfx
 {
@@ -14,14 +14,14 @@ namespace Ryu::Gfx
 		explicit Renderer(HWND window);
 		~Renderer();
 
-		inline NODISCARD Device* GetDevice() const { return m_device.Get(); }
-		inline NODISCARD SwapChain* GetSwapChain() const { return m_swapchain.Get(); }
+		inline NODISCARD auto GetDevice() const { return m_device; }
+		inline NODISCARD auto GetSwapChain() const { return m_swapchain; }
 
 		void Render();
 		void OnResize(u32 width, u32 height);
 
 	public:
-		Memory::Ref<Device>    m_device;
-		Memory::Ref<SwapChain> m_swapchain;
+		std::shared_ptr<Device>    m_device;
+		std::shared_ptr<SwapChain> m_swapchain;
 	};
 }

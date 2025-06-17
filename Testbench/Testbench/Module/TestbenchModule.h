@@ -1,7 +1,7 @@
 #pragma once
-#include "Engine/Game/IGameModule.h"
+#include "Game/IGameModule.h"
 
-class TestModule final : public Ryu::Engine::IGameModule
+class TestModule final : public Ryu::Game::IGameModule
 {
 public:
 	std::shared_ptr<Ryu::App::App> CreateApplication(std::shared_ptr<Ryu::Window::Window> window) override;

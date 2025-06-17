@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/DeviceResource.h"
+#include "Graphics/Core/DeviceObject.h"
 #include <mutex>
 
 namespace Ryu::Gfx
@@ -59,7 +59,7 @@ namespace Ryu::Gfx
 		RYU_LOG_DECLARE_CATEGORY(DescriptorHeap);
 
 	public:
-		DescriptorHeap(Device* parent, DescHeapType type, DescHeapFlags flags, u32 numDescriptors);
+		DescriptorHeap(std::weak_ptr<Device> parent, DescHeapType type, DescHeapFlags flags, u32 numDescriptors);
 		~DescriptorHeap();
 
 		inline NODISCARD DX12::DescHeap* GetHeap() const { return m_heap.Get(); }

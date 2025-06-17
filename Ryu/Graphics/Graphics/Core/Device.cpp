@@ -1,7 +1,8 @@
-#include "Graphics/Device.h"
+#include "Graphics/Core/Device.h"
 #include "Math/Math.h"
 #include "Utils/StringConv.h"
 #include "Profiling/Profiling.h"
+#include <dxgidebug.h>
 
 namespace Ryu::Gfx
 {
@@ -140,43 +141,49 @@ namespace Ryu::Gfx
 #endif
 	// --- Debug Layer ---
 
-	Device::Device()
-		: DeviceObject(this)
+	std::shared_ptr<Device> Device::Create()
 	{
-		RYU_PROFILE_SCOPE();
-		CreateDevice();
-		
-		m_cmdCtx = Memory::CreateRef<CommandContext>(this, CmdListType::Direct);
-		CreateDescriptorHeaps();
-
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
-			"DX12 Device created with max feature level: {}",
-			Internal::FeatureLevelToString(m_featureSupport.MaxSupportedFeatureLevel()));
+		auto device = std::shared_ptr<Device>(new Device());
+		device->Initialize();
+		return device;
 	}
 
 	Device::~Device()
 	{
-		m_factory.Reset();
+		m_rtvHeap.reset();
+		m_dsvHeap.reset();
+		m_srvHeap.reset();
+		m_uavHeap.reset();
 
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
 			ProcessDeferredReleases(i);
 		}
 
-		m_rtvHeap.Reset();
-		m_dsvHeap.Reset();
-		m_srvHeap.Reset();
-		m_uavHeap.Reset();
+		m_cmdCtx.reset();
 
 		ProcessDeferredReleases(0);
-		m_cmdCtx.Reset();
 
+		m_factory.Reset();
 #if defined(RYU_BUILD_DEBUG)
 		m_debugLayer.SetupSeverityBreaks(m_device, false);
 		m_debugLayer.ReportLiveDeviceObjectsAndReleaseDevice(m_device);
 #else
 		m_device.Reset();  // Manually release device
 #endif
+	}
+
+	void Device::Initialize()
+	{
+		RYU_PROFILE_SCOPE();
+		CreateDevice();
+		
+		m_cmdCtx = std::make_shared<CommandContext>(weak_from_this(), CmdListType::Direct);
+		CreateDescriptorHeaps();
+
+		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
+			"DX12 Device created with max feature level: {}",
+			Internal::FeatureLevelToString(m_featureSupport.MaxSupportedFeatureLevel()));
 	}
 
 	void Device::SetDeferredReleaseFlag()
@@ -281,10 +288,10 @@ namespace Ryu::Gfx
 
 	void Device::CreateDescriptorHeaps()
 	{
-		m_rtvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::RTV, DescHeapFlags::None, 512);
-		m_dsvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::DSV, DescHeapFlags::None, 512);
-		m_srvHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::CBV_SRV_UAV, DescHeapFlags::ShaderVisible, 4096);
-		m_uavHeap = Memory::CreateRef<DescriptorHeap>(this, DescHeapType::CBV_SRV_UAV, DescHeapFlags::None, 512);
+		m_rtvHeap = std::make_shared<DescriptorHeap>(weak_from_this(), DescHeapType::RTV, DescHeapFlags::None, 512);
+		m_dsvHeap = std::make_shared<DescriptorHeap>(weak_from_this(), DescHeapType::DSV, DescHeapFlags::None, 512);
+		m_srvHeap = std::make_shared<DescriptorHeap>(weak_from_this(), DescHeapType::CBV_SRV_UAV, DescHeapFlags::ShaderVisible, 4096);
+		m_uavHeap = std::make_shared<DescriptorHeap>(weak_from_this(), DescHeapType::CBV_SRV_UAV, DescHeapFlags::None, 512);
 
 		DX12::SetObjectName(m_rtvHeap->GetHeap(), "RTV Descriptor Heap");
 		DX12::SetObjectName(m_dsvHeap->GetHeap(), "DSV Descriptor Heap");

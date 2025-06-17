@@ -1,51 +1,18 @@
-#include "Graphics/CommandContext.h"
-#include "Graphics/Device.h"
+#include "Graphics/Core/CommandContext.h"
+#include "Graphics/Core/Device.h"
 #include "Profiling/Profiling.h"
 #include "Logger/Assert.h"
+#include "Logger/Logger.h"
 
 namespace Ryu::Gfx
 {
-	CommandContext::CommandContext(Device* parent, CmdListType type)
+	CommandContext::CommandContext(std::weak_ptr<Device> parent, CmdListType type)
 		: DeviceObject(parent)
 		, m_frameIndex(0)
 		, m_fenceEvent(nullptr)
 		, m_fenceValue(0)
 	{
-		RYU_PROFILE_SCOPE();
-		DX12::Device* const device = parent->GetDevice();
-		D3D12_COMMAND_LIST_TYPE cmdListType = DX12::GetCmdListType(type);
-		const std::string_view cmdListTypeName = Internal::CommandListTypeToString(cmdListType);
-
-		// Create the command queue
-		D3D12_COMMAND_QUEUE_DESC queueDesc{};
-		queueDesc.Type     = cmdListType;
-		queueDesc.Flags    = static_cast<D3D12_COMMAND_QUEUE_FLAGS>(CmdListFlags::None);
-		queueDesc.Priority = static_cast<i32>(CmdQueuePriority::Normal);
-		queueDesc.NodeMask = 0;
-		DXCallEx(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_cmdQueue)), device);
-
-		DX12::SetObjectName(m_cmdQueue.Get(), std::format("{} Command Queue", cmdListTypeName).c_str());
-
-		// Create the command allocator
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
-		{
-			CommandFrame& frame = m_cmdFrames[i];
-			DXCallEx(device->CreateCommandAllocator(cmdListType, IID_PPV_ARGS(&frame.CmdAllocator)), device);
-			DX12::SetObjectName(frame.CmdAllocator.Get(), std::format("{} Command Allocator - {}", cmdListTypeName, i).c_str());
-		}
-
-		// Create the command list and start it closed
-		DXCallEx(device->CreateCommandList(0, cmdListType, m_cmdFrames[0].CmdAllocator.Get(), nullptr, IID_PPV_ARGS(&m_cmdList)), device);
-		m_cmdList->Close();
-
-		DX12::SetObjectName(m_cmdList.Get(), std::format("{} Command List", cmdListTypeName).c_str());
-
-		// Create the fence
-		DXCallEx(device->CreateFence(0, static_cast<D3D12_FENCE_FLAGS>(FenceFlag::None), IID_PPV_ARGS(&m_fence)), device);
-		DX12::SetObjectName(m_fence.Get(), std::format("Command Context ({}) Fence", cmdListTypeName).c_str());
-
-		m_fenceEvent = ::CreateEventEx(nullptr, L"CommandContextFenceEvent", 0, EVENT_ALL_ACCESS);
-		RYU_ASSERT(m_fenceEvent);
+		Init(type);
 	}
 	
 	CommandContext::~CommandContext()
@@ -64,6 +31,52 @@ namespace Ryu::Gfx
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
 			m_cmdFrames[i].ReleaseAllocator();
+		}
+	}
+
+	void CommandContext::Init(CmdListType type)
+	{
+		RYU_PROFILE_SCOPE();
+		if (auto parent = GetParent())
+		{
+			DX12::Device* const device             = parent->GetDevice();
+			D3D12_COMMAND_LIST_TYPE cmdListType    = DX12::GetCmdListType(type);
+			const std::string_view cmdListTypeName = Internal::CommandListTypeToString(cmdListType);
+
+			// Create the command queue
+			D3D12_COMMAND_QUEUE_DESC queueDesc{};
+			queueDesc.Type     = cmdListType;
+			queueDesc.Flags    = static_cast<D3D12_COMMAND_QUEUE_FLAGS>(CmdListFlags::None);
+			queueDesc.Priority = static_cast<i32>(CmdQueuePriority::Normal);
+			queueDesc.NodeMask = 0;
+			DXCallEx(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_cmdQueue)), device);
+
+			DX12::SetObjectName(m_cmdQueue.Get(), std::format("{} Command Queue", cmdListTypeName).c_str());
+
+			// Create the command allocator
+			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+			{
+				CommandFrame& frame = m_cmdFrames[i];
+				DXCallEx(device->CreateCommandAllocator(cmdListType, IID_PPV_ARGS(&frame.CmdAllocator)), device);
+				DX12::SetObjectName(frame.CmdAllocator.Get(), std::format("{} Command Allocator - {}", cmdListTypeName, i).c_str());
+			}
+
+			// Create the command list and start it closed
+			DXCallEx(device->CreateCommandList(0, cmdListType, m_cmdFrames[0].CmdAllocator.Get(), nullptr, IID_PPV_ARGS(&m_cmdList)), device);
+			m_cmdList->Close();
+
+			DX12::SetObjectName(m_cmdList.Get(), std::format("{} Command List", cmdListTypeName).c_str());
+
+			// Create the fence
+			DXCallEx(device->CreateFence(0, static_cast<D3D12_FENCE_FLAGS>(FenceFlag::None), IID_PPV_ARGS(&m_fence)), device);
+			DX12::SetObjectName(m_fence.Get(), std::format("Command Context ({}) Fence", cmdListTypeName).c_str());
+
+			m_fenceEvent = ::CreateEventEx(nullptr, L"CommandContextFenceEvent", 0, EVENT_ALL_ACCESS);
+			RYU_ASSERT(m_fenceEvent);
+		}
+		else
+		{
+			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(CommandContext), "Parent device is null");
 		}
 	}
 	

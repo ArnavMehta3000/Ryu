@@ -8,7 +8,6 @@ target("RyuGraphics")
 
 	add_deps(
 		"RyuProfiling",
-		"RyuMemory",
 		"RyuLogger",
 		"RyuConfig",
 		"RyuMath"

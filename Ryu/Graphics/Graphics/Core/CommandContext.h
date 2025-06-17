@@ -1,13 +1,14 @@
 #pragma once
-#include "Graphics/DeviceResource.h"
+#include "Graphics/Core/DeviceObject.h"
 
 namespace Ryu::Gfx
 {
 	class CommandContext : public DeviceObject
 	{
 		RYU_DISABLE_COPY_AND_MOVE(CommandContext)
+		RYU_LOG_DECLARE_CATEGORY(CommandContext);
 	public:
-		CommandContext(Device* parent, CmdListType type);
+		CommandContext(std::weak_ptr<Device> parent, CmdListType type);
 		~CommandContext();
 
 		void BeginFrame();
@@ -17,6 +18,9 @@ namespace Ryu::Gfx
 		inline NODISCARD DX12::CmdQueue* const GetCmdQueue() const noexcept { return m_cmdQueue.Get(); }
 		inline NODISCARD DX12::GfxCmdList* const GetGfxCmdList() const noexcept { return m_cmdList.Get(); }
 		inline NODISCARD u32 GetFrameIndex() const noexcept { return m_frameIndex; }
+
+	private:
+		void Init(CmdListType type);
 
 	private:
 		struct CommandFrame

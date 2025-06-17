@@ -1,5 +1,5 @@
-#include "Graphics/SwapChain.h"
-#include "Graphics/Device.h"
+#include "Graphics/Core/SwapChain.h"
+#include "Graphics/Core/Device.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 
@@ -20,7 +20,7 @@ namespace Ryu::Gfx
 		outHeight = static_cast<u32>(r.bottom - r.top);
 	}
 
-	SwapChain::SwapChain(Device* parent, HWND window, Format format)
+	SwapChain::SwapChain(std::weak_ptr<Device> parent, HWND window, Format format)
 		: DeviceObject(parent)
 		, m_window(window)
 		, m_format(format)
@@ -28,11 +28,15 @@ namespace Ryu::Gfx
 		, m_height(0)
 		, m_frameIndex(0)
 	{
-		RYU_PROFILE_SCOPE();
+	}
 
-		CreateSwapChain();
-		
+	std::shared_ptr<SwapChain> SwapChain::Create(std::weak_ptr<Device> parent, HWND window, Format format)
+	{
+		auto swapChain = std::shared_ptr<SwapChain>(new SwapChain(parent, window, format));
+		swapChain->CreateSwapChain();
 		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain created");
+		
+		return swapChain;
 	}
 
 	SwapChain::~SwapChain()
@@ -101,53 +105,55 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		Device* const device = GetParent();
-		DXGI::Factory* const factory = device->GetFactory();
-
-		auto& config = GraphicsConfig::Get();
-		const bool wantsTearing = config.AllowTearing;
-
-		DXGI_SWAP_CHAIN_DESC1 desc{};
-		BOOL allowTearing = FALSE;
-		if (wantsTearing && SUCCEEDED(device->GetFactory()->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(BOOL))))
+		if (auto device = GetParent())
 		{
-			desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+			DXGI::Factory* const factory = device->GetFactory();
+
+			auto& config = GraphicsConfig::Get();
+			const bool wantsTearing = config.AllowTearing;
+
+			DXGI_SWAP_CHAIN_DESC1 desc{};
+			BOOL allowTearing = FALSE;
+			if (wantsTearing && SUCCEEDED(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(BOOL))))
+			{
+				desc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+			}
+
+			desc.AlphaMode   = DXGI_ALPHA_MODE_IGNORE;
+			desc.BufferCount = FRAME_BUFFER_COUNT;
+			desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			desc.Format      = DXGI::ConvertFormat(m_format);  // SRGB format not enforced
+			desc.Width       = 0;
+			desc.Height      = 0;
+			desc.Scaling     = DXGI_SCALING_NONE;
+			desc.Stereo      = FALSE;
+			desc.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+			desc.SampleDesc  = { 1,0 };
+
+			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc{};
+			fsDesc.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;
+			fsDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+			fsDesc.Windowed         = TRUE;
+
+			ComPtr<IDXGISwapChain1> swapChain;
+			DXCall(factory->CreateSwapChainForHwnd(
+				device->GetCommandContext()->GetCmdQueue(),
+				m_window,
+				&desc,
+				&fsDesc,
+				nullptr,
+				&swapChain
+			));
+
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXSwapChain), "This SwapChain does not support fullscreen transitions");
+			DXCallEx(factory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER), device->GetDevice());
+
+			DXCallEx(swapChain.As(&m_swapChain), device->GetDevice());
+
+			// Reuse desc width and height to get window size
+			GetWindowSize(m_window, desc.Width, desc.Height);
+			Resize(desc.Width, desc.Height);
 		}
-
-		desc.AlphaMode   = DXGI_ALPHA_MODE_IGNORE;
-		desc.BufferCount = FRAME_BUFFER_COUNT;
-		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		desc.Format      = DXGI::ConvertFormat(m_format);  // SRGB format not enforced
-		desc.Width       = 0;
-		desc.Height      = 0;
-		desc.Scaling     = DXGI_SCALING_NONE;
-		desc.Stereo      = FALSE;
-		desc.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		desc.SampleDesc  = { 1,0 };
-
-		DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc{};
-		fsDesc.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;
-		fsDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		fsDesc.Windowed         = TRUE;
-
-		ComPtr<IDXGISwapChain1> swapChain;
-		DXCall(factory->CreateSwapChainForHwnd(
-			device->GetCommandContext()->GetCmdQueue(),
-			m_window,
-			&desc,
-			&fsDesc,
-			nullptr,
-			&swapChain
-		));
-
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXSwapChain), "This SwapChain does not support fullscreen transitions");
-		DXCallEx(factory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER), device->GetDevice());
-
-		DXCallEx(swapChain.As(&m_swapChain), device->GetDevice());
-
-		// Reuse desc width and height to get window size
-		GetWindowSize(m_window, desc.Width, desc.Height);
-		Resize(desc.Width, desc.Height);
 	}
 	
 	void SwapChain::CreateFrameResources()

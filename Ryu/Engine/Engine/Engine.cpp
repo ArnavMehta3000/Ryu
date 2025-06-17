@@ -116,6 +116,10 @@ namespace Ryu::Engine
 					RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Application window closed, shutting down...");
 					m_app->m_isRunning = false;
 				}
+			},
+			[this](const Window::ResizeEvent& e)
+			{
+				OnAppResize(e.Width, e.Height);
 			}
 		};
 		m_app->GetWindow()->AddEventListener([&visitor](const Window::WindowEvent& e) { std::visit(visitor, e); });

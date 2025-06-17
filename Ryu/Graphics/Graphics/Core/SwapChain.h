@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/DeviceResource.h"
+#include "Graphics/Core/DeviceObject.h"
 
 namespace Ryu::Gfx
 {
@@ -18,7 +18,8 @@ namespace Ryu::Gfx
 	public:
 		static constexpr Format DEFAULT_RTV_FORMAT = Format::RGBA8_UNORM;
 
-		SwapChain(Device* parent, HWND window, Format format = DEFAULT_RTV_FORMAT);
+		static std::shared_ptr<SwapChain> Create(std::weak_ptr<Device> parent, HWND window, Format format = DEFAULT_RTV_FORMAT);
+
 		~SwapChain();
 
 		inline NODISCARD HWND GetWindowHandle() const noexcept { return m_window; }
@@ -32,6 +33,7 @@ namespace Ryu::Gfx
 		void Present() const;
 
 	private:
+		SwapChain(std::weak_ptr<Device> parent, HWND window, Format format);
 		void CreateSwapChain();
 		void CreateFrameResources();
 

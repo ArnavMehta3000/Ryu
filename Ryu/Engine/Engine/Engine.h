@@ -20,7 +20,7 @@ namespace Ryu::Engine
 		inline RYU_API std::shared_ptr<App::App> GetApplication() const { return m_app; }
 		inline RYU_API const Utils::Timer& GetTimer() const { return m_timer; }
 		RYU_API f64 GetEngineUpTime();
-		void Quit() const noexcept;
+		RYU_API void Quit() const noexcept;
 
 		void RYU_API RunApp(std::shared_ptr<App::App> app);
 

@@ -88,9 +88,7 @@ namespace Ryu::Engine
 		if (m_app)
 		{
 			RYU_PROFILE_BOOKMARK("Requesting application shutdown");
-			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Rquesting application shutdown");
-			// Send a message to the application window to close
-			::SendMessage(m_app->GetWindow()->GetHandle(), WM_CLOSE, 0, 0);
+			m_app->m_isRunning = false;
 		}
 	}
 

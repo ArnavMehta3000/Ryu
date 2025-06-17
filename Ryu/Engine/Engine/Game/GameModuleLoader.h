@@ -1,6 +1,5 @@
 #pragma once
 #include "Engine/Game/IGameModule.h"
-#include "Memory/Ref.h"
 #include <string>
 
 namespace Ryu::Engine
@@ -16,12 +15,9 @@ namespace Ryu::Engine
 
 		inline NODISCARD IGameModule* GetGameModule() const { return m_gameModule; }
 		inline NODISCARD bool IsModuleLoaded() const { return m_gameModule != nullptr; }
-		
-		NODISCARD App::Application* GetApplication();
 
 	private:
-		void*             m_dllHandle = nullptr;
-		IGameModule*      m_gameModule = nullptr;
-		App::Application* m_application;  // Unsafe pointer to the application
+		void*        m_dllHandle = nullptr;
+		IGameModule* m_gameModule = nullptr;
 	};
 }

@@ -19,6 +19,7 @@ namespace Ryu::Engine
 			UnloadModule();
 		}
 		
+		// --- Load DLL ---
 		m_dllHandle = ::LoadLibraryA(dllPath.c_str());
 		if (!m_dllHandle)
 		{
@@ -26,6 +27,7 @@ namespace Ryu::Engine
 			return false;
 		}
 
+		// --- Find CreateGameModule function ---
 		const auto createFunc = reinterpret_cast<CreateGameModuleFunc>(::GetProcAddress(static_cast<HMODULE>(m_dllHandle), "CreateGameModule"));
 		if (!createFunc)
 		{
@@ -34,6 +36,7 @@ namespace Ryu::Engine
 			return false;
 		}
 
+		// --- Create game module ---
 		m_gameModule = createFunc();
 		if (!m_gameModule)
 		{
@@ -63,20 +66,5 @@ namespace Ryu::Engine
 			::FreeLibrary(static_cast<HMODULE>(m_dllHandle));
 			m_dllHandle = nullptr;
 		}
-	}
-	
-	App::Application* GameModuleLoader::GetApplication()
-	{
-		if (!m_gameModule)
-		{
-			return nullptr;
-		}
-
-		if (!m_application)
-		{
-			m_application = m_gameModule->CreateApplication();
-		}
-
-		return m_application;
 	}
 }

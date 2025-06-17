@@ -23,9 +23,6 @@ namespace Ryu::Engine
 		void Quit() const noexcept;
 
 		void RYU_API RunApp(std::shared_ptr<App::App> app);
-		void RYU_API RunWithGameModule(const std::string& gameDllPath);
-		bool RYU_API IsGameModuleLoaded() const;
-		inline NODISCARD GameModuleLoader* GetGameModuleLoader() const { return m_gameModuleLoader.get(); }
 
 	protected:
 		Engine();
@@ -33,8 +30,6 @@ namespace Ryu::Engine
 	private:
 		bool Init();
 		void Shutdown();
-		bool LoadGameModule(const std::string& gameDllPath);
-		void UnloadGameModule();
 		void OnAppResize(u32 width, u32 height) const noexcept;
 		void SetupLogger();
 
@@ -43,6 +38,5 @@ namespace Ryu::Engine
 		std::shared_ptr<App::App>                     m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
-		std::unique_ptr<GameModuleLoader>             m_gameModuleLoader;
 	};
 }

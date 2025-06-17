@@ -7,21 +7,24 @@
 #include <memory>
 
 namespace Ryu::Engine { class Engine; }
+namespace Ryu::Editor { class EditorApp; }
 
 namespace Ryu::App
 {
 	class App
 	{
 		friend class Engine::Engine;
+		friend class Editor::EditorApp;
 		RYU_LOG_DECLARE_CATEGORY(App);
 	public:
-		App() = default;
-		App(const Window::Window::Config& config);  // Create an application with a window
-		virtual ~App() = default;
+		static void InitWindow(Window::Window& window);
+
+		explicit App(std::shared_ptr<Window::Window> window);  // Use existing window
+		explicit App(const Window::Window::Config& config);  // Let the application create the window
+		virtual ~App();
 
 		void Exit();
 
-		inline void SetWindow(std::shared_ptr<Window::Window> window) { m_window = window; }
 		inline NODISCARD std::shared_ptr<Window::Window> GetWindow() const noexcept{ return m_window; }
 		inline NODISCARD bool IsRunning() const noexcept { return m_isRunning; }
 		inline NODISCARD const PathManager& GetPathManager() const noexcept{ return m_pathManager; }

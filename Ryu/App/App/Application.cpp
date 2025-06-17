@@ -5,15 +5,34 @@
 
 namespace Ryu::App
 {
+	void App::InitWindow(Window::Window& window)
+	{
+		// Create the window if needed
+		if (!window.IsOpen)
+		{
+			window.Create();
+		}
+
+		window.Input.EnableRawMouseInput(true);
+		window.IsDarkMode = true;
+	}
+
+	App::App(std::shared_ptr<Window::Window> window)
+		: m_window(window)
+	{
+	}
+
 	App::App(const Window::Window::Config& config)
 	{
 		RYU_PROFILE_SCOPE();
 
 		m_window = std::make_shared<Window::Window>(config);
-		m_window->Create();
-		
-		m_window->Input.EnableRawMouseInput(true);
-		m_window->IsDarkMode = true;
+		App::InitWindow(*m_window);
+	}
+
+	App::~App()
+	{
+		m_window.reset();
 	}
 
 	void App::Exit()

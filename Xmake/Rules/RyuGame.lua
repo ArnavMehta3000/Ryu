@@ -12,4 +12,15 @@ rule("RyuGame")
 			end
 		end
 	end)
+
+	on_config(function (target)
+		if has_config("ryu-game-as-dll") then
+			-- Add this target as a dependency of the editor
+			import("core.project.project")
+			local editor = project.target("RyuEditor")
+			if editor then
+				editor:add("deps", target:name())
+			end
+		end
+	end)
 rule_end()

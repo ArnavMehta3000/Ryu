@@ -12,9 +12,6 @@
 #include <DirectXMath.h>
 #include <wrl/event.h>
 
-#if !defined(RYU_GAME_AS_DLL)
-#endif
-
 #pragma comment(lib, "runtimeobject.lib")
 
 namespace Ryu::Engine
@@ -41,10 +38,6 @@ namespace Ryu::Engine
 			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "DirectX is not supported on this system");
 			return false;
 		}
-
-//#if !defined(RYU_GAME_AS_DLL)  // If the game is not compiled as a DLL then create the application
-//		m_app = std::move(std::unique_ptr<App::Application>(CreateApplication()));
-//#endif
 
 		// Check if debugger is attached
 		if (Common::Globals::IsDebuggerAttached())
@@ -169,51 +162,6 @@ namespace Ryu::Engine
 
 		// Shutdown engine
 		Shutdown();
-	}
-
-	void RYU_API Engine::RunWithGameModule(MAYBE_UNUSED const std::string& gameDllPath)
-	{
-#if defined(RYU_GAME_AS_DLL)
-		if (!LoadGameModule(gameDllPath))
-		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to load game module: {}", gameDllPath);
-			return;
-		}
-
-		m_app = std::move(std::unique_ptr<App::Application>(m_gameModuleLoader->GetApplication()));
-
-		Run();
-#endif
-	}
-
-	bool RYU_API Engine::LoadGameModule(MAYBE_UNUSED const std::string& gameDllPath)
-	{
-#if defined(RYU_GAME_AS_DLL)
-		m_gameModuleLoader = std::make_unique<GameModuleLoader>();
-		return m_gameModuleLoader->LoadModule(gameDllPath);
-#else
-		return false;  // Sould never get here
-#endif
-	}
-
-	void RYU_API Engine::UnloadGameModule()
-	{
-#if defined(RYU_GAME_AS_DLL)
-		if (m_gameModuleLoader)
-		{
-			m_gameModuleLoader->UnloadModule();
-			m_gameModuleLoader.reset();
-		}
-#endif
-	}
-
-	bool RYU_API Engine::IsGameModuleLoaded() const
-	{
-#if defined(RYU_GAME_AS_DLL)
-		return m_gameModuleLoader && m_gameModuleLoader->IsModuleLoaded();
-#else
-		return true;
-#endif
 	}
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept

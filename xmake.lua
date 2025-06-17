@@ -17,7 +17,7 @@ includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/RyuGame.lua")
 
 -- Update compile commands
-add_rules("plugin.compile_commands.autoupdate", { outputdir = "build", lsp = "clangd" })
+-- add_rules("plugin.compile_commands.autoupdate", { outputdir = "build", lsp = "clangd" })
 
 -- Build debug mode by default
 set_defaultmode("debug")

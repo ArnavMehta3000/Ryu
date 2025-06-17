@@ -1,12 +1,12 @@
 #pragma once
 #include "Common/ObjectMacros.h"
 #include "Window/Events.h"
-#include "Window/WindowConfig.h"
 #include "Window/Input/InputSystem.h"
 #include <unordered_map>
 #include <vector>
 #include <functional>
 #include <memory>
+#include <array>
 
 namespace Ryu::Window
 {
@@ -16,33 +16,18 @@ namespace Ryu::Window
 	public:
 		struct Config  // Internal config representation
 		{
-			std::array<i32, 2> WindowSize;
-			std::array<i32, 2> WindowMinSize;
-			std::array<i32, 2> WindowPos;			
-			std::string Title;
-			bool IsResizable;
-			bool HasMinimizeButton;
-			bool HasMaximizeButton;
-			bool HasCloseButton;
-			bool IsVisible;
-
-			Config(const WindowConfig& config)
-				: WindowSize(config.WindowSize.Get())
-				, WindowMinSize(config.WindowMinSize.Get())
-				, WindowPos(config.WindowPos.Get())
-				, Title(config.Title)
-				, IsResizable(config.IsResizable)
-				, HasMinimizeButton(config.HasMinimizeButton)
-				, HasMaximizeButton(config.HasMaximizeButton)
-				, HasCloseButton(config.HasCloseButton)
-				, IsVisible(config.IsVisible)
-			{
-			}
-
-			Config() = delete;
+			std::array<i32, 2> WindowSize    = { 1280, 720 };
+			std::array<i32, 2> WindowMinSize = { 800, 600 };
+			std::array<i32, 2> WindowPos     = { CW_USEDEFAULT, CW_USEDEFAULT };
+			std::string Title                = "Ryu Window";
+			bool IsResizable                 = true;
+			bool HasMinimizeButton           = true;
+			bool HasMaximizeButton           = true;
+			bool HasCloseButton              = true;
+			bool IsVisible                   = true;
 		};
 	public:
-		explicit Window(const Window::Config& config = WindowConfig::Get());
+		explicit Window(const Window::Config& config);
 		~Window();
 
 		bool Create();

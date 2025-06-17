@@ -1,5 +1,5 @@
 #pragma  once
-#include <Windows.h>
+#include "Engine/Engine.h"
 
 #if defined(RYU_BUILD_DEBUG)
 #define _CRTDBG_MAP_ALLOC

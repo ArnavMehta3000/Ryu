@@ -4,6 +4,6 @@
 class TestModule final : public Ryu::Engine::IGameModule
 {
 public:
-	Ryu::App::Application* CreateApplication() override;
+	std::shared_ptr<Ryu::App::App> CreateApplication(std::shared_ptr<Ryu::Window::Window> window) override;
 	constexpr const char* GetName() const override;
 };

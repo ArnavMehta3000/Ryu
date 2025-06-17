@@ -1,8 +1,10 @@
 #pragma once
 #include "Common/API.h"
 #include "Common/ObjectMacros.h"
+#include <memory>
 
-namespace Ryu::App { class Application; }
+namespace Ryu::App { class App; }
+namespace Ryu::Window { class Window; }
 
 namespace Ryu::Engine
 {
@@ -11,7 +13,7 @@ namespace Ryu::Engine
 	public:
 		virtual ~IGameModule() = default;
 
-		virtual App::Application* CreateApplication() = 0;
+		virtual std::shared_ptr<App::App> CreateApplication(std::shared_ptr<Window::Window> window) = 0;
 		virtual constexpr const char* GetName() const = 0;
 	};
 

@@ -136,6 +136,11 @@ namespace Ryu::Engine
 						m_app->ProcessWindowEvents();
 						m_app->OnTick(info);
 					});
+
+					if (m_renderer)
+					{
+						m_renderer->Render();
+					}
 				}
 			}
 			else

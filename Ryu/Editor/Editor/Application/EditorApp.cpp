@@ -43,10 +43,7 @@ namespace Ryu::Editor
 
 		// Init user application
 		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "Initializing user application");
-		m_userApp->OnInit();
-		
-		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Editor), "Editor application initialized");
-		return true;
+		return m_userApp->OnInit();
 	}
 
 	void EditorApp::OnShutdown()

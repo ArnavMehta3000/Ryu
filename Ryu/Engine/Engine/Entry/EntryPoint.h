@@ -1,12 +1,6 @@
 #pragma once
-#include "Common/Globals.h"
-#include "Logger/Assert.h"
-#include "Config/ConfigManager.h"
-#include "App/Application.h"
-#include "Engine/Engine.h"
 #include "Engine/Entry/EngineMain.h"
-#include "Profiling/Profiling.h"
-#include "App/Utils/PathManager.h"
+#include "App/Application.h"
 
 #if !defined(RYU_GAME_AS_DLL)
 // Define the extern function to create the runtime

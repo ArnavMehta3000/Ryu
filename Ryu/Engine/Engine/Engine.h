@@ -40,7 +40,7 @@ namespace Ryu::Engine
 
 	private:
 		Utils::Timer                                  m_timer;
-		std::shared_ptr<App::App>             m_app;
+		std::shared_ptr<App::App>                     m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
 		std::unique_ptr<GameModuleLoader>             m_gameModuleLoader;

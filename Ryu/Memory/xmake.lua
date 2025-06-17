@@ -9,6 +9,7 @@ target("RyuMemory")
 	add_headerfiles("**.h")
 	add_rules("c++.unity_build")
 
+	-- Tests
 	for _, testfile in ipairs(os.files("./Tests/*.cpp")) do
 		 add_tests(path.basename(testfile), 
 		 {

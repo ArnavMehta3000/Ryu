@@ -1,0 +1,17 @@
+{
+	"Namespace": "Ryu::Gfx",
+	"Name": "DescHeapFlags",
+	"Base": null,
+	"EnableBitMaskOps": true,
+	"Types":
+	[
+		{
+			"Key": "None",
+			"Value": 0
+		},
+		{
+			"Key": "ShaderVisible",
+			"Value": "RYU_ENUM_BIT(0)"
+		}
+	]
+}

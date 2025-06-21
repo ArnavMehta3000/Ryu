@@ -1,0 +1,29 @@
+{
+	"Namespace": "Ryu::Gfx",
+	"Name": "DescHeapType",
+	"Base": null,
+	"EnableBitMaskOps": false,
+	"Types":
+	[
+		{
+			"Key": "CBV_SRV_UAV",
+			"Value": 0
+		},
+		{
+			"Key": "Sampler",
+			"Value": null
+		},
+		{
+			"Key": "RTV",
+			"Value": null
+		},
+		{
+			"Key": "DSV",
+			"Value": null
+		},
+		{
+			"Key": "_COUNT",
+			"Value": null
+		}
+	]
+}

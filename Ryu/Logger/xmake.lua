@@ -34,7 +34,7 @@ target("RyuLogger")
 			{
 				"LogLevel.json"
 			},
-			force = true
+			force = false
 		})
 
 	add_deps("RyuUtils")

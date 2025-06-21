@@ -1,0 +1,17 @@
+{
+	"Namespace": "Ryu::Gfx",
+	"Name": "CmdListFlags",
+	"Base": null,
+	"EnableBitMaskOps": true,
+	"Types":
+	[
+		{
+			"Key": "None",
+			"Value": 0
+		},
+		{
+			"Key": "DisableGPUTimeout",
+			"Value": "RYU_ENUM_BIT(0)"
+		}
+	]
+}

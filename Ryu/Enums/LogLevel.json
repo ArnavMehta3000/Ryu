@@ -1,0 +1,33 @@
+{
+	"Namespace": "Ryu::Logging",
+	"Name": "LogLevel",
+	"Base": null,
+	"EnableBitMaskOps": true,
+	"Types":
+	[
+		{
+			"Key": "Trace",
+			"Value": 0
+		},
+		{
+			"Key": "Debug",
+			"Value": 1
+		},
+		{
+			"Key": "Info",
+			"Value": 2
+		},
+		{
+			"Key": "Warn",
+			"Value": 3
+		},
+		{
+			"Key": "Error",
+			"Value": 4
+		},
+		{
+			"Key": "Fatal",
+			"Value": 5
+		}
+	]
+}

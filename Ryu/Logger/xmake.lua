@@ -27,6 +27,16 @@ target("RyuLogger")
 		add_defines("RYU_LOG_ENABLED_WARN", { public = true })
 	end
 
+	add_rules("EnumToHeader",
+		{
+			root = path.join(os.projectdir(), "Ryu", "Enums"),
+			files =
+			{
+				"LogLevel.json"
+			},
+			force = false
+		})
+
 	add_deps("RyuUtils")
 	add_rules("c++.unity_build")
 target_end()

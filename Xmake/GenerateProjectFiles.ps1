@@ -120,7 +120,7 @@ function Get-ProjectConfiguration
 	$config.enableProfiling = Get-UserChoice -Prompt "Enable Tracy profiling? (y/n)" -DefaultValue "n" -OptionName "Tracy profiling"
 
 	# Game build style
-	$config.gameAsDLL = Get-UserChoice -Prompt "Build the game project as a DLL (y/n))" -DefaultValue "n" -OptionName "Build game as DLL"
+	$config.gameAsDLL = Get-UserChoice -Prompt "Build the game project as a DLL (enables editor) (y/n))" -DefaultValue "n" -OptionName "Build game as DLL"
 	return $config
 }
 

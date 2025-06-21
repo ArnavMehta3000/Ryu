@@ -1,4 +1,4 @@
-set_xmakever("2.9.9")
+set_xmakever("3.0.1")
 add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 -- Project name and version
@@ -15,6 +15,7 @@ includes("Xmake/Packages.lua")
 includes("Xmake/Options.lua")
 includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/RyuGame.lua")
+includes("Xmake/Rules/EnumToHeader.lua")
 
 -- Update compile commands
 -- add_rules("plugin.compile_commands.autoupdate", { outputdir = "build", lsp = "clangd" })

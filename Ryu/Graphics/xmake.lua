@@ -13,6 +13,24 @@ target("RyuGraphics")
 		"RyuMath"
 	)
 
+	add_rules("EnumToHeader",
+		{
+			root = path.join(os.projectdir(), "Ryu", "Enums"),
+			files =
+			{
+				"CmdListFLags.json",
+				"CmdListType.json",
+				"CmdQueuePriority.json",
+				"DescHeapFlags.json",
+				"DescHeapType.json",
+				"FenceFlag.json",
+				"Format.json",
+				"TextureFlags.json",
+				"TextureType.json",
+			},
+			force = false
+		})
+
 	add_includedirs(".", { public = true })
 	add_files("**.cpp", { unity_group = "Graphics" })
 	add_headerfiles("**.h")

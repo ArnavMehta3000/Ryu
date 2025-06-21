@@ -1,0 +1,21 @@
+{
+	"Namespace": "Ryu::Gfx",
+	"Name": "CmdQueuePriority",
+	"Base": "i32",
+	"EnableBitMaskOps": false,
+	"Types":
+	[
+		{
+			"Key": "Normal",
+			"Value": 0
+		},
+		{
+			"Key": "High",
+			"Value": 100
+		},
+		{
+			"Key": "Realtime",
+			"Value": 10000
+		}
+	]
+}

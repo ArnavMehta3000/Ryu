@@ -20,7 +20,7 @@ void TestbenchApp::OnShutdown()
 	RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(TestbenchApp), "Shutting down Testbench App");
 }
 
-void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo& timeInfo)
+void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo&)
 {
-	RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(TestbenchApp), "Ticking Testbench App");
+	//RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(TestbenchApp), "Ticking Testbench App");
 }

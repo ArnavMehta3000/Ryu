@@ -17,6 +17,7 @@ bool TestbenchApp::OnInit()
 
 void TestbenchApp::OnShutdown()
 {
+	RYU_PROFILE_SCOPE();
 	RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(TestbenchApp), "Shutting down Testbench App");
 }
 

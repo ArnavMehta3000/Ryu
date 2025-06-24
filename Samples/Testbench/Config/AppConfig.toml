@@ -1,6 +1,3 @@
-[Debugging]
-PressEscapeToClose = true
-
 [Log]
 EnableLogToConsole = true
 EnableLogToFile = true

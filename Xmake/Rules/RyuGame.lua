@@ -1,9 +1,9 @@
 -- Marks the game application to be built as a DLL (used with editor)
 rule("RyuGame")
 	on_load(function (target)
-		if has_config("ryu-game-as-dll") then
-			target:add("defines", "RYU_GAME_AS_DLL")
-			target:set("kind", "shared")
+		if has_config("ryu-build-with-editor") then
+			target:add("defines", "RYU_WITH_EDITOR")
+			target:set("kind", "static")
 		else
 			target:set("kind", "binary")
 			-- Use WinMain only in release mode
@@ -14,7 +14,7 @@ rule("RyuGame")
 	end)
 
 	on_config(function (target)
-		if has_config("ryu-game-as-dll") then
+		if has_config("ryu-build-with-editor") then
 			-- Add this target as a dependency of the editor
 			import("core.project.project")
 			local editor = project.target("RyuEditor")

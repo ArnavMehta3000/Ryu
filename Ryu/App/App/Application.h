@@ -30,9 +30,9 @@ namespace Ryu::App
 		inline NODISCARD const PathManager& GetPathManager() const noexcept{ return m_pathManager; }
 
 	protected:
-		virtual bool OnInit() { return true; }
-		virtual void OnTick(const Utils::TimeInfo&) {}
-		virtual void OnShutdown() {}
+		virtual bool OnInit() = 0;
+		virtual void OnTick(const Utils::TimeInfo&) = 0;
+		virtual void OnShutdown() = 0;
 
 	private:
 		void ProcessWindowEvents();

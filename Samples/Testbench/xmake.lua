@@ -1,7 +1,7 @@
 target("RyuTestbench")
 	add_rules("RyuGame")  -- Build this target as the game project
 
-	set_default(not get_config("ryu-game-as-dll"))
+	set_default(not get_config("ryu-build-with-editor"))
 	set_group("Ryu/Testing")
 
 	add_includedirs(".")

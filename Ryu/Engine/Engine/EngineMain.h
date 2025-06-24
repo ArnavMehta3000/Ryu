@@ -21,10 +21,14 @@ int WINAPI wWinMain(                               \
 // Default main
 #define RYU_DEF_MAIN() int main(MAYBE_UNUSED int argc, MAYBE_UNUSED char *argv[])
 
-#ifdef RYU_BUILD_DEBUG
-// Use default main in debug mode (enables native console)
-#define RYU_MAIN() RYU_DEF_MAIN()
+#if defined(RYU_WITH_EDITOR)
+	#define RYU_MAIN() int DummyMain()
 #else
-// Use WinMain in non-debug modes (manually create console via logger)
-#define RYU_MAIN() RYU_WIN_MAIN()
+	#ifdef RYU_BUILD_DEBUG
+		// Use default main in debug mode (enables native console)
+		#define RYU_MAIN() RYU_DEF_MAIN()
+	#else
+		// Use WinMain in non-debug modes (manually create console via logger)
+		#define RYU_MAIN() RYU_WIN_MAIN()
+	#endif
 #endif

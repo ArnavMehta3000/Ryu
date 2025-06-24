@@ -120,7 +120,7 @@ function Get-ProjectConfiguration
 	$config.enableProfiling = Get-UserChoice -Prompt "Enable Tracy profiling? (y/n)" -DefaultValue "n" -OptionName "Tracy profiling"
 
 	# Game build style
-	$config.gameAsDLL = Get-UserChoice -Prompt "Build the game project as a DLL (enables editor) (y/n))" -DefaultValue "n" -OptionName "Build game as DLL"
+	$config.withEditor = Get-UserChoice -Prompt "Build with editor (y/n))" -DefaultValue "n" -OptionName "Build editor"
 	return $config
 }
 
@@ -140,7 +140,7 @@ function Apply-ProjectConfiguration
 		--ryu-log-info-enabled=$($Config.ryuInfo) `
 		--ryu-throw-on-fail-hresult=$($Config.assertOnFail) `
 		--ryu-enable-tracy-profiling=$($Config.enableProfiling) `
-		--ryu-game-as-dll=$($Config.gameAsDLL)
+		--ryu-build-with-editor=$($Config.withEditor)
 }
 
 # Function to generate project files

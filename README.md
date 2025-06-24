@@ -20,7 +20,7 @@ Ryu Engine is an experimentation playground for making game engines<br>
 
 ## Configuration
 
-`--ryu-game-as-dll=[y|n]` Build the game as a loadable DLL (Testbench needs to be run via the 'Runner' project)
+`--ryu-build-with-editor=[y|n]` Build the editor, the game project will be linked statically with the editor
 
 `--ryu-throw-on-fail-hresult=[y|n]` Assert on failure of HRESULT (default: y)
 
@@ -71,11 +71,11 @@ Ryu identifies its root directory by looking for the `Ryu.toml` configuration fi
 
 - Paths
 	- `ProjectDir` - Which project directory to look for assets/scripts/config files (defines the active project). This is relative to the engine root directory
-	- `GameDLLName` - Project DLL name can differ from project name. This can be ignored if building the game as standalone, but is required if `--ryu-game-as-dll` is enabled
+	- `GameDLLName` - Project DLL name can differ from project name. This can be ignored if building the game as standalone, but is required if `--ryu-build-with-editor` is enabled
 
 ## The Testbench
 
-The Testbench is a dummy game project that is used for testing purposes. By default Testbench is run as a standalone executable. But if it was to be loaded in another executable (for example an editor [WIP]) tt can be built as a dll using `--ryu-game-as-dll=y`. When that config is enabled, run Testbench using the `RyuTestbenchRunner` project. It will load the DLL and run the game.
+The Testbench is a dummy game project that is used for testing purposes. By default Testbench is run as a standalone executable. But if `--ryu-build-with-editor=y` is set, then it will be built as a DLL. In such a scenario, the editor project will be built and be used as the executable to run.
 
 ### Testbench Config
 
@@ -83,18 +83,11 @@ The Testbench project has a couple config `.toml` files.
 
 #### App Config
 
-- Debugging
-	- `PressEscapeToClose` - Press Esc on the keyboard to close the window (debug builds only)
 - Logging
 	- `EnableLogToConsole` - Opens a console logger even in release builds
 	- `EnableLogToFile` - Opens a log output file
 	- `ForceLogToOutput` - Force log messages to debug output even when a debugger is not attached (eg. VS Output Window)
 	- `LogFilePath` - String to the output log file relative to the executable directory
-- Window
-	- `WindowMinimumSize` - 2 element array defining the minimum window size
-	- `WindowPosition` - Window position on launch (centered by default)
-	- `WindowSize` - Window size on launch
-	- `WindowTitle` - Title of the application window
 
 #### Graphics Config
 

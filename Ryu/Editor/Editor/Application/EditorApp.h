@@ -1,6 +1,5 @@
 #pragma once
 #include "App/Application.h"
-#include "Game/GameModuleLoader.h"
 #include "Logger/LogCategory.h"
 
 namespace Ryu::Editor
@@ -26,7 +25,6 @@ namespace Ryu::Editor
 		bool LoadGameModule();
 
 	private:
-		Game::GameModuleLoader m_gameModuleLoader;
 		std::shared_ptr<App> m_userApp;
 	};
 }

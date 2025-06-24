@@ -17,21 +17,21 @@ namespace Ryu::Game
 		virtual constexpr const char* GetName() const = 0;
 	};
 
-	using CreateGameModuleFunc = IGameModule*(*)();
+    extern "C" Ryu::Game::IGameModule* CreateGameModule();
+
+#if defined(RYU_WITH_EDITOR)
+    // Editor build: Game implements this function
+#define RYU_IMPLEMENT_GAME_MODULE(GameModuleClass)        \
+    extern "C" Ryu::Game::IGameModule* CreateGameModule() \
+    {                                                     \
+        return new GameModuleClass();                     \
+    }
+#else
+    // Standalone build: Game links statically, needs definition
+#define RYU_IMPLEMENT_GAME_MODULE(GameModuleClass)\
+    Ryu::Game::IGameModule* CreateGameModule()    \
+    {                                             \
+        return new GameModuleClass();             \
+    }
+#endif
 }
-
-#if defined(RYU_EXPORTS)
-#define RYU_GAME_API RYU_API
-#else
-#define RYU_GAME_API __declspec(dllexport)
-#endif
-
-#if defined(RYU_GAME_AS_DLL)
-#define RYU_IMPLEMENT_GAME_MODULE(GameModuleClass)                       \
-	extern "C" RYU_GAME_API Ryu::Game::IGameModule* CreateGameModule() \
-	{                                                                    \
-		return new GameModuleClass();                                    \
-	}
-#else
-#define RYU_IMPLEMENT_GAME_MODULE(GameModuleClass)
-#endif

@@ -10,7 +10,7 @@ namespace Ryu::Config
 	void ConfigManager::Initialize(const fs::path& configDir)
 	{
 		RYU_PROFILE_SCOPE();
-		
+
 		const std::string dbgMsg = "Initialize ConfigManager: " + configDir.string();
 		RYU_PROFILE_SCOPE_TEXT(dbgMsg);
 
@@ -19,7 +19,7 @@ namespace Ryu::Config
 		{
 			fs::create_directories(m_configDir);
 		}
-		
+
 		OnInitialized.Emit(true);
 	}
 
@@ -30,7 +30,7 @@ namespace Ryu::Config
 			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(ConfigManager), "ConfigManager has not been initialized yet!");
 			return;
 		}
-		
+
 		m_registeredConfigs.push_back(config);
 	}
 
@@ -53,7 +53,7 @@ namespace Ryu::Config
 			if (config->IsDirty())
 			{
 				config->Save();
-			}			
+			}
 		}
 	}
 }

@@ -20,7 +20,7 @@ Ryu Engine is an experimentation playground for making game engines<br>
 
 ## Configuration
 
-`--ryu-game-as-dll=[y|n]` Build the game as a loadable DLL. If enabled, this will also enable the editor to be built
+`--ryu-build-with-editor=[y|n]` Build the editor, the game project will be linked statically with the editor
 
 `--ryu-throw-on-fail-hresult=[y|n]` Assert on failure of HRESULT (default: y)
 
@@ -71,11 +71,11 @@ Ryu identifies its root directory by looking for the `Ryu.toml` configuration fi
 
 - Paths
 	- `ProjectDir` - Which project directory to look for assets/scripts/config files (defines the active project). This is relative to the engine root directory
-	- `GameDLLName` - Project DLL name can differ from project name. This can be ignored if building the game as standalone, but is required if `--ryu-game-as-dll` is enabled
+	- `GameDLLName` - Project DLL name can differ from project name. This can be ignored if building the game as standalone, but is required if `--ryu-build-with-editor` is enabled
 
 ## The Testbench
 
-The Testbench is a dummy game project that is used for testing purposes. By default Testbench is run as a standalone executable. But if `--ryu-game-as-dll=y` is set, then it will be built as a DLL. In such a scenario, the editor project will be built and be used as the executable to run.
+The Testbench is a dummy game project that is used for testing purposes. By default Testbench is run as a standalone executable. But if `--ryu-build-with-editor=y` is set, then it will be built as a DLL. In such a scenario, the editor project will be built and be used as the executable to run.
 
 ### Testbench Config
 

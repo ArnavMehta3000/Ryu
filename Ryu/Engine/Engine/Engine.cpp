@@ -67,10 +67,6 @@ namespace Ryu::Engine
 
 		m_scriptEngine.reset();
 		m_app.reset();
-		
-#if defined(RYU_GAME_AS_DLL)
-		UnloadGameModule();
-#endif
 		m_renderer.reset();
 		
 		Config::ConfigManager::Get().SaveAll();

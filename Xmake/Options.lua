@@ -41,7 +41,7 @@ option("ryu-enable-tracy-profiling")
 	add_defines("RYU_PROFILING_ENABLED", "TRACY_ENABLE")
 option_end()
 
-option("ryu-game-as-dll")
+option("ryu-build-with-editor")
     set_default(false)
     set_showmenu(true)
     set_category("root Ryu/Game")

@@ -1,5 +1,6 @@
 #include "EditorApp.h"
 #include "App/Utils/PathManager.h"
+#include "Game/IGameModule.h"
 #include "Logger/Logger.h"
 #include "Profiling/Profiling.h"
 #include <imgui_impl_win32.h>
@@ -55,7 +56,6 @@ namespace Ryu::Editor
 		m_userApp->OnShutdown();
 
 		m_userApp.reset();
-		m_gameModuleLoader.UnloadModule();
 		ShutdownImGui();
 
 		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Editor), "Editor application shutdown");
@@ -131,16 +131,13 @@ namespace Ryu::Editor
 	bool EditorApp::LoadGameModule()
 	{
 		RYU_PROFILE_SCOPE();
-		if (m_gameModuleLoader.LoadModule(GetPathManager().GetGameDLLName()))
-		{
-			if (Game::IGameModule* gameModule = m_gameModuleLoader.GetGameModule())
-			{
-				// Create the game application but use the editor's window
-				m_userApp = gameModule->CreateApplication(GetWindow());
-				GetWindow()->Title = std::format("Ryu Editor - {}", gameModule->GetName());
 
-				return m_userApp != nullptr;
-			}
+		std::unique_ptr<Game::IGameModule> gm(Game::CreateGameModule());
+		if (gm)
+		{
+			m_userApp = gm->CreateApplication(GetWindow());
+			GetWindow()->Title = std::format("Ryu Editor - {}", gm->GetName());
+			return m_userApp != nullptr;
 		}
 
 		return false;

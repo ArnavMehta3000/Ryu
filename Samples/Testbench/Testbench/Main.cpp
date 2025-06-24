@@ -3,10 +3,9 @@
 
 using namespace Ryu;
 
+#if !defined(RYU_WITH_EDITOR)
 RYU_MAIN()
 {
-	// If the game is not being built as a DLL
-#if !defined(RYU_GAME_AS_DLL)
 	RYU_DBG_TRACK_MEM();
 	
 	// Create application window
@@ -37,7 +36,7 @@ RYU_MAIN()
 
 
 	Ryu::Engine::Engine::Get().RunApp(app);
-#endif
 
 	return 0;
 }
+#endif

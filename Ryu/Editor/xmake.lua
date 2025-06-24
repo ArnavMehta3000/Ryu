@@ -1,10 +1,10 @@
 target("RyuEditor")
-	set_enabled(get_config("ryu-game-as-dll"))  -- Only enable the editor when the game is being built as a dll
-	
+	set_enabled(get_config("ryu-build-with-editor"))
+
 	if not is_mode("debug", "releasedbg") then
 		add_rules("win.sdk.application")
 	end
-	
+
 	set_default(true)
 	set_kind("binary")
 	set_group("Ryu")

@@ -6,9 +6,11 @@ rule("EnumToHeader")
 		target:add("includedirs",dir, { public = true })
 	end)
 
-	before_build(function (target)
+	before_build(function (target, opt)
 		import("core.project.depend")
 		import("core.base.task")
+		import("utils.progress")
+		import("core.base.semver")
 
 		local out_dir = path.join(target:autogendir(), "Generated")
 		local root_dir = target:extraconf("rules", "EnumToHeader", "root")
@@ -26,10 +28,32 @@ rule("EnumToHeader")
 			table.insert(depend_files, source_file)
 		end
 
-		-- Run task with the dependency files
+		local tracked_values =
+		{
+			semver.new(target:version()):shortstr(),
+			target:plat(),
+			target:arch(),
+			os.host(),
+			target:get("mode")
+		}
+
+		-- Create dependency on input JSON
 		depend.on_changed(function()
-			task.run("ryu-enum-to-header", { files = depend_files, output_dir = out_dir })
-			end, { files = depend_files, dryrun = force_run, values = target:get("mode") }
-		)
+			progress.show(opt.progress, "${color.build.target}Generating enum headers for %s", target:name())
+
+			-- Run task with the dependency files
+			task.run(
+				"ryu-enum-to-header",
+				{
+					files = depend_files,
+					output_dir = out_dir
+				}) end,
+				{
+					dependfile = target:dependfile("versioninfo"),
+					files = depend_files,
+					dryrun = force_run,
+					values = tracked_values
+				}
+			)
 	end)
 rule_end()

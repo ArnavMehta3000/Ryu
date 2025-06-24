@@ -64,7 +64,10 @@ local function _write_header(namespace, enum_name, base, enable_bitmask_ops, typ
 	table.insert(file_lines, "}")  -- Close namespace
 
 	io.writefile(outfile, table.concat(file_lines, "\n"))
-	print(format("[Ryu::EnumToHeader] Enum header generated for type: %s", enum_name))
+
+	if option.get("verbose") then
+		print(format("[Ryu::EnumToHeader] Enum header generated for type: %s", enum_name))
+	end
 end
 
 function main()

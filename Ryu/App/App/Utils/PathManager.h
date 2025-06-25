@@ -15,8 +15,6 @@ namespace Ryu::App
 
 		inline NODISCARD const fs::path& GetRootDir() const { return m_rootDir; }
 		inline NODISCARD const fs::path& GetProjectDir() const { return m_projectDir; }
-		inline NODISCARD const fs::path& GetGameDLLPath() const { return m_gameDLLPath; }
-		inline NODISCARD const std::string& GetGameDLLName() const { return m_gameDLLName; }
 
 	private:
 		fs::path FindRootDirectory();
@@ -25,7 +23,5 @@ namespace Ryu::App
 	private:
 		fs::path    m_rootDir;
 		fs::path    m_projectDir;
-		fs::path    m_gameDLLPath;
-		std::string m_gameDLLName;
 	};
 }

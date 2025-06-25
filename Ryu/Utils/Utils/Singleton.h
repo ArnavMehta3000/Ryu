@@ -1,5 +1,5 @@
 #pragma once
-#include "Common/API.h"
+#include "Common/ObjectMacros.h"
 
 namespace Ryu::Utils
 {
@@ -7,7 +7,7 @@ namespace Ryu::Utils
 	class Singleton
 	{
 	public:
-		static [[nodiscard]] RYU_API T& Get()
+		NODISCARD static T& Get()
 		{
 			static T instance;
 			return instance;

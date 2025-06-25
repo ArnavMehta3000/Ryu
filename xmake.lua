@@ -18,7 +18,7 @@ includes("Xmake/Rules/RyuGame.lua")
 includes("Xmake/Rules/EnumToHeader.lua")
 
 -- Update compile commands
--- add_rules("plugin.compile_commands.autoupdate", { outputdir = "build", lsp = "clangd" })
+add_rules("plugin.compile_commands.autoupdate", { outputdir = ".", lsp = "clangd" })
 
 -- Build debug mode by default
 set_defaultmode("debug")

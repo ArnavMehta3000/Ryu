@@ -1,6 +1,5 @@
 #pragma once
-#include "Common/StandardTypes.h"
-#include "Common/Enum.h"
+#include "Common/Common.h"
 
 #include <CmdListFLags.Generated.h>
 #include <CmdListType.Generated.h>
@@ -15,8 +14,13 @@
 namespace Ryu::Gfx
 {
 	class Device;
+	class DeviceObject;
 	class SwapChain;
 	class CmdQueue;
+	class CommandContext;
+	class DescriptorHeap;
 
 	constexpr u32 FRAME_BUFFER_COUNT = 2;
+	constexpr Format BACK_BUFFER_FORMAT = Format::RGBA16_FLOAT;
+	constexpr Format DEPTH_STENCIL_FORMAT = Format::D24S8;
 }

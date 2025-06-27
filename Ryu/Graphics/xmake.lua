@@ -37,5 +37,5 @@ target("RyuGraphics")
 	add_rules("c++.unity_build")
 	add_packages("directx-headers", { public = true })
 
-	add_links("d3d12", "dxgi", "dxguid")
+	add_links("d3d12", "dxgi", "dxguid", "Advapi32")
 target_end()

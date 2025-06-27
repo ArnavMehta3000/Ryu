@@ -17,7 +17,7 @@ namespace Ryu::Gfx
 		inline NODISCARD auto GetDevice() const { return m_device; }
 		inline NODISCARD auto GetSwapChain() const { return m_swapchain; }
 
-		void Render();
+		void Render(/*Scene, Camera*/);
 		void OnResize(u32 width, u32 height);
 
 	public:

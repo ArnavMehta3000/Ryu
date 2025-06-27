@@ -1,5 +1,4 @@
 #pragma once
-#include "Common/ObjectMacros.h"
 #include "Graphics/Core/DX12.h"
 #include <memory>
 

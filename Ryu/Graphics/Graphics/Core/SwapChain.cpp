@@ -43,17 +43,17 @@ namespace Ryu::Gfx
 	{
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
-			SurfaceData& data = m_surfaceData[i];
-			data.Resource.Reset();
+			//SurfaceData& data = m_surfaceData[i];
+			//data.Resource.Reset();
 			
-			if (auto parent = GetParent())
-			{
-				parent->GetRTVHeap()->Free(data.RTV);
-			}
-			else
-			{
-				RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXSwapChain), "Parent device is null");
-			}
+			//if (auto parent = GetParent())
+			//{
+			//	parent->GetRTVHeap()->Free(data.RTV);
+			//}
+			//else
+			//{
+			//	RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXSwapChain), "Parent device is null");
+			//}
 		}
 		
 		m_swapChain.Reset();
@@ -74,7 +74,7 @@ namespace Ryu::Gfx
 		// Release frame buffers before resize
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
-			m_surfaceData[i].Resource.Reset();
+			//m_surfaceData[i].Resource.Reset();
 		}
 
 
@@ -93,7 +93,7 @@ namespace Ryu::Gfx
 
 			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 			{
-				m_surfaceData[i].RTV = parent->GetRTVHeap()->Allocate();
+				//m_surfaceData[i].RTV = parent->GetRTVHeap()->Allocate();
 			}
 
 			CreateFrameResources();
@@ -146,7 +146,7 @@ namespace Ryu::Gfx
 			desc.Scaling     = DXGI_SCALING_NONE;
 			desc.Stereo      = FALSE;
 			desc.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-			desc.SampleDesc  = { 1,0 };
+			desc.SampleDesc  = { 1, 0 };
 
 			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc{};
 			fsDesc.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -154,16 +154,17 @@ namespace Ryu::Gfx
 			fsDesc.Windowed         = TRUE;
 
 			ComPtr<IDXGISwapChain1> swapChain;
-			DXCall(factory->CreateSwapChainForHwnd(
-				device->GetCommandContext()->GetCmdQueue(),
-				m_window,
-				&desc,
-				&fsDesc,
-				nullptr,
-				&swapChain
-			));
+			RYU_TODO("Create command queue for this to work");
+			//DXCall(factory->CreateSwapChainForHwnd(
+			//	 --- COMMAND QUEUE ---,
+			//	m_window,
+			//	&desc,
+			//	&fsDesc,
+			//	nullptr,
+			//	&swapChain
+			//));
 
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXSwapChain), "This SwapChain does not support fullscreen transitions");
+			RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXSwapChain), "This SwapChain does not support fullscreen transitions (TODO)");
 			DXCallEx(factory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER), device->GetDevice());
 
 			DXCallEx(swapChain.As(&m_swapChain), device->GetDevice());
@@ -176,6 +177,12 @@ namespace Ryu::Gfx
 	
 	void SwapChain::CreateFrameResources()
 	{
+		if (!m_swapChain)
+		{
+			// Why and how did this happen?
+			return;
+		}
+
 		RYU_PROFILE_SCOPE();
 
 		if (auto parent = GetParent())
@@ -185,16 +192,16 @@ namespace Ryu::Gfx
 			// Create a RTV for each frame
 			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 			{
-				SurfaceData& data = m_surfaceData[i];
+				//SurfaceData& data = m_surfaceData[i];
 
-				DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&data.Resource)), device);
+				//DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&data.Resource)), device);
 
 				D3D12_RENDER_TARGET_VIEW_DESC desc{};
-				desc.Format = DXGI::GetFormatSRGB(DXGI::ConvertFormat(DEFAULT_RTV_FORMAT));
+				desc.Format = DXGI::GetFormatSRGB(DXGI::ConvertFormat(BACK_BUFFER_FORMAT));
 				desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-				device->CreateRenderTargetView(data.Resource.Get(), &desc, data.RTV.CPUHandle);
-				DX12::SetObjectName(data.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
+				//device->CreateRenderTargetView(data.Resource.Get(), &desc, data.RTV.CPUHandle);
+				//DX12::SetObjectName(data.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
 			}
 		}
 	}

@@ -17,6 +17,7 @@ namespace Ryu::Gfx::DebugLayer
 
 		if (config.EnableDebugLayer)
 		{
+			ComPtr<ID3D12DebugDevice2> d;
 			ComPtr<ID3D12Debug6> d3dDebug;
 			if (SUCCEEDED(::D3D12GetDebugInterface(IID_PPV_ARGS(&d3dDebug))))
 			{

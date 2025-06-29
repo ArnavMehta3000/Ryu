@@ -1,6 +1,6 @@
 {
 	"Namespace": "Ryu::Gfx",
-	"Name": "CmdQueuePriority",
+	"Name": "CommandQueuePriority",
 	"Base": "i32",
 	"EnableBitMaskOps": false,
 	"Types":

@@ -27,16 +27,11 @@ namespace Ryu::Gfx
 		, m_width(0)
 		, m_height(0)
 		, m_frameIndex(0)
+		, m_allowTearing(false)
+		, m_frameCount(0)
+		, m_rtvDescriptorSize(0)
 	{
-	}
-
-	std::shared_ptr<SwapChain> SwapChain::Create(std::weak_ptr<Device> parent, HWND window, Format format)
-	{
-		auto swapChain = std::shared_ptr<SwapChain>(new SwapChain(parent, window, format));
-		swapChain->CreateSwapChain();
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain created");
-		
-		return swapChain;
+		OnConstruct(window, format);
 	}
 
 	SwapChain::~SwapChain()
@@ -57,6 +52,17 @@ namespace Ryu::Gfx
 		}
 		
 		m_swapChain.Reset();
+	}
+
+	void SwapChain::OnConstruct(HWND window, Format format)
+	{
+		m_window = window;
+		m_format = format;
+		
+		GetWindowSize(m_window, m_width, m_height);
+		CreateSwapChain();
+		
+		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain created");
 	}
 
 	void SwapChain::Resize(const u32 width, const u32 height)
@@ -85,7 +91,7 @@ namespace Ryu::Gfx
 			DXCallEx(m_swapChain->ResizeBuffers(
 				FRAME_BUFFER_COUNT,
 				m_width, m_height,
-				DXGI::ConvertFormat(m_format),
+				DXGI::ToNative(m_format),
 				desc.Flags
 			), parent->GetDevice());
 
@@ -140,7 +146,7 @@ namespace Ryu::Gfx
 			desc.AlphaMode   = DXGI_ALPHA_MODE_IGNORE;
 			desc.BufferCount = FRAME_BUFFER_COUNT;
 			desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			desc.Format      = DXGI::ConvertFormat(m_format);  // SRGB format not enforced
+			desc.Format      = DXGI::ToNative(m_format);  // SRGB format not enforced
 			desc.Width       = 0;
 			desc.Height      = 0;
 			desc.Scaling     = DXGI_SCALING_NONE;
@@ -197,7 +203,7 @@ namespace Ryu::Gfx
 				//DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&data.Resource)), device);
 
 				D3D12_RENDER_TARGET_VIEW_DESC desc{};
-				desc.Format = DXGI::GetFormatSRGB(DXGI::ConvertFormat(BACK_BUFFER_FORMAT));
+				desc.Format = DXGI::GetFormatSRGB(DXGI::ToNative(BACK_BUFFER_FORMAT));
 				desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
 				//device->CreateRenderTargetView(data.Resource.Get(), &desc, data.RTV.CPUHandle);

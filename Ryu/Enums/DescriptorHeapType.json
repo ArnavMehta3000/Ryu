@@ -1,6 +1,6 @@
 {
 	"Namespace": "Ryu::Gfx",
-	"Name": "DescHeapType",
+	"Name": "DescriptorHeapType",
 	"Base": null,
 	"EnableBitMaskOps": false,
 	"Types":

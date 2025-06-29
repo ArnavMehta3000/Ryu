@@ -1,6 +1,6 @@
 {
 	"Namespace": "Ryu::Gfx",
-	"Name": "CmdListType",
+	"Name": "CommandListType",
 	"Base": null,
 	"EnableBitMaskOps": false,
 	"Types":

@@ -1,5 +1,7 @@
 #pragma once
 #include "Graphics/Core/DeviceObject.h"
+#include "Graphics/Core/CommandContext.h"
+#include "Graphics/Core/Fence.h"
 
 namespace Ryu::Gfx
 {
@@ -18,11 +20,13 @@ namespace Ryu::Gfx
 	private:
 		void Initialize();
 		void CreateDevice();
+		void CreateCommandContext();
 		void GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const;
 
 	private:
-		CD3DX12FeatureSupport           m_featureSupport;
-		ComPtr<DXGI::Factory>           m_factory;
-		ComPtr<DX12::Device>            m_device;
+		CD3DX12FeatureSupport       m_featureSupport;
+		ComPtr<DXGI::Factory>       m_factory;
+		ComPtr<DX12::Device>        m_device;
+		std::unique_ptr<CommandCtx> m_cmdCtx;
 	};
 }

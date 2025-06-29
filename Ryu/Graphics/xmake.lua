@@ -18,11 +18,11 @@ target("RyuGraphics")
 			root = path.join(os.projectdir(), "Ryu", "Enums"),
 			files =
 			{
-				"CmdListFLags.json",
-				"CmdListType.json",
-				"CmdQueuePriority.json",
-				"DescHeapFlags.json",
-				"DescHeapType.json",
+				"CommandListFLags.json",
+				"CommandListType.json",
+				"CommandQueuePriority.json",
+				"DescriptorHeapFlags.json",
+				"DescriptorHeapType.json",
 				"FenceFlag.json",
 				"Format.json",
 				"TextureFlags.json",

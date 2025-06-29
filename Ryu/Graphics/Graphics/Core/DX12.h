@@ -12,22 +12,25 @@ namespace Ryu::Gfx
 
 	namespace DX12
 	{
-		using Object        = ID3D12Object;
-		using Device        = ID3D12Device8;
-		using GfxCmdList    = ID3D12GraphicsCommandList6;
-		using Resource      = ID3D12Resource2;
-		using InfoQueue     = ID3D12InfoQueue1;
-		using Fence         = ID3D12Fence1;
-		using CmdQueue      = ID3D12CommandQueue;
-		using CmdAllocator  = ID3D12CommandAllocator;
-		using DescHeap      = ID3D12DescriptorHeap;
-		using PipelineState = ID3D12PipelineState;
+		using Object              = ID3D12Object;
+		using Device              = ID3D12Device8;
+		using CommandList         = ID3D12CommandList;
+		using GraphicsCommandList = ID3D12GraphicsCommandList6;
+		using Resource            = ID3D12Resource2;
+		using InfoQueue           = ID3D12InfoQueue1;
+		using Fence               = ID3D12Fence1;
+		using CommandQueue        = ID3D12CommandQueue;
+		using CommandAllocator    = ID3D12CommandAllocator;
+		using DescHeap            = ID3D12DescriptorHeap;
+		using PipelineState       = ID3D12PipelineState;
 
 		void SetObjectName(DX12::Object* object, const char* name);
 		std::string GetObjectName(DX12::Object* object);
 
-		constexpr D3D12_COMMAND_LIST_TYPE GetCmdListType(CmdListType type);
-		constexpr D3D12_DESCRIPTOR_HEAP_TYPE GetDescHeapType(DescHeapType type);
+		constexpr D3D12_COMMAND_LIST_TYPE ToNative(CommandListType type);
+		constexpr D3D12_COMMAND_QUEUE_PRIORITY ToNative(CommandQueuePriority priority);
+		constexpr D3D12_DESCRIPTOR_HEAP_TYPE ToNative(DescriptorHeapType type);
+		constexpr D3D12_FENCE_FLAGS ToNative(FenceFlag flag);
 	}
 
 	namespace DXGI
@@ -36,14 +39,12 @@ namespace Ryu::Gfx
 		using SwapChain = IDXGISwapChain4;
 		using Adapter   = IDXGIAdapter4;
 
-		constexpr DXGI_FORMAT ConvertFormat(Format format);
+		constexpr DXGI_FORMAT ToNative(Format format);
 		constexpr DXGI_FORMAT GetFormatSRGB(DXGI_FORMAT format);
 	}
 
 	namespace Internal
 	{
-		constexpr std::string_view CommandListTypeToString(D3D12_COMMAND_LIST_TYPE type);
-		constexpr std::string_view DescHeapTypeToString(D3D12_DESCRIPTOR_HEAP_TYPE type);
 		constexpr std::string_view FeatureLevelToString(D3D_FEATURE_LEVEL level);
 		std::string GetErrorString(HRESULT errorCode, DX12::Device* device);
 		bool LogHRESULT(

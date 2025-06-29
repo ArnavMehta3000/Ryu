@@ -1,10 +1,9 @@
 #include "Graphics/Core/Device.h"
-#include "Graphics/GraphicsConfig.h"
 #include "Graphics/Debug/DebugLayer.h"
+#include "Graphics/GraphicsConfig.h"
 #include "Math/Math.h"
 #include "Utils/StringConv.h"
 #include "Profiling/Profiling.h"
-#include <dxgidebug.h>
 
 namespace Ryu::Gfx
 {
@@ -33,8 +32,7 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 		CreateDevice();
-
-		// Create cmd ctx here
+		CreateCommandContext();
 		//Create Descriptor Heaps;
 
 		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
@@ -97,6 +95,13 @@ namespace Ryu::Gfx
 		// --- Set debug name & cache capabilities ---
 		DX12::SetObjectName(m_device.Get(), "Main Device");
 		DXCallEx(m_featureSupport.Init(m_device.Get()), m_device.Get());
+	}
+
+	void Device::CreateCommandContext()
+	{
+		RYU_PROFILE_SCOPE();
+
+		m_cmdCtx = std::make_unique<CommandCtx>(weak_from_this(), CommandListType::Direct);
 	}
 
 	void Device::GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const

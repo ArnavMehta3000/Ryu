@@ -31,9 +31,9 @@ namespace Ryu::Gfx
 		return out;
 	}
 
-	constexpr D3D12_COMMAND_LIST_TYPE DX12::GetCmdListType(CmdListType type)
+	constexpr D3D12_COMMAND_LIST_TYPE DX12::ToNative(CommandListType type)
 	{
-		using enum Ryu::Gfx::CmdListType;
+		using enum Ryu::Gfx::CommandListType;
 		
 		switch (type)
 		{
@@ -49,9 +49,22 @@ namespace Ryu::Gfx
 		}
 	}
 
-	constexpr D3D12_DESCRIPTOR_HEAP_TYPE DX12::GetDescHeapType(DescHeapType type)
+	constexpr D3D12_COMMAND_QUEUE_PRIORITY DX12::ToNative(CommandQueuePriority priority)
 	{
-		using enum Ryu::Gfx::DescHeapType;
+		using enum Ryu::Gfx::CommandQueuePriority;
+
+		switch (priority)
+		{
+		case Normal:   return D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+		case High:     return D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
+		case Realtime: return D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME;
+		default:       return D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+		}
+	}
+
+	constexpr D3D12_DESCRIPTOR_HEAP_TYPE DX12::ToNative(DescriptorHeapType type)
+	{
+		using enum Ryu::Gfx::DescriptorHeapType;
 
 		switch (type)
 		{
@@ -63,33 +76,20 @@ namespace Ryu::Gfx
 		}
 	}
 
-
-	constexpr std::string_view Internal::CommandListTypeToString(D3D12_COMMAND_LIST_TYPE type)
+	constexpr D3D12_FENCE_FLAGS DX12::ToNative(FenceFlag flag)
 	{
-		switch (type)
+		using enum Ryu::Gfx::FenceFlag;
+
+		switch (flag)
 		{
-			case D3D12_COMMAND_LIST_TYPE_DIRECT:        return "Direct";
-			case D3D12_COMMAND_LIST_TYPE_COMPUTE:       return "Compute";
-			case D3D12_COMMAND_LIST_TYPE_COPY:          return "Copy";
-			case D3D12_COMMAND_LIST_TYPE_BUNDLE:        return "Bundle";
-			case D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE:  return "VideoDecode";
-			case D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE:  return "VideoEncode";
-			case D3D12_COMMAND_LIST_TYPE_VIDEO_PROCESS: return "VideoProcess";
-			default:                                    return "<UNKNOWN>";
+		case None:               return D3D12_FENCE_FLAG_NONE;
+		case Shared:             return D3D12_FENCE_FLAG_SHARED;
+		case SharedCrossAdapter: return D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER;
+		case Monitored:          return D3D12_FENCE_FLAG_NON_MONITORED;
+		default:                 return D3D12_FENCE_FLAG_NONE;
 		}
 	}
 
-	constexpr std::string_view Internal::DescHeapTypeToString(D3D12_DESCRIPTOR_HEAP_TYPE type)
-	{
-		switch (type)
-		{
-			case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV: return "CBV_SRV_UAV";
-			case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:     return "Sampler";
-			case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:         return "RTV";
-			case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:         return "DSV";
-			default:                                     return "<UNKNOWN>";
-		}
-	}
 
 	constexpr std::string_view Internal::FeatureLevelToString(D3D_FEATURE_LEVEL level)
 	{
@@ -270,7 +270,7 @@ namespace Ryu::Gfx
 		return m_numAllocations < static_cast<u32>(m_freeList.size());
 	}
 
-	constexpr DXGI_FORMAT DXGI::ConvertFormat(Format format)
+	constexpr DXGI_FORMAT DXGI::ToNative(Format format)
 	{
 		return g_DXGIFormatMap[(u32)format];
 	}

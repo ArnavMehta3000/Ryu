@@ -9,8 +9,8 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_device    = Device::Create();
-		m_swapchain = SwapChain::Create(m_device, window);
+		m_device = Device::Create();
+		m_swapchain = std::make_shared<SwapChain>(m_device, window, BACK_BUFFER_FORMAT);
 	}
 	
 	Renderer::~Renderer()

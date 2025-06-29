@@ -5,13 +5,14 @@ namespace Ryu::Gfx
 {
 	struct DescriptorHandle;
 
-	class SwapChain : public DeviceObject
+	class SwapChain : public DeviceObject<SwapChain>
 	{
+		RYU_GFX_DEVICE_OBJ();
 		RYU_LOG_DECLARE_CATEGORY(GFXSwapChain);
 
 	public:
-		static std::shared_ptr<SwapChain> Create(std::weak_ptr<Device> parent, HWND window, Format format = BACK_BUFFER_FORMAT);
-
+		SwapChain() = default;
+		SwapChain(std::weak_ptr<Device> parent, HWND window, Format format = BACK_BUFFER_FORMAT);
 		~SwapChain();
 
 		inline NODISCARD HWND GetWindowHandle() const noexcept { return m_window; }
@@ -24,13 +25,13 @@ namespace Ryu::Gfx
 		void Present() const;
 
 	private:
-		SwapChain(std::weak_ptr<Device> parent, HWND window, Format format);
+		void OnConstruct(HWND window, Format format = BACK_BUFFER_FORMAT);
 		void CreateSwapChain();
 		void CreateFrameResources();
 
 	private:
-		HWND                    m_window;
-		Format                  m_format;
+		HWND                    m_window{ nullptr };
+		Format                  m_format{ BACK_BUFFER_FORMAT };
 		bool                    m_allowTearing;
 		u32                     m_frameCount;
 		u32                     m_width;

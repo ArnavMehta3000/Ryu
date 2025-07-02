@@ -79,8 +79,8 @@ namespace Ryu::Gfx
 
 	void CommandCtx::Flush(Fence& fence)
 	{
-		u64 fenceValue = fence.GetCompletedValue() + 1;
-		Signal(fence, fence.GetCompletedValue() + 1);
+		const u64 fenceValue = fence.GetNextValue();
+		Signal(fence, fenceValue);
 		fence.WaitCPU(fenceValue);
 	}
 }

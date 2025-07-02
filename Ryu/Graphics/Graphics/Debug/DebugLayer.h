@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/Core/RHI.h"
+#include "Graphics/Core/DX12.h"
 
 namespace Ryu::Gfx::DebugLayer
 {

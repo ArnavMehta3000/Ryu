@@ -6,9 +6,10 @@ target("RyuMath")
 	add_files("**.cpp", { unity_group = "Math" })
 
 	add_deps(
-		"RyuCommon", 
+		"RyuCommon",
 		"RyuExternals"
 	)
-
-	add_rules("c++.unity_build")
+	if has_config("ryu-unity-build") then
+		add_rules("c++.unity_build")
+	end
 target_end()

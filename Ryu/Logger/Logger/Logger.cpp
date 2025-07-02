@@ -1,10 +1,18 @@
 #include "Logger.h"
+#include "Logger/Assert.h"
 #include "Common/Enum.h"
+#include "Globals/Globals.h"
 #include <fmt/core.h>
 #include <fmt/chrono.h>
 
 namespace Ryu::Logging
 {
+	RYU_REGISTER_STATIC_SERVICE(
+		Logger,
+		[] { return std::make_unique<Logger>(); },
+		Utils::ServiceOptions{ .LazyInit = false, .Name = "Logger" }
+	);
+
 	void Logger::AddSink(std::unique_ptr<ILogSink> sink)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
@@ -90,5 +98,19 @@ namespace Ryu::Logging
 		}
 
 		return formattedMessage;
+	}
+
+	void Internal::InvokeLogger(const LogCategory& category, LogLevel level, const LogMessage& message)
+	{
+		if (auto result = Globals::GetServiceLocator().GetService<Logger>(); result.has_value())
+		{
+			result.value()->Log(category, level, message);
+		}
+		else
+		{
+			throw std::runtime_error(
+				"Globals::GetServiceLocator().GetService<Logger>() - "
+				"Failed to get logger service");
+		}
 	}
 }

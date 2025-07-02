@@ -11,7 +11,6 @@
 #define RYU_ASSERT_ENABLED 0
 #endif
 
-
 namespace Ryu
 {
     RYU_LOG_DECLARE_CATEGORY(Assert);

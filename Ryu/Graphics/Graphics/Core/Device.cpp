@@ -16,6 +16,12 @@ namespace Ryu::Gfx
 
 	void Device::Destroy(Device& device)
 	{
+		device.WaitForGPU();
+
+		device.m_cmdList.reset();
+		device.m_cmdCtx.reset();
+		device.m_fence.reset();
+
 		device.m_factory.Reset();
 
 #if defined(RYU_BUILD_DEBUG)
@@ -33,7 +39,8 @@ namespace Ryu::Gfx
 		RYU_PROFILE_SCOPE();
 		CreateDevice();
 		CreateCommandContext();
-		//Create Descriptor Heaps;
+		CreateCommandList();
+		CreateSynchronization();
 
 		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
 			"DX12 Device created with max feature level: {}",
@@ -100,8 +107,37 @@ namespace Ryu::Gfx
 	void Device::CreateCommandContext()
 	{
 		RYU_PROFILE_SCOPE();
-
 		m_cmdCtx = std::make_unique<CommandCtx>(weak_from_this(), CommandListType::Direct);
+	}
+
+	void Device::CreateCommandList()
+	{
+		RYU_PROFILE_SCOPE();
+		m_cmdList = std::make_unique<CommandList>(weak_from_this(), CommandListType::Direct);
+	}
+
+	void Device::CreateSynchronization()
+	{
+		RYU_PROFILE_SCOPE();
+		m_fence = std::make_unique<Fence>(weak_from_this(), 0, "Frame Fence");
+	}
+
+	void Device::WaitForGPU()
+	{
+		if (m_fence && m_cmdCtx)
+		{
+			const u64 fenceValue = m_fence->GetNextValue();
+			m_cmdCtx->Signal(*m_fence, fenceValue);
+			m_fence->WaitCPU(fenceValue);
+		}
+	}
+
+	void Device::FlushCommandQueue()
+	{
+		if (m_fence && m_cmdCtx)
+		{
+			m_cmdCtx->Flush(*m_fence);
+		}
 	}
 
 	void Device::GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const

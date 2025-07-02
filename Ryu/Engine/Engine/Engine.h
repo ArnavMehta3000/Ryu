@@ -1,8 +1,9 @@
 #pragma once
 #include "App/Application.h"
+#include "Utils/Singleton.h"
+#include "Utils/ServiceLocator.h"
 #include "Graphics/Renderer.h"
 #include "Logger/LogCategory.h"
-#include "Utils/Singleton.h"
 #include "Scripting/ScriptEngine.h"
 #include <memory>
 
@@ -38,4 +39,6 @@ namespace Ryu::Engine
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
 	};
+
+	Utils::ServiceLocator& GetServiceLocator();
 }

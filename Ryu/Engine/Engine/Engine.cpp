@@ -1,4 +1,5 @@
 #include "Engine/Engine.h"
+#include "Globals/Globals.h"
 #include "App/Utils/PathManager.h"
 #include "App/AppConfig.h"
 #include "Logger/Sinks/DebugSink.h"
@@ -40,7 +41,7 @@ namespace Ryu::Engine
 		}
 
 		// Check if debugger is attached
-		if (Common::Globals::IsDebuggerAttached())
+		if (Globals::IsDebuggerAttached())
 		{
 			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "--- A debugger is attached to the Engine!---");
 		}
@@ -155,7 +156,7 @@ namespace Ryu::Engine
 		{
 			using namespace Ryu::Logging;
 			// Custom version of the RYU_LOG_FATAL macro that includes a stack our assertion exception
-			Logger::Get().Log(
+			Logging::Internal::InvokeLogger(
 				AssertLog,
 				LogLevel::Fatal,
 				LogMessage
@@ -164,9 +165,9 @@ namespace Ryu::Engine
 					.Stacktrace = e.GetTrace()
 				});
 		}
-		catch (const std::exception& e)
+		catch (...)
 		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Unhandled exception: {}", e.what());
+			std::abort();
 		}
 
 		// Shutdown engine
@@ -189,39 +190,46 @@ namespace Ryu::Engine
 		using namespace Ryu::Utils;
 		using namespace Ryu::Common;
 
-		Logger& logger = Logger::Get();
-		const AppConfig& config = AppConfig::Get();
-
-		logger.SetOnFatalCallback([](LogLevel level, const LogMessage& message)
+		
+		if (auto logger = Globals::GetServiceLocator().GetService<Logger>().value_or(nullptr))
 		{
-			Utils::MessageBoxDesc desc;
-			desc.Title        = EnumToString(level);
-			desc.Title       += " Error";
-			desc.Text         = message.Message;
-			desc.Flags.Button = Utils::MessagBoxButton::Ok;
-			desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
+			const AppConfig& config = AppConfig::Get();
 
-			Utils::ShowMessageBox(desc);
-			std::abort();
-		});
+			logger->SetOnFatalCallback([](LogLevel level, const LogMessage& message)
+			{
+				Utils::MessageBoxDesc desc;
+				desc.Title = EnumToString(level);
+				desc.Title += " Error";
+				desc.Text = message.Message;
+				desc.Flags.Button = Utils::MessagBoxButton::Ok;
+				desc.Flags.Icon = Utils::MessageBoxIcon::Error;
 
-		// Log to output window only when debugger is attached
-		if (Globals::IsDebuggerAttached() || config.ForceLogToOutput)
-		{
-			logger.AddSink(std::make_unique<Logging::DebugSink>());
+				Utils::ShowMessageBox(desc);
+				std::abort();
+			});
+
+			// Log to output window only when debugger is attached
+			if (Globals::IsDebuggerAttached() || config.ForceLogToOutput)
+			{
+				logger->AddSink(std::make_unique<Logging::DebugSink>());
+			}
+
+			if (config.EnableLogToConsole)
+			{
+				logger->AddSink(std::make_unique<Logging::ConsoleSink>());
+			}
+
+			if (config.EnableLogToFile)
+			{
+				logger->AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
+				RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Application log file opened: {}", config.LogFilePath.Get());
+			}
+
+			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Logger initialized");
 		}
-
-		if (config.EnableLogToConsole)
+		else
 		{
-			logger.AddSink(std::make_unique<Logging::ConsoleSink>());
+			throw std::runtime_error("Failed to initialize logger");
 		}
-
-		if (config.EnableLogToFile)
-		{
-			logger.AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Application log file opened: {}", config.LogFilePath.Get());
-		}
-
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Logger initialized");
 	}
 }

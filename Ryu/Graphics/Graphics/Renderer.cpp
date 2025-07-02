@@ -1,6 +1,5 @@
 #include "Renderer.h"
 #include "Profiling/Profiling.h"
-#include "Graphics/GraphicsConfig.h"
 #include "Logger/Assert.h"
 
 namespace Ryu::Gfx
@@ -9,40 +8,42 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_device = Device::Create();
-		m_swapchain = std::make_shared<SwapChain>(m_device, window, BACK_BUFFER_FORMAT);
+		m_device    = Device::Create();
+		m_swapChain = std::make_shared<SwapChain>(m_device, window, BACK_BUFFER_FORMAT);
 	}
 	
 	Renderer::~Renderer()
 	{
 		RYU_PROFILE_SCOPE();
 
-		//if (m_device)
-		//{
-		//	m_device->GetCommandContext()->Flush();
-		//}
+		if (m_device)
+		{
+			m_device->WaitForGPU();
+			m_swapChain.reset();
+			Device::Destroy(*m_device);
+			m_device.reset();
+		}
 
-		// Process any pending releases for all frames
-		//for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
-		//{
-		//	if (m_device)
-		//	{
-		//		m_device->ProcessDeferredReleases(i);
-		//	}
-		//}
-
-		RYU_ASSERT(m_swapchain.use_count() == 1);
-		RYU_ASSERT(m_device.use_count() == 1);
-
-		m_swapchain.reset();
-		
-		Device::Destroy(*m_device);
-		m_device.reset();
+		//RYU_ASSERT(m_swapChain.use_count() == 1);
+		//RYU_ASSERT(m_device.use_count() == 1);
 	}
 	
 	void Renderer::Render()
 	{
 		RYU_PROFILE_SCOPE();
+
+		CommandList* const cmdList = m_device->GetCommandList(/*CommandListType::Direct*/);
+		cmdList->ResetCommandList();
+
+		// Record commands
+
+		cmdList->CloseCommandList();
+		m_device->GetCommandContext()->ExecuteCommandList(cmdList);
+
+
+		m_swapChain->Present();
+		m_device->WaitForGPU();
+
 		//if (auto ctx = m_device->GetCommandContext())
 		//{
 		//	// Wait for the GPU to finish with the command allocator and 
@@ -59,7 +60,7 @@ namespace Ryu::Gfx
 		//		m_device->ProcessDeferredReleases(frameIndex);
 		//	}
 		//	
-		//	auto& surfaceData = m_swapchain->GetCurrentSurfaceData();
+		//	auto& surfaceData = m_swapChain->GetCurrentSurfaceData();
 		//	
 		//	// RECORD COMMANDS HERE
 		//	auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -69,8 +70,8 @@ namespace Ryu::Gfx
 		//	);
 		//	cmdList->ResourceBarrier(1, &barrier);
 
-		//	cmdList->RSSetViewports(1, &m_swapchain->GetViewport());
-		//	cmdList->RSSetScissorRects(1, &m_swapchain->GetScissorRect());
+		//	cmdList->RSSetViewports(1, &m_swapChain->GetViewport());
+		//	cmdList->RSSetScissorRects(1, &m_swapChain->GetScissorRect());
 
 		//	const f32 clearColor[] = { 1.0f, 0.2f, 0.4f, 1.0f };
 		//	cmdList->ClearRenderTargetView(surfaceData.RTV.CPUHandle, clearColor, 0, nullptr);
@@ -88,12 +89,12 @@ namespace Ryu::Gfx
 		//	ctx->EndFrame();
 		//}
 
-		//m_swapchain->Present();
+		//m_swapChain->Present();
 	}
 
 	void Renderer::OnResize(u32 width, u32 height)
 	{
 		RYU_PROFILE_SCOPE();
-		m_swapchain->Resize(width, height);
+		m_swapChain->Resize(width, height);
 	}
 }

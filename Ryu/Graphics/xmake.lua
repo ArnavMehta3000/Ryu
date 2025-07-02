@@ -7,6 +7,7 @@ target("RyuGraphics")
 	end
 
 	add_deps(
+		"RyuGlobals",
 		"RyuProfiling",
 		"RyuLogger",
 		"RyuConfig",
@@ -34,8 +35,11 @@ target("RyuGraphics")
 	add_includedirs(".", { public = true })
 	add_files("**.cpp", { unity_group = "Graphics" })
 	add_headerfiles("**.h")
-	add_rules("c++.unity_build")
 	add_packages("directx-headers", { public = true })
 
 	add_links("d3d12", "dxgi", "dxguid", "Advapi32")
+
+	if has_config("ryu-unity-build") then
+		add_rules("c++.unity_build")
+	end
 target_end()

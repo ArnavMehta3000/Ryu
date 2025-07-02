@@ -7,6 +7,8 @@
 
 namespace Ryu::Gfx
 {
+	RYU_LOG_DECLARE_CATEGORY(DX12);
+
 	void DX12::SetObjectName(DX12::Object* object, const char* name)
 	{
 		if (object)
@@ -31,7 +33,7 @@ namespace Ryu::Gfx
 		return out;
 	}
 
-	constexpr D3D12_COMMAND_LIST_TYPE DX12::ToNative(CommandListType type)
+	D3D12_COMMAND_LIST_TYPE DX12::ToNative(CommandListType type)
 	{
 		using enum Ryu::Gfx::CommandListType;
 		
@@ -49,7 +51,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	constexpr D3D12_COMMAND_QUEUE_PRIORITY DX12::ToNative(CommandQueuePriority priority)
+	D3D12_COMMAND_QUEUE_PRIORITY DX12::ToNative(CommandQueuePriority priority)
 	{
 		using enum Ryu::Gfx::CommandQueuePriority;
 
@@ -62,7 +64,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	constexpr D3D12_DESCRIPTOR_HEAP_TYPE DX12::ToNative(DescriptorHeapType type)
+	D3D12_DESCRIPTOR_HEAP_TYPE DX12::ToNative(DescriptorHeapType type)
 	{
 		using enum Ryu::Gfx::DescriptorHeapType;
 
@@ -76,7 +78,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	constexpr D3D12_FENCE_FLAGS DX12::ToNative(FenceFlag flag)
+	D3D12_FENCE_FLAGS DX12::ToNative(FenceFlag flag)
 	{
 		using enum Ryu::Gfx::FenceFlag;
 
@@ -91,7 +93,7 @@ namespace Ryu::Gfx
 	}
 
 
-	constexpr std::string_view Internal::FeatureLevelToString(D3D_FEATURE_LEVEL level)
+	std::string_view Internal::FeatureLevelToString(D3D_FEATURE_LEVEL level)
 	{
 		switch(level)
 		{
@@ -270,12 +272,12 @@ namespace Ryu::Gfx
 		return m_numAllocations < static_cast<u32>(m_freeList.size());
 	}
 
-	constexpr DXGI_FORMAT DXGI::ToNative(Format format)
+	DXGI_FORMAT DXGI::ToNative(Format format)
 	{
 		return g_DXGIFormatMap[(u32)format];
 	}
 
-	constexpr DXGI_FORMAT DXGI::GetFormatSRGB(DXGI_FORMAT format)
+	DXGI_FORMAT DXGI::GetFormatSRGB(DXGI_FORMAT format)
 	{
 		switch (format)
 		{

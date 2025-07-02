@@ -8,8 +8,6 @@
 
 namespace Ryu::Gfx
 {
-	RYU_LOG_DECLARE_CATEGORY(DX12);
-
 	namespace DX12
 	{
 		using Object              = ID3D12Object;
@@ -27,10 +25,10 @@ namespace Ryu::Gfx
 		void SetObjectName(DX12::Object* object, const char* name);
 		std::string GetObjectName(DX12::Object* object);
 
-		constexpr D3D12_COMMAND_LIST_TYPE ToNative(CommandListType type);
-		constexpr D3D12_COMMAND_QUEUE_PRIORITY ToNative(CommandQueuePriority priority);
-		constexpr D3D12_DESCRIPTOR_HEAP_TYPE ToNative(DescriptorHeapType type);
-		constexpr D3D12_FENCE_FLAGS ToNative(FenceFlag flag);
+		D3D12_COMMAND_LIST_TYPE ToNative(CommandListType type);
+		D3D12_COMMAND_QUEUE_PRIORITY ToNative(CommandQueuePriority priority);
+		D3D12_DESCRIPTOR_HEAP_TYPE ToNative(DescriptorHeapType type);
+		D3D12_FENCE_FLAGS ToNative(FenceFlag flag);
 	}
 
 	namespace DXGI
@@ -39,13 +37,13 @@ namespace Ryu::Gfx
 		using SwapChain = IDXGISwapChain4;
 		using Adapter   = IDXGIAdapter4;
 
-		constexpr DXGI_FORMAT ToNative(Format format);
-		constexpr DXGI_FORMAT GetFormatSRGB(DXGI_FORMAT format);
+		DXGI_FORMAT ToNative(Format format);
+		DXGI_FORMAT GetFormatSRGB(DXGI_FORMAT format);
 	}
 
 	namespace Internal
 	{
-		constexpr std::string_view FeatureLevelToString(D3D_FEATURE_LEVEL level);
+		std::string_view FeatureLevelToString(D3D_FEATURE_LEVEL level);
 		std::string GetErrorString(HRESULT errorCode, DX12::Device* device);
 		bool LogHRESULT(
 			MAYBE_UNUSED HRESULT hr,

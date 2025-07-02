@@ -6,7 +6,7 @@ target("RyuLogger")
 	add_headerfiles("**.h")
 
 	add_packages("fmt", { public = true })
-
+	add_deps("RyuUtils", "RyuGlobals")
 	add_options(
 		"ryu-log-trace-enabled",
 		"ryu-log-debug-enabled",
@@ -37,6 +37,7 @@ target("RyuLogger")
 			force = false
 		})
 
-	add_deps("RyuUtils")
-	add_rules("c++.unity_build")
+	if has_config("ryu-unity-build") then
+		add_rules("c++.unity_build")
+	end
 target_end()

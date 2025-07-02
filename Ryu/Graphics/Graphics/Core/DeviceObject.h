@@ -1,22 +1,11 @@
 #pragma once
 #include "Graphics/Core/DX12.h"
+#include "Utils/Constructable.h"
 #include <memory>
 #include <mutex>
 
 namespace Ryu::Gfx
 {
-	template <typename T, typename... Args>
-	concept HasOnConstruct = requires(T* obj, Args&&... args) 
-	{
-		obj->OnConstruct(std::forward<Args>(args)...);
-	};
-
-	template<typename T>
-	concept HasParameterlessOnConstruct = requires(T* obj) 
-	{
-		obj->OnConstruct();
-	};
-
 	template<typename T>
 	concept DeviceObjectDerived = std::derived_from<T, DeviceObject<T>>;
 
@@ -25,20 +14,25 @@ namespace Ryu::Gfx
 	{
 	public:
 		DeviceObject() = default;
-		explicit DeviceObject(std::weak_ptr<Device> parent) : m_parent(parent) {}
+		explicit DeviceObject(std::weak_ptr<Device> parent) : m_parent(parent)
+		{
+			// If we are creating the object manually then mark this object as initialized
+			// It is the duty of the derived class to call OnConstruct in its constructor (if needed)
+			std::call_once(m_initFlag, []() {});
+		}
 		virtual ~DeviceObject() { m_parent.reset(); }
 
 		inline NODISCARD std::shared_ptr<Device> GetParent() const noexcept { return m_parent.lock(); }
 
 		// Initialize with OnConstruct arguments
 		template<typename... OnConstructArgs>
-			requires HasOnConstruct<Derived, OnConstructArgs...>
+			requires Utils::HasOnConstruct<Derived, OnConstructArgs...>
 		Derived& Initialize(std::weak_ptr<Device> parent, OnConstructArgs&&... args)
 		{
 			std::call_once(m_initFlag, [&]()
 			{
 				m_parent = parent;
-				static_cast<Derived*>(this)->OnConstruct(std::forward<OnConstructArgs>(args)...);
+				Utils::InvokeOnConstruct(static_cast<Derived*>(this), std::forward<OnConstructArgs>(args)...);
 			});
 
 			return static_cast<Derived&>(*this);
@@ -46,12 +40,12 @@ namespace Ryu::Gfx
 
 		// Initialize with parameterless OnConstruct
 		Derived& Initialize(std::weak_ptr<Device> parent)
-			requires HasParameterlessOnConstruct<Derived>
+			requires Utils::HasParameterlessOnConstruct<Derived>
 		{
 			std::call_once(m_initFlag, [&]()
 			{
 				m_parent = parent;
-				static_cast<Derived*>(this)->OnConstruct();
+				Utils::InvokeOnConstruct(static_cast<Derived*>(this));
 			});
 
 			return static_cast<Derived&>(*this);
@@ -59,7 +53,7 @@ namespace Ryu::Gfx
 
 		// Initialize without OnConstruct
 		Derived& Initialize(std::weak_ptr<Device> parent)
-			requires (!HasParameterlessOnConstruct<Derived>)
+			requires (!Utils::HasParameterlessOnConstruct<Derived>)
 		{
 			std::call_once(m_initFlag, [&]() { m_parent = parent; });
 			return static_cast<Derived&>(*this);

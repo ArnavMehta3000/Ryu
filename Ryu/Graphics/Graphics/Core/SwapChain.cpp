@@ -1,5 +1,6 @@
 #include "Graphics/Core/SwapChain.h"
 #include "Graphics/Core/Device.h"
+#include "Graphics/Core/CommandContext.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 
@@ -86,6 +87,8 @@ namespace Ryu::Gfx
 
 		if (auto parent = GetParent())
 		{
+			parent->WaitForGPU();
+
 			DXGI_SWAP_CHAIN_DESC1 desc{};
 			m_swapChain->GetDesc1(&desc);
 			DXCallEx(m_swapChain->ResizeBuffers(
@@ -132,6 +135,13 @@ namespace Ryu::Gfx
 		if (auto device = GetParent())
 		{
 			DXGI::Factory* const factory = device->GetFactory();
+			CommandCtx* const ctx = device->GetCommandContext();
+
+			if (!ctx || !ctx->GetCommandQueue())
+			{
+				RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXSwapChain), "Failed to create swapchain, graphics command context not available");
+				return;
+			}
 
 			auto& config = GraphicsConfig::Get();
 			const bool wantsTearing = config.AllowTearing;
@@ -161,14 +171,14 @@ namespace Ryu::Gfx
 
 			ComPtr<IDXGISwapChain1> swapChain;
 			RYU_TODO("Create command queue for this to work");
-			//DXCall(factory->CreateSwapChainForHwnd(
-			//	 --- COMMAND QUEUE ---,
-			//	m_window,
-			//	&desc,
-			//	&fsDesc,
-			//	nullptr,
-			//	&swapChain
-			//));
+			DXCall(factory->CreateSwapChainForHwnd(
+				ctx->GetCommandQueue(),
+				m_window,
+				&desc,
+				&fsDesc,
+				nullptr,
+				&swapChain
+			));
 
 			RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXSwapChain), "This SwapChain does not support fullscreen transitions (TODO)");
 			DXCallEx(factory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER), device->GetDevice());

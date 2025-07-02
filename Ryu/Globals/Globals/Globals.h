@@ -15,12 +15,12 @@ namespace Ryu::Utils::Internal
 	template <typename T>
 	struct StaticServiceRegistrar
 	{
-		StaticServiceRegistrar(auto&& factory, Utils::ServiceOptions options = {})
+		StaticServiceRegistrar(auto&& factory)
 		{
-			std::ignore = Globals::GetServiceLocator().RegisterService<T>(std::forward<decltype(factory)>(factory), options);
+			std::ignore = Globals::GetServiceLocator().RegisterService<T>(std::forward<decltype(factory)>(factory));
 		}
 	};
 }
 
-#define RYU_REGISTER_STATIC_SERVICE(Type, Factory, ...) \
-    static inline ::Ryu::Utils::Internal::StaticServiceRegistrar<Type> g_##Type##Registrar{ Factory, __VA_ARGS__ }
+#define RYU_REGISTER_STATIC_SERVICE(Type, Factory) \
+    static inline ::Ryu::Utils::Internal::StaticServiceRegistrar<Type> g_##Type##Registrar{ Factory }

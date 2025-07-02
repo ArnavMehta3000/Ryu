@@ -1,5 +1,4 @@
 #include "Logger.h"
-#include "Logger/Assert.h"
 #include "Common/Enum.h"
 #include "Globals/Globals.h"
 #include <fmt/core.h>
@@ -7,11 +6,7 @@
 
 namespace Ryu::Logging
 {
-	RYU_REGISTER_STATIC_SERVICE(
-		Logger,
-		[] { return std::make_unique<Logger>(); },
-		Utils::ServiceOptions{ .LazyInit = false, .Name = "Logger" }
-	);
+	RYU_REGISTER_STATIC_SERVICE(Logger, [] { return std::make_unique<Logger>(); });
 
 	void Logger::AddSink(std::unique_ptr<ILogSink> sink)
 	{

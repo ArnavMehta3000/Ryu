@@ -15,12 +15,6 @@
 
 namespace Ryu::Utils
 {
-	struct ServiceOptions
-	{
-		bool LazyInit = true;
-		std::string_view Name = "";
-	};
-
 	// Base interface for services
 	struct IService { virtual ~IService() = default; };
 
@@ -74,7 +68,6 @@ namespace Ryu::Utils
 		struct ServiceInfo
 		{
 			std::unique_ptr<IServiceHolder> Holder;
-			ServiceOptions Options;
 #if defined(RYU_BUILD_DEBUG)
 			std::source_location RegistrationLocation;
 #endif
@@ -89,12 +82,10 @@ namespace Ryu::Utils
 #if defined(RYU_BUILD_DEBUG)
 		std::expected<void, ServiceError> RegisterService(
 			Factory&& factory,
-			const ServiceOptions options= {},
 			std::source_location loc = std::source_location::current())
 #else
 		std::expected<void, ServiceError> RegisterService(
-			Factory&& factory,
-			const ServiceOptions options= {})
+			Factory&& factory)
 #endif
 		{
 			std::type_index typeId = std::type_index(typeid(T));
@@ -108,26 +99,13 @@ namespace Ryu::Utils
 				}
 
 				ServiceInfo info;
-				info.Holder = std::make_unique<ServiceHolder<T>>(std::forward<Factory>(factory)),
-					info.Options = options;
+				info.Holder = std::make_unique<ServiceHolder<T>>(std::forward<Factory>(factory));
 
 #if defined(RYU_BUILD_DEBUG)
 				info.RegistrationLocation = loc;
 #endif
 
 				m_services[typeId] = std::move(info);
-			}
-
-			// Early initialization requested
-			if (!options.LazyInit)
-			{
-				// Will trigger the holder to create
-				if (auto result = GetService<T>(); !result)
-				{
-					// Failed to get the service, remove it
-					m_services.erase(typeId);
-					return std::unexpected(ServiceError::CreationFailed);
-				}
 			}
 
 			return {};

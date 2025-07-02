@@ -16,6 +16,6 @@ namespace Ryu::Logging
 	};
 }
 
-#define RYU_LOG_DECLARE_CATEGORY(CategoryName) static constexpr ::Ryu::Logging::LogCategory RYU_CONCAT(CategoryName, Log){ #CategoryName }
+#define RYU_LOG_DECLARE_CATEGORY(CategoryName) static inline constexpr ::Ryu::Logging::LogCategory RYU_CONCAT(CategoryName, Log){ #CategoryName }
 
 #define RYU_LOG_USE_CATEGORY(CategoryName) RYU_CONCAT(CategoryName, Log)

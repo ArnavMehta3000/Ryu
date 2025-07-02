@@ -5,8 +5,7 @@ namespace Ryu::Gfx
 {
 	class Fence : public DeviceObject<Fence>
 	{
-		RYU_GFX_DEVICE_OBJ();
-		RYU_LOG_DECLARE_CATEGORY(GFXFence);
+		RYU_GFX_DEVICE_OBJ;
 	public:
 		Fence() = default;
 		Fence(std::weak_ptr<Device> parent, u64 initialValue = 0, std::string_view name = "");

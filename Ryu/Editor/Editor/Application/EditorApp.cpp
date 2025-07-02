@@ -10,6 +10,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace Ryu::Editor
 {
+	RYU_LOG_DECLARE_CATEGORY(EditorApp);
+
 	namespace
 	{
 		// Handle to the original application window procedure
@@ -25,11 +27,11 @@ namespace Ryu::Editor
 	{
 		RYU_PROFILE_SCOPE();
 
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "Initializing editor application");
+		RYU_LOG_TRACE(LogEditorApp, "Initializing editor application");
 
 		if (!RouteWndProc())
 		{
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(Editor), "Failed to route Editor WndProc!");
+			RYU_LOG_ERROR(LogEditorApp, "Failed to route Editor WndProc!");
 			return false;
 		}
 
@@ -38,12 +40,12 @@ namespace Ryu::Editor
 
 		if (!LoadGameModule())
 		{
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(Editor), "Failed to load game module!");
+			RYU_LOG_ERROR(LogEditorApp, "Failed to load game module!");
 			return false;
 		}
 
 		// Init user application
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "Initializing user application");
+		RYU_LOG_TRACE(LogEditorApp, "Initializing user application");
 		return m_userApp->OnInit();
 	}
 
@@ -51,14 +53,14 @@ namespace Ryu::Editor
 	{
 		RYU_PROFILE_SCOPE();
 
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "Shutting down editor application");
+		RYU_LOG_TRACE(LogEditorApp, "Shutting down editor application");
 
 		m_userApp->OnShutdown();
 
 		m_userApp.reset();
 		ShutdownImGui();
 
-		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Editor), "Editor application shutdown");
+		RYU_LOG_INFO(LogEditorApp, "Editor application shutdown");
 	}
 
 	void EditorApp::OnTick(const Utils::TimeInfo& timeInfo)
@@ -75,7 +77,7 @@ namespace Ryu::Editor
 		const bool success = s_originalWndProc != nullptr;
 		if (success)
 		{
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "WndProc routed to EditorApp");
+			RYU_LOG_TRACE(LogEditorApp, "WndProc routed to EditorApp");
 		}
 
 		return success;
@@ -107,7 +109,7 @@ namespace Ryu::Editor
 		//}
 
 		
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Editor), "ImGui initialized");
+		RYU_LOG_TRACE(LogEditorApp, "ImGui initialized");
 	}
 
 	void EditorApp::ShutdownImGui() const
@@ -125,7 +127,7 @@ namespace Ryu::Editor
 		
 		//ImGui_ImplWin32_Shutdown();
 		//ImGui::DestroyContext();
-		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Editor), "ImGui shutdown");
+		RYU_LOG_INFO(LogEditorApp, "ImGui shutdown");
 	}
 
 	bool EditorApp::LoadGameModule()

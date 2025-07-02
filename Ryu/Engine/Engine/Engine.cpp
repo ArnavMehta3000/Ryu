@@ -17,6 +17,8 @@
 
 namespace Ryu::Engine
 {
+	RYU_LOG_DECLARE_CATEGORY(Engine);
+
 	Engine::Engine()
 		: m_app(nullptr)
 	{
@@ -32,30 +34,29 @@ namespace Ryu::Engine
 
 		SetupLogger();
 
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
+		RYU_LOG_DEBUG(LogEngine, "Initializing Engine");
 
 		if (!DirectX::XMVerifyCPUSupport())
 		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "DirectX is not supported on this system");
+			RYU_LOG_FATAL(LogEngine, "DirectX is not supported on this system");
 			return false;
 		}
 
 		// Check if debugger is attached
 		if (Globals::IsDebuggerAttached())
 		{
-			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "--- A debugger is attached to the Engine!---");
+			RYU_LOG_INFO(LogEngine, "--- A debugger is attached to the Engine!---");
 		}
 		
 		// Load configs
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
-		
+		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());		
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
 			pathManager.GetProjectDir() / "Scripts").string());
 
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialization completed");
+		RYU_LOG_TRACE(LogEngine, "Engine initialization completed");
 
 		return true;
 	}
@@ -64,7 +65,7 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
+		RYU_LOG_DEBUG(LogEngine, "Shutting down Engine");
 
 		m_scriptEngine.reset();
 		m_app.reset();
@@ -72,7 +73,7 @@ namespace Ryu::Engine
 		
 		Config::ConfigManager::Get().SaveAll();
 
-		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Engine shutdown completed");
+		RYU_LOG_INFO(LogEngine, "Engine shutdown completed");
 	}
 
 	void Engine::MainLoop()
@@ -96,7 +97,7 @@ namespace Ryu::Engine
 		}
 		else
 		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize application! Exiting.");
+			RYU_LOG_FATAL(LogEngine, "Failed to initialize application! Exiting.");
 		}
 	}
 
@@ -124,7 +125,7 @@ namespace Ryu::Engine
 		// Init engine
 		if (!Init())
 		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");
+			RYU_LOG_FATAL(LogEngine, "Failed to initialize Engine! Exiting.");
 			return;
 		}
 
@@ -135,7 +136,7 @@ namespace Ryu::Engine
 			{
 				if (m_app)
 				{
-					RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Application window closed, shutting down...");
+					RYU_LOG_DEBUG(LogEngine, "Application window closed, shutting down...");
 					m_app->m_isRunning = false;
 				}
 			},
@@ -157,7 +158,7 @@ namespace Ryu::Engine
 			using namespace Ryu::Logging;
 			// Custom version of the RYU_LOG_FATAL macro that includes a stack our assertion exception
 			Logging::Internal::InvokeLogger(
-				AssertLog,
+				LogEngine,
 				LogLevel::Fatal,
 				LogMessage
 				{
@@ -176,7 +177,7 @@ namespace Ryu::Engine
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept
 	{
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine::OnAppResize -  {}x{}", width, height);
+		RYU_LOG_TRACE(LogEngine, "Engine::OnAppResize -  {}x{}", width, height);
 		if (m_renderer)
 		{
 			m_renderer->OnResize(width, height);
@@ -222,10 +223,10 @@ namespace Ryu::Engine
 			if (config.EnableLogToFile)
 			{
 				logger->AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
-				RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Application log file opened: {}", config.LogFilePath.Get());
+				RYU_LOG_TRACE(LogEngine, "Application log file opened: {}", config.LogFilePath.Get());
 			}
 
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Logger initialized");
+			RYU_LOG_TRACE(LogEngine, "Logger initialized");
 		}
 		else
 		{

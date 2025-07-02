@@ -8,8 +8,6 @@ namespace Ryu::Gfx
 {
 	class Device : public std::enable_shared_from_this<Device>
 	{
-		RYU_LOG_DECLARE_CATEGORY(GFXDevice);
-
 	public:
 		static std::shared_ptr<Device> Create();
 		static void Destroy(Device& device);

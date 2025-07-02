@@ -17,22 +17,21 @@ namespace Ryu::Gfx::DebugLayer
 
 		if (config.EnableDebugLayer)
 		{
-			ComPtr<ID3D12DebugDevice2> d;
 			ComPtr<ID3D12Debug6> d3dDebug;
 			if (SUCCEEDED(::D3D12GetDebugInterface(IID_PPV_ARGS(&d3dDebug))))
 			{
 				d3dDebug->EnableDebugLayer();
-				RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXDebugLayer), "DX12 Debug layer enabled");
+				RYU_LOG_TRACE(LogGFXDebugLayer, "DX12 Debug layer enabled");
 
 				if (config.EnableGPUBasedValidation)
 				{
 					d3dDebug->SetEnableGPUBasedValidation(TRUE);
-					RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDebugLayer), "DX12 GPU based validation enabled");
+					RYU_LOG_WARN(LogGFXDebugLayer, "DX12 GPU based validation enabled");
 				}
 			}
 			else
 			{
-				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDebugLayer), "DX12 Debug layer not available");
+				RYU_LOG_WARN(LogGFXDebugLayer, "DX12 Debug layer not available");
 			}
 
 			ComPtr<IDXGIDebug1> dxgiDebug;
@@ -42,7 +41,7 @@ namespace Ryu::Gfx::DebugLayer
 			}
 			else
 			{
-				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDebugLayer), "DXGI Debug layer not available");
+				RYU_LOG_WARN(LogGFXDebugLayer, "DXGI Debug layer not available");
 			}
 
 			ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
@@ -63,7 +62,7 @@ namespace Ryu::Gfx::DebugLayer
 			}
 			else
 			{
-				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDebugLayer), "DXGI Info Queue not available");
+				RYU_LOG_WARN(LogGFXDebugLayer, "DXGI Info Queue not available");
 			}
 		}
 	}
@@ -102,17 +101,17 @@ namespace Ryu::Gfx::DebugLayer
 					{
 						if (severity == D3D12_MESSAGE_SEVERITY_INFO || severity == D3D12_MESSAGE_SEVERITY_MESSAGE)
 						{
-							RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(GFXDebugLayer), "D3D12 Validation Layer: {}", description);
+							RYU_LOG_INFO(LogGFXDebugLayer, "D3D12 Validation Layer: {}", description);
 						}
 
 						if (severity == D3D12_MESSAGE_SEVERITY_ERROR)
 						{
-							RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXDebugLayer), "D3D12 Validation Layer: {}", description);
+							RYU_LOG_ERROR(LogGFXDebugLayer, "D3D12 Validation Layer: {}", description);
 						}
 
 						if (severity == D3D12_MESSAGE_SEVERITY_WARNING)
 						{
-							RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDebugLayer), "D3D12 Validation Layer: {}", description);
+							RYU_LOG_WARN(LogGFXDebugLayer, "D3D12 Validation Layer: {}", description);
 						}
 					};
 
@@ -215,7 +214,7 @@ namespace Ryu::Gfx::DebugLayer
 		}
 		else
 		{
-			RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDebugLayer), "Enable Developer Mode on Windows 10 to get consistent profiling results");
+			RYU_LOG_WARN(LogGFXDebugLayer, "Enable Developer Mode on Windows 10 to get consistent profiling results");
 		}
 	}
 }

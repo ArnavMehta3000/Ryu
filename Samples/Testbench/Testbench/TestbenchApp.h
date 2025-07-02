@@ -4,8 +4,6 @@
 
 class TestbenchApp : public Ryu::App::App
 {
-	RYU_LOG_DECLARE_CATEGORY(TestbenchApp);
-
 public:
 	explicit TestbenchApp(std::shared_ptr<Ryu::Window::Window> window);
 

@@ -5,6 +5,8 @@
 
 namespace Ryu::Gfx
 {
+	RYU_LOG_DECLARE_CATEGORY(GFXCommandList);
+
 	CommandList::CommandList(std::weak_ptr<Device> parent, CommandListType type)
 		: DeviceObject(parent)
 	{
@@ -58,7 +60,7 @@ namespace Ryu::Gfx
 		}
 		else
 		{
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXCommandList), "Trying to construct graphics command list ({}). Parent device is null", EnumToString(type));
+			RYU_LOG_ERROR(LogGFXCommandList, "Trying to construct graphics command list ({}). Parent device is null", EnumToString(type));
 		}
 	}
 }

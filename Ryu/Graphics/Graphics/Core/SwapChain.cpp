@@ -6,6 +6,8 @@
 
 namespace Ryu::Gfx
 {
+	RYU_LOG_DECLARE_CATEGORY(GFXSwapChain);
+
 	static void GetWindowSize(HWND window, u32& outWidth, u32& outHeight)
 	{
 		if (!window)
@@ -48,7 +50,7 @@ namespace Ryu::Gfx
 			//}
 			//else
 			//{
-			//	RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXSwapChain), "Parent device is null");
+			//	RYU_LOG_ERROR(LogGFXSwapChain, "Parent device is null");
 			//}
 		}
 		
@@ -63,7 +65,7 @@ namespace Ryu::Gfx
 		GetWindowSize(m_window, m_width, m_height);
 		CreateSwapChain();
 		
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain created");
+		RYU_LOG_DEBUG(LogGFXSwapChain, "SwapChain created");
 	}
 
 	void SwapChain::Resize(const u32 width, const u32 height)
@@ -111,11 +113,11 @@ namespace Ryu::Gfx
 			m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<f32>(m_width), static_cast<f32>(m_height));
 			m_scissorRect = CD3DX12_RECT(0l, 0l, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
 
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain resized to {}x{}", m_width, m_height);
+			RYU_LOG_TRACE(LogGFXSwapChain, "SwapChain resized to {}x{}", m_width, m_height);
 		}
 		else
 		{
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXSwapChain), "SwapChain resize failed, parent device is null");
+			RYU_LOG_ERROR(LogGFXSwapChain, "SwapChain resize failed, parent device is null");
 		}
 	}
 
@@ -139,7 +141,7 @@ namespace Ryu::Gfx
 
 			if (!ctx || !ctx->GetCommandQueue())
 			{
-				RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXSwapChain), "Failed to create swapchain, graphics command context not available");
+				RYU_LOG_ERROR(LogGFXSwapChain, "Failed to create swapchain, graphics command context not available");
 				return;
 			}
 
@@ -180,7 +182,7 @@ namespace Ryu::Gfx
 				&swapChain
 			));
 
-			RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXSwapChain), "This SwapChain does not support fullscreen transitions (TODO)");
+			RYU_LOG_DEBUG(LogGFXSwapChain, "This SwapChain does not support fullscreen transitions (TODO)");
 			DXCallEx(factory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER), device->GetDevice());
 
 			DXCallEx(swapChain.As(&m_swapChain), device->GetDevice());

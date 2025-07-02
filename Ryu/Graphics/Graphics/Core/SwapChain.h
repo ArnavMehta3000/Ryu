@@ -7,9 +7,7 @@ namespace Ryu::Gfx
 
 	class SwapChain : public DeviceObject<SwapChain>
 	{
-		RYU_GFX_DEVICE_OBJ();
-		RYU_LOG_DECLARE_CATEGORY(GFXSwapChain);
-
+		RYU_GFX_DEVICE_OBJ;
 	public:
 		SwapChain() = default;
 		SwapChain(std::weak_ptr<Device> parent, HWND window, Format format = BACK_BUFFER_FORMAT);

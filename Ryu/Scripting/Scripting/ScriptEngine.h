@@ -1,5 +1,5 @@
 #pragma once
-#include "Logger/LogCategory.h"
+#include "Common/ObjectMacros.h"
 #include "Logger/LogLevel.h"
 #include "Scripting/ScriptBuilder.h"
 #include <string>
@@ -9,8 +9,6 @@ namespace Ryu::Scripting
 {
 	class ScriptEngine
 	{
-		RYU_LOG_DECLARE_CATEGORY(ScriptEngine);
-
 	public:
 		ScriptEngine(const std::string& scriptDir);
 		~ScriptEngine();

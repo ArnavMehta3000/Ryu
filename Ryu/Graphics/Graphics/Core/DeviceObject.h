@@ -71,4 +71,4 @@ namespace Ryu::Gfx
 	};
 
 }
-#define RYU_GFX_DEVICE_OBJ() template<typename T> friend class ::Ryu::Gfx::DeviceObject
+#define RYU_GFX_DEVICE_OBJ template<typename T> friend class ::Ryu::Gfx::DeviceObject

@@ -9,6 +9,8 @@
 
 namespace Ryu::Gfx
 {
+	RYU_LOG_DECLARE_CATEGORY(GFXCommandCtx);
+
 	CommandCtx::CommandCtx(std::weak_ptr<Device> parent, CommandListType type, CommandQueuePriority priority)
 		: DeviceObject(parent), m_type(type)
 	{
@@ -35,7 +37,7 @@ namespace Ryu::Gfx
 		}
 		else
 		{
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXCommandCtx), "CommandCtx::CreateCommandQueue failed, parent device is not valid!");
+			RYU_LOG_ERROR(LogGFXCommandCtx, "CommandCtx::CreateCommandQueue failed, parent device is not valid!");
 		}
 	}
 

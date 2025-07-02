@@ -11,7 +11,6 @@ namespace Ryu::Engine
 {
 	class Engine : public Utils::Singleton<Engine>
 	{
-		RYU_LOG_DECLARE_CATEGORY(Engine);
 		RYU_SINGLETON_DECLARE(Engine);
 
 	public:

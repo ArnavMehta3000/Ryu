@@ -7,8 +7,7 @@ namespace Ryu::Gfx
 {
 	class CommandCtx : public DeviceObject<CommandCtx>
 	{
-		RYU_LOG_DECLARE_CATEGORY(GFXCommandCtx);
-
+		RYU_GFX_DEVICE_OBJ;
 	public:
 		CommandCtx() = default;
 		CommandCtx(std::weak_ptr<Device> parent, CommandListType type, CommandQueuePriority priority = CommandQueuePriority::Normal);

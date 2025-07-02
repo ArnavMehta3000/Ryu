@@ -5,8 +5,7 @@ namespace Ryu::Gfx
 {
 	class CommandList : public DeviceObject<CommandList>
 	{
-		RYU_GFX_DEVICE_OBJ();
-		RYU_LOG_DECLARE_CATEGORY(GFXCommandList);
+		RYU_GFX_DEVICE_OBJ;
 	public:
 		CommandList() = default;
 		CommandList(std::weak_ptr<Device> parent, CommandListType type);

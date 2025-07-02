@@ -4,10 +4,6 @@
 
 namespace Ryu::Logging
 {
-	/**
-	 * @brief Represents a log category
-	 * @details Wraps a string to be used as a log category
-	 */
 	struct LogCategory
 	{
 		std::string_view Name;
@@ -16,6 +12,5 @@ namespace Ryu::Logging
 	};
 }
 
-#define RYU_LOG_DECLARE_CATEGORY(CategoryName) static inline constexpr ::Ryu::Logging::LogCategory RYU_CONCAT(CategoryName, Log){ #CategoryName }
+#define RYU_LOG_DECLARE_CATEGORY(CategoryName) static inline constexpr ::Ryu::Logging::LogCategory RYU_CONCAT(Log, CategoryName){ #CategoryName }
 
-#define RYU_LOG_USE_CATEGORY(CategoryName) RYU_CONCAT(CategoryName, Log)

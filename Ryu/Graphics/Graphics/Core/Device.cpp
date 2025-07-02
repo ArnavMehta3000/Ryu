@@ -7,6 +7,8 @@
 
 namespace Ryu::Gfx
 {
+	RYU_LOG_DECLARE_CATEGORY(GFXDevice);
+
 	std::shared_ptr<Device> Device::Create()
 	{
 		auto device = std::shared_ptr<Device>(new Device());
@@ -27,8 +29,8 @@ namespace Ryu::Gfx
 #if defined(RYU_BUILD_DEBUG)
 		// Reset severity breaks
 		DebugLayer::SetupSeverityBreaks(device.m_device, false);
-		DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(device.m_device);
 		DebugLayer::SetStablePowerState(device.m_device, false);
+		DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(device.m_device);
 #else
 		device.m_device.Reset();  // Manually release device
 #endif
@@ -37,13 +39,15 @@ namespace Ryu::Gfx
 	void Device::Initialize()
 	{
 		RYU_PROFILE_SCOPE();
+
+		DebugLayer::Initialize();
+
 		CreateDevice();
 		CreateCommandContext();
 		CreateCommandList();
 		CreateSynchronization();
 
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
-			"DX12 Device created with max feature level: {}",
+		RYU_LOG_DEBUG(LogGFXDevice, "DX12 Device created with max feature level: {}",
 			Internal::FeatureLevelToString(m_featureSupport.MaxSupportedFeatureLevel()));
 	}
 
@@ -82,11 +86,11 @@ namespace Ryu::Gfx
 		{
 			if (useWarpDevice)
 			{
-				RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice), "WARP software adapter requested");
+				RYU_LOG_DEBUG(LogGFXDevice, "WARP software adapter requested");
 			}
 			else
 			{
-				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "Failed to find a hardware adapter.  Falling back to WARP");
+				RYU_LOG_WARN(LogGFXDevice, "Failed to find a hardware adapter.  Falling back to WARP");
 			}
 
 			DXCall(m_factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter)));
@@ -165,7 +169,7 @@ namespace Ryu::Gfx
 			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
 				const std::string description = Utils::ToNarrowStr(desc.Description);
-				RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
+				RYU_LOG_DEBUG(LogGFXDevice,
 					"Using GPU: {} ({}) - {:.2f} GB", description, desc.VendorId, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
 				break;
 			}

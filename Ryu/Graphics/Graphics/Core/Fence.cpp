@@ -7,6 +7,8 @@
 
 namespace Ryu::Gfx
 {
+	RYU_LOG_DECLARE_CATEGORY(GFXFence);
+
 	Fence::Fence(std::weak_ptr<Device> parent, u64 initialValue, std::string_view name)
 		: DeviceObject(parent)
 	{
@@ -37,7 +39,7 @@ namespace Ryu::Gfx
 		}
 		else
 		{
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXFence), "Trying to construct graphics fence. Parent device is null");
+			RYU_LOG_ERROR(LogGFXFence, "Trying to construct graphics fence. Parent device is null");
 		}
 	}
 

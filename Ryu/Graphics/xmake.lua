@@ -1,6 +1,6 @@
 target("RyuGraphics")
 	set_kind("static")
-	set_group("Ryu/Graphics")
+	set_group("Ryu/Core")
 
 	if has_config("ryu-throw-on-fail-hresult") then
 		add_defines("RYU_THROW_ON_FAIL_HRESULT")

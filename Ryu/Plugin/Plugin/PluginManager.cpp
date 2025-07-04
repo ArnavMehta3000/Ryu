@@ -7,6 +7,7 @@ namespace Ryu::Plugin
 		for (auto& [name, plugin] : m_loadedPlugins)
 		{
 			plugin.ShutdownFunc();
+			plugin.FunctionTable.reset();
 			UnloadDLL(plugin.Handle);
 		}
 	}

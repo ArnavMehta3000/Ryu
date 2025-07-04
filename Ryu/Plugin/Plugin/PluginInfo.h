@@ -44,11 +44,10 @@ namespace Ryu::Plugin
 	template <typename PluginType, typename InterfaceType>
 	concept PluginImplementation = requires(PluginType plugin, PluginPhase phase)
 	{
-		{ PluginType::GetInfo()           } -> std::same_as<PluginInfo>;
+		{ PluginType::GetInfo()                 } -> std::same_as<PluginInfo>;
 	    { PluginType::GetFunctionTable(plugin)  } -> std::convertible_to<typename InterfaceType::FunctionTable>;
-	    { plugin.OnInitialize(phase)      } -> std::same_as<bool>;
-	    { plugin.OnShutdown(phase)        } -> std::same_as<void>;
-	    //{ T::GetAPI(&t)                 } -> std::convertible_to<typename API::APIType>;
+	    { plugin.OnInitialize(phase)            } -> std::same_as<bool>;
+	    { plugin.OnShutdown(phase)              } -> std::same_as<void>;
 	};
 
 	using PluginCreationFunction = std::add_pointer_t<void*()>;
@@ -56,5 +55,19 @@ namespace Ryu::Plugin
 
 	template <typename T>
 	using PluginFunctionTableGetterFunction = std::add_pointer_t<bool(void*, typename T::FunctionTable*)>;
-	
+
+
+	// Base for declaring template implementations
+	template <typename InterfaceType>
+	struct IPlugin
+	{
+		using Interface = InterfaceType;
+	};
+
+	// Base class for declaring plugin interfaces
+	template <typename FuncTable>
+	struct IPluginInterface
+	{
+		using FunctionTable = FuncTable;
+	};
 }

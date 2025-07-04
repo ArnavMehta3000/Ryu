@@ -150,10 +150,9 @@ namespace Ryu::Plugin
 	};
 
 
-	class DLLTestInterface
+	class DLLTestInterface : public IPluginInterface<DLLTestFunctionTable>
 	{
 	public:
-		using FunctionTable = DLLTestFunctionTable;
 		static std::string GetInterfaceName() { return "DLLTest"; }
 		static std::unordered_map<std::string, std::any> GetFunctionSignatures()
 		{
@@ -169,7 +168,6 @@ namespace Ryu::Plugin
 		{
 			return ft.MyInitialize && ft.MyShutdown && ft.TestFunc;
 		}
-
 	};
 
 	static_assert(PluginInterface<DLLTestInterface>);

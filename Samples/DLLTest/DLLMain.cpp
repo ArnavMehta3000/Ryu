@@ -3,11 +3,9 @@
 
 using namespace Ryu::Plugin;
 
-class DLLTestPlugin
+class DLLTestPlugin : public IPlugin<DLLTestInterface>
 {
 public:
-	using Interface = DLLTestInterface;
-
 	DLLTestPlugin() { x = 10; }
 	bool OnInitialize(PluginPhase) { std::print("PLUGIN TEST!");  return true; }
 	void OnShutdown(PluginPhase) {}
@@ -30,61 +28,34 @@ private:
 };
 
 
-#define PLUGIN(PluginName, InterfaceName)                                         \
-	static_assert(PluginImplementation<PluginName, InterfaceName>);               \
-	extern "C"                                                                    \
-		{                                                                         \
-		__declspec(dllexport)                                                     \
-		PluginName* CreatePlugin()                                                \
-		{                                                                         \
-			return new PluginName();                                              \
-		}                                                                         \
-                                                                                  \
-		__declspec(dllexport)                                                     \
-		void DestroyPlugin(void* plugin)                                          \
-		{                                                                         \
-			delete (PluginName*)plugin;                                           \
-			plugin = nullptr;                                                     \
-		}                                                                         \
-		__declspec(dllexport)                                                     \
-		PluginName::Interface::FunctionTable GetFunctionTable(void* plugin) \
-		{                                                                         \
-			return PluginName::Interface::GetFunctionTable();          \
-		}                                                                         \
-	}
-
-
-
-
-//PLUGIN(DLLTestPlugin, DLLTestInterface)
-
-
-static_assert(PluginImplementation<DLLTestPlugin, DLLTestInterface>);
-extern "C"
-{
-	__declspec(dllexport)
-		DLLTestPlugin* CreatePlugin()
-	{
-		return new DLLTestPlugin();
-	}
-
-	__declspec(dllexport)
-		void DestroyPlugin(void* plugin)
-	{
-		delete (DLLTestPlugin*)plugin;
-		plugin = nullptr;
-	}
-	__declspec(dllexport)
-		bool GetFunctionTable(void* plugin, DLLTestPlugin::Interface::FunctionTable* outTable)
-	{
-		if (!plugin || !outTable)
-			return false;
-
-		if (auto p = static_cast<DLLTestPlugin*>(plugin))
-		{
-			*outTable = DLLTestPlugin::GetFunctionTable(*p);
-			return true;
-		}
-		return false;
-	}
+#define PLUGIN(PluginName, InterfaceName)                                                                     \
+static_assert(PluginImplementation<PluginName, InterfaceName>);                                               \
+extern "C"                                                                                                    \
+{                                                                                                             \
+	__declspec(dllexport) PluginName* CreatePlugin()                                                          \
+	{                                                                                                         \
+		return new PluginName();                                                                              \
+	}                                                                                                         \
+                                                                                                              \
+	__declspec(dllexport) void DestroyPlugin(void* plugin)                                                    \
+	{                                                                                                         \
+		delete (PluginName*)plugin;                                                                           \
+		plugin = nullptr;                                                                                     \
+	}                                                                                                         \
+	__declspec(dllexport) bool GetFunctionTable(void* plugin, PluginName::Interface::FunctionTable* outTable) \
+	{                                                                                                         \
+		if (!plugin || !outTable)                                                                             \
+		{                                                                                                     \
+			return false;                                                                                     \
+		}                                                                                                     \
+                                                                                                              \
+		if (auto p = static_cast<PluginName*>(plugin))                                                        \
+		{                                                                                                     \
+			*outTable = PluginName::GetFunctionTable(*p);                                                     \
+			return true;                                                                                      \
+		}                                                                                                     \
+		return false;                                                                                         \
+	}                                                                                                         \
 }
+
+PLUGIN(DLLTestPlugin, DLLTestInterface)

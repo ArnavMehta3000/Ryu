@@ -1,6 +1,5 @@
 #include "Graphics/Core/SwapChain.h"
 #include "Graphics/Core/Device.h"
-#include "Graphics/Core/CommandContext.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 
@@ -8,19 +7,22 @@ namespace Ryu::Gfx
 {
 	RYU_LOG_DECLARE_CATEGORY(GFXSwapChain);
 
-	static void GetWindowSize(HWND window, u32& outWidth, u32& outHeight)
+	namespace
 	{
-		if (!window)
+		static void GetWindowSize(HWND window, u32& outWidth, u32& outHeight)
 		{
-			outWidth = 0;
-			outHeight = 0;
-			return;
-		}
+			if (!window)
+			{
+				outWidth = 0;
+				outHeight = 0;
+				return;
+			}
 
-		RECT r{};
-		::GetClientRect(window, &r);
-		outWidth = static_cast<u32>(r.right - r.left);
-		outHeight = static_cast<u32>(r.bottom - r.top);
+			RECT r{};
+			::GetClientRect(window, &r);
+			outWidth = static_cast<u32>(r.right - r.left);
+			outHeight = static_cast<u32>(r.bottom - r.top);
+		}
 	}
 
 	SwapChain::SwapChain(std::weak_ptr<Device> parent, HWND window, Format format)
@@ -39,22 +41,7 @@ namespace Ryu::Gfx
 
 	SwapChain::~SwapChain()
 	{
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
-		{
-			//SurfaceData& data = m_surfaceData[i];
-			//data.Resource.Reset();
-			
-			//if (auto parent = GetParent())
-			//{
-			//	parent->GetRTVHeap()->Free(data.RTV);
-			//}
-			//else
-			//{
-			//	RYU_LOG_ERROR(LogGFXSwapChain, "Parent device is null");
-			//}
-		}
-		
-		m_swapChain.Reset();
+		OnDestruct();
 	}
 
 	void SwapChain::OnConstruct(HWND window, Format format)
@@ -66,6 +53,29 @@ namespace Ryu::Gfx
 		CreateSwapChain();
 		
 		RYU_LOG_DEBUG(LogGFXSwapChain, "SwapChain created");
+	}
+
+	void SwapChain::OnDestruct()
+	{
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			//SurfaceData& data = m_surfaceData[i];
+			//data.Resource.Reset();
+
+			//if (auto parent = GetParent())
+			//{
+			//	parent->GetRTVHeap()->Free(data.RTV);
+			//}
+			//else
+			//{
+			//	RYU_LOG_ERROR(LogGFXSwapChain, "Parent device is null");
+			//}
+		}
+
+		if (m_swapChain)
+		{
+			m_swapChain.Reset();
+		}
 	}
 
 	void SwapChain::Resize(const u32 width, const u32 height)
@@ -137,9 +147,8 @@ namespace Ryu::Gfx
 		if (auto device = GetParent())
 		{
 			DXGI::Factory* const factory = device->GetFactory();
-			CommandCtx* const ctx = device->GetCommandContext();
-
-			if (!ctx || !ctx->GetCommandQueue())
+			DX12::CommandQueue* const cmdQueue = device->GetCommandQueue();
+			if (!cmdQueue)
 			{
 				RYU_LOG_ERROR(LogGFXSwapChain, "Failed to create swapchain, graphics command context not available");
 				return;
@@ -174,7 +183,7 @@ namespace Ryu::Gfx
 			ComPtr<IDXGISwapChain1> swapChain;
 			RYU_TODO("Create command queue for this to work");
 			DXCall(factory->CreateSwapChainForHwnd(
-				ctx->GetCommandQueue(),
+				cmdQueue,
 				m_window,
 				&desc,
 				&fsDesc,
@@ -197,8 +206,7 @@ namespace Ryu::Gfx
 	{
 		if (!m_swapChain)
 		{
-			// Why and how did this happen?
-			return;
+			return;  // Why and how did this happen?
 		}
 
 		RYU_PROFILE_SCOPE();

@@ -12,13 +12,13 @@ namespace Ryu::Gfx
 		~Fence();
 
 		// Set a fence value from the GPU
-		void SignalGPU(CommandCtx* cmdContext, u64 value);
+		void SignalGPU(DX12::CommandQueue* cmdContext, u64 value);
 
 		// Set a fence value from the CPU
 		void SignalCPU(u64 value);
 
 		// Block the GPU until a fence value is reached
-		void WaitGPU(CommandCtx* cmdContext, u64 value) const;
+		void WaitGPU(DX12::CommandQueue* cmdContext, u64 value) const;
 
 		// Block the CPU until a fence value is reached
 		void WaitCPU(u64 value) const;
@@ -37,7 +37,8 @@ namespace Ryu::Gfx
 		inline NODISCARD DX12::Fence* GetFence() const noexcept { return m_fence.Get(); }
 
 	private:
-		void OnConstruct(u64 initialValue, std::string_view name);
+		void OnConstruct(u64 initialValue = 0, std::string_view name = "");
+		void OnDestruct();
 
 	private:
 		ComPtr<DX12::Fence> m_fence;

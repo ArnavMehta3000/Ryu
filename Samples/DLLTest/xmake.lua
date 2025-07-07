@@ -1,5 +1,5 @@
 target("RyuDLLTestbench")
-	add_rules("RyuGame")  -- Build this target as the game project
+	--add_rules("RyuGame")  -- Build this target as the game project
 
 	after_config(function(target)
 		target:set("kind", "shared")

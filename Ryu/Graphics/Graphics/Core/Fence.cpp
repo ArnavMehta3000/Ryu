@@ -1,6 +1,5 @@
 #include "Graphics/Core/Fence.h"
 #include "Graphics/Core/Device.h"
-#include "Graphics/Core/CommandContext.h"
 #include "Profiling/Profiling.h"
 #include "Logger/Logger.h"
 #include "Logger/Assert.h"
@@ -17,8 +16,7 @@ namespace Ryu::Gfx
 
 	Fence::~Fence()
 	{
-		m_fence.Reset();
-		::CloseHandle(m_handle);
+		OnDestruct();
 	}
 	
 	void Fence::OnConstruct(u64 initialValue, std::string_view name)
@@ -43,17 +41,31 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void Fence::SignalGPU(CommandCtx* cmdContext, u64 value)
+	void Fence::OnDestruct()
+	{
+		if (m_fence)
+		{
+			m_fence.Reset();
+		}
+
+		if (m_handle) 
+		{
+			::CloseHandle(m_handle);
+			m_handle = nullptr;
+		}
+	}
+
+	void Fence::SignalGPU(DX12::CommandQueue* cmdContext, u64 value)
 	{
 		RYU_PROFILE_SCOPE();
-		DX12::CommandQueue* const cmdQueue = cmdContext ? cmdContext->GetCommandQueue() : nullptr;
-		if (cmdQueue && m_fence)
+		//DX12::CommandQueue* const cmdQueue = cmdContext ? cmdContext->GetCommandQueue() : nullptr;
+		if (cmdContext && m_fence)
 		{
-			cmdQueue->Signal(m_fence.Get(), value);
+			cmdContext->Signal(m_fence.Get(), value);
 			m_currentValue = value;
 		}
 	}
-	
+
 	void Fence::SignalCPU(u64 value)
 	{
 		if (m_fence)
@@ -63,13 +75,13 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void Fence::WaitGPU(CommandCtx* cmdContext, u64 value) const
+	void Fence::WaitGPU(DX12::CommandQueue* cmdContext, u64 value) const
 	{
 		RYU_PROFILE_SCOPE();
-		DX12::CommandQueue* const cmdQueue = cmdContext ? cmdContext->GetCommandQueue() : nullptr;
-		if (/*!IsCompleted(value) &&*/ cmdQueue && m_fence)
+		//DX12::CommandQueue* const cmdQueue = cmdContext ? cmdContext->GetCommandQueue() : nullptr;
+		if (/*!IsCompleted(value) &&*/ cmdContext && m_fence)
 		{
-			cmdQueue->Wait(m_fence.Get(), value);
+			cmdContext->Wait(m_fence.Get(), value);
 		}
 	}
 	

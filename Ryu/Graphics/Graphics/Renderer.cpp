@@ -8,8 +8,8 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_device    = Device::Create();
-		m_swapChain = std::make_shared<SwapChain>(m_device, window, BACK_BUFFER_FORMAT);
+		m_device = Device::Create();
+		m_swapChain .Initialize(m_device, window, BACK_BUFFER_FORMAT);
 	}
 	
 	Renderer::~Renderer()
@@ -19,7 +19,7 @@ namespace Ryu::Gfx
 		if (m_device)
 		{
 			m_device->WaitForGPU();
-			m_swapChain.reset();
+			m_swapChain.Destroy();
 			Device::Destroy(*m_device);
 			m_device.reset();
 		}
@@ -32,17 +32,21 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		CommandList* const cmdList = m_device->GetCommandList(/*CommandListType::Direct*/);
-		cmdList->ResetCommandList();
+		//CommandList* const cmdList = m_device->GetCommandList(/*CommandListType::Direct*/);
+		//cmdList->ResetCommandList();
 
-		// Record commands
+		//// Record commands
 
-		cmdList->CloseCommandList();
-		m_device->GetCommandContext()->ExecuteCommandList(cmdList);
+		//cmdList->CloseCommandList();
+		//m_device->GetCommandContext()->ExecuteCommandList(cmdList);
 
 
-		m_swapChain->Present();
-		m_device->WaitForGPU();
+		//m_swapChain->Present();
+		//m_device->WaitForGPU();
+
+		// ------------------- ^^^ NEW ^^^ --------------------------
+
+		// ------------------- VVV OLD VVV--------------------------
 
 		//if (auto ctx = m_device->GetCommandContext())
 		//{
@@ -95,6 +99,6 @@ namespace Ryu::Gfx
 	void Renderer::OnResize(u32 width, u32 height)
 	{
 		RYU_PROFILE_SCOPE();
-		m_swapChain->Resize(width, height);
+		m_swapChain.Resize(width, height);
 	}
 }

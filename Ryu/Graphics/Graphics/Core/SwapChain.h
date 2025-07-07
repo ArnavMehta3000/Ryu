@@ -24,6 +24,7 @@ namespace Ryu::Gfx
 
 	private:
 		void OnConstruct(HWND window, Format format = BACK_BUFFER_FORMAT);
+		void OnDestruct();
 		void CreateSwapChain();
 		void CreateFrameResources();
 

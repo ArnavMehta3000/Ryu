@@ -20,10 +20,10 @@ namespace Ryu::Gfx
 	{
 		device.WaitForGPU();
 
-		device.m_cmdList.reset();
-		device.m_cmdCtx.reset();
-		device.m_fence.reset();
-
+		device.m_cmdList.Reset();
+		device.m_cmdAllocator.Reset();
+		device.m_cmdQueue.Reset();
+		device.m_fence.Destroy();
 		device.m_factory.Reset();
 
 #if defined(RYU_BUILD_DEBUG)
@@ -43,7 +43,7 @@ namespace Ryu::Gfx
 		DebugLayer::Initialize();
 
 		CreateDevice();
-		CreateCommandContext();
+		CreateCommandQueue();
 		CreateCommandList();
 		CreateSynchronization();
 
@@ -108,40 +108,57 @@ namespace Ryu::Gfx
 		DXCallEx(m_featureSupport.Init(m_device.Get()), m_device.Get());
 	}
 
-	void Device::CreateCommandContext()
+	void Device::CreateCommandQueue()
 	{
 		RYU_PROFILE_SCOPE();
-		m_cmdCtx = std::make_unique<CommandCtx>(weak_from_this(), CommandListType::Direct);
+
+		D3D12_COMMAND_QUEUE_DESC desc
+		{
+			.Type     = DX12::ToNative(CommandListType::Direct),
+			.Priority = DX12::ToNative(CommandQueuePriority::Normal),
+			.Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
+			.NodeMask = 0
+		};
+
+		DXCallEx(m_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_cmdQueue)), m_device.Get());
+		DX12::SetObjectName(m_cmdQueue.Get(), "Direct Command Queue");
 	}
 
 	void Device::CreateCommandList()
 	{
 		RYU_PROFILE_SCOPE();
-		m_cmdList = std::make_unique<CommandList>(weak_from_this(), CommandListType::Direct);
+		//m_cmdList = std::make_unique<CommandList>(weak_from_this(), CommandListType::Direct);
+
+		const D3D12_COMMAND_LIST_TYPE type = DX12::ToNative(CommandListType::Direct);
+		DXCallEx(m_device->CreateCommandAllocator(type, IID_PPV_ARGS(&m_cmdAllocator)), m_device.Get());
+		DXCallEx(m_device->CreateCommandList(0, type, m_cmdAllocator.Get(), nullptr, IID_PPV_ARGS(&m_cmdList)), m_device.Get());
+		
+		DX12::SetObjectName(m_cmdAllocator.Get(), "Direct Command Allcator");
+		DX12::SetObjectName(m_cmdList.Get(), "Direct Graphics Command List");
 	}
 
 	void Device::CreateSynchronization()
 	{
 		RYU_PROFILE_SCOPE();
-		m_fence = std::make_unique<Fence>(weak_from_this(), 0, "Frame Fence");
+		m_fence.Initialize(weak_from_this(), 0, "Frame Fence");
 	}
 
 	void Device::WaitForGPU()
 	{
-		if (m_fence && m_cmdCtx)
-		{
-			const u64 fenceValue = m_fence->GetNextValue();
-			m_cmdCtx->Signal(*m_fence, fenceValue);
-			m_fence->WaitCPU(fenceValue);
-		}
+		//if (m_fence && m_cmdCtx)
+		//{
+		//	const u64 fenceValue = m_fence->GetNextValue();
+		//	m_cmdCtx->Signal(*m_fence, fenceValue);
+		//	m_fence->WaitCPU(fenceValue);
+		//}
 	}
 
 	void Device::FlushCommandQueue()
 	{
-		if (m_fence && m_cmdCtx)
-		{
-			m_cmdCtx->Flush(*m_fence);
-		}
+		//if (m_fence && m_cmdCtx)
+		//{
+		//	m_cmdCtx->Flush(*m_fence);
+		//}
 	}
 
 	void Device::GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const

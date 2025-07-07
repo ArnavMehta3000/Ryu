@@ -15,13 +15,13 @@ namespace Ryu::Gfx
 		~Renderer();
 
 		inline NODISCARD const Device& GetDevice() const { return *m_device; }
-		inline NODISCARD const SwapChain& GetSwapChain() const { return *m_swapChain; }
+		inline NODISCARD const SwapChain& GetSwapChain() const { return m_swapChain; }
 
 		void Render(/*Scene, Camera*/);
 		void OnResize(u32 width, u32 height);
 
 	public:
-		std::shared_ptr<Device>    m_device;
-		std::shared_ptr<SwapChain> m_swapChain;
+		std::shared_ptr<Device> m_device;
+		SwapChain m_swapChain;
 	};
 }

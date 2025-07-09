@@ -19,7 +19,7 @@ namespace Ryu::Gfx
         }
         virtual ~DeviceObject() = default;
 
-        inline NODISCARD std::shared_ptr<Device> GetParent() const noexcept
+        inline NODISCARD DevicePtr GetParent() const noexcept
         {
             return std::get<0>(this->GetCompulsoryArgs()).lock();
         }

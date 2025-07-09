@@ -1,6 +1,7 @@
 #pragma once
 #include "Common/Common.h"
 #include <array>
+#include <memory>
 
 #include <CommandListFLags.Generated.h>
 #include <CommandListType.Generated.h>
@@ -16,7 +17,6 @@ namespace Ryu::Gfx
 {
 	template<typename T> class DeviceObject;
 
-	class Fence;
 	class Device;
 	class SwapChain;
 
@@ -27,4 +27,6 @@ namespace Ryu::Gfx
 	// Array of frame resources
 	template <typename T>
 	using FrameArray = std::array<T, FRAME_BUFFER_COUNT>;
+
+	using DevicePtr = std::shared_ptr<Device>;
 }

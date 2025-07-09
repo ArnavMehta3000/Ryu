@@ -98,6 +98,7 @@ namespace Ryu::Gfx
 	void Renderer::OnResize(u32 width, u32 height)
 	{
 		RYU_PROFILE_SCOPE();
-		m_swapChain.Resize(width, height);
+		RYU_TODO("Enable resizing of the swapchain");
+		//m_swapChain.Resize(width, height);
 	}
 }

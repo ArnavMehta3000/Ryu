@@ -1,14 +1,12 @@
 #pragma  once
 #include "Common/ObjectMacros.h"
-#include "Common/API.h"
-#include "Utils/Singleton.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;
 
 namespace Ryu::App
 {
-	class RYU_API PathManager
+	class PathManager
 	{
 	public:
 		PathManager();

@@ -1,11 +1,13 @@
 #pragma once
 #include "App/Application.h"
+#include "Engine/Plugin/EnginePlugin.h"
 #include "Utils/Singleton.h"
 #include "Utils/ServiceLocator.h"
 #include "Graphics/Renderer.h"
 #include "Logger/LogCategory.h"
 #include "Scripting/ScriptEngine.h"
 #include <memory>
+#include <stacktrace>
 
 namespace Ryu::Engine
 {
@@ -22,6 +24,12 @@ namespace Ryu::Engine
 
 		void RYU_API RunApp(std::shared_ptr<App::App> app);
 
+		void Log(
+			const Logging::LogCategory& category,
+			Logging::LogLevel level,
+			std::string message,
+			std::stacktrace trace = std::stacktrace::current()) const;
+
 	protected:
 		Engine();
 
@@ -34,6 +42,8 @@ namespace Ryu::Engine
 
 	private:
 		Utils::Timer                                  m_timer;
+		Plugin::PluginManager                         m_pluginManager;
+		EngineContext                                 m_engineContext;
 		std::shared_ptr<App::App>                     m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;

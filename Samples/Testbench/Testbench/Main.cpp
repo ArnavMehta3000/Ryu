@@ -35,8 +35,8 @@ RYU_MAIN()
 #endif
 
 
-	Ryu::Engine::Engine::Get().RunApp(app);
-
+	auto& engine = Ryu::Engine::Engine::Get();
+	engine.RunApp(app);
 	return 0;
 }
 #endif

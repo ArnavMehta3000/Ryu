@@ -3,3 +3,7 @@ EnableLogToConsole = true
 EnableLogToFile = true
 ForceLogToOutput = true
 LogFilePath = "Logs/Log.txt"
+
+[Plugins]
+EditorPlugins = [ "RyuTestbenchEditorPlugin.dll" ]
+EnginePlugins = [ "RyuTestbenchEnginePlugin.dll" ]

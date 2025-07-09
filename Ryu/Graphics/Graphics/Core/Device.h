@@ -8,7 +8,7 @@ namespace Ryu::Gfx
 	class Device : public std::enable_shared_from_this<Device>
 	{
 	public:
-		static std::shared_ptr<Device> Create();
+		static DevicePtr Create();
 		static void Destroy(Device& device);
 
 		inline NODISCARD DX12::Device* const GetDevice() const noexcept { return m_device.Get(); }

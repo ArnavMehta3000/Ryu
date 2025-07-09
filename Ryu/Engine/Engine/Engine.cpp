@@ -17,6 +17,12 @@
 
 namespace Ryu::Engine
 {
+	namespace
+	{
+		// Logger pointer used by plugins
+		Logging::Logger* g_pluginLogger = nullptr;
+	}
+
 	RYU_LOG_DECLARE_CATEGORY(Engine);
 
 	Engine::Engine()
@@ -47,8 +53,26 @@ namespace Ryu::Engine
 		{
 			RYU_LOG_INFO(LogEngine, "--- A debugger is attached to the Engine!---");
 		}
+
+		RYU_PROFILE_BOOKMARK("Load plguins");
+		auto& enginePlugins = App::AppConfig::Get().EnginePlugins.Get();
+
+		g_pluginLogger = Globals::GetServiceLocator().GetService<Logging::Logger>().value_or(nullptr);
+		m_engineContext.GetLogger = [] { return g_pluginLogger; };
+
+		for (auto& name : enginePlugins)
+		{
+			if (auto result = m_pluginManager.LoadPluginInterface<EnginePluginInterface>(name); result)
+			{
+				result.value().Initialize(Plugin::PluginPhase::OnLoad, &m_engineContext);
+			}
+			else
+			{
+				RYU_LOG_ERROR(LogEngine, "Failed to load plugin: {}", name);
+			}
+		}
+
 		
-		// Load configs
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());		
 
@@ -173,6 +197,15 @@ namespace Ryu::Engine
 
 		// Shutdown engine
 		Shutdown();
+	}
+
+	void Engine::Log(
+		const Logging::LogCategory& category, 
+		Logging::LogLevel level, 
+		std::string message, 
+		std::stacktrace trace) const
+	{
+		Logging::Internal::InvokeLogger(category, level, { std::move(message), std::move(trace) });
 	}
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept

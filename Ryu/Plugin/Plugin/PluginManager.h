@@ -172,3 +172,34 @@ namespace Ryu::Plugin
 
 	static_assert(PluginInterface<DLLTestInterface>);
 }
+
+
+#define RYU_PLUGIN(PluginName, InterfaceName)                                                                 \
+static_assert(PluginImplementation<PluginName, InterfaceName>);                                               \
+extern "C"                                                                                                    \
+{                                                                                                             \
+	__declspec(dllexport) PluginName* CreatePlugin()                                                          \
+	{                                                                                                         \
+		return new PluginName();                                                                              \
+	}                                                                                                         \
+                                                                                                              \
+	__declspec(dllexport) void DestroyPlugin(void* plugin)                                                    \
+	{                                                                                                         \
+		delete (PluginName*)plugin;                                                                           \
+		plugin = nullptr;                                                                                     \
+	}                                                                                                         \
+	__declspec(dllexport) bool GetFunctionTable(void* plugin, PluginName::Interface::FunctionTable* outTable) \
+	{                                                                                                         \
+		if (!plugin || !outTable)                                                                             \
+		{                                                                                                     \
+			return false;                                                                                     \
+		}                                                                                                     \
+                                                                                                              \
+		if (auto p = static_cast<PluginName*>(plugin))                                                        \
+		{                                                                                                     \
+			*outTable = PluginName::GetFunctionTable(*p);                                                     \
+			return true;                                                                                      \
+		}                                                                                                     \
+		return false;                                                                                         \
+	}                                                                                                         \
+}

@@ -10,9 +10,9 @@ namespace Ryu::Gfx
 {
 	RYU_LOG_DECLARE_CATEGORY(GFXDevice);
 
-	std::shared_ptr<Device> Device::Create()
+	DevicePtr Device::Create()
 	{
-		auto device = std::shared_ptr<Device>(new Device());
+		auto device = DevicePtr(new Device());
 		device->Initialize();
 		return device;
 	}

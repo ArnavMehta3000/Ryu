@@ -8,5 +8,9 @@ target("RyuTestbench")
 	add_files("Testbench/**.cpp", { unity_group = "Testbench" })
 	add_extrafiles("Scripts/**.as")
 	add_headerfiles("Testbench/**.h")
-	add_deps("RyuEngine")
+
+	add_deps(
+		"RyuEngine",
+		"RyuTestbenchEnginePlugin"
+	)
 target_end()

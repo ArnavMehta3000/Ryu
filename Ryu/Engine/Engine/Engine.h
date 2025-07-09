@@ -24,12 +24,6 @@ namespace Ryu::Engine
 
 		void RYU_API RunApp(std::shared_ptr<App::App> app);
 
-		void Log(
-			const Logging::LogCategory& category,
-			Logging::LogLevel level,
-			std::string message,
-			std::stacktrace trace = std::stacktrace::current()) const;
-
 	protected:
 		Engine();
 
@@ -39,6 +33,8 @@ namespace Ryu::Engine
 		void MainLoop();
 		void OnAppResize(u32 width, u32 height) const noexcept;
 		void SetupLogger();
+		void InitializePlugins(Plugin::PluginPhase phase);
+		void ShutdownPlugins(Plugin::PluginPhase phase);
 
 	private:
 		Utils::Timer                                  m_timer;

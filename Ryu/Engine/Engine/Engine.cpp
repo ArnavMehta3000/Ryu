@@ -53,25 +53,6 @@ namespace Ryu::Engine
 		{
 			RYU_LOG_INFO(LogEngine, "--- A debugger is attached to the Engine!---");
 		}
-
-		RYU_PROFILE_BOOKMARK("Load plguins");
-		auto& enginePlugins = App::AppConfig::Get().EnginePlugins.Get();
-
-		g_pluginLogger = Globals::GetServiceLocator().GetService<Logging::Logger>().value_or(nullptr);
-		m_engineContext.GetLogger = [] { return g_pluginLogger; };
-
-		for (auto& name : enginePlugins)
-		{
-			if (auto result = m_pluginManager.LoadPluginInterface<EnginePluginInterface>(name); result)
-			{
-				result.value().Initialize(Plugin::PluginPhase::OnLoad, &m_engineContext);
-			}
-			else
-			{
-				RYU_LOG_ERROR(LogEngine, "Failed to load plugin: {}", name);
-			}
-		}
-
 		
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());		
@@ -82,6 +63,14 @@ namespace Ryu::Engine
 
 		RYU_LOG_TRACE(LogEngine, "Engine initialization completed");
 
+		//Setup plugin context and load them
+		RYU_PROFILE_BOOKMARK("Load plguins");
+		m_engineContext.GetLogger   = []     { return g_pluginLogger;   };
+		m_engineContext.GetApp      = [this] { return m_app.get();      };
+		m_engineContext.GetRenderer = [this] { return m_renderer.get(); };
+
+		InitializePlugins(Plugin::PluginPhase::OnLoad);
+
 		return true;
 	}
 
@@ -90,6 +79,8 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
 		RYU_LOG_DEBUG(LogEngine, "Shutting down Engine");
+
+		ShutdownPlugins(Plugin::PluginPhase::OnUnload);
 
 		m_scriptEngine.reset();
 		m_app.reset();
@@ -102,7 +93,6 @@ namespace Ryu::Engine
 
 	void Engine::MainLoop()
 	{
-		m_app->m_isRunning = m_app->OnInit();
 		if (m_app->IsRunning())
 		{
 			while (m_app->IsRunning())
@@ -141,9 +131,12 @@ namespace Ryu::Engine
 
 	void Engine::RunApp(std::shared_ptr<App::App> app)
 	{
+		using namespace Ryu::Logging;
+		using namespace Microsoft::WRL::Wrappers;
+
 		RYU_ASSERT(app, "Application cannot be nullptr");
 
-		Microsoft::WRL::Wrappers::RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
+		RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
 		m_app = app;
 
 		// Init engine
@@ -174,12 +167,23 @@ namespace Ryu::Engine
 		// Main loop
 		try
 		{
+			// Init app
+			m_app->m_isRunning = m_app->OnInit();
+
+			// Plugin init callback
+			InitializePlugins(Plugin::PluginPhase::OnInitialize);
+
+			// Run the app
 			MainLoop();
+
+			// Plugin shutdown callback
+			ShutdownPlugins(Plugin::PluginPhase::OnShutdown);
+
+			// Application closing was requested, shut it down
 			m_app->OnShutdown();
 		}
 		catch (const Exception& e)
 		{
-			using namespace Ryu::Logging;
 			// Custom version of the RYU_LOG_FATAL macro that includes a stack our assertion exception
 			Logging::Internal::InvokeLogger(
 				LogEngine,
@@ -197,15 +201,6 @@ namespace Ryu::Engine
 
 		// Shutdown engine
 		Shutdown();
-	}
-
-	void Engine::Log(
-		const Logging::LogCategory& category, 
-		Logging::LogLevel level, 
-		std::string message, 
-		std::stacktrace trace) const
-	{
-		Logging::Internal::InvokeLogger(category, level, { std::move(message), std::move(trace) });
 	}
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept
@@ -227,6 +222,7 @@ namespace Ryu::Engine
 		
 		if (auto logger = Globals::GetServiceLocator().GetService<Logger>().value_or(nullptr))
 		{
+			g_pluginLogger = logger;
 			const AppConfig& config = AppConfig::Get();
 
 			logger->SetOnFatalCallback([](LogLevel level, const LogMessage& message)
@@ -264,6 +260,40 @@ namespace Ryu::Engine
 		else
 		{
 			throw std::runtime_error("Failed to initialize logger");
+		}
+	}
+	
+	void Engine::InitializePlugins(Plugin::PluginPhase phase)
+	{
+		auto& enginePlugins = App::AppConfig::Get().EnginePlugins.Get();
+
+		for (auto& name : enginePlugins)
+		{
+			if (auto result = m_pluginManager.LoadPluginInterface<EnginePluginInterface>(name); result)
+			{
+				result.value().Initialize(phase, &m_engineContext);
+			}
+			else
+			{
+				RYU_LOG_ERROR(LogEngine, "Failed to load/init plugin: {}", name);
+			}
+		}
+	}
+	
+	void Engine::ShutdownPlugins(Plugin::PluginPhase phase)
+	{
+		auto& enginePlugins = App::AppConfig::Get().EnginePlugins.Get();
+
+		for (auto& name : enginePlugins)
+		{
+			if (auto result = m_pluginManager.LoadPluginInterface<EnginePluginInterface>(name); result)
+			{
+				result.value().Shutdown(phase);
+			}
+			else
+			{
+				RYU_LOG_ERROR(LogEngine, "Failed to unload/shotdown plugin: {}", name);
+			}
 		}
 	}
 }

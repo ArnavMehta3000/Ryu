@@ -8,7 +8,7 @@ target("RyuTestbenchEnginePlugin")
 target_end()
 
 target("RyuTestbenchEditorPlugin")
-	set_enabled(false)
+	set_enabled(get_config("ryu-build-with-editor"))
 	set_kind("shared")
 	set_group("Ryu/Testing/Plugins")
 	add_files("TestbenchEditorPlugin/**.cpp", { unity_group = "EditorPluginTest" })

@@ -141,7 +141,8 @@ namespace Ryu::Plugin
 		}
 	}
 
-	
+	using FunctionSignatures = std::unordered_map<std::string, std::any>;
+
 	struct DLLTestFunctionTable
 	{
 		PluginFunctionR<bool, PluginPhase> MyInitialize;

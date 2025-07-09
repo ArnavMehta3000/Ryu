@@ -19,10 +19,8 @@ namespace Ryu::Plugin
 	enum class PluginPhase
 	{
 		OnLoad,
-		OnPreInit,
 		OnInitialize,
 		OnShutdown,
-		OnPostShutdown,
 		OnUnload
 	};
 
@@ -42,20 +40,13 @@ namespace Ryu::Plugin
 	};
 
 	template <typename PluginType, typename InterfaceType>
-	concept PluginImplementation = requires(PluginType plugin, PluginPhase phase)
+	concept PluginImplementation = requires(PluginType plugin, PluginPhase phase, const void* ctx)
 	{
 		{ PluginType::GetInfo() } -> std::same_as<PluginInfo>;
 		{ PluginType::GetFunctionTable(plugin) } -> std::convertible_to<typename InterfaceType::FunctionTable>;
+		{ plugin.OnInitialize(phase, ctx) } -> std::same_as<bool>;
 		{ plugin.OnShutdown(phase) } -> std::same_as<void>;
 	};
-	//&& 
-	//requires
-	//{
-	//	// Require OnInitialize to be callable with at least PluginPhase
-	//	requires std::invocable<decltype(&PluginType::OnInitialize), PluginType&, PluginPhase>;
-	//	// Require it returns bool
-	//	requires std::same_as<std::invoke_result_t<decltype(&PluginType::OnInitialize), PluginType&, PluginPhase>, bool>;
-	//};
 
 	using PluginCreationFunction = std::add_pointer_t<void*()>;
 	using PluginDestructionFunction = std::add_pointer_t<void(void*)>;

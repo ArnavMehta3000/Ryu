@@ -1,6 +1,7 @@
 #pragma once
 #include "Graphics/Core/DeviceObject.h"
 #include "Graphics/Core/Fence.h"
+#include "Graphics/Core/DescriptorHeap.h"
 
 namespace Ryu::Gfx
 {
@@ -13,13 +14,11 @@ namespace Ryu::Gfx
 		inline NODISCARD DX12::Device* const GetDevice() const noexcept { return m_device.Get(); }
 		inline NODISCARD DXGI::Factory* const GetFactory() const noexcept { return m_factory.Get(); }
 		inline NODISCARD DX12::CommandQueue* const GetCommandQueue() const noexcept { return m_cmdQueue.Get(); }
-		inline NODISCARD DX12::CommandList* const GetCommandList() const noexcept { return m_cmdList.Get(); }
-		inline NODISCARD DX12::CommandAllocator* const GetCommandAllocator() const noexcept { return m_cmdAllocator.Get(); }
+		inline NODISCARD DX12::GraphicsCommandList* const GetCommandList() const noexcept { return m_cmdList.Get(); }
+		inline NODISCARD DX12::CommandAllocator* const GetCommandAllocator(const u32 frameIndex) const noexcept { return m_cmdAllocators[frameIndex].Get(); }
 		inline NODISCARD const CD3DX12FeatureSupport& GetFeatureSupport() const noexcept { return m_featureSupport; }
-		inline NODISCARD const Fence& GetFence() const noexcept { return m_fence; }
-
-		void WaitForGPU();
-		void FlushCommandQueue();
+		inline NODISCARD const Fence& GetFence(const u32 frameIndex) const noexcept { return m_fences[frameIndex]; }
+		inline NODISCARD DescriptorHeap& GetRTVDescriptorHeap() noexcept { return m_rtvHeap; }
 
 	private:
 		void Initialize();
@@ -27,15 +26,17 @@ namespace Ryu::Gfx
 		void CreateCommandQueue();
 		void CreateCommandList();
 		void CreateSynchronization();
+		void CreateDescriptorHeap();
 		void GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const;
 
 	private:
-		CD3DX12FeatureSupport          m_featureSupport;
-		Fence                          m_fence;
-		ComPtr<DXGI::Factory>          m_factory;
-		ComPtr<DX12::Device>           m_device;
-		ComPtr<DX12::CommandQueue>     m_cmdQueue;
-		ComPtr<DX12::CommandAllocator> m_cmdAllocator;
-		ComPtr<DX12::CommandList>      m_cmdList;
+		CD3DX12FeatureSupport                      m_featureSupport;
+		FrameArray<Fence>                          m_fences;
+		ComPtr<DXGI::Factory>                      m_factory;
+		ComPtr<DX12::Device>                       m_device;
+		ComPtr<DX12::CommandQueue>                 m_cmdQueue;
+		FrameArray<ComPtr<DX12::CommandAllocator>> m_cmdAllocators;
+		ComPtr<DX12::GraphicsCommandList>          m_cmdList;
+		DescriptorHeap                             m_rtvHeap;
 	};
 }

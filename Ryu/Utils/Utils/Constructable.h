@@ -246,7 +246,6 @@ namespace Ryu::Utils
     {
     public:
         Constructable() = default;
-        virtual ~Constructable() = default;
 
         // Initialize with OnConstruct arguments
         template<typename... OnConstructArgs>

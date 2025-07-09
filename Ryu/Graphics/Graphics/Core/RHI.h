@@ -1,5 +1,6 @@
 #pragma once
 #include "Common/Common.h"
+#include <array>
 
 #include <CommandListFLags.Generated.h>
 #include <CommandListType.Generated.h>
@@ -20,6 +21,10 @@ namespace Ryu::Gfx
 	class SwapChain;
 
 	constexpr u32 FRAME_BUFFER_COUNT      = 2;
-	constexpr Format BACK_BUFFER_FORMAT   = Format::RGBA16_FLOAT;
+	constexpr Format BACK_BUFFER_FORMAT   = Format::RGBA8_UNORM;
 	constexpr Format DEPTH_STENCIL_FORMAT = Format::D24S8;
+
+	// Array of frame resources
+	template <typename T>
+	using FrameArray = std::array<T, FRAME_BUFFER_COUNT>;
 }

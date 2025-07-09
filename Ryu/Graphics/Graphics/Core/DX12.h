@@ -19,7 +19,7 @@ namespace Ryu::Gfx
 		using Fence               = ID3D12Fence1;
 		using CommandQueue        = ID3D12CommandQueue;
 		using CommandAllocator    = ID3D12CommandAllocator;
-		using DescHeap            = ID3D12DescriptorHeap;
+		using DescriptorHeap      = ID3D12DescriptorHeap;
 		using PipelineState       = ID3D12PipelineState;
 
 		void SetObjectName(DX12::Object* object, const char* name);
@@ -29,6 +29,7 @@ namespace Ryu::Gfx
 		D3D12_COMMAND_QUEUE_PRIORITY ToNative(CommandQueuePriority priority);
 		D3D12_DESCRIPTOR_HEAP_TYPE ToNative(DescriptorHeapType type);
 		D3D12_FENCE_FLAGS ToNative(FenceFlag flag);
+		D3D12_DESCRIPTOR_HEAP_FLAGS ToNative(DescriptorHeapFlags flags);
 	}
 
 	namespace DXGI

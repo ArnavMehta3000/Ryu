@@ -17,11 +17,16 @@ namespace Ryu::Gfx
 		inline NODISCARD const Device& GetDevice() const { return *m_device; }
 		inline NODISCARD const SwapChain& GetSwapChain() const { return m_swapChain; }
 
+		void WaitForNextFrameResources();
+		void WaitForLastSubmittedFrame();
+
 		void Render(/*Scene, Camera*/);
 		void OnResize(u32 width, u32 height);
 
 	public:
 		std::shared_ptr<Device> m_device;
-		SwapChain m_swapChain;
+		SwapChain               m_swapChain;
+		FrameArray<u64>         m_frameValues;
+		u64                     m_lastSubmittedValue = 0;
 	};
 }

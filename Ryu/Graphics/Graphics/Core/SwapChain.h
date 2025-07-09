@@ -3,10 +3,14 @@
 
 namespace Ryu::Gfx
 {
-	struct DescriptorHandle;
-
-	class SwapChain : public DeviceObject<SwapChain>
+	struct RenderSurface
 	{
+		ComPtr<DX12::Resource> Resource;
+	};
+
+	class SwapChain final : public DeviceObject<SwapChain>
+	{
+		RYU_DISABLE_COPY_AND_MOVE(SwapChain)
 		RYU_GFX_DEVICE_OBJ;
 	public:
 		SwapChain() = default;
@@ -18,6 +22,7 @@ namespace Ryu::Gfx
 		inline NODISCARD const Format GetFormat() const noexcept { return m_format; }
 		inline NODISCARD const CD3DX12_RECT& GetScissorRect() const noexcept { return m_scissorRect; }
 		inline NODISCARD const CD3DX12_VIEWPORT& GetViewport() const noexcept { return m_viewport; }
+		inline u32 GetFrameIndex() const noexcept { return m_frameIndex; }
 
 		void Resize(const u32 width, const u32 height);
 		void Present() const;
@@ -29,16 +34,16 @@ namespace Ryu::Gfx
 		void CreateFrameResources();
 
 	private:
-		HWND                    m_window{ nullptr };
-		Format                  m_format{ BACK_BUFFER_FORMAT };
-		bool                    m_allowTearing;
-		u32                     m_frameCount;
-		u32                     m_width;
-		u32                     m_height;
-		mutable u32             m_frameIndex;
-		u32                     m_rtvDescriptorSize;
-		ComPtr<DXGI::SwapChain> m_swapChain;
-		CD3DX12_VIEWPORT        m_viewport;
-		CD3DX12_RECT            m_scissorRect;
+		HWND                      m_window{ nullptr };
+		Format                    m_format{ BACK_BUFFER_FORMAT };
+		bool                      m_allowTearing;
+		u32                       m_width;
+		u32                       m_height;
+		mutable u32               m_frameIndex;
+		u32                       m_rtvDescriptorSize;
+		ComPtr<DXGI::SwapChain>   m_swapChain;
+		FrameArray<RenderSurface> m_surfaceData;
+		CD3DX12_VIEWPORT          m_viewport;
+		CD3DX12_RECT              m_scissorRect;
 	};
 }

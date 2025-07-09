@@ -9,7 +9,7 @@ namespace Ryu::Gfx
 		RYU_PROFILE_SCOPE();
 
 		m_device = Device::Create();
-		m_swapChain .Initialize(m_device, window, BACK_BUFFER_FORMAT);
+		m_swapChain.Initialize(m_device, window, BACK_BUFFER_FORMAT);
 	}
 	
 	Renderer::~Renderer()
@@ -18,28 +18,27 @@ namespace Ryu::Gfx
 
 		if (m_device)
 		{
-			m_device->WaitForGPU();
 			m_swapChain.Destroy();
 			Device::Destroy(*m_device);
+	
+			RYU_ASSERT(m_device.use_count() == 1);
 			m_device.reset();
 		}
 
-		//RYU_ASSERT(m_swapChain.use_count() == 1);
-		//RYU_ASSERT(m_device.use_count() == 1);
 	}
-	
+
 	void Renderer::Render()
 	{
 		RYU_PROFILE_SCOPE();
 
+
 		//CommandList* const cmdList = m_device->GetCommandList(/*CommandListType::Direct*/);
 		//cmdList->ResetCommandList();
 
-		//// Record commands
+		// Record commands
 
 		//cmdList->CloseCommandList();
 		//m_device->GetCommandContext()->ExecuteCommandList(cmdList);
-
 
 		//m_swapChain->Present();
 		//m_device->WaitForGPU();

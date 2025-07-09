@@ -3,7 +3,7 @@
 
 namespace Ryu::Gfx
 {
-	class Fence : public DeviceObject<Fence>
+	class Fence final : public DeviceObject<Fence>
 	{
 		RYU_GFX_DEVICE_OBJ;
 	public:
@@ -12,7 +12,7 @@ namespace Ryu::Gfx
 		~Fence();
 
 		// Set a fence value from the GPU
-		void SignalGPU(DX12::CommandQueue* cmdContext, u64 value);
+		void SignalGPU(DX12::CommandQueue* cmdContext, u64 value) const;
 
 		// Set a fence value from the CPU
 		void SignalCPU(u64 value);
@@ -32,7 +32,7 @@ namespace Ryu::Gfx
 		// Reset the fence state
 		void ResetFence();
 		
-		inline NODISCARD u64 GetNextValue() { return ++m_currentValue; }
+		inline NODISCARD u64 GetNextValue() const { return ++m_currentValue; }
 		inline NODISCARD u64 GetCurrentValue() const { return m_currentValue; }
 		inline NODISCARD DX12::Fence* GetFence() const noexcept { return m_fence.Get(); }
 
@@ -43,6 +43,6 @@ namespace Ryu::Gfx
 	private:
 		ComPtr<DX12::Fence> m_fence;
 		HANDLE              m_handle{ nullptr };
-		u64                 m_currentValue{ 0 };
+		mutable u64         m_currentValue{ 0 };
 	};
 }

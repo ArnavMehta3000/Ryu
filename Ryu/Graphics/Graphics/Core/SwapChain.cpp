@@ -2,6 +2,7 @@
 #include "Graphics/Core/Device.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
+#include "Logger/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -33,7 +34,6 @@ namespace Ryu::Gfx
 		, m_height(0)
 		, m_frameIndex(0)
 		, m_allowTearing(false)
-		, m_frameCount(0)
 		, m_rtvDescriptorSize(0)
 	{
 		OnConstruct(window, format);
@@ -50,7 +50,7 @@ namespace Ryu::Gfx
 		m_format = format;
 		
 		GetWindowSize(m_window, m_width, m_height);
-		CreateSwapChain();
+		CreateSwapChain();  // Will call Resize -> CreateFrameResources
 		
 		RYU_LOG_DEBUG(LogGFXSwapChain, "SwapChain created");
 	}
@@ -99,8 +99,6 @@ namespace Ryu::Gfx
 
 		if (auto parent = GetParent())
 		{
-			parent->WaitForGPU();
-
 			DXGI_SWAP_CHAIN_DESC1 desc{};
 			m_swapChain->GetDesc1(&desc);
 			DXCallEx(m_swapChain->ResizeBuffers(
@@ -196,6 +194,8 @@ namespace Ryu::Gfx
 
 			DXCallEx(swapChain.As(&m_swapChain), device->GetDevice());
 
+			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
 			// Reuse desc width and height to get window size
 			GetWindowSize(m_window, desc.Width, desc.Height);
 			Resize(desc.Width, desc.Height);
@@ -213,21 +213,23 @@ namespace Ryu::Gfx
 
 		if (auto parent = GetParent())
 		{
-			DX12::Device* const device = parent->GetDevice();
-
-			// Create a RTV for each frame
-			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+			if (DX12::Device* const device = parent->GetDevice())
 			{
-				//SurfaceData& data = m_surfaceData[i];
+				for (u32 i = 0; i < m_surfaceData.size(); i++)
+				{
+					RenderSurface& surface = m_surfaceData[i];
+					DescriptorHeap& heap   = parent->GetRTVDescriptorHeap();
+					auto& rtvHandle        = heap.GetCPUHandle();
 
-				//DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&data.Resource)), device);
+					RYU_ASSERT(heap.IsValid() && heap.IsInitialized(), "RTV heap is not valid/initialized");
 
-				D3D12_RENDER_TARGET_VIEW_DESC desc{};
-				desc.Format = DXGI::GetFormatSRGB(DXGI::ToNative(BACK_BUFFER_FORMAT));
-				desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+					DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&surface.Resource)), device);
+					
+					device->CreateRenderTargetView(surface.Resource.Get(), nullptr, rtvHandle);
+					rtvHandle.Offset(1, heap.GetDescriptorSize());
 
-				//device->CreateRenderTargetView(data.Resource.Get(), &desc, data.RTV.CPUHandle);
-				//DX12::SetObjectName(data.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
+					DX12::SetObjectName(surface.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
+				}
 			}
 		}
 	}

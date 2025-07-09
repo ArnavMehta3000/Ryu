@@ -55,10 +55,9 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void Fence::SignalGPU(DX12::CommandQueue* cmdContext, u64 value)
+	void Fence::SignalGPU(DX12::CommandQueue* cmdContext, u64 value) const
 	{
 		RYU_PROFILE_SCOPE();
-		//DX12::CommandQueue* const cmdQueue = cmdContext ? cmdContext->GetCommandQueue() : nullptr;
 		if (cmdContext && m_fence)
 		{
 			cmdContext->Signal(m_fence.Get(), value);
@@ -79,7 +78,7 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 		//DX12::CommandQueue* const cmdQueue = cmdContext ? cmdContext->GetCommandQueue() : nullptr;
-		if (/*!IsCompleted(value) &&*/ cmdContext && m_fence)
+		if (!IsCompleted(value) && cmdContext && m_fence)
 		{
 			cmdContext->Wait(m_fence.Get(), value);
 		}

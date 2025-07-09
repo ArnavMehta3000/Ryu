@@ -92,6 +92,11 @@ namespace Ryu::Gfx
 		}
 	}
 
+	D3D12_DESCRIPTOR_HEAP_FLAGS DX12::ToNative(DescriptorHeapFlags flags)
+	{
+		return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(flags);
+	}
+
 
 	std::string_view Internal::FeatureLevelToString(D3D_FEATURE_LEVEL level)
 	{

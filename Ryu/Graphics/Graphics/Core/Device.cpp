@@ -4,6 +4,7 @@
 #include "Math/Math.h"
 #include "Utils/StringConv.h"
 #include "Profiling/Profiling.h"
+#include <ranges>
 
 namespace Ryu::Gfx
 {
@@ -18,19 +19,21 @@ namespace Ryu::Gfx
 
 	void Device::Destroy(Device& device)
 	{
-		device.WaitForGPU();
+		auto resetComPtr = [](auto& ptr) { ptr.Reset(); };
+		auto destroy = [](auto& ptr) { ptr.Destroy(); };
 
+		device.m_rtvHeap.Destroy();
 		device.m_cmdList.Reset();
-		device.m_cmdAllocator.Reset();
 		device.m_cmdQueue.Reset();
-		device.m_fence.Destroy();
+		std::ranges::for_each(device.m_cmdAllocators, resetComPtr);
+		std::ranges::for_each(device.m_fences, destroy);
 		device.m_factory.Reset();
 
 #if defined(RYU_BUILD_DEBUG)
-		// Reset severity breaks
 		DebugLayer::SetupSeverityBreaks(device.m_device, false);
 		DebugLayer::SetStablePowerState(device.m_device, false);
 		DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(device.m_device);
+		DebugLayer::Shutdown();
 #else
 		device.m_device.Reset();  // Manually release device
 #endif
@@ -46,6 +49,7 @@ namespace Ryu::Gfx
 		CreateCommandQueue();
 		CreateCommandList();
 		CreateSynchronization();
+		CreateDescriptorHeap();
 
 		RYU_LOG_DEBUG(LogGFXDevice, "DX12 Device created with max feature level: {}",
 			Internal::FeatureLevelToString(m_featureSupport.MaxSupportedFeatureLevel()));
@@ -127,38 +131,37 @@ namespace Ryu::Gfx
 	void Device::CreateCommandList()
 	{
 		RYU_PROFILE_SCOPE();
-		//m_cmdList = std::make_unique<CommandList>(weak_from_this(), CommandListType::Direct);
 
 		const D3D12_COMMAND_LIST_TYPE type = DX12::ToNative(CommandListType::Direct);
-		DXCallEx(m_device->CreateCommandAllocator(type, IID_PPV_ARGS(&m_cmdAllocator)), m_device.Get());
-		DXCallEx(m_device->CreateCommandList(0, type, m_cmdAllocator.Get(), nullptr, IID_PPV_ARGS(&m_cmdList)), m_device.Get());
+
+		for (u32 i = 0; i < m_cmdAllocators.size(); i++)
+		{ 
+			DXCallEx(m_device->CreateCommandAllocator(type, IID_PPV_ARGS(&m_cmdAllocators[i])), m_device.Get());
+			DX12::SetObjectName(m_cmdAllocators[i].Get(), 
+				std::format("Direct Command Allcator {}", i).c_str());
+		}
 		
-		DX12::SetObjectName(m_cmdAllocator.Get(), "Direct Command Allcator");
+		DXCallEx(m_device->CreateCommandList(0, type, m_cmdAllocators[0].Get(), nullptr, IID_PPV_ARGS(&m_cmdList)), m_device.Get());
 		DX12::SetObjectName(m_cmdList.Get(), "Direct Graphics Command List");
+		
+		m_cmdList->Close();  // Command lists are created in recording state, close them
 	}
 
 	void Device::CreateSynchronization()
 	{
 		RYU_PROFILE_SCOPE();
-		m_fence.Initialize(weak_from_this(), 0, "Frame Fence");
+		for (u32 i = 0; i < m_fences.size(); i++)
+		{
+			m_fences[i].Initialize(weak_from_this(), 0, std::format("Frame fence {}", i));
+		}
 	}
 
-	void Device::WaitForGPU()
+	void Device::CreateDescriptorHeap()
 	{
-		//if (m_fence && m_cmdCtx)
-		//{
-		//	const u64 fenceValue = m_fence->GetNextValue();
-		//	m_cmdCtx->Signal(*m_fence, fenceValue);
-		//	m_fence->WaitCPU(fenceValue);
-		//}
-	}
+		RYU_PROFILE_SCOPE();
 
-	void Device::FlushCommandQueue()
-	{
-		//if (m_fence && m_cmdCtx)
-		//{
-		//	m_cmdCtx->Flush(*m_fence);
-		//}
+		// RTV Heap
+		m_rtvHeap.Initialize(weak_from_this(), DescriptorHeapType::RTV, DescriptorHeapFlags::None, FRAME_BUFFER_COUNT);
 	}
 
 	void Device::GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const

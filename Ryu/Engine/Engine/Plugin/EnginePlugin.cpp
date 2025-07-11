@@ -20,14 +20,12 @@ namespace Ryu::Engine
 	{
 		return ft.Initialize
 			&& ft.Shutdown
-			//&& ft.Update
-			//&& ft.Render 
 			&& ft.GetName;
 	}
 
 	bool EnginePluginBase::OnInitialize(Plugin::PluginPhase, const void* ctx)
 	{
-		// Only set the engine context once 
+		// Only set the engine context once
 		if (!m_engineCtx && ctx)
 		{
 			m_engineCtx = static_cast<const EngineContext*>(ctx);
@@ -61,12 +59,12 @@ namespace Ryu::Engine
 		};
 	}
 
-	App::App* EnginePluginBase::GetApplication() 
+	App::App* EnginePluginBase::GetApplication()
 	{
 		return m_engineCtx ? m_engineCtx->GetApp() : nullptr;
 	}
-	
-	Gfx::Renderer* EnginePluginBase::GetRenderer() 
+
+	Gfx::Renderer* EnginePluginBase::GetRenderer()
 	{
 		return m_engineCtx ? m_engineCtx->GetRenderer() : nullptr;
 	}

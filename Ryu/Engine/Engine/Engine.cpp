@@ -53,9 +53,9 @@ namespace Ryu::Engine
 		{
 			RYU_LOG_INFO(LogEngine, "--- A debugger is attached to the Engine!---");
 		}
-		
+
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());		
+		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
@@ -85,7 +85,7 @@ namespace Ryu::Engine
 		m_scriptEngine.reset();
 		m_app.reset();
 		m_renderer.reset();
-		
+
 		Config::ConfigManager::Get().SaveAll();
 
 		RYU_LOG_INFO(LogEngine, "Engine shutdown completed");
@@ -219,7 +219,7 @@ namespace Ryu::Engine
 		using namespace Ryu::Utils;
 		using namespace Ryu::Common;
 
-		
+
 		if (auto logger = Globals::GetServiceLocator().GetService<Logger>().value_or(nullptr))
 		{
 			g_pluginLogger = logger;
@@ -262,7 +262,7 @@ namespace Ryu::Engine
 			throw std::runtime_error("Failed to initialize logger");
 		}
 	}
-	
+
 	void Engine::InitializePlugins(Plugin::PluginPhase phase)
 	{
 		auto& enginePlugins = App::AppConfig::Get().EnginePlugins.Get();
@@ -279,7 +279,7 @@ namespace Ryu::Engine
 			}
 		}
 	}
-	
+
 	void Engine::ShutdownPlugins(Plugin::PluginPhase phase)
 	{
 		auto& enginePlugins = App::AppConfig::Get().EnginePlugins.Get();

@@ -1,14 +1,13 @@
 #include "Testbench/TestbenchApp.h"
 #include "Profiling/Profiling.h"
 #include "App/AppConfig.h"
-#
-#pragma comment(lib, "GameInput.lib")
 
 // Currently testing gameinput
 
 RYU_LOG_DECLARE_CATEGORY(TestbenchApp);
+using namespace Ryu;
 
-static void CALLBACK OnDeviceEnumerated(
+void CALLBACK OnDeviceEnumerated(
 	_In_ GameInputCallbackToken callbackToken,
 	_In_ void* context,
 	_In_ IGameInputDevice* device,
@@ -16,11 +15,17 @@ static void CALLBACK OnDeviceEnumerated(
 	_In_ GameInputDeviceStatus currentStatus,
 	_In_ GameInputDeviceStatus previousStatus)
 {
+	UNREFERENCED_PARAMETER(timestamp);
+	UNREFERENCED_PARAMETER(callbackToken);
+	UNREFERENCED_PARAMETER(currentStatus);
+	UNREFERENCED_PARAMETER(previousStatus);
+
 	if (TestbenchApp* app = static_cast<TestbenchApp*>(context))
 	{
 		if (device)
 		{
-			if (const GameInputDeviceInfo* info = device->GetDeviceInfo())
+			const GameInputDeviceInfo* info = nullptr;
+			if (SUCCEEDED((device->GetDeviceInfo(&info))))
 			{
 
 				if (info->supportedInput == GameInputKindGamepad)
@@ -37,32 +42,10 @@ static void CALLBACK OnDeviceEnumerated(
 				{
 					RYU_LOG_INFO(LogTestbenchApp, "Mouse connected");
 				}
-
-				// Save gamepad
-				if (info->supportedRumbleMotors)
-				{
-					app->m_gameInputDevice = device;
-				}
 			}
 		}
 	}
 }
-
-static void CALLBACK OnReading(
-	_In_ GameInputCallbackToken callbackToken,
-	_In_ void* context,
-	_In_ IGameInputReading* reading,
-	_In_ bool hasOverrunOccurred)
-{
-	if (TestbenchApp* app = static_cast<TestbenchApp*>(context))
-	{
-
-		RYU_LOG_INFO(LogTestbenchApp, "Reading");
-	}
-}
-
-
-using namespace Ryu;
 
 TestbenchApp::TestbenchApp(std::shared_ptr<Window::Window> window)
 	: App::App(window)
@@ -92,19 +75,6 @@ bool TestbenchApp::OnInit()
 		return false;
 	}
 
-	hr = m_gameInput->RegisterReadingCallback(
-		nullptr,
-		GameInputKindGamepad | GameInputKindKeyboard | GameInputKindMouse,
-		0.0f,
-		this,
-		OnReading,
-		&m_readingToken);
-	if (FAILED(hr))
-	{
-		return false;
-	}
-
-
 	return true;
 }
 
@@ -112,47 +82,84 @@ void TestbenchApp::OnShutdown()
 {
 	RYU_PROFILE_SCOPE();
 	RYU_LOG_INFO(LogTestbenchApp, "Shutting down Testbench App");
-
-	if (m_gameInputDevice)
-	{
-		m_gameInputDevice->Release();
-		m_gameInputDevice = nullptr;
-	}
-
-	if (m_currentReading)
-	{
-		m_currentReading->Release();
-		m_currentReading = nullptr;
-	}
-
-	if (m_gameInput)
-	{
-		m_gameInput->Release();
-		m_gameInput = nullptr;
-	}
 }
 
 void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo&)
 {
-	if (m_currentReading)
-	{
-		m_currentReading->Release();
-		m_currentReading = nullptr;
-	}
+	//PollKeyboard();
+	//PollMouse();
+}
 
-	if (m_gameInputDevice)
+void TestbenchApp::PollKeyboard()
+{
+	HRESULT hr = S_OK;
+	ComPtr<IGameInputReading> reading;
+	ComPtr<IGameInputDevice> device;
+
+	hr = m_gameInput->GetCurrentReading(
+		GameInputKindKeyboard,
+		nullptr,
+		&reading);
+	if (SUCCEEDED(hr))
 	{
-		if (auto info = m_gameInputDevice->GetDeviceInfo())
+		// Lock onto the first device we find input from
+		reading->GetDevice(&device);
+
+		const GameInputDeviceInfo* info = nullptr;
+		if SUCCEEDED((device->GetDeviceInfo(&info)))
 		{
-			GameInputRumbleParams params{ 0, 0, 0, 0 };
-			m_gameInputDevice->SetRumbleState(&params);
+			if (auto kb = info->keyboardInfo)
+			{
+				std::vector<GameInputKeyState> states(kb->keyCount);
+				u32 validBufferEntries = reading->GetKeyState(kb->keyCount, states.data());
+
+				//Convert  vector to string
+				std::string keys = "Keys: ";
+				for (auto& state : states)
+				{
+					char key = static_cast<char>(state.codePoint);
+					keys += key;
+				}
+
+				if (states.size() > 0)
+				{
+					RYU_LOG_INFO(LogTestbenchApp, "Buffer entries ({}) - {}", validBufferEntries, keys);
+				}
+			}
 		}
 	}
+}
 
+void TestbenchApp::PollMouse()
+{
+	HRESULT hr = S_OK;
+	ComPtr<IGameInputReading> reading;
+	ComPtr<IGameInputDevice> device;
 
-	HRESULT hr = m_gameInput->GetCurrentReading(
-		GameInputKindGamepad | GameInputKindKeyboard | GameInputKindMouse,
+	hr = m_gameInput->GetCurrentReading(
+		GameInputKindMouse,
 		nullptr,
-		&m_currentReading
-	);
+		&reading);
+	if (SUCCEEDED(hr))
+	{
+		// Lock onto the first device we find input from
+		reading->GetDevice(&device);
+
+		// Probably have to use GetNextReading, values in this state are cumulative
+		GameInputMouseState state{};
+		if (reading->GetMouseState(&state))
+		{
+			RYU_LOG_INFO(LogTestbenchApp,
+				"AbsPos({}, {}) | Pos({}, {}) | Wheel({}, {}) | PosEnum({}) | Buttons({})",
+				state.absolutePositionX, state.absolutePositionY,
+				state.positionX, state.positionY,
+				state.wheelX, state.wheelY,
+				static_cast<u32>(state.positions),
+				static_cast<u32>(state.buttons));
+		}
+	}
+	else
+	{
+		device = nullptr;
+	}
 }

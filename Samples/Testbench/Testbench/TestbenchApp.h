@@ -1,6 +1,19 @@
 #pragma once
 #include "App/Application.h"
-#include <GameInput.h>
+#include "External/GameInput/GameInput.h"
+#include <wrl/client.h>
+
+#ifndef GAMEINPUT_API_VERSION
+#define GAMEINPUT_API_VERSION 0
+#endif
+
+#if GAMEINPUT_API_VERSION == 1
+using namespace GameInput::v1;
+#elif GAMEINPUT_API_VERSION == 2
+using namespace GameInput::v2;
+#endif
+
+using Microsoft::WRL::ComPtr;
 
 class TestbenchApp : public Ryu::App::App
 {
@@ -12,12 +25,6 @@ class TestbenchApp : public Ryu::App::App
 		_In_ GameInputDeviceStatus currentStatus,
 		_In_ GameInputDeviceStatus previousStatus);
 
-	friend void CALLBACK OnReading(
-		_In_ GameInputCallbackToken callbackToken,
-		_In_ void* context,
-		_In_ IGameInputReading* reading,
-		_In_ bool hasOverrunOccurred);
-
 public:
 	explicit TestbenchApp(std::shared_ptr<Ryu::Window::Window> window);
 
@@ -26,9 +33,11 @@ public:
 	void OnTick(const Ryu::Utils::TimeInfo& timeInfo) override;
 
 private:
-	IGameInput* m_gameInput{ nullptr };
-	IGameInputDevice* m_gameInputDevice{ nullptr };
-	IGameInputReading* m_currentReading{ nullptr };
+	void PollKeyboard();
+	void PollMouse();
+
+private:
+	ComPtr<IGameInput> m_gameInput;
 	GameInputCallbackToken m_deviceEnumToken{ 0 };
 	GameInputCallbackToken m_readingToken{ 0 };
 };

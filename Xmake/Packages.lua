@@ -7,3 +7,5 @@ add_requires("Elos")
 add_requires("toml++")
 add_requires("tracy 5d542dc09f3d9378d005092a4ad446bd405f819a")
 add_requires("doctest")
+
+add_requires("nuget::Microsoft.GameInput latest", { alias = "GameInput" })

@@ -289,7 +289,7 @@ namespace Ryu::Engine
 			}
 			else
 			{
-				RYU_LOG_ERROR(LogEngine, "Failed to unload/shotdown plugin: {}", name);
+				RYU_LOG_ERROR(LogEngine, "Failed to unload/shutdown plugin: {}", name);
 			}
 		}
 	}

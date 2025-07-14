@@ -8,12 +8,9 @@
 #include "Logger/Logger.h"
 #include "Logger/Assert.h"
 #include "Utils/MessageBox.h"
-#include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 #include <DirectXMath.h>
 #include <wrl/event.h>
-
-#pragma comment(lib, "runtimeobject.lib")
 
 namespace Ryu::Engine
 {
@@ -63,7 +60,7 @@ namespace Ryu::Engine
 
 		RYU_LOG_TRACE(LogEngine, "Engine initialization completed");
 
-		//Setup plugin context and load them
+		// Setup plugin context and load them
 		RYU_PROFILE_BOOKMARK("Load plguins");
 		m_engineContext.GetLogger   = []     { return g_pluginLogger;   };
 		m_engineContext.GetApp      = [this] { return m_app.get();      };

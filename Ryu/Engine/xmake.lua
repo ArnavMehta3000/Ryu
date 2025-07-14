@@ -27,4 +27,6 @@ target("RyuEngine")
 	if has_config("ryu-unity-build") then
 		add_rules("c++.unity_build")
 	end
+
+	add_links("runtimeobject")
 target_end()

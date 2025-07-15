@@ -1,6 +1,7 @@
 #include "Testbench/TestbenchApp.h"
 #include "Profiling/Profiling.h"
 #include "App/AppConfig.h"
+#include "Graphics/Core/DX12.h"
 
 // Currently testing gameinput
 
@@ -55,10 +56,12 @@ TestbenchApp::TestbenchApp(std::shared_ptr<Window::Window> window)
 bool TestbenchApp::OnInit()
 {
 	RYU_LOG_INFO(LogTestbenchApp, "Initializing Testbench App");
-
-	HRESULT hr = ::GameInputCreate(&m_gameInput);
+	
+	HRESULT hr = S_OK;
+	DXCall(hr = ::GameInputCreate(&m_gameInput));
 	if (FAILED(hr))
 	{
+		RYU_LOG_ERROR(LogTestbenchApp, "Failed to create GameInput");
 		return false;
 	}
 
@@ -72,6 +75,7 @@ bool TestbenchApp::OnInit()
 		&m_deviceEnumToken);
 	if (FAILED(hr))
 	{
+		RYU_LOG_ERROR(LogTestbenchApp, "Failed to register device callback");
 		return false;
 	}
 

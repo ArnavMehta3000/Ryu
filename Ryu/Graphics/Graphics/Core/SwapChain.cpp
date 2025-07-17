@@ -49,7 +49,6 @@ namespace Ryu::Gfx
 		m_window = window;
 		m_format = format;
 		
-		GetWindowSize(m_window, m_width, m_height);
 		CreateSwapChain();  // Will call Resize -> CreateFrameResources
 		
 		RYU_LOG_DEBUG(LogGFXSwapChain, "SwapChain created");
@@ -59,17 +58,7 @@ namespace Ryu::Gfx
 	{
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
-			//SurfaceData& data = m_surfaceData[i];
-			//data.Resource.Reset();
-
-			//if (auto parent = GetParent())
-			//{
-			//	parent->GetRTVHeap()->Free(data.RTV);
-			//}
-			//else
-			//{
-			//	RYU_LOG_ERROR(LogGFXSwapChain, "Parent device is null");
-			//}
+			m_surfaceData[i].Resource.Reset();
 		}
 
 		if (m_swapChain)
@@ -87,13 +76,13 @@ namespace Ryu::Gfx
 			return;
 		}
 
-		m_width = width;
+		m_width  = width;
 		m_height = height;
 
 		// Release frame buffers before resize
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
-			//m_surfaceData[i].Resource.Reset();
+			m_surfaceData[i].Resource.Reset();
 		}
 
 
@@ -109,11 +98,6 @@ namespace Ryu::Gfx
 			), parent->GetDevice());
 
 			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
-			{
-				//m_surfaceData[i].RTV = parent->GetRTVHeap()->Allocate();
-			}
 
 			CreateFrameResources();
 
@@ -206,7 +190,8 @@ namespace Ryu::Gfx
 	{
 		if (!m_swapChain)
 		{
-			return;  // Why and how did this happen?
+			RYU_LOG_FATAL(LogGFXSwapChain, "Trying to create frame resources for null swapchain!");
+			std::unreachable();  // Why and how did this happen?
 		}
 
 		RYU_PROFILE_SCOPE();
@@ -218,16 +203,17 @@ namespace Ryu::Gfx
 				for (u32 i = 0; i < m_surfaceData.size(); i++)
 				{
 					RenderSurface& surface = m_surfaceData[i];
-					DescriptorHeap& heap   = parent->GetRTVDescriptorHeap();
-					auto& rtvHandle        = heap.GetCPUHandle();
+					DescriptorHeap& heap = parent->GetRTVDescriptorHeap();
 
-					RYU_ASSERT(heap.IsValid() && heap.IsInitialized(), "RTV heap is not valid/initialized");
+					// Create local handle copy with proper offset
+					CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(
+						heap.GetCPUHandle(),
+						i,
+						heap.GetDescriptorSize()
+					);
 
 					DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&surface.Resource)), device);
-					
 					device->CreateRenderTargetView(surface.Resource.Get(), nullptr, rtvHandle);
-					rtvHandle.Offset(1, heap.GetDescriptorSize());
-
 					DX12::SetObjectName(surface.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
 				}
 			}

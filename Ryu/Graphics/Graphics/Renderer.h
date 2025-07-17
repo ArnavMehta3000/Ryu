@@ -7,8 +7,6 @@ namespace Ryu::Gfx
 {
 	class Renderer
 	{
-		RYU_LOG_DECLARE_CATEGORY(Renderer);
-
 	public:
 		Renderer() = delete;
 		explicit Renderer(HWND window);
@@ -20,7 +18,10 @@ namespace Ryu::Gfx
 		void Render(/*Scene, Camera*/);
 		void OnResize(u32 width, u32 height);
 
-	public:
+	private:
+		void PopulateCommandList();
+
+	private:
 		DevicePtr m_device;
 		SwapChain m_swapChain;
 	};

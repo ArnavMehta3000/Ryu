@@ -22,7 +22,8 @@ namespace Ryu::Gfx
 		inline NODISCARD const Format GetFormat() const noexcept { return m_format; }
 		inline NODISCARD const CD3DX12_RECT& GetScissorRect() const noexcept { return m_scissorRect; }
 		inline NODISCARD const CD3DX12_VIEWPORT& GetViewport() const noexcept { return m_viewport; }
-		inline u32 GetFrameIndex() const noexcept { return m_frameIndex; }
+		inline NODISCARD const RenderSurface& GetRenderSurface(const u32 index) const { return m_surfaceData[index]; }
+		inline NODISCARD u32 GetFrameIndex() const noexcept { return m_frameIndex; }
 
 		void Resize(const u32 width, const u32 height);
 		void Present() const;

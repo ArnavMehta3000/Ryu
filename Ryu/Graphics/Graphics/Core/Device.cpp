@@ -20,14 +20,18 @@ namespace Ryu::Gfx
 	void Device::Destroy(Device& device)
 	{
 		auto resetComPtr = [](auto& ptr) { ptr.Reset(); };
-		auto destroy = [](auto& ptr) { ptr.Destroy(); };
 
 		device.m_rtvHeap.Destroy();
 		device.m_cmdList.Reset();
 		device.m_cmdQueue.Reset();
 		std::ranges::for_each(device.m_cmdAllocators, resetComPtr);
-		std::ranges::for_each(device.m_fences, destroy);
+		device.m_fence.Reset();
 		device.m_factory.Reset();
+
+		if (device.m_fenceEvent)
+		{
+			::CloseHandle(device.m_fenceEvent);
+		}
 
 #if defined(RYU_BUILD_DEBUG)
 		DebugLayer::SetupSeverityBreaks(device.m_device, false);
@@ -46,10 +50,10 @@ namespace Ryu::Gfx
 		DebugLayer::Initialize();
 
 		CreateDevice();
+		CreateDescriptorHeap();
 		CreateCommandQueue();
 		CreateCommandList();
 		CreateSynchronization();
-		CreateDescriptorHeap();
 
 		RYU_LOG_DEBUG(LogGFXDevice, "DX12 Device created with max feature level: {}",
 			Internal::FeatureLevelToString(m_featureSupport.MaxSupportedFeatureLevel()));
@@ -61,8 +65,6 @@ namespace Ryu::Gfx
 
 		const auto& config = GraphicsConfig::Get();
 		const bool useWarpDevice = config.UseWARP;
-
-		// Debug layer should be enabled by now if needed
 
 		u32 dxgiFactoryFlags = 0;
 
@@ -134,6 +136,7 @@ namespace Ryu::Gfx
 
 		const D3D12_COMMAND_LIST_TYPE type = DX12::ToNative(CommandListType::Direct);
 
+		// Create command allocators for each frame
 		for (u32 i = 0; i < m_cmdAllocators.size(); i++)
 		{ 
 			DXCallEx(m_device->CreateCommandAllocator(type, IID_PPV_ARGS(&m_cmdAllocators[i])), m_device.Get());
@@ -150,10 +153,26 @@ namespace Ryu::Gfx
 	void Device::CreateSynchronization()
 	{
 		RYU_PROFILE_SCOPE();
-		for (u32 i = 0; i < m_fences.size(); i++)
+		
+		// FrameIndex will be 0 on first call to GetCurrentBackBufferIndex()
+
+		// Create fence
+		DXCallEx(m_device->CreateFence(m_frameIndex, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)), m_device.Get());
+		DX12::SetObjectName(m_fence.Get(), "Frame Fence");
+		
+		// We know that this function is called before the swapchain is created
+		// We also know that first call to GetCurrentBackBufferIndex() will return 0
+		// So we increase the fence at 0 value by one
+		m_fenceValues[m_frameIndex]++;
+
+		m_fenceEvent = ::CreateEvent(nullptr, false, false, nullptr);
+		if (!m_fenceEvent)
 		{
-			m_fences[i].Initialize(weak_from_this(), 0, std::format("Frame fence {}", i));
+			RYU_LOG_ERROR(LogGFXDevice, "Failed to create fence event");
+			DXCallEx(HRESULT_FROM_WIN32(::GetLastError()), m_device.Get());
 		}
+
+		WaitForGPU();
 	}
 
 	void Device::CreateDescriptorHeap()
@@ -196,5 +215,41 @@ namespace Ryu::Gfx
 		}
 
 		*ppAdapter = adapter.Detach();
+	}
+	
+	void Device::WaitForGPU()
+	{
+		RYU_PROFILE_SCOPE();
+		
+		// Schedule a signal command in the queue
+		DXCallEx(m_cmdQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]), m_device.Get());
+
+		// Wait until the fence has been crossed
+		DXCallEx(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent), m_device.Get());
+		::WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+
+		// Increment the fence value for the current frame
+		m_fenceValues[m_frameIndex]++;
+	}
+	
+	void Device::MoveToNextFrame(const u32 frameIndex)
+	{
+		const u64 currentFenceValue = m_fenceValues[m_frameIndex];
+		
+		// Schedule a signal command in the queue
+		DXCallEx(m_cmdQueue->Signal(m_fence.Get(), currentFenceValue), m_device.Get());
+
+		// Update frame index
+		m_frameIndex = frameIndex;
+
+		// If the next frame is not ready to be rendered yet, wait until it is ready
+		if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
+		{
+			DXCallEx(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent), m_device.Get());
+			::WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+		}
+
+		// Set the fence value for the next frame
+		m_fenceValues[m_frameIndex] = currentFenceValue + 1;
 	}
 }

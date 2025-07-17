@@ -1,0 +1,25 @@
+{
+	"Namespace": "Ryu::Utils",
+	"Name": "ServiceError",
+	"Base": null,
+	"EnableBitMaskOps": false,
+	"Types":
+	[
+		{
+			"Key": "NotFound",
+			"Value": null
+		},
+		{
+			"Key": "AlreadyRegistered",
+			"Value": null
+		},
+		{
+			"Key": "InvalidFactory",
+			"Value": null
+		},
+		{
+			"Key": "CreationFailed",
+			"Value": null
+		}
+	]
+}

@@ -7,12 +7,14 @@
 
 namespace Ryu::Gfx
 {
+	RYU_LOG_DECLARE_CATEGORY(D3D12);
+
 	void DX12::SetObjectName(DX12::Object* object, const char* name)
 	{
 		if (object)
 		{
 			DXCall(object->SetPrivateData(WKPDID_D3DDebugObjectName, (u32)strlen(name) + 1, name));
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(DX12), "Set D3D12 object name: {}", name);
+			RYU_LOG_TRACE(LogD3D12, "Set D3D12 object name: {}", name);
 		}
 	}
 
@@ -31,9 +33,9 @@ namespace Ryu::Gfx
 		return out;
 	}
 
-	constexpr D3D12_COMMAND_LIST_TYPE DX12::GetCmdListType(CmdListType type)
+	D3D12_COMMAND_LIST_TYPE DX12::ToNative(CommandListType type)
 	{
-		using enum Ryu::Gfx::CmdListType;
+		using enum Ryu::Gfx::CommandListType;
 		
 		switch (type)
 		{
@@ -49,9 +51,22 @@ namespace Ryu::Gfx
 		}
 	}
 
-	constexpr D3D12_DESCRIPTOR_HEAP_TYPE DX12::GetDescHeapType(DescHeapType type)
+	D3D12_COMMAND_QUEUE_PRIORITY DX12::ToNative(CommandQueuePriority priority)
 	{
-		using enum Ryu::Gfx::DescHeapType;
+		using enum Ryu::Gfx::CommandQueuePriority;
+
+		switch (priority)
+		{
+		case Normal:   return D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+		case High:     return D3D12_COMMAND_QUEUE_PRIORITY_HIGH;
+		case Realtime: return D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME;
+		default:       return D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+		}
+	}
+
+	D3D12_DESCRIPTOR_HEAP_TYPE DX12::ToNative(DescriptorHeapType type)
+	{
+		using enum Ryu::Gfx::DescriptorHeapType;
 
 		switch (type)
 		{
@@ -63,35 +78,27 @@ namespace Ryu::Gfx
 		}
 	}
 
-
-	constexpr std::string_view Internal::CommandListTypeToString(D3D12_COMMAND_LIST_TYPE type)
+	D3D12_FENCE_FLAGS DX12::ToNative(FenceFlag flag)
 	{
-		switch (type)
+		using enum Ryu::Gfx::FenceFlag;
+
+		switch (flag)
 		{
-			case D3D12_COMMAND_LIST_TYPE_DIRECT:        return "Direct";
-			case D3D12_COMMAND_LIST_TYPE_COMPUTE:       return "Compute";
-			case D3D12_COMMAND_LIST_TYPE_COPY:          return "Copy";
-			case D3D12_COMMAND_LIST_TYPE_BUNDLE:        return "Bundle";
-			case D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE:  return "VideoDecode";
-			case D3D12_COMMAND_LIST_TYPE_VIDEO_ENCODE:  return "VideoEncode";
-			case D3D12_COMMAND_LIST_TYPE_VIDEO_PROCESS: return "VideoProcess";
-			default:                                    return "<UNKNOWN>";
+		case None:               return D3D12_FENCE_FLAG_NONE;
+		case Shared:             return D3D12_FENCE_FLAG_SHARED;
+		case SharedCrossAdapter: return D3D12_FENCE_FLAG_SHARED_CROSS_ADAPTER;
+		case Monitored:          return D3D12_FENCE_FLAG_NON_MONITORED;
+		default:                 return D3D12_FENCE_FLAG_NONE;
 		}
 	}
 
-	constexpr std::string_view Internal::DescHeapTypeToString(D3D12_DESCRIPTOR_HEAP_TYPE type)
+	D3D12_DESCRIPTOR_HEAP_FLAGS DX12::ToNative(DescriptorHeapFlags flags)
 	{
-		switch (type)
-		{
-			case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV: return "CBV_SRV_UAV";
-			case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:     return "Sampler";
-			case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:         return "RTV";
-			case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:         return "DSV";
-			default:                                     return "<UNKNOWN>";
-		}
+		return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(flags);
 	}
 
-	constexpr std::string_view Internal::FeatureLevelToString(D3D_FEATURE_LEVEL level)
+
+	std::string_view Internal::FeatureLevelToString(D3D_FEATURE_LEVEL level)
 	{
 		switch(level)
 		{
@@ -158,9 +165,9 @@ namespace Ryu::Gfx
 		if (FAILED(hr))
 		{
 #if defined(RYU_THROW_ON_FAIL_HRESULT)
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(DX12), "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
+			RYU_LOG_FATAL(LogD3D12, "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
 #else
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(DX12), "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
+			RYU_LOG_ERROR(LogD3D12, "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
 #endif
 			return false;
 		}
@@ -270,12 +277,12 @@ namespace Ryu::Gfx
 		return m_numAllocations < static_cast<u32>(m_freeList.size());
 	}
 
-	constexpr DXGI_FORMAT DXGI::ConvertFormat(Format format)
+	DXGI_FORMAT DXGI::ToNative(Format format)
 	{
 		return g_DXGIFormatMap[(u32)format];
 	}
 
-	constexpr DXGI_FORMAT DXGI::GetFormatSRGB(DXGI_FORMAT format)
+	DXGI_FORMAT DXGI::GetFormatSRGB(DXGI_FORMAT format)
 	{
 		switch (format)
 		{

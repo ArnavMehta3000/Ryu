@@ -1,4 +1,5 @@
 #include "Engine/Engine.h"
+#include "Globals/Globals.h"
 #include "App/Utils/PathManager.h"
 #include "App/AppConfig.h"
 #include "Logger/Sinks/DebugSink.h"
@@ -7,15 +8,20 @@
 #include "Logger/Logger.h"
 #include "Logger/Assert.h"
 #include "Utils/MessageBox.h"
-#include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 #include <DirectXMath.h>
 #include <wrl/event.h>
 
-#pragma comment(lib, "runtimeobject.lib")
-
 namespace Ryu::Engine
 {
+	namespace
+	{
+		// Logger pointer used by plugins
+		Logging::Logger* g_pluginLogger = nullptr;
+	}
+
+	RYU_LOG_DECLARE_CATEGORY(Engine);
+
 	Engine::Engine()
 		: m_app(nullptr)
 	{
@@ -31,30 +37,36 @@ namespace Ryu::Engine
 
 		SetupLogger();
 
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Initializing Engine");
+		RYU_LOG_DEBUG(LogEngine, "Initializing Engine");
 
 		if (!DirectX::XMVerifyCPUSupport())
 		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "DirectX is not supported on this system");
+			RYU_LOG_FATAL(LogEngine, "DirectX is not supported on this system");
 			return false;
 		}
 
 		// Check if debugger is attached
-		if (Common::Globals::IsDebuggerAttached())
+		if (Globals::IsDebuggerAttached())
 		{
-			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "--- A debugger is attached to the Engine!---");
+			RYU_LOG_INFO(LogEngine, "--- A debugger is attached to the Engine!---");
 		}
-		
-		// Load configs
+
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
-		
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
 			pathManager.GetProjectDir() / "Scripts").string());
 
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine initialization completed");
+		RYU_LOG_TRACE(LogEngine, "Engine initialization completed");
+
+		// Setup plugin context and load them
+		RYU_PROFILE_BOOKMARK("Load plguins");
+		m_engineContext.GetLogger   = []     { return g_pluginLogger;   };
+		m_engineContext.GetApp      = [this] { return m_app.get();      };
+		m_engineContext.GetRenderer = [this] { return m_renderer.get(); };
+
+		InitializePlugins(Plugin::PluginPhase::OnLoad);
 
 		return true;
 	}
@@ -63,20 +75,21 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Shutting down Engine");
+		RYU_LOG_DEBUG(LogEngine, "Shutting down Engine");
+
+		ShutdownPlugins(Plugin::PluginPhase::OnUnload);
 
 		m_scriptEngine.reset();
 		m_app.reset();
 		m_renderer.reset();
-		
+
 		Config::ConfigManager::Get().SaveAll();
 
-		RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(Engine), "Engine shutdown completed");
+		RYU_LOG_INFO(LogEngine, "Engine shutdown completed");
 	}
 
 	void Engine::MainLoop()
 	{
-		m_app->m_isRunning = m_app->OnInit();
 		if (m_app->IsRunning())
 		{
 			while (m_app->IsRunning())
@@ -95,7 +108,7 @@ namespace Ryu::Engine
 		}
 		else
 		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize application! Exiting.");
+			RYU_LOG_FATAL(LogEngine, "Failed to initialize application! Exiting.");
 		}
 	}
 
@@ -115,15 +128,18 @@ namespace Ryu::Engine
 
 	void Engine::RunApp(std::shared_ptr<App::App> app)
 	{
+		using namespace Ryu::Logging;
+		using namespace Microsoft::WRL::Wrappers;
+
 		RYU_ASSERT(app, "Application cannot be nullptr");
 
-		Microsoft::WRL::Wrappers::RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
+		RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
 		m_app = app;
 
 		// Init engine
 		if (!Init())
 		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Failed to initialize Engine! Exiting.");
+			RYU_LOG_FATAL(LogEngine, "Failed to initialize Engine! Exiting.");
 			return;
 		}
 
@@ -134,7 +150,7 @@ namespace Ryu::Engine
 			{
 				if (m_app)
 				{
-					RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(Engine), "Application window closed, shutting down...");
+					RYU_LOG_DEBUG(LogEngine, "Application window closed, shutting down...");
 					m_app->m_isRunning = false;
 				}
 			},
@@ -148,15 +164,26 @@ namespace Ryu::Engine
 		// Main loop
 		try
 		{
+			// Init app
+			m_app->m_isRunning = m_app->OnInit();
+
+			// Plugin init callback
+			InitializePlugins(Plugin::PluginPhase::OnInitialize);
+
+			// Run the app
 			MainLoop();
+
+			// Plugin shutdown callback
+			ShutdownPlugins(Plugin::PluginPhase::OnShutdown);
+
+			// Application closing was requested, shut it down
 			m_app->OnShutdown();
 		}
 		catch (const Exception& e)
 		{
-			using namespace Ryu::Logging;
 			// Custom version of the RYU_LOG_FATAL macro that includes a stack our assertion exception
-			Logger::Get().Log(
-				AssertLog,
+			Logging::Internal::InvokeLogger(
+				LogEngine,
 				LogLevel::Fatal,
 				LogMessage
 				{
@@ -164,9 +191,9 @@ namespace Ryu::Engine
 					.Stacktrace = e.GetTrace()
 				});
 		}
-		catch (const std::exception& e)
+		catch (...)
 		{
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(Engine), "Unhandled exception: {}", e.what());
+			std::abort();
 		}
 
 		// Shutdown engine
@@ -175,7 +202,7 @@ namespace Ryu::Engine
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept
 	{
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Engine::OnAppResize -  {}x{}", width, height);
+		RYU_LOG_TRACE(LogEngine, "Engine::OnAppResize -  {}x{}", width, height);
 		if (m_renderer)
 		{
 			m_renderer->OnResize(width, height);
@@ -189,39 +216,91 @@ namespace Ryu::Engine
 		using namespace Ryu::Utils;
 		using namespace Ryu::Common;
 
-		Logger& logger = Logger::Get();
-		const AppConfig& config = AppConfig::Get();
 
-		logger.SetOnFatalCallback([](LogLevel level, const LogMessage& message)
+		if (auto logger = Globals::GetServiceLocator().GetService<Logger>().value_or(nullptr))
 		{
-			Utils::MessageBoxDesc desc;
-			desc.Title        = EnumToString(level);
-			desc.Title       += " Error";
-			desc.Text         = message.Message;
-			desc.Flags.Button = Utils::MessagBoxButton::Ok;
-			desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
+			g_pluginLogger = logger;
+			const AppConfig& config = AppConfig::Get();
 
-			Utils::ShowMessageBox(desc);
-			std::abort();
-		});
+			logger->SetOnFatalCallback([](LogLevel level, const LogMessage& message)
+			{
+				Utils::MessageBoxDesc desc;
+				desc.Title = EnumToString(level);
+				desc.Title += " Error";
+				desc.Text = message.Message;
+				desc.Flags.Button = Utils::MessagBoxButton::Ok;
+				desc.Flags.Icon = Utils::MessageBoxIcon::Error;
 
-		// Log to output window only when debugger is attached
-		if (Globals::IsDebuggerAttached() || config.ForceLogToOutput)
-		{
-			logger.AddSink(std::make_unique<Logging::DebugSink>());
+				Utils::ShowMessageBox(desc);
+				std::abort();
+			});
+
+			// Log to output window only when debugger is attached
+			if (Globals::IsDebuggerAttached() || config.ForceLogToOutput)
+			{
+				logger->AddSink(std::make_unique<Logging::DebugSink>());
+			}
+
+			if (config.EnableLogToConsole)
+			{
+				logger->AddSink(std::make_unique<Logging::ConsoleSink>());
+			}
+
+			if (config.EnableLogToFile)
+			{
+				logger->AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
+				RYU_LOG_TRACE(LogEngine, "Application log file opened: {}", config.LogFilePath.Get());
+			}
+
+			RYU_LOG_TRACE(LogEngine, "Logger initialized");
 		}
-
-		if (config.EnableLogToConsole)
+		else
 		{
-			logger.AddSink(std::make_unique<Logging::ConsoleSink>());
+			throw std::runtime_error("Failed to initialize logger");
 		}
+	}
 
-		if (config.EnableLogToFile)
+	void Engine::InitializePlugins(Plugin::PluginPhase phase)
+	{
+		auto& enginePlugins = App::AppConfig::Get().EnginePlugins.Get();
+
+		for (auto& name : enginePlugins)
 		{
-			logger.AddSink(std::make_unique<Logging::FileSink>(config.LogFilePath.Get()));
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Application log file opened: {}", config.LogFilePath.Get());
+			if (auto result = m_pluginManager.LoadPluginInterface<EnginePluginInterface>(name); result)
+			{
+				result.value().Initialize(phase, &m_engineContext);
+			}
+			else
+			{
+				// Only print the error for loading
+				// Otherwise it pollutes the log
+				if (phase == Plugin::PluginPhase::OnLoad)
+				{
+					RYU_LOG_ERROR(LogEngine, "Failed to load plugin: {}", name);
+				}
+			}
 		}
+	}
 
-		RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(Engine), "Logger initialized");
+	void Engine::ShutdownPlugins(Plugin::PluginPhase phase)
+	{
+		auto& enginePlugins = App::AppConfig::Get().EnginePlugins.Get();
+
+		for (auto& name : enginePlugins)
+		{
+			if (auto result = m_pluginManager.LoadPluginInterface<EnginePluginInterface>(name); result)
+			{
+				result.value().Shutdown(phase);
+			}
+			else
+			{
+				// Only print the error for unloading
+				// Otherwise it pollutes the log
+				if (phase == Plugin::PluginPhase::OnUnload)
+				{
+					RYU_LOG_WARN(LogEngine, "Failed to unload plugin: {}", name);
+				}
+			}
+		}
 	}
 }

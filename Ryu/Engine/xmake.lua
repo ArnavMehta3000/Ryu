@@ -11,15 +11,22 @@ target("RyuEngine")
 	add_packages("entt")
 
 	add_deps(
+		"RyuGlobals",
 		"RyuUtils",
 		"RyuConfig",
 		"RyuLogger",
 		"RyuApp",
 		"RyuGame",
+		"RyuPlugin",
 		"RyuGraphics",
 		"RyuMath",
 		"RyuProfiling",
 		"RyuScripting",
 		"RyuExternals", { public = true })
+
+	if has_config("ryu-unity-build") then
 		add_rules("c++.unity_build")
+	end
+
+	add_links("runtimeobject")
 target_end()

@@ -16,7 +16,6 @@
 	extern "C" RYU_API ret name(__VA_ARGS__);\
 	using name##_f = decltype(&name)
 
-#define DEPRECATED [[deprecated]]
 #define NODISCARD [[nodiscard]]
 #define FALLTHROUGH [[fallthrough]]
 #define LIKELY [[likely]]

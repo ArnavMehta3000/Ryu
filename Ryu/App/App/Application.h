@@ -38,8 +38,8 @@ namespace Ryu::App
 		void ProcessWindowEvents();
 
 	private:
-		bool m_isRunning = false;
-		PathManager m_pathManager;
+		bool                            m_isRunning = false;
+		PathManager                     m_pathManager;
 		std::shared_ptr<Window::Window> m_window;
 	};
 }

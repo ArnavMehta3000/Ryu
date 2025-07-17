@@ -43,6 +43,7 @@ namespace Ryu::Window
 		void SetMousePosition(i32 x, i32 y);
 		void SetMouseDelta(i32 deltaX, i32 deltaY);
 		void SetModifierKeys(ModifierKeys modifiers);
+
 	private:
 		std::unordered_map<KeyCode, KeyState> m_keyStates;
 		std::unordered_map<KeyCode, KeyState> m_mouseButtonStates;

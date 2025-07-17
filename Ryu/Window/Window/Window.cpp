@@ -39,7 +39,7 @@ namespace Ryu::Window
 			return true;
 		}
 
-		DWORD style = GetWindowStyle();
+		DWORD style   = GetWindowStyle();
 		DWORD exStyle = GetExtendedWindowStyle();
 
 		RECT windowRect{ 0, 0, static_cast<LONG>(m_config.WindowSize[0]), static_cast<LONG>(m_config.WindowSize[1]) };

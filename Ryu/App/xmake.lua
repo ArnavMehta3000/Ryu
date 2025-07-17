@@ -7,6 +7,7 @@ target("RyuApp")
 
 	add_packages("Elos", "entt")
 	add_deps(
+		"RyuGlobals",
 		"RyuUtils",
 		"RyuConfig",
 		"RyuProfiling",
@@ -14,5 +15,7 @@ target("RyuApp")
 	)
 
 	add_links("Dwmapi")
-	add_rules("c++.unity_build")
+	if has_config("ryu-unity-build") then
+		add_rules("c++.unity_build")
+	end
 target_end()

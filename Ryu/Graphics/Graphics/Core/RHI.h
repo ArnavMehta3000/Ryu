@@ -1,11 +1,13 @@
 #pragma once
 #include "Common/Common.h"
+#include <array>
+#include <memory>
 
-#include <CmdListFLags.Generated.h>
-#include <CmdListType.Generated.h>
-#include <CmdQueuePriority.Generated.h>
-#include <DescHeapFlags.Generated.h>
-#include <DescHeapType.Generated.h>
+#include <CommandListFLags.Generated.h>
+#include <CommandListType.Generated.h>
+#include <CommandQueuePriority.Generated.h>
+#include <DescriptorHeapFlags.Generated.h>
+#include <DescriptorHeapType.Generated.h>
 #include <FenceFlag.Generated.h>
 #include <Format.Generated.h>
 #include <TextureFlags.Generated.h>
@@ -13,14 +15,18 @@
 
 namespace Ryu::Gfx
 {
-	class Device;
-	class DeviceObject;
-	class SwapChain;
-	class CmdQueue;
-	class CommandContext;
-	class DescriptorHeap;
+	template<typename T> class DeviceObject;
 
-	constexpr u32 FRAME_BUFFER_COUNT = 2;
-	constexpr Format BACK_BUFFER_FORMAT = Format::RGBA16_FLOAT;
+	class Device;
+	class SwapChain;
+
+	constexpr u32 FRAME_BUFFER_COUNT      = 2;
+	constexpr Format BACK_BUFFER_FORMAT   = Format::RGBA8_UNORM;
 	constexpr Format DEPTH_STENCIL_FORMAT = Format::D24S8;
+
+	// Array of frame resources
+	template <typename T>
+	using FrameArray = std::array<T, FRAME_BUFFER_COUNT>;
+
+	using DevicePtr = std::shared_ptr<Device>;
 }

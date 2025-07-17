@@ -3,52 +3,48 @@
 
 namespace Ryu::Gfx
 {
-	struct DescriptorHandle;
-
-	class SwapChain : public DeviceObject
+	struct RenderSurface
 	{
-		RYU_LOG_DECLARE_CATEGORY(GFXSwapChain);
+		ComPtr<DX12::Resource> Resource;
+	};
 
-		struct SurfaceData
-		{
-			ComPtr<DX12::Resource> Resource = nullptr;
-			DescriptorHandle RTV{};
-		};
-
+	class SwapChain final : public DeviceObject<SwapChain>
+	{
+		RYU_DISABLE_COPY_AND_MOVE(SwapChain)
+		RYU_GFX_DEVICE_OBJ;
 	public:
-		static constexpr Format DEFAULT_RTV_FORMAT = Format::RGBA8_UNORM;
-
-		static std::shared_ptr<SwapChain> Create(std::weak_ptr<Device> parent, HWND window, Format format = DEFAULT_RTV_FORMAT);
-
+		SwapChain() = default;
+		SwapChain(std::weak_ptr<Device> parent, HWND window, Format format = BACK_BUFFER_FORMAT);
 		~SwapChain();
 
 		inline NODISCARD HWND GetWindowHandle() const noexcept { return m_window; }
 		inline NODISCARD DXGI::SwapChain* const GetSwapChain() const noexcept { return m_swapChain.Get(); }
 		inline NODISCARD const Format GetFormat() const noexcept { return m_format; }
-		inline NODISCARD const SurfaceData& GetCurrentSurfaceData() const noexcept { return m_surfaceData[m_frameIndex]; }
 		inline NODISCARD const CD3DX12_RECT& GetScissorRect() const noexcept { return m_scissorRect; }
 		inline NODISCARD const CD3DX12_VIEWPORT& GetViewport() const noexcept { return m_viewport; }
+		inline NODISCARD const RenderSurface& GetRenderSurface(const u32 index) const { return m_surfaceData[index]; }
+		inline NODISCARD u32 GetFrameIndex() const noexcept { return m_frameIndex; }
 
 		void Resize(const u32 width, const u32 height);
 		void Present() const;
 
 	private:
-		SwapChain(std::weak_ptr<Device> parent, HWND window, Format format);
+		void OnConstruct(HWND window, Format format = BACK_BUFFER_FORMAT);
+		void OnDestruct();
 		void CreateSwapChain();
 		void CreateFrameResources();
 
 	private:
-		HWND                    m_window;
-		Format                  m_format;
-		bool                    m_allowTearing;
-		u32                     m_frameCount;
-		u32                     m_width;
-		u32                     m_height;
-		mutable u32             m_frameIndex;
-		u32                     m_rtvDescriptorSize;
-		ComPtr<DXGI::SwapChain> m_swapChain;
-		SurfaceData             m_surfaceData[FRAME_BUFFER_COUNT];
-		CD3DX12_VIEWPORT        m_viewport;
-		CD3DX12_RECT            m_scissorRect;
+		HWND                      m_window{ nullptr };
+		Format                    m_format{ BACK_BUFFER_FORMAT };
+		bool                      m_allowTearing;
+		u32                       m_width;
+		u32                       m_height;
+		mutable u32               m_frameIndex;
+		u32                       m_rtvDescriptorSize;
+		ComPtr<DXGI::SwapChain>   m_swapChain;
+		FrameArray<RenderSurface> m_surfaceData;
+		CD3DX12_VIEWPORT          m_viewport;
+		CD3DX12_RECT              m_scissorRect;
 	};
 }

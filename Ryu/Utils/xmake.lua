@@ -8,6 +8,19 @@ target("RyuUtils")
 
 	add_packages("uuid_v4", "Elos")
 
+	add_rules("EnumToHeader",
+		{
+			root = path.join(os.projectdir(), "Ryu", "Enums"),
+			files =
+			{
+				"ServiceErrorType.json"
+			},
+			force = false
+		})
+
 	add_deps("RyuCommon")
-	add_rules("c++.unity_build")
+
+	if has_config("ryu-unity-build") then
+		add_rules("c++.unity_build")
+	end
 target_end()

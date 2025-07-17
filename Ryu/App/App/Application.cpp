@@ -36,7 +36,7 @@ namespace Ryu::App
 	void App::Exit()
 	{
 		m_isRunning = false;
-		
+
 		// Send a close message to the window
 		if (m_window && m_window->IsOpen)
 		{

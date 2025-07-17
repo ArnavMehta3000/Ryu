@@ -2,6 +2,7 @@
 #include "Profiling/Profiling.h"
 #include "App/AppConfig.h"
 
+RYU_LOG_DECLARE_CATEGORY(TestbenchApp);
 using namespace Ryu;
 
 TestbenchApp::TestbenchApp(std::shared_ptr<Window::Window> window)
@@ -11,17 +12,27 @@ TestbenchApp::TestbenchApp(std::shared_ptr<Window::Window> window)
 
 bool TestbenchApp::OnInit()
 {
-	RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(TestbenchApp), "Initializing Testbench App");
+	RYU_PROFILE_SCOPE();
+	RYU_LOG_INFO(LogTestbenchApp, "Initializing Testbench App");
+
+	if (!m_gameInput.Init())
+	{
+		RYU_LOG_WARN(LogTestbenchApp, "Failed to initialize GameInput");
+	}
+
 	return true;
 }
 
 void TestbenchApp::OnShutdown()
 {
 	RYU_PROFILE_SCOPE();
-	RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(TestbenchApp), "Shutting down Testbench App");
+	RYU_LOG_INFO(LogTestbenchApp, "Shutting down Testbench App");
+	
+	m_gameInput.Shutdown();
 }
 
 void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo&)
 {
-	//RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(TestbenchApp), "Ticking Testbench App");
+	m_gameInput.PollKeyboard();
+	m_gameInput.PollMouse();
 }

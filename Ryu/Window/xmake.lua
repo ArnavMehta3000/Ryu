@@ -6,7 +6,9 @@ target("RyuWindow")
 	add_headerfiles("**.h")
 
 	add_deps("RyuConfig", "RyuProfiling")
-
 	add_links("Dwmapi")
-	add_rules("c++.unity_build")
+
+	if has_config("ryu-unity-build") then
+		add_rules("c++.unity_build")
+	end
 target_end()

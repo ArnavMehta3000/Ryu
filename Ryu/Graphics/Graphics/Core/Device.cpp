@@ -1,173 +1,43 @@
 #include "Graphics/Core/Device.h"
+#include "Graphics/Debug/DebugLayer.h"
+#include "Graphics/GraphicsConfig.h"
 #include "Math/Math.h"
 #include "Utils/StringConv.h"
 #include "Profiling/Profiling.h"
-#include <dxgidebug.h>
+#include <ranges>
 
 namespace Ryu::Gfx
 {
-	// --- Debug Layer ---
-#if defined(RYU_BUILD_DEBUG)
-	DWORD g_callbackCookie = 0;
+	RYU_LOG_DECLARE_CATEGORY(GFXDevice);
 
-	Device::DebugLayer::DebugLayer()
+	DevicePtr Device::Create()
 	{
-		RYU_PROFILE_SCOPE();
-		const GraphicsConfig& config = GraphicsConfig::Get();
-
-		if (config.EnableDebugLayer)
-		{
-			ComPtr<ID3D12Debug6> d3dDebug;
-			if (SUCCEEDED(::D3D12GetDebugInterface(IID_PPV_ARGS(&d3dDebug))))
-			{
-				d3dDebug->EnableDebugLayer();
-				RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(GFXDevice), "DX12 Debug layer enabled");
-
-				if (config.EnableGPUBasedValidation)
-				{
-					d3dDebug->SetEnableGPUBasedValidation(TRUE);
-					RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "DX12 GPU based validation enabled");
-				}
-			}
-			else
-			{
-				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "DX12 Debug layer not available");
-			}
-
-			ComPtr<IDXGIDebug1> dxgiDebug;
-			if (SUCCEEDED(::DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
-			{
-				dxgiDebug->EnableLeakTrackingForThread();
-			}
-			else
-			{
-				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "DXGI Debug layer not available");
-			}
-
-			ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
-			if (SUCCEEDED(::DXGIGetDebugInterface1(0, IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
-			{
-				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, TRUE);
-				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING, TRUE);
-				dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-
-				DXGI_INFO_QUEUE_MESSAGE_ID hide[] =
-				{
-					80 /* IDXGISwapChain::GetContainingOutput: The swapchain's adapter does not control the output on which the swapchain's window resides. */,
-				};
-				DXGI_INFO_QUEUE_FILTER filter{};
-				filter.DenyList.NumIDs = _countof(hide);
-				filter.DenyList.pIDList = hide;
-				dxgiInfoQueue->AddStorageFilterEntries(DXGI_DEBUG_DXGI, &filter);
-			}
-			else
-			{
-				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "DXGI Info Queue not available");
-			}
-		}
-	}
-
-	Device::DebugLayer::~DebugLayer()
-	{
-		RYU_PROFILE_SCOPE();
-
-		ComPtr<IDXGIDebug1> dxgiDebug;
-		if (SUCCEEDED(::DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
-		{
-			DXCall(dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL)));
-		}
-
-	}
-
-	void Device::DebugLayer::SetupSeverityBreaks(ComPtr<DX12::Device>& device, bool enable)
-	{
-		RYU_PROFILE_SCOPE();
-
-		ComPtr<ID3D12InfoQueue> d3dInfoQueue;
-		if (SUCCEEDED(device.As(&d3dInfoQueue)))
-		{
-			DXCallEx(d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, enable), device.Get());
-			DXCallEx(d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, enable), device.Get());
-			DXCallEx(d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, enable), device.Get());
-
-			ComPtr<ID3D12InfoQueue1> infoQueue1;
-			if (SUCCEEDED(d3dInfoQueue.As(&infoQueue1)))
-			{
-				const auto MessageCallback = [](
-					MAYBE_UNUSED D3D12_MESSAGE_CATEGORY category,
-					MAYBE_UNUSED D3D12_MESSAGE_SEVERITY severity,
-					MAYBE_UNUSED D3D12_MESSAGE_ID id,
-					MAYBE_UNUSED LPCSTR description,
-					MAYBE_UNUSED void* context)
-					{
-						if (severity == D3D12_MESSAGE_SEVERITY_INFO || severity == D3D12_MESSAGE_SEVERITY_MESSAGE)
-						{
-							RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(GFXDevice), "D3D12 Validation Layer: {}", description);
-						}
-
-						if (severity == D3D12_MESSAGE_SEVERITY_ERROR)
-						{
-							RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(GFXDevice), "D3D12 Validation Layer: {}", description);
-						}
-
-						if (severity == D3D12_MESSAGE_SEVERITY_WARNING)
-						{
-							RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "D3D12 Validation Layer: {}", description);
-						}
-					};
-
-				if (enable)
-				{
-					DXCallEx(infoQueue1->RegisterMessageCallback(MessageCallback, D3D12_MESSAGE_CALLBACK_FLAG_NONE, this, &g_callbackCookie), device.Get());
-				}
-				else
-				{
-					DXCallEx(infoQueue1->UnregisterMessageCallback(g_callbackCookie), device.Get());
-				}
-
-			}
-		}
-	}
-
-	void Device::DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(ComPtr<DX12::Device>& device)
-	{
-		ComPtr<ID3D12DebugDevice2> debugDevice;
-		if (SUCCEEDED(device.As(&debugDevice)))
-		{
-			device.Reset();  // Release the device so that when we report we have the lowest possible nummber of refs
-			DXCall(debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL));
-		}
-	}
-#endif
-	// --- Debug Layer ---
-
-	std::shared_ptr<Device> Device::Create()
-	{
-		auto device = std::shared_ptr<Device>(new Device());
+		auto device = DevicePtr(new Device());
 		device->Initialize();
 		return device;
 	}
 
 	void Device::Destroy(Device& device)
 	{
-		device.m_rtvHeap.reset();
-		device.m_dsvHeap.reset();
-		device.m_srvHeap.reset();
-		device.m_uavHeap.reset();
+		auto resetComPtr = [](auto& ptr) { ptr.Reset(); };
 
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		device.m_rtvHeap.Destroy();
+		device.m_cmdList.Reset();
+		device.m_cmdQueue.Reset();
+		std::ranges::for_each(device.m_cmdAllocators, resetComPtr);
+		device.m_fence.Reset();
+		device.m_factory.Reset();
+
+		if (device.m_fenceEvent)
 		{
-			device.ProcessDeferredReleases(i);
+			::CloseHandle(device.m_fenceEvent);
 		}
 
-		device.m_cmdCtx.reset();
-
-		device.ProcessDeferredReleases(0);
-
-		device.m_factory.Reset();
 #if defined(RYU_BUILD_DEBUG)
-		device.m_debugLayer.SetupSeverityBreaks(device.m_device, false);
-		device.m_debugLayer.ReportLiveDeviceObjectsAndReleaseDevice(device.m_device);
+		DebugLayer::SetupSeverityBreaks(device.m_device, false);
+		DebugLayer::SetStablePowerState(device.m_device, false);
+		DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(device.m_device);
+		DebugLayer::Shutdown();
 #else
 		device.m_device.Reset();  // Manually release device
 #endif
@@ -176,58 +46,17 @@ namespace Ryu::Gfx
 	void Device::Initialize()
 	{
 		RYU_PROFILE_SCOPE();
+
+		DebugLayer::Initialize();
+
 		CreateDevice();
-		
-		m_cmdCtx = std::make_shared<CommandContext>(weak_from_this(), CmdListType::Direct);
-		CreateDescriptorHeaps();
+		CreateDescriptorHeap();
+		CreateCommandQueue();
+		CreateCommandList();
+		CreateSynchronization();
 
-		RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
-			"DX12 Device created with max feature level: {}",
+		RYU_LOG_DEBUG(LogGFXDevice, "DX12 Device created with max feature level: {}",
 			Internal::FeatureLevelToString(m_featureSupport.MaxSupportedFeatureLevel()));
-	}
-
-	void Device::SetDeferredReleaseFlag()
-	{
-		m_deferredReleaseFlag[m_cmdCtx->GetFrameIndex()] = 1;
-	}
-
-	bool Device::CheckDeferredReleaseFlag(const u32 frameIndex) const
-	{
-		return m_deferredReleaseFlag[frameIndex] == 1;
-	}
-
-	void Device::ProcessDeferredReleases(const u32 frameIndex)
-	{
-		std::lock_guard lock(m_deferredReleaseMutex);
-
-		m_deferredReleaseFlag[frameIndex] = 0;
-
-		std::span<DX12::Object*> objects(m_deferredReleases[frameIndex]);
-		if (!objects.empty())
-		{
-			for (DX12::Object* object : objects)
-			{
-				if (object)
-				{
-					object->Release();
-				}
-			}
-			m_deferredReleases[frameIndex].clear();
-		}
-	}
-
-	void Device::DeferReleaseObject(DX12::Object* object)
-	{
-		if (!object)
-		{
-			return;
-		}
-
-		const u32 frameIndex = m_cmdCtx->GetFrameIndex();
-		std::lock_guard lock(m_deferredReleaseMutex);
-
-		m_deferredReleases[frameIndex].push_back(object);
-		SetDeferredReleaseFlag();
 	}
 
 	void Device::CreateDevice()
@@ -236,8 +65,6 @@ namespace Ryu::Gfx
 
 		const auto& config = GraphicsConfig::Get();
 		const bool useWarpDevice = config.UseWARP;
-
-		// Debug layer should be enabled by now if needed
 
 		u32 dxgiFactoryFlags = 0;
 
@@ -253,7 +80,7 @@ namespace Ryu::Gfx
 		DXCall(::CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_factory)));
 
 		// Temporary workaround because SetStablePowerState() is crashing
-		D3D12EnableExperimentalFeatures(0, nullptr, nullptr, nullptr);
+		::D3D12EnableExperimentalFeatures(0, nullptr, nullptr, nullptr);
 
 		// --- Create Device ---
 		ComPtr<DXGI::Adapter> adapter;
@@ -265,20 +92,21 @@ namespace Ryu::Gfx
 		{
 			if (useWarpDevice)
 			{
-				RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice), "WARP software adapter requested");
+				RYU_LOG_DEBUG(LogGFXDevice, "WARP software adapter requested");
 			}
 			else
 			{
-				RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(GFXDevice), "Failed to find a hardware adapter.  Falling back to WARP");
+				RYU_LOG_WARN(LogGFXDevice, "Failed to find a hardware adapter.  Falling back to WARP");
 			}
 
 			DXCall(m_factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter)));
 			DXCall(::D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
 		}
 
-		// Enable security breaks
 #if defined(RYU_BUILD_DEBUG)
-		m_debugLayer.SetupSeverityBreaks(m_device, true);
+		// Enable severity breaks and stable power state
+		DebugLayer::SetupSeverityBreaks(m_device, true);
+		DebugLayer::SetStablePowerState(m_device, true);
 #endif
 
 		// --- Set debug name & cache capabilities ---
@@ -286,17 +114,73 @@ namespace Ryu::Gfx
 		DXCallEx(m_featureSupport.Init(m_device.Get()), m_device.Get());
 	}
 
-	void Device::CreateDescriptorHeaps()
+	void Device::CreateCommandQueue()
 	{
-		m_rtvHeap = std::make_shared<DescriptorHeap>(weak_from_this(), DescHeapType::RTV, DescHeapFlags::None, 512);
-		m_dsvHeap = std::make_shared<DescriptorHeap>(weak_from_this(), DescHeapType::DSV, DescHeapFlags::None, 512);
-		m_srvHeap = std::make_shared<DescriptorHeap>(weak_from_this(), DescHeapType::CBV_SRV_UAV, DescHeapFlags::ShaderVisible, 4096);
-		m_uavHeap = std::make_shared<DescriptorHeap>(weak_from_this(), DescHeapType::CBV_SRV_UAV, DescHeapFlags::None, 512);
+		RYU_PROFILE_SCOPE();
 
-		DX12::SetObjectName(m_rtvHeap->GetHeap(), "RTV Descriptor Heap");
-		DX12::SetObjectName(m_dsvHeap->GetHeap(), "DSV Descriptor Heap");
-		DX12::SetObjectName(m_srvHeap->GetHeap(), "SRV Descriptor Heap");
-		DX12::SetObjectName(m_uavHeap->GetHeap(), "UAV Descriptor Heap");
+		D3D12_COMMAND_QUEUE_DESC desc
+		{
+			.Type     = DX12::ToNative(CommandListType::Direct),
+			.Priority = DX12::ToNative(CommandQueuePriority::Normal),
+			.Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
+			.NodeMask = 0
+		};
+
+		DXCallEx(m_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_cmdQueue)), m_device.Get());
+		DX12::SetObjectName(m_cmdQueue.Get(), "Direct Command Queue");
+	}
+
+	void Device::CreateCommandList()
+	{
+		RYU_PROFILE_SCOPE();
+
+		const D3D12_COMMAND_LIST_TYPE type = DX12::ToNative(CommandListType::Direct);
+
+		// Create command allocators for each frame
+		for (u32 i = 0; i < m_cmdAllocators.size(); i++)
+		{ 
+			DXCallEx(m_device->CreateCommandAllocator(type, IID_PPV_ARGS(&m_cmdAllocators[i])), m_device.Get());
+			DX12::SetObjectName(m_cmdAllocators[i].Get(), 
+				std::format("Direct Command Allcator {}", i).c_str());
+		}
+		
+		DXCallEx(m_device->CreateCommandList(0, type, m_cmdAllocators[0].Get(), nullptr, IID_PPV_ARGS(&m_cmdList)), m_device.Get());
+		DX12::SetObjectName(m_cmdList.Get(), "Direct Graphics Command List");
+		
+		m_cmdList->Close();  // Command lists are created in recording state, close them
+	}
+
+	void Device::CreateSynchronization()
+	{
+		RYU_PROFILE_SCOPE();
+		
+		// FrameIndex will be 0 on first call to GetCurrentBackBufferIndex()
+
+		// Create fence
+		DXCallEx(m_device->CreateFence(m_frameIndex, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)), m_device.Get());
+		DX12::SetObjectName(m_fence.Get(), "Frame Fence");
+		
+		// We know that this function is called before the swapchain is created
+		// We also know that first call to GetCurrentBackBufferIndex() will return 0
+		// So we increase the fence at 0 value by one
+		m_fenceValues[m_frameIndex]++;
+
+		m_fenceEvent = ::CreateEvent(nullptr, false, false, nullptr);
+		if (!m_fenceEvent)
+		{
+			RYU_LOG_ERROR(LogGFXDevice, "Failed to create fence event");
+			DXCallEx(HRESULT_FROM_WIN32(::GetLastError()), m_device.Get());
+		}
+
+		WaitForGPU();
+	}
+
+	void Device::CreateDescriptorHeap()
+	{
+		RYU_PROFILE_SCOPE();
+
+		// RTV Heap
+		m_rtvHeap.Initialize(weak_from_this(), DescriptorHeapType::RTV, DescriptorHeapFlags::None, FRAME_BUFFER_COUNT);
 	}
 
 	void Device::GetHardwareAdapter(DXGI::Factory* pFactory, DXGI::Adapter** ppAdapter) const
@@ -306,7 +190,6 @@ namespace Ryu::Gfx
 		ComPtr<DXGI::Adapter> adapter;
 		*ppAdapter = nullptr;
 
-		u64 maxVRAM = 0;
 		for (UINT adapterIndex = 0;
 			SUCCEEDED(pFactory->EnumAdapterByGpuPreference(
 				adapterIndex,
@@ -317,22 +200,56 @@ namespace Ryu::Gfx
 			DXGI_ADAPTER_DESC1 desc;
 			adapter->GetDesc1(&desc);
 
-
-			if (desc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE || desc.DedicatedVideoMemory > maxVRAM)
+			if (desc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)
 			{
 				continue;  // Don't select the Basic Render Driver adapter.
 			}
 
-			maxVRAM = desc.DedicatedVideoMemory;
 			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
 				const std::string description = Utils::ToNarrowStr(desc.Description);
-				RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(GFXDevice),
-					"Using GPU: {} ({}) - {:.2f} GB", description, desc.VendorId, maxVRAM * Math::BytesToGigaBytes);
+				RYU_LOG_DEBUG(LogGFXDevice,
+					"Using GPU: {} ({}) - {:.2f} GB", description, desc.VendorId, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
 				break;
 			}
 		}
 
 		*ppAdapter = adapter.Detach();
+	}
+	
+	void Device::WaitForGPU()
+	{
+		RYU_PROFILE_SCOPE();
+		
+		// Schedule a signal command in the queue
+		DXCallEx(m_cmdQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]), m_device.Get());
+
+		// Wait until the fence has been crossed
+		DXCallEx(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent), m_device.Get());
+		::WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+
+		// Increment the fence value for the current frame
+		m_fenceValues[m_frameIndex]++;
+	}
+	
+	void Device::MoveToNextFrame(const u32 frameIndex)
+	{
+		const u64 currentFenceValue = m_fenceValues[m_frameIndex];
+		
+		// Schedule a signal command in the queue
+		DXCallEx(m_cmdQueue->Signal(m_fence.Get(), currentFenceValue), m_device.Get());
+
+		// Update frame index
+		m_frameIndex = frameIndex;
+
+		// If the next frame is not ready to be rendered yet, wait until it is ready
+		if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
+		{
+			DXCallEx(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent), m_device.Get());
+			::WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+		}
+
+		// Set the fence value for the next frame
+		m_fenceValues[m_frameIndex] = currentFenceValue + 1;
 	}
 }

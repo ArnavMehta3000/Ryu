@@ -2,7 +2,7 @@
 #include "Common/ObjectMacros.h"
 #include "Logger/Sinks/ILogSink.h"
 #include "Logger/LogCategory.h"
-#include "Utils/Singleton.h"
+#include "Utils/ServiceLocator.h"
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -12,13 +12,8 @@
 
 namespace Ryu::Logging
 {
-	/**
-	 * @brief Main logging class
-	 * @details This is a singleton class which can be accessed via the Logger::Get() function
-	 */
-	class Logger : public Utils::Singleton<Logger>
+	class Logger : public Utils::IService
 	{
-		RYU_SINGLETON_DECLARE(Logger);
 	public:
 		/**
 		 * @brief Callback type for when a log message is dispatched
@@ -46,9 +41,6 @@ namespace Ryu::Logging
 		inline RYU_API void SetOnFatalCallback(OnLogCallback callback) { m_onFatalCallback = callback; }
 
 	private:
-		Logger() = default;
-
-	private:
 		std::vector<std::unique_ptr<ILogSink>> m_sinks;
 		mutable std::mutex                     m_mutex;  // Marked mutable to allow std::lock_guard
 		OnLogCallback                          m_onFatalCallback = [](MAYBE_UNUSED LogLevel, MAYBE_UNUSED const LogMessage&) { std::abort(); };
@@ -63,41 +55,46 @@ namespace Ryu::Logging
 		std::string Stacktrace;
 	};
 
-	static FormattedLogMessage DefaultFormatter(const LogCategory& category, LogLevel level, const LogMessage& message, bool captureStackTrace);
-	static std::string DefaultFormatter(LogLevel level, const FormattedLogMessage& message);
+	FormattedLogMessage DefaultFormatter(const LogCategory& category, LogLevel level, const LogMessage& message, bool captureStackTrace);
+	std::string DefaultFormatter(LogLevel level, const FormattedLogMessage& message);
+
+	namespace Internal
+	{
+		void InvokeLogger(const LogCategory& category, LogLevel level, const LogMessage& message);
+	}
 }
 
 
 #if defined (RYU_LOG_ENABLED_TRACE)
 // Log verbose information
-#define RYU_LOG_TRACE(category, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Trace, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define RYU_LOG_TRACE(category, ...) ::Ryu::Logging::Internal::InvokeLogger(category, ::Ryu::Logging::LogLevel::Trace, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
 #else
 #define RYU_LOG_TRACE(category, ...) void(0)
 #endif
 
 #if defined (RYU_LOG_ENABLED_DEBUG)
 // Log debug information
-#define RYU_LOG_DEBUG(category, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Debug, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define RYU_LOG_DEBUG(category, ...) ::Ryu::Logging::Internal::InvokeLogger(category, ::Ryu::Logging::LogLevel::Debug, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
 #else
 #define RYU_LOG_DEBUG(category, ...) void(0)
 #endif
 
 #if defined (RYU_LOG_ENABLED_INFO)
 // Log information
-#define RYU_LOG_INFO(category, ...)  ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Info, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define RYU_LOG_INFO(category, ...)  ::Ryu::Logging::Internal::InvokeLogger(category, ::Ryu::Logging::LogLevel::Info, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
 #else
 #define RYU_LOG_INFO(category, ...) void(0)
 #endif
 
 #if defined (RYU_LOG_ENABLED_WARN)
 // Log warnings
-#define RYU_LOG_WARN(category,  ...)  ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Warn, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define RYU_LOG_WARN(category,  ...)  ::Ryu::Logging::Internal::InvokeLogger(category, ::Ryu::Logging::LogLevel::Warn, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
 #else
 #define RYU_LOG_WARN(category,  ...) void(0)
 #endif
 
 // Log an error
- #define RYU_LOG_ERROR(category, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Error, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+ #define RYU_LOG_ERROR(category, ...) ::Ryu::Logging::Internal::InvokeLogger(category, ::Ryu::Logging::LogLevel::Error, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
 
 // Log a fatal error (abort)
-#define RYU_LOG_FATAL(category, ...) ::Ryu::Logging::Logger::Get().Log(category, ::Ryu::Logging::LogLevel::Fatal, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })
+#define RYU_LOG_FATAL(category, ...) ::Ryu::Logging::Internal::InvokeLogger(category, ::Ryu::Logging::LogLevel::Fatal, ::Ryu::Logging::LogMessage{ std::format(__VA_ARGS__), std::stacktrace::current() })

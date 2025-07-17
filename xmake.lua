@@ -1,4 +1,4 @@
-set_xmakever("3.0.1")
+set_xmakever("3.0.0")
 add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 -- Project name and version
@@ -18,7 +18,7 @@ includes("Xmake/Rules/RyuGame.lua")
 includes("Xmake/Rules/EnumToHeader.lua")
 
 -- Update compile commands
--- add_rules("plugin.compile_commands.autoupdate", { outputdir = "build", lsp = "clangd" })
+add_rules("plugin.compile_commands.autoupdate", { outputdir = ".", lsp = "clangd" })
 
 -- Build debug mode by default
 set_defaultmode("debug")

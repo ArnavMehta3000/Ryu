@@ -4,13 +4,15 @@ target("RyuScripting")
 	add_includedirs(".", { public = true })
 	add_headerfiles("**.h")
 	add_files("**.cpp", { unity_group = "Scripting" })
-	
+
 	add_deps(
-		"RyuLogger", 
-		"RyuProfiling"		
+		"RyuLogger",
+		"RyuProfiling"
 	)
 
 	add_deps("AngelScript", { public = true })
-	
-	add_rules("c++.unity_build")
+
+	if has_config("ryu-unity-build") then
+		add_rules("c++.unity_build")
+	end
 target_end()

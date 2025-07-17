@@ -16,6 +16,8 @@ namespace fs = std::filesystem;
 
 namespace Ryu::Scripting
 {
+	RYU_LOG_DECLARE_CATEGORY(ScriptEngine);
+
 	ScriptEngine::ScriptEngine(const std::string& scriptDir)
 		: m_scriptDir(scriptDir)
 	{
@@ -48,7 +50,7 @@ namespace Ryu::Scripting
 		{
 			if (ctx)
 			{
-				RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(ScriptEngine), "Releasing context for {}", script);
+				RYU_LOG_TRACE(LogScriptEngine, "Releasing context for {}", script);
 				ctx->Release();
 			}
 		}
@@ -68,15 +70,15 @@ namespace Ryu::Scripting
 		switch (msg->type)
 		{
 		case asMSGTYPE_INFORMATION:
-			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(ScriptEngine), "{}", formattedMsg);
+			RYU_LOG_INFO(LogScriptEngine, "{}", formattedMsg);
 			break;
 			
 		case asMSGTYPE_ERROR:
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(ScriptEngine), "{}", formattedMsg);
+			RYU_LOG_ERROR(LogScriptEngine, "{}", formattedMsg);
 			break;
 
 		case asMSGTYPE_WARNING:
-			RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ScriptEngine), "{}", formattedMsg);
+			RYU_LOG_WARN(LogScriptEngine, "{}", formattedMsg);
 			break;
 		}
 	}
@@ -98,22 +100,22 @@ namespace Ryu::Scripting
 		switch (level)
 		{
 		case Trace:
-			RYU_LOG_TRACE(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
+			RYU_LOG_TRACE(LogScriptEngine, "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Debug:
-			RYU_LOG_DEBUG(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
+			RYU_LOG_DEBUG(LogScriptEngine, "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Info:
-			RYU_LOG_INFO(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
+			RYU_LOG_INFO(LogScriptEngine, "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Warn:
-			RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
+			RYU_LOG_WARN(LogScriptEngine, "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Error:
-			RYU_LOG_ERROR(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
+			RYU_LOG_ERROR(LogScriptEngine, "AngelScript({}) - {}", callInfo, message);
 			return;
 		case Fatal:
-			RYU_LOG_FATAL(RYU_LOG_USE_CATEGORY(ScriptEngine), "AngelScript({}) - {}", callInfo, message);
+			RYU_LOG_FATAL(LogScriptEngine, "AngelScript({}) - {}", callInfo, message);
 			return;
 		}
 	}
@@ -167,7 +169,7 @@ namespace Ryu::Scripting
 		std::vector<fs::path> scriptFiles = GetFilesRecursively(m_scriptDir);
 		if (scriptFiles.empty())
 		{
-			RYU_LOG_WARN(RYU_LOG_USE_CATEGORY(ScriptEngine), "No script files (*.as) found in {}", m_scriptDir);
+			RYU_LOG_WARN(LogScriptEngine, "No script files (*.as) found in {}", m_scriptDir);
 		}
 		
 		i32 r = 0;

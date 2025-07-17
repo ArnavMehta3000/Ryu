@@ -27,7 +27,5 @@ namespace Ryu::App
 		auto projectDir = config["Paths"]["ProjectDir"].value_or(std::string());
 
 		m_projectDir  = m_rootDir / projectDir;
-		m_gameDLLName = config["Paths"]["GameDLLName"].value_or(std::string());
-		m_gameDLLPath = fs::current_path() / m_gameDLLName;
 	}
 }

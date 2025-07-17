@@ -272,7 +272,12 @@ namespace Ryu::Engine
 			}
 			else
 			{
-				RYU_LOG_ERROR(LogEngine, "Failed to load/init plugin: {}", name);
+				// Only print the error for loading
+				// Otherwise it pollutes the log
+				if (phase == Plugin::PluginPhase::OnLoad)
+				{
+					RYU_LOG_ERROR(LogEngine, "Failed to load plugin: {}", name);
+				}
 			}
 		}
 	}
@@ -289,7 +294,12 @@ namespace Ryu::Engine
 			}
 			else
 			{
-				RYU_LOG_ERROR(LogEngine, "Failed to unload/shutdown plugin: {}", name);
+				// Only print the error for unloading
+				// Otherwise it pollutes the log
+				if (phase == Plugin::PluginPhase::OnUnload)
+				{
+					RYU_LOG_WARN(LogEngine, "Failed to unload plugin: {}", name);
+				}
 			}
 		}
 	}

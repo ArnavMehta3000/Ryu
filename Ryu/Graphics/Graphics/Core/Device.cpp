@@ -1,4 +1,8 @@
 #include "Graphics/Core/Device.h"
+#include "Graphics/Core/COmmandAllocator.h"
+#include "Graphics/Core/CommandQueue.h"
+#include "Graphics/Core/CommandList.h"
+#include "Graphics/Core/Fence.h"
 #include "Graphics/Debug/DebugLayer.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Math/Math.h"
@@ -41,6 +45,60 @@ namespace Ryu::Gfx
 #else
 		device.m_device.Reset();  // Manually release device
 #endif
+	}
+
+	CommandList Device::CreateCommandList(CommandAllocator& allocator, CommandListType type) const
+	{
+		RYU_PROFILE_SCOPE();
+		ComPtr<DX12::GraphicsCommandList> cmdList;
+		
+		DXCallEx(m_device->CreateCommandList(0, DX12::ToNative(type), allocator, nullptr, IID_PPV_ARGS(&cmdList)), m_device.Get());
+		m_cmdList->Close();
+
+		return CommandList(cmdList);
+	}
+
+	CommandQueue Device::CreateCommandQueue(CommandListType type, CommandQueuePriority priority) const
+	{
+		RYU_PROFILE_SCOPE();
+
+		ComPtr<DX12::CommandQueue> cmdQueue;
+		D3D12_COMMAND_QUEUE_DESC desc
+		{
+			.Type     = DX12::ToNative(type),
+			.Priority = DX12::ToNative(priority),
+			.Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
+			.NodeMask = 0
+		};
+
+		DXCallEx(m_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&cmdQueue)), m_device.Get());
+		DX12::SetObjectName(cmdQueue.Get(), std::format("Command Queue ({})", EnumToString(type)).c_str());
+
+		return CommandQueue(cmdQueue);
+	}
+
+	CommandAllocator Device::CreateCommandAllocator(CommandListType type) const
+	{
+		RYU_PROFILE_SCOPE();
+
+		ComPtr<DX12::CommandAllocator> cmdAllocator;
+		D3D12_COMMAND_LIST_TYPE nativeType = DX12::ToNative(type);
+		
+		DXCallEx(m_device->CreateCommandAllocator(nativeType, IID_PPV_ARGS(&cmdAllocator)), m_device.Get());
+		DX12::SetObjectName(cmdAllocator.Get(), std::format("Command Allocator ({})", EnumToString(type)).c_str());
+
+		return CommandAllocator(cmdAllocator);
+	}
+
+	Fence Device::CreateFence(u64 initialValue, FenceFlag flag) const
+	{
+		RYU_PROFILE_SCOPE();
+		
+		ComPtr<DX12::Fence> fence;
+		DXCallEx(m_device->CreateFence(initialValue, DX12::ToNative(flag), IID_PPV_ARGS(&fence)), m_device.Get());
+		DX12::SetObjectName(fence.Get(), "Frame Fence");
+
+		return Fence(fence);
 	}
 
 	void Device::Initialize()

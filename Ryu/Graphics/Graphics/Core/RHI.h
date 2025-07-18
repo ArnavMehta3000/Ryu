@@ -19,6 +19,11 @@ namespace Ryu::Gfx
 
 	class Device;
 	class SwapChain;
+	class CommandList;
+	class CommandQueue;
+	class CommandAllocator;
+	class PipelineState;
+	class Fence;
 
 	constexpr u32 FRAME_BUFFER_COUNT      = 2;
 	constexpr Format BACK_BUFFER_FORMAT   = Format::RGBA8_UNORM;

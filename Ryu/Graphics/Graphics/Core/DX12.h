@@ -73,3 +73,8 @@ namespace Ryu::Gfx
 
 #define DXCall(hr) ::Ryu::Gfx::Internal::LogHRESULT(hr, nullptr, #hr, __FILE__, __FUNCTION__, __LINE__)
 #define DXCallEx(hr, dx12Device) ::Ryu::Gfx::Internal::LogHRESULT(hr, dx12Device, #hr, __FILE__, __FUNCTION__, __LINE__)
+
+#define RYU_GFX_NATIVE(VarName)                                           \
+	inline NODISCARD auto* Get() const noexcept { return VarName.Get(); } \
+	operator auto* () const noexcept { return VarName.Get(); }\
+	operator bool () const noexcept { return VarName.Get() != nullptr; }

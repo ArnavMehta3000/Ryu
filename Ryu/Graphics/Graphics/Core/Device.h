@@ -10,6 +10,11 @@ namespace Ryu::Gfx
 		static DevicePtr Create();
 		static void Destroy(Device& device);
 
+		CommandList CreateCommandList(CommandAllocator& allocator, CommandListType type) const;
+		CommandQueue CreateCommandQueue(CommandListType type, CommandQueuePriority priority) const;
+		CommandAllocator CreateCommandAllocator(CommandListType type) const;
+		Fence CreateFence(u64 initialValue = 0, FenceFlag flag = FenceFlag::None) const;
+
 		inline NODISCARD DX12::Device* const GetDevice() const noexcept { return m_device.Get(); }
 		inline NODISCARD DXGI::Factory* const GetFactory() const noexcept { return m_factory.Get(); }
 		inline NODISCARD DX12::CommandQueue* const GetCommandQueue() const noexcept { return m_cmdQueue.Get(); }

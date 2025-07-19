@@ -1,8 +1,9 @@
 #include "Graphics/Core/SwapChain.h"
 #include "Graphics/Core/Device.h"
+#include "Graphics/Core/CommandQueue.h"
+#include "Graphics/Core/DescriptorHeap.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
-#include "Logger/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -26,7 +27,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	SwapChain::SwapChain(std::weak_ptr<Device> parent, HWND window, Format format)
+	SwapChain::SwapChain(std::weak_ptr<Device> parent, CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format)
 		: DeviceObject(parent)
 		, m_window(window)
 		, m_format(format)
@@ -36,7 +37,7 @@ namespace Ryu::Gfx
 		, m_allowTearing(false)
 		, m_rtvDescriptorSize(0)
 	{
-		OnConstruct(window, format);
+		OnConstruct(queue, rtvHeap, window, format);
 	}
 
 	SwapChain::~SwapChain()
@@ -44,12 +45,12 @@ namespace Ryu::Gfx
 		OnDestruct();
 	}
 
-	void SwapChain::OnConstruct(HWND window, Format format)
+	void SwapChain::OnConstruct(CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format)
 	{
 		m_window = window;
 		m_format = format;
 		
-		CreateSwapChain();  // Will call Resize -> CreateFrameResources
+		CreateSwapChain(queue, rtvHeap);  // Will call Resize -> CreateFrameResources
 		
 		RYU_LOG_DEBUG(LogGFXSwapChain, "SwapChain created");
 	}
@@ -67,7 +68,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void SwapChain::Resize(const u32 width, const u32 height)
+	void SwapChain::Resize(DescriptorHeap& rtvHeap, const u32 width, const u32 height)
 	{
 		RYU_PROFILE_SCOPE();
 
@@ -99,7 +100,7 @@ namespace Ryu::Gfx
 
 			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-			CreateFrameResources();
+			CreateFrameResources(rtvHeap);
 
 			// Set viewport and rect
 			m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<f32>(m_width), static_cast<f32>(m_height));
@@ -122,22 +123,15 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void SwapChain::CreateSwapChain()
+	void SwapChain::CreateSwapChain(CommandQueue& queue, DescriptorHeap& rtvHeap)
 	{
 		RYU_PROFILE_SCOPE();
 
 		if (auto device = GetParent())
 		{
+			auto& config                 = GraphicsConfig::Get();
+			const bool wantsTearing      = config.AllowTearing;
 			DXGI::Factory* const factory = device->GetFactory();
-			DX12::CommandQueue* const cmdQueue = device->GetCommandQueue();
-			if (!cmdQueue)
-			{
-				RYU_LOG_ERROR(LogGFXSwapChain, "Failed to create swapchain, graphics command context not available");
-				return;
-			}
-
-			auto& config = GraphicsConfig::Get();
-			const bool wantsTearing = config.AllowTearing;
 
 			DXGI_SWAP_CHAIN_DESC1 desc{};
 			BOOL allowTearing = FALSE;
@@ -165,7 +159,7 @@ namespace Ryu::Gfx
 			ComPtr<IDXGISwapChain1> swapChain;
 			RYU_TODO("Create command queue for this to work");
 			DXCall(factory->CreateSwapChainForHwnd(
-				cmdQueue,
+				queue.Get(),
 				m_window,
 				&desc,
 				&fsDesc,
@@ -182,11 +176,11 @@ namespace Ryu::Gfx
 
 			// Reuse desc width and height to get window size
 			GetWindowSize(m_window, desc.Width, desc.Height);
-			Resize(desc.Width, desc.Height);
+			Resize(rtvHeap, desc.Width, desc.Height);
 		}
 	}
 	
-	void SwapChain::CreateFrameResources()
+	void SwapChain::CreateFrameResources(DescriptorHeap& rtvHeap)
 	{
 		if (!m_swapChain)
 		{
@@ -203,13 +197,12 @@ namespace Ryu::Gfx
 				for (u32 i = 0; i < m_surfaceData.size(); i++)
 				{
 					RenderSurface& surface = m_surfaceData[i];
-					DescriptorHeap& heap = parent->GetRTVDescriptorHeap();
 
 					// Create local handle copy with proper offset
 					CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(
-						heap.GetCPUHandle(),
+						rtvHeap.GetCPUHandle(),
 						i,
-						heap.GetDescriptorSize()
+						rtvHeap.GetDescriptorSize()
 					);
 
 					DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&surface.Resource)), device);

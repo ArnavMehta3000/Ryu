@@ -14,7 +14,7 @@ namespace Ryu::Gfx
 		RYU_GFX_DEVICE_OBJ;
 	public:
 		SwapChain() = default;
-		SwapChain(std::weak_ptr<Device> parent, HWND window, Format format = BACK_BUFFER_FORMAT);
+		SwapChain(std::weak_ptr<Device> parent, CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format = BACK_BUFFER_FORMAT);
 		~SwapChain();
 
 		inline NODISCARD HWND GetWindowHandle() const noexcept { return m_window; }
@@ -25,14 +25,14 @@ namespace Ryu::Gfx
 		inline NODISCARD const RenderSurface& GetRenderSurface(const u32 index) const { return m_surfaceData[index]; }
 		inline NODISCARD u32 GetFrameIndex() const noexcept { return m_frameIndex; }
 
-		void Resize(const u32 width, const u32 height);
+		void Resize(DescriptorHeap& rtvHeap, const u32 width, const u32 height);
 		void Present() const;
 
 	private:
-		void OnConstruct(HWND window, Format format = BACK_BUFFER_FORMAT);
+		void OnConstruct(CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format = BACK_BUFFER_FORMAT);
 		void OnDestruct();
-		void CreateSwapChain();
-		void CreateFrameResources();
+		void CreateSwapChain(CommandQueue& queue, DescriptorHeap& rtvHeap);
+		void CreateFrameResources(DescriptorHeap& rtvHeap);
 
 	private:
 		HWND                      m_window{ nullptr };

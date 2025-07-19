@@ -1,20 +1,21 @@
 #pragma once
-#include "Graphics/Core/DX12.h"
+#include "Graphics/Core/DeviceObject.h"
 
 namespace Ryu::Gfx
 {
-	class Fence
+	class Fence : public DeviceObject<Fence>
 	{
+		RYU_GFX_DEVICE_OBJ;
 	public:
 		RYU_GFX_NATIVE(m_fence)
 
 		Fence() = default;
-		Fence(ComPtr<DX12::Fence> fence) : m_fence(std::move(fence)) {}
-		
-		inline void SetName(const char* name) const { DX12::SetObjectName(m_fence.Get(), name); }
+		Fence(DeviceWeakPtr parent, u64 initialValue, FenceFlag flag );
+		~Fence();
 
-		inline u64 GetCompletedValue() const { return m_fence->GetCompletedValue(); }
-		inline void SetEventOnCompletion(u64 value, HANDLE event) { m_fence->SetEventOnCompletion(value, event); }
+	private:
+		void OnConstruct(u64 initialValue, FenceFlag flag );
+		void OnDestruct();
 
 	private:
 		ComPtr<DX12::Fence> m_fence;

@@ -1,19 +1,23 @@
 #pragma once
-#include "Graphics/Core/DX12.h"
+#include "Graphics/Core/DeviceObject.h"
 
 namespace Ryu::Gfx
 {
-	class CommandAllocator
+	class CommandAllocator : public DeviceObject<CommandAllocator>
 	{
+		RYU_GFX_DEVICE_OBJ;
 	public:
 		RYU_GFX_NATIVE(m_allocator)
 			
 		CommandAllocator() = default;
-		explicit CommandAllocator(ComPtr<DX12::CommandAllocator> allocator) : m_allocator(std::move(allocator)) {}
+		explicit CommandAllocator(DeviceWeakPtr parent, CommandListType type);
+		~CommandAllocator();
 
-		inline void SetName(const char* name) const { DX12::SetObjectName(m_allocator.Get(), name); }
+		void Reset() const;
 
-		inline void Reset() const { DXCall(m_allocator->Reset()); }
+	private:
+		void OnConstruct(CommandListType type);
+		void OnDestruct();
 
 	private:
 		ComPtr<DX12::CommandAllocator> m_allocator;

@@ -34,4 +34,5 @@ namespace Ryu::Gfx
 	using FrameArray = std::array<T, FRAME_BUFFER_COUNT>;
 
 	using DevicePtr = std::shared_ptr<Device>;
+	using DeviceWeakPtr = std::weak_ptr<Device>;
 }

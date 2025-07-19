@@ -1,7 +1,10 @@
 #pragma once
-#include "Logger/LogCategory.h"
 #include "Graphics/Core/Device.h"
 #include "Graphics/Core/SwapChain.h"
+#include "Graphics/Core/CommandAllocator.h"
+#include "Graphics/Core/CommandQueue.h"
+#include "Graphics/Core/CommandList.h"
+#include "Graphics/Core/Fence.h"
 
 namespace Ryu::Gfx
 {
@@ -20,9 +23,19 @@ namespace Ryu::Gfx
 
 	private:
 		void PopulateCommandList();
+		void WaitForGPU();
+		void MoveToNextFrame();
 
 	private:
 		DevicePtr m_device;
 		SwapChain m_swapChain;
+
+		HANDLE                       m_fenceEvent{ nullptr };
+		FrameArray<u64>              m_fenceValues{ 0 };
+		Fence                        m_fence;
+		CommandQueue                 m_cmdQueue;
+		FrameArray<CommandAllocator> m_cmdAllocators;
+		CommandList                  m_cmdList;
+		DescriptorHeap               m_rtvHeap;
 	};
 }

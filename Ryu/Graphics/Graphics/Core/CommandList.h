@@ -17,7 +17,7 @@ namespace Ryu::Gfx
 		RYU_GFX_NATIVE(m_cmdList)
 
 		CommandList() = default;
-		explicit CommandList(DeviceWeakPtr parent, CommandAllocator& allocator, CommandListType type);
+		explicit CommandList(DeviceWeakPtr parent, CommandAllocator& allocator, PipelineState* pso, CommandListType type);
 		~CommandList();
 
 		inline State GetState() const { return m_state; }
@@ -26,7 +26,7 @@ namespace Ryu::Gfx
 		inline void Close() const;
 
 	private:
-		void OnConstruct(CommandAllocator& allocator, CommandListType type);
+		void OnConstruct(CommandAllocator& allocator, PipelineState* pso, CommandListType type);
 		void OnDestruct();
 
 	private:

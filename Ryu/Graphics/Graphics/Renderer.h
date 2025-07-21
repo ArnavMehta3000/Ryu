@@ -4,6 +4,7 @@
 #include "Graphics/Core/CommandAllocator.h"
 #include "Graphics/Core/CommandQueue.h"
 #include "Graphics/Core/CommandList.h"
+#include "Graphics/Core/PipelineState.h"
 #include "Graphics/Core/Fence.h"
 
 namespace Ryu::Gfx
@@ -27,6 +28,7 @@ namespace Ryu::Gfx
 		void MoveToNextFrame();
 		void CreateRootSignature();
 		void CompileShaders();
+		void CreateVB();
 
 	private:
 		DevicePtr m_device;
@@ -37,8 +39,11 @@ namespace Ryu::Gfx
 		Fence                        m_fence;
 		CommandQueue                 m_cmdQueue;
 		FrameArray<CommandAllocator> m_cmdAllocators;
+		PipelineState                m_pso;
 		CommandList                  m_cmdList;
 		DescriptorHeap               m_rtvHeap;
 		ComPtr<DX12::RootSignature>  m_rootSignature;
+		ComPtr<DX12::Resource>       m_vertexBuffer;
+		D3D12_VERTEX_BUFFER_VIEW     m_vertexBufferView;
 	};
 }

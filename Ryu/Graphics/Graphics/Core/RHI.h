@@ -22,6 +22,7 @@ namespace Ryu::Gfx
 	class CommandList;
 	class CommandQueue;
 	class CommandAllocator;
+	class CommandContext;
 	class PipelineState;
 	class Fence;
 

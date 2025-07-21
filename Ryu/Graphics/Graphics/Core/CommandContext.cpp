@@ -5,11 +5,11 @@
 
 namespace Ryu::Gfx
 {
-	CommandContext::CommandContext(CommandList* cmdList, CommandAllocator* allocator)
+	CommandContext::CommandContext(CommandList* cmdList, CommandAllocator* allocator, PipelineState* pso)
 		: m_cmdList(cmdList)
 		, m_allocator(allocator)
 	{
-		Begin();
+		Begin(pso);
 	}
 
 	CommandContext::~CommandContext()
@@ -17,10 +17,10 @@ namespace Ryu::Gfx
 		End();
 	}
 
-	void CommandContext::Begin()
+	void CommandContext::Begin(PipelineState* pso)
 	{
 		m_allocator->Reset();
-		m_cmdList->Reset(*m_allocator);  RYU_TODO("Implement PSO");
+		m_cmdList->Reset(*m_allocator, pso);  RYU_TODO("Implement PSO");
 	}
 
 	void CommandContext::End()

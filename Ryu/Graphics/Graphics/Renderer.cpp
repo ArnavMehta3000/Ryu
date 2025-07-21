@@ -55,7 +55,7 @@ namespace Ryu::Gfx
 
 			RYU_LOG_DEBUG(LogRenderer, "Destroying swapchain");
 			m_swapChain.Destroy();
-			
+
 			m_vertexBuffer.Reset();
 			m_pso.Destroy();
 			m_rootSignature.Reset();
@@ -198,7 +198,7 @@ namespace Ryu::Gfx
 		std::memcpy(vertexDataBegin, vertices.data(), vbSize);
 		m_vertexBuffer->Unmap(0, nullptr);
 		DX12::SetObjectName(m_vertexBuffer.Get(), "Vertex Buffer");
-		
+
 		// Initialize the vertex buffer view.
 		m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
 		m_vertexBufferView.StrideInBytes = sizeof(Vertex);
@@ -234,7 +234,7 @@ namespace Ryu::Gfx
 
 		const u32 currentBackBufferIndex = m_swapChain.GetFrameIndex();
 
-		CommandContext ctx(&m_cmdList, &m_cmdAllocators[currentBackBufferIndex]);
+		CommandContext ctx(&m_cmdList, &m_cmdAllocators[currentBackBufferIndex], &m_pso);
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(
 			m_rtvHeap.GetCPUHandle(),
@@ -252,6 +252,7 @@ namespace Ryu::Gfx
 			D3D12_RESOURCE_STATE_RENDER_TARGET
 		));
 
+		m_cmdList.Get()->SetGraphicsRootSignature(m_rootSignature.Get());
 		m_cmdList.Get()->RSSetViewports(1, &m_swapChain.GetViewport());
 		m_cmdList.Get()->RSSetScissorRects(1, &m_swapChain.GetScissorRect());
 
@@ -259,6 +260,11 @@ namespace Ryu::Gfx
 		const float clearColor[] = { 0.2f, 0.3f, 0.4f, 1.0f }; // Dark blue
 		m_cmdList.Get()->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 		m_cmdList.Get()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+		// Draw
+		m_cmdList.Get()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_cmdList.Get()->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+		m_cmdList.Get()->DrawInstanced(3, 1, 0, 0);
 
 		// Transition back to present
 		ctx.SetResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(

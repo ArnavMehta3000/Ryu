@@ -28,7 +28,7 @@ void CALLBACK OnDeviceEnumerated(
 			if (SUCCEEDED((device->GetDeviceInfo(&info))))
 			{
 
-				if (info->supportedInput == GameInputKindGamepad)
+				if (info->supportedInput & GameInputKindGamepad)
 				{
 					RYU_LOG_INFO(LogGameInput, "Gamepad connected");
 				}

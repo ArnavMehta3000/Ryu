@@ -7,10 +7,10 @@ namespace Ryu::Gfx
 	class CommandContext
 	{
 	public:
-		explicit CommandContext(CommandList* cmdList, CommandAllocator* allocator);
+		explicit CommandContext(CommandList* cmdList, CommandAllocator* allocator, PipelineState* pso);
 		~CommandContext();
 		
-		void Begin();
+		void Begin(PipelineState* pso);
 		void End();
 
 		void SetResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier);

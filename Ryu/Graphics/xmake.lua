@@ -26,6 +26,7 @@ target("RyuGraphics")
 				"DescriptorHeapType.json",
 				"FenceFlag.json",
 				"Format.json",
+				"ShaderType.json",
 				"TextureFlags.json",
 				"TextureType.json",
 			},

@@ -20,7 +20,17 @@ rule("HLSLShader")
         end,
         {
         	dependfile = target:dependfile(path.join("ShaderCopyCache", path.filename(sourcefile))),
-        	files = sourcefile
+        	files = { sourcefile, dest_file }
         })
+	end)
+
+	on_clean(function (target)
+		local shaders_dir = path.join(target:targetdir(), "Shaders")
+		local comp_shaders_dir = path.join(target:targetdir(), "Compiled")
+		local depend_file = path.join(target:dependir(), "ShaderCopyCache")
+
+		os.rm(shaders_dir)
+		os.rm(comp_shaders_dir)
+		os.rm(depend_file)
 	end)
 rule_end()

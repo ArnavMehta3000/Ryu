@@ -26,6 +26,7 @@ namespace Ryu::Gfx
 		void WaitForGPU();
 		void MoveToNextFrame();
 		void CreateRootSignature();
+		void CompileShaders();
 
 	private:
 		DevicePtr m_device;

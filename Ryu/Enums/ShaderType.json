@@ -1,0 +1,33 @@
+{
+	"Namespace": "Ryu::Gfx",
+	"Name": "ShaderType",
+	"Base": "u8",
+	"EnableBitMaskOps": false,
+	"Types":
+	[
+		{
+			"Key": "VertexShader",
+			"Value": null
+		},
+		{
+			"Key": "PixelShader",
+			"Value": null
+		},
+		{
+			"Key": "GeometryShader",
+			"Value": null
+		},
+		{
+			"Key": "HullShader",
+			"Value": null
+		},
+		{
+			"Key": "DomainShader",
+			"Value": null
+		},
+		{
+			"Key": "ComputeShader",
+			"Value": null
+		}
+	]
+}

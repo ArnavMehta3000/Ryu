@@ -56,4 +56,10 @@ rule("EnumToHeader")
 				}
 			)
 	end)
+
+	on_clean(function (target)
+		local depend_file = path.join(target:dependir(), "versioninfo.d")
+
+		os.rm(depend_file)
+	end)
 rule_end()

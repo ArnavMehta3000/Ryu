@@ -76,7 +76,7 @@ namespace Ryu::Logging
 		// Add stacktrace if needed
 		if (level == LogLevel::Fatal)
 		{
-			formattedMessage = std::format("[{}] [{}] [{}]: {}\n{}",
+			formattedMessage = std::format("[{}] [{}] [{}] {}\n{}",
 				message.Timestamp,
 				message.Level,
 				message.Category,
@@ -85,7 +85,7 @@ namespace Ryu::Logging
 		}
 		else
 		{
-			formattedMessage = std::format("[{}] [{}] [{}]: {}",
+			formattedMessage = std::format("[{}] [{}] [{}] {}",
 				message.Timestamp,
 				message.Level,
 				message.Category,

@@ -29,22 +29,7 @@ namespace Ryu::Gfx
 		m_rtvHeap.Initialize(parent, DescriptorHeapType::RTV, DescriptorHeapFlags::None, FRAME_BUFFER_COUNT);
 
 		CreateRootSignature();
-
-		ShaderCompileInfo info
-		{
-			.Debug = true,
-			.FilePath = L"Shaders/Engine/TestShader.hlsl",
-			.EntryPoint = L"VSMain",
-			.TargetProfile = L"vs_6_0"
-		};
-
-		ShaderCompiler compiler;
-		compiler.CompileFromFile(info)
-			.or_else([](const std::string& error)
-				{
-					RYU_LOG_ERROR(LogShaderCompiler, "Shader Compiler Error: {}", error);
-					return VoidResult();
-				});
+		CompileShaders();
 
 		m_swapChain.Initialize(m_device, m_cmdQueue, m_rtvHeap, window, BACK_BUFFER_FORMAT);
 
@@ -109,6 +94,26 @@ namespace Ryu::Gfx
 				signature->GetBufferSize(),
 				IID_PPV_ARGS(&m_rootSignature)),
 			m_device->GetDevice());
+		}
+	}
+
+	void Renderer::CompileShaders()
+	{
+		ShaderCompileInfo info
+		{
+			.FilePath = L"Shaders/Engine/Triangle.hlsl",
+			.Type = ShaderType::VertexShader,
+			.Name = "Triangle",
+		};
+
+		ShaderCompiler compiler;
+		if (auto result = compiler.Compile(info))
+		{
+			ShaderCompileResult compileResult = std::move(result.value());
+		}
+		else
+		{
+			RYU_LOG_ERROR(LogRenderer, "Shader Compiler Error: {}", result.error());
 		}
 	}
 

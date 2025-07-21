@@ -27,8 +27,11 @@ namespace Ryu::Gfx
 		ComPtr<IDxcBlob> ReflectionBlob;
 	};
 
+	RYU_TODO("Implement shader hot reloading");
 	class ShaderCompiler
 	{
+		RYU_DISABLE_COPY_AND_MOVE(ShaderCompiler)
+
 	public:
 		ShaderCompiler();
 		~ShaderCompiler() = default;

@@ -33,6 +33,7 @@ namespace Ryu::Gfx
 			/ (info.FilePath.stem().wstring() + g_shaderPDBExt.data());
 	}
 
+
 	VoidResult ShaderCompiler::CompileFromFile(const ShaderCompileInfo& info)
 	{
 		// Get filename from path without extension

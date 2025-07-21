@@ -223,9 +223,9 @@ namespace Ryu::Gfx
 		}
 
 		// Print hash
+		const std::string name = info.Name.empty() ? info.FilePath.stem().string() : info.Name;
 		std::string hash = GetHash(result);
-		RYU_LOG_DEBUG(LogShaderCompiler, "Shader ({}) hash: {}",
-			info.FilePath.filename().string(), hash);
+		RYU_LOG_DEBUG(LogShaderCompiler, "Shader ({}) hash: {}", name, hash);
 
 		// Get reflection blob
 		ComPtr<IDxcBlob> reflectionBlob;
@@ -238,11 +238,11 @@ namespace Ryu::Gfx
 			return std::unexpected(getResult.error());
 		}
 
-		RYU_LOG_INFO(LogShaderCompiler, "Shader ({}) compiled successfully", info.FilePath.filename().string());
+		RYU_LOG_INFO(LogShaderCompiler, "Shader [{}] compiled successfully", name);
 
 		return ShaderCompileResult
 		{
-			.Name           = info.Name.empty() ? info.FilePath.stem().string() : info.Name,
+			.Name           = name,
 			.Hash           = hash,
 			.CSOPath        = csoOutputPath,
 			.PDBPath        = pdbOutputPath,

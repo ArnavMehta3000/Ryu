@@ -130,18 +130,18 @@ namespace Ryu::Utils
         Derived& Initialize(CompulsoryInitArgs... compulsoryArgs, OnConstructArgs&&... args)
         {
             std::call_once(m_initFlag, [&]()
-                {
-                    m_compulsoryArgs = std::make_tuple(compulsoryArgs...);
-                    InvokeOnConstruct(static_cast<Derived*>(this), compulsoryArgs..., std::forward<OnConstructArgs>(args)...);
-                });
+            {
+                m_compulsoryArgs = std::make_tuple(compulsoryArgs...);
+                InvokeOnConstruct(static_cast<Derived*>(this), compulsoryArgs..., std::forward<OnConstructArgs>(args)...);
+            });
 
             return static_cast<Derived&>(*this);
         }
 
         // Initialize with OnConstruct that takes additional args but not compulsory args
         template<typename... OnConstructArgs>
-            requires HasOnConstruct<Derived, OnConstructArgs...> 
-            && (!HasOnConstruct<Derived, CompulsoryInitArgs..., OnConstructArgs...>) 
+            requires HasOnConstruct<Derived, OnConstructArgs...>
+            && (!HasOnConstruct<Derived, CompulsoryInitArgs..., OnConstructArgs...>)
             && (sizeof...(OnConstructArgs) > 0)
             Derived& Initialize(CompulsoryInitArgs... compulsoryArgs, OnConstructArgs&&... args)
         {
@@ -156,7 +156,7 @@ namespace Ryu::Utils
 
         // Initialize with parameterless OnConstruct (only compulsory args)
         Derived& Initialize(CompulsoryInitArgs... compulsoryArgs)
-            requires HasOnConstruct<Derived, CompulsoryInitArgs...> 
+            requires HasOnConstruct<Derived, CompulsoryInitArgs...>
             && (sizeof...(CompulsoryInitArgs) > 0)
         {
             std::call_once(m_initFlag, [&]()
@@ -171,7 +171,7 @@ namespace Ryu::Utils
         // Initialize with parameterless OnConstruct (ignoring compulsory args)
         Derived& Initialize(CompulsoryInitArgs... compulsoryArgs)
             requires HasParameterlessOnConstruct<Derived>
-            && (!HasOnConstruct<Derived, CompulsoryInitArgs...>) 
+            && (!HasOnConstruct<Derived, CompulsoryInitArgs...>)
             && (sizeof...(CompulsoryInitArgs) > 0)
         {
             std::call_once(m_initFlag, [&]()

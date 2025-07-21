@@ -16,6 +16,7 @@ includes("Xmake/Options.lua")
 includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/RyuGame.lua")
 includes("Xmake/Rules/EnumToHeader.lua")
+includes("Xmake/Rules/HLSLShader.lua")
 
 -- Update compile commands
 add_rules("plugin.compile_commands.autoupdate", { outputdir = ".", lsp = "clangd" })

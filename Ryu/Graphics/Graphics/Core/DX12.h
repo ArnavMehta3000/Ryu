@@ -21,6 +21,7 @@ namespace Ryu::Gfx
 		using CommandAllocator    = ID3D12CommandAllocator;
 		using DescriptorHeap      = ID3D12DescriptorHeap;
 		using PipelineState       = ID3D12PipelineState;
+		using RootSignature       = ID3D12RootSignature;
 
 		void SetObjectName(DX12::Object* object, const char* name);
 		std::string GetObjectName(DX12::Object* object);

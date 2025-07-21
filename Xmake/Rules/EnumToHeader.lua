@@ -6,7 +6,7 @@ rule("EnumToHeader")
 		target:add("includedirs",dir, { public = true })
 	end)
 
-	before_build(function (target, opt)
+	on_prepare(function (target, opt)
 		import("core.project.depend")
 		import("core.base.task")
 		import("utils.progress")

@@ -32,12 +32,16 @@ target("RyuGraphics")
 			force = false
 		})
 
+	-- Add shader files
+	add_files("./Shaders/**.hlsl")
+	add_rules("HLSLShader", { root = "Engine" })
+
 	add_includedirs(".", { public = true })
 	add_files("**.cpp", { unity_group = "Graphics" })
 	add_headerfiles("**.h")
-	add_packages("directx-headers", { public = true })
+	add_packages("directx-headers", "directxshadercompiler", { public = true })
 
-	add_links("d3d12", "dxgi", "dxguid", "Advapi32")
+	add_links("d3d12", "dxgi", "dxguid", "d3dcompiler", "Advapi32")
 
 	if has_config("ryu-unity-build") then
 		add_rules("c++.unity_build")

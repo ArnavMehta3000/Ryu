@@ -9,12 +9,12 @@ namespace Ryu::Gfx
     concept DeviceObjectDerived = std::derived_from<T, DeviceObject<T>>;
 
     template <typename Derived>
-    class DeviceObject : public Utils::Constructable<Derived, std::weak_ptr<Device>>
+    class DeviceObject : public Utils::Constructable<Derived, DeviceWeakPtr>
     {
     public:
         DeviceObject() = default;
-        explicit DeviceObject(std::weak_ptr<Device> parent)
-            : Utils::Constructable<Derived, std::weak_ptr<Device>>(parent)
+        explicit DeviceObject(DeviceWeakPtr parent)
+            : Utils::Constructable<Derived, DeviceWeakPtr>(parent)
         {
         }
         virtual ~DeviceObject() = default;

@@ -25,6 +25,7 @@ namespace Ryu::Gfx
 		void PopulateCommandList();
 		void WaitForGPU();
 		void MoveToNextFrame();
+		void CreateRootSignature();
 
 	private:
 		DevicePtr m_device;
@@ -37,5 +38,6 @@ namespace Ryu::Gfx
 		FrameArray<CommandAllocator> m_cmdAllocators;
 		CommandList                  m_cmdList;
 		DescriptorHeap               m_rtvHeap;
+		ComPtr<DX12::RootSignature>  m_rootSignature;
 	};
 }

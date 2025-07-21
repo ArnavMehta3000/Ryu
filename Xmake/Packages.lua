@@ -1,5 +1,6 @@
 add_requires("fmt", { configs = { unicode = true }})
 add_requires("directx-headers v1.616.0")
+add_requires("directxshadercompiler 1.8.2405")
 add_requires("imgui docking", { configs = { dx12 = true, win32 = true }})
 add_requires("uuid_v4")
 add_requires("entt")

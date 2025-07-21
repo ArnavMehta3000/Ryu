@@ -20,11 +20,21 @@ namespace Ryu::Gfx
 	void CommandContext::Begin()
 	{
 		m_allocator->Reset();
-		m_cmdList->Reset(*m_allocator);  // TODO: PSO
+		m_cmdList->Reset(*m_allocator);  RYU_TODO("Implement PSO");
 	}
 
 	void CommandContext::End()
 	{
 		m_cmdList->Close();
+	}
+	
+	void CommandContext::SetResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier)
+	{
+		m_cmdList->Get()->ResourceBarrier(1, &barrier);
+	}
+	
+	void CommandContext::SetResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers)
+	{
+		m_cmdList->Get()->ResourceBarrier(static_cast<u32>(barriers.size()), barriers.data());
 	}
 }

@@ -1,9 +1,10 @@
 #include "Graphics/Renderer.h"
+#include "Graphics/Compiler/ShaderCompiler.h"
 #include "Graphics/Core/CommandContext.h"
 #include "Profiling/Profiling.h"
 #include "Logger/Logger.h"
 #include "Logger/Assert.h"
-#include <ranges>
+#include <expected>
 
 namespace Ryu::Gfx
 {
@@ -20,18 +21,36 @@ namespace Ryu::Gfx
 		{
 			m_cmdAllocators[i].Initialize(parent, CommandListType::Direct);
 		}
-		
+
 		m_fenceEvent = ::CreateEvent(nullptr, false, false, nullptr);
 		m_fence.Initialize(parent, 0, FenceFlag::None);
 		m_cmdQueue.Initialize(parent, CommandListType::Direct, CommandQueuePriority::Normal);
 		m_cmdList.Initialize(parent, m_cmdAllocators[0], CommandListType::Direct);
 		m_rtvHeap.Initialize(parent, DescriptorHeapType::RTV, DescriptorHeapFlags::None, FRAME_BUFFER_COUNT);
-		
+
+		CreateRootSignature();
+
+		ShaderCompileInfo info
+		{
+			.Debug = true,
+			.FilePath = L"Shaders/Engine/TestShader.hlsl",
+			.EntryPoint = L"VSMain",
+			.TargetProfile = L"vs_6_0"
+		};
+
+		ShaderCompiler compiler;
+		compiler.CompileFromFile(info)
+			.or_else([](const std::string& error)
+				{
+					RYU_LOG_ERROR(LogShaderCompiler, "Shader Compiler Error: {}", error);
+					return VoidResult();
+				});
+
 		m_swapChain.Initialize(m_device, m_cmdQueue, m_rtvHeap, window, BACK_BUFFER_FORMAT);
 
 		WaitForGPU();
 	}
-	
+
 	Renderer::~Renderer()
 	{
 		RYU_PROFILE_SCOPE();
@@ -44,6 +63,7 @@ namespace Ryu::Gfx
 			RYU_LOG_DEBUG(LogRenderer, "Destroying swapchain");
 			m_swapChain.Destroy();
 
+			m_rootSignature.Reset();
 			m_fence.Destroy();
 			m_rtvHeap.Destroy();
 			m_cmdList.Destroy();
@@ -65,6 +85,31 @@ namespace Ryu::Gfx
 			m_device.reset();
 		}
 
+	}
+
+	void Renderer::CreateRootSignature()
+	{
+		// Create empty root signature
+		{
+			CD3DX12_ROOT_SIGNATURE_DESC rsDesc;
+			rsDesc.Init(
+				0,                                                            // Num Parameters
+				nullptr,                                                      // Root params
+				0,                                                            // Num static samplers
+				nullptr,                                                      // Static samplers
+				D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT  // Flags
+			);
+
+			ComPtr<ID3DBlob> signature;
+			ComPtr<ID3DBlob> error;
+			DXCall(D3D12SerializeRootSignature(&rsDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
+			DXCallEx(m_device->GetDevice()->CreateRootSignature(
+				0,
+				signature->GetBufferPointer(),
+				signature->GetBufferSize(),
+				IID_PPV_ARGS(&m_rootSignature)),
+			m_device->GetDevice());
+		}
 	}
 
 	void Renderer::Render()
@@ -92,12 +137,10 @@ namespace Ryu::Gfx
 	void Renderer::PopulateCommandList()
 	{
 		RYU_PROFILE_SCOPE();
-		
+
 		const u32 currentBackBufferIndex = m_swapChain.GetFrameIndex();
 
-		// Reset command allocator and list
-		m_cmdAllocators[currentBackBufferIndex].Reset();
-		m_cmdList.Reset(m_cmdAllocators[currentBackBufferIndex], nullptr);
+		CommandContext ctx(&m_cmdList, &m_cmdAllocators[currentBackBufferIndex]);
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(
 			m_rtvHeap.GetCPUHandle(),
@@ -105,15 +148,15 @@ namespace Ryu::Gfx
 			m_rtvHeap.GetDescriptorSize()
 		);
 
-		// Transition to render target
 		const RenderSurface& renderSurface = m_swapChain.GetRenderSurface(currentBackBufferIndex);
 		auto backBuffer = renderSurface.Resource;
-		CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+
+		// Transition to render target
+		ctx.SetResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(
 			backBuffer.Get(),
 			D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATE_RENDER_TARGET
-		);
-		m_cmdList.Get()->ResourceBarrier(1, &barrier);
+		));
 
 		m_cmdList.Get()->RSSetViewports(1, &m_swapChain.GetViewport());
 		m_cmdList.Get()->RSSetScissorRects(1, &m_swapChain.GetScissorRect());
@@ -124,14 +167,11 @@ namespace Ryu::Gfx
 		m_cmdList.Get()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 
 		// Transition back to present
-		barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+		ctx.SetResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(
 			backBuffer.Get(),
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_PRESENT
-		);
-		m_cmdList.Get()->ResourceBarrier(1, &barrier);
-
-		m_cmdList.Close();
+		));
 	}
 
 	void Renderer::WaitForGPU()

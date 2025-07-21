@@ -20,6 +20,8 @@ namespace Ryu::Gfx
 		explicit CommandList(DeviceWeakPtr parent, CommandAllocator& allocator, CommandListType type);
 		~CommandList();
 
+		inline State GetState() const { return m_state; }
+
 		inline void Reset(CommandAllocator& allocator, PipelineState* pso = nullptr) const;
 		inline void Close() const;
 
@@ -28,7 +30,7 @@ namespace Ryu::Gfx
 		void OnDestruct();
 
 	private:
-		mutable State m_state;
+		mutable State m_state = State::Closed;
 		ComPtr<DX12::GraphicsCommandList> m_cmdList;
 	};
 }

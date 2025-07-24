@@ -211,6 +211,7 @@ namespace Ryu::Gfx
 			return std::unexpected(getResult.error());
 		}
 		
+#if defined (RYU_BUILD_DEBUG)
 		// Save shader PDB
 		ComPtr<IDxcBlob> pdbBlob;
 		if (auto getResult = GetPDBBlob(result, pdbOutputPath); getResult)
@@ -221,6 +222,7 @@ namespace Ryu::Gfx
 		{
 			return std::unexpected(getResult.error());
 		}
+#endif
 
 		// Print hash
 		const std::string name = info.Name.empty() ? info.FilePath.stem().string() : info.Name;
@@ -270,7 +272,7 @@ namespace Ryu::Gfx
 
 #if defined (RYU_BUILD_DEBUG)
 		args.push_back(DXC_ARG_DEBUG);
-#elif
+#else
 		args.push_back(DXC_ARG_OPTIMIZATION_LEVEL3);
 #endif
 

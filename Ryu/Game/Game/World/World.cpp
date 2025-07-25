@@ -7,16 +7,9 @@ namespace Ryu::Game
 	Entity World::CreateEntity(const std::string& name)
 	{
 		EntityHandle handle = m_registry.create();		
+
 		auto& meta = m_registry.emplace<EntityMetadata>(handle);
-		if (name.empty())
-		{
-			// Generate name from entity count in registry
-			meta.Name = std::format("Entity{}", GetEntityCount());
-		}
-		else
-		{
-			meta.Name = name;
-		}
+		meta.Name = name.empty() ? std::format("Entity{}", GetEntityCount()) : name;
 
 		return Entity(handle, this);
 	}

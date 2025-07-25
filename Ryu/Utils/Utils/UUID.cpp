@@ -9,4 +9,9 @@ namespace Ryu::Utils
 		return s_uuidGenerator.getUUID();
 	}
 
+	UUID::Type UUID::FromString(const std::string& str)
+	{
+		return Type(str);
+	}
+
 }

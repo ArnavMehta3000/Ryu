@@ -6,7 +6,7 @@ target("RyuUtils")
 	add_headerfiles("**.h")
 	add_extrafiles("**.inl")
 
-	add_packages("uuid_v4", "Elos")
+	add_packages("uuid_v4", "Elos", { public = true })
 
 	add_rules("EnumToHeader",
 		{

@@ -1,6 +1,7 @@
 #pragma once
 #include "Utils/Random/Random.h"
 #include <uuid_v4.h>
+#include <string>
 
 namespace Ryu::Utils
 {
@@ -13,11 +14,7 @@ namespace Ryu::Utils
 		using Generator = UUIDv4::UUIDGenerator<std::mt19937_64>;
 		using Type = UUIDv4::UUID;
 
-	public:
-		/**
-		 * @brief Generate a new UUID
-		 * @return 
-		 */
 		static Type Generate();
+		static Type FromString(const std::string& str);
 	};
 }

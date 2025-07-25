@@ -4,7 +4,6 @@ target("RyuPlugin")
 	add_includedirs(".", { public = true })
 	add_files("**.cpp", { unity_group = "Plugin" })
 	add_headerfiles("**.h")
-	add_packages("entt")
 	add_deps("RyuUtils")
 
 	if has_config("ryu-unity-build") then

@@ -1,38 +1,10 @@
 #pragma once
-#include "Common/Enum.h"
-#include "Utils/UUID.h"
+#include "Game/Components/EntityMetadata.h"
 #include "Game/World/World.h"
-#include <bitset>
-#include <string>
 
 namespace Ryu::Game
 {
 	constexpr auto InvalidEntityHandle = entt::null;
-
-	enum class EntityFlag
-	{
-		None             = 0,
-		MarkedForDestroy = RYU_ENUM_BIT(0),
-		Disabled         = RYU_ENUM_BIT(1),
-
-		MAX_FLAGS = 32
-	};
-	RYU_ENUM_ENABLE_BITMASK_OPERATORS(EntityFlag)
-
-	using EntityFlags = std::bitset<static_cast<u64>(EntityFlag::MAX_FLAGS)>;
-
-	// Every entity is going to have this as a component
-	struct EntityMetadata
-	{
-		EntityMetadata()
-		{
-			ID = Utils::UUID::Generate();
-		}
-
-		std::string Name;
-		EntityFlags Flags;
-		Utils::UUID::Type ID;
-	};
 
 	class Entity
 	{

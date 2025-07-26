@@ -1,6 +1,4 @@
 #include "Testbench/TestbenchApp.h"
-#include "Game/World/World.h"
-#include "Game/World/Entity.h"
 #include "Profiling/Profiling.h"
 #include "App/AppConfig.h"
 
@@ -21,11 +19,6 @@ bool TestbenchApp::OnInit()
 	{
 		RYU_LOG_WARN(LogTestbenchApp, "Failed to initialize GameInput");
 	}
-
-	Game::World world;
-	Game::Entity e = world.CreateEntity();
-	auto& meta = e.GetComponent<Game::EntityMetadata>();
-	auto str = meta.ID.str();
 
 	return true;
 }

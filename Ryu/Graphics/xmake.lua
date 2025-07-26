@@ -8,6 +8,7 @@ target("RyuGraphics")
 
 	add_deps(
 		"RyuGlobals",
+		"RyuGame",
 		"RyuProfiling",
 		"RyuLogger",
 		"RyuConfig",

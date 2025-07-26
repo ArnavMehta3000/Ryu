@@ -1,5 +1,6 @@
 #pragma once
 #include "App/Application.h"
+#include "Game/World/World.h"
 #include "Testbench/Input/GameInput.h"
 
 class TestbenchApp : public Ryu::App::App
@@ -10,6 +11,12 @@ public:
 	bool OnInit() override;
 	void OnShutdown() override;
 	void OnTick(const Ryu::Utils::TimeInfo& timeInfo) override;
+
 private:
+	void TestSerialization();
+	void TestDeserialization();
+
+private:
+	Ryu::Game::World m_world;
 	GInput m_gameInput;
 };

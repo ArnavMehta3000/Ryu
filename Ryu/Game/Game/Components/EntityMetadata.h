@@ -6,11 +6,11 @@
 
 namespace Ryu::Game
 {
-	enum class EntityFlag
+	enum class EntityFlag : u32
 	{
-		None             = 0,
+		None = 0,
 		MarkedForDestroy = RYU_ENUM_BIT(0),
-		Disabled         = RYU_ENUM_BIT(1),
+		Disabled = RYU_ENUM_BIT(1),
 
 		MAX_FLAGS = 32
 	};
@@ -21,19 +21,19 @@ namespace Ryu::Game
 	// Every entity is going to have this as a component
 	struct EntityMetadata
 	{
-		EntityMetadata()
+		explicit EntityMetadata()
 			: m_uuidBytes(Utils::UUID::GenerateBytes())
 		{
 		}
 
 		explicit EntityMetadata(const std::string& prettyUUIDStr)
-			: m_uuidBytes(Utils::UUID::FromPrettyStringToBytes(prettyUUIDStr))
 		{
+			m_uuidBytes = prettyUUIDStr.empty() ? Utils::UUID::GenerateBytes() : Utils::UUID::FromPrettyStringToBytes(prettyUUIDStr);
 		}
 
 		const inline NODISCARD Utils::UUID::Type GetUUID() const { return Utils::UUID::FromBytes(m_uuidBytes); }
 		const inline NODISCARD std::string& GetUUIDBytes() const { return m_uuidBytes; }
-		inline NODISCARD std::string GetUUIDPretty() const { Utils::UUID::FromBytesToPrettyString(m_uuidBytes); }
+		inline NODISCARD std::string GetUUIDPretty() const { return Utils::UUID::FromBytesToPrettyString(m_uuidBytes); }
 
 		std::string Name;
 		EntityFlags Flags;
@@ -43,3 +43,5 @@ namespace Ryu::Game
 		std::string m_uuidBytes;
 	};
 }
+
+#include "EntityMetadata.inl"

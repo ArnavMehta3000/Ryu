@@ -1,5 +1,6 @@
 #include "Game/World/World.h"
 #include "Game/World/Entity.h"
+#include "Game/Components/Transform.h"
 #include <entt/entity/registry.hpp>
 
 namespace Ryu::Game
@@ -8,8 +9,12 @@ namespace Ryu::Game
 	{
 		EntityHandle handle = m_registry.create();		
 
+		// Add metadata component
 		auto& meta = m_registry.emplace<EntityMetadata>(handle);
 		meta.Name = name.empty() ? std::format("Entity{}", GetEntityCount()) : name;
+
+		// Add transform component
+		m_registry.emplace<Transform>(handle);
 
 		return Entity(handle, this);
 	}
@@ -23,7 +28,7 @@ namespace Ryu::Game
 		}
 	}
 	
-	void World::DestroyEntityImmediate(Entity& entity)
+	void World::DestroyEntityImmediate(const Entity& entity)
 	{
 		if (entity.IsValid() && entity.GetWorld() == this)
 		{
@@ -43,6 +48,7 @@ namespace Ryu::Game
 	
 	u64 World::GetEntityCount() const
 	{
+
 		return m_registry.view<entt::entity>().size();
 	}
 

@@ -18,6 +18,7 @@ namespace Ryu::Gfx
 
 	void Device::Destroy(Device& device)
 	{
+		device.m_command.Destroy();
 		device.m_factory.Reset();
 
 #if defined(RYU_BUILD_DEBUG)
@@ -37,6 +38,8 @@ namespace Ryu::Gfx
 		DebugLayer::Initialize();
 
 		CreateDevice();
+
+		m_command.Initialize(weak_from_this(), CommandListType::Direct);
 
 		RYU_LOG_DEBUG(LogGFXDevice, "DX12 Device created with max feature level: {}",
 			Internal::FeatureLevelToString(m_featureSupport.MaxSupportedFeatureLevel()));
@@ -129,5 +132,48 @@ namespace Ryu::Gfx
 		}
 
 		*ppAdapter = adapter.Detach();
+	}
+
+	void Device::ProcessDeferredReleases(u32 frameIndex)
+	{
+		// TODO: Lock using mutex
+		m_deferredReleaseFlags[frameIndex] = 0;
+
+		auto& resources = m_deferredReleases[frameIndex];
+		if (!resources.empty())
+		{
+			for (auto& resource : resources)
+			{
+				if (resource)
+				{
+					resource->Release();
+					resource = nullptr;
+				}
+			}
+			resources.clear();
+		}
+	}
+
+	void Device::DeferredRelease(IUnknown* resource)
+	{
+		const u32 frameIndex = GetCurrentFrameIndex();
+		m_deferredReleases[frameIndex].push_back(resource);
+		SetDeferredReleaseFlag();
+	}
+
+	void Device::BeginFrame(PipelineState* pso)
+	{
+		const u32 frameIndex = GetCurrentFrameIndex();
+		if (m_deferredReleaseFlags[frameIndex] != 0)
+		{
+			ProcessDeferredReleases(frameIndex);
+		}
+
+		m_command.BeginFrame(pso);
+	}
+
+	void Device::EndFrame()
+	{
+		m_command.EndFrame();
 	}
 }

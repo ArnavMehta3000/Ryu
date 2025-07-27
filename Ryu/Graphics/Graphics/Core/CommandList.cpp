@@ -23,8 +23,6 @@ namespace Ryu::Gfx
 
 	void CommandList::Reset(CommandAllocator& allocator, PipelineState* pso) const
 	{
-		RYU_TODO("Implement PSO");
-
 		if (m_state == State::Recording)
 		{
 			RYU_LOG_WARN(LogGfxCommandList, "Resetting command list while recording - auto-closing first");

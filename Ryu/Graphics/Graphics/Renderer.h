@@ -1,11 +1,10 @@
 #pragma once
 #include "Graphics/Core/Device.h"
 #include "Graphics/Core/SwapChain.h"
-#include "Graphics/Core/CommandAllocator.h"
-#include "Graphics/Core/CommandQueue.h"
-#include "Graphics/Core/CommandList.h"
+#include "Graphics/Core/DescriptorHeap.h"
 #include "Graphics/Core/PipelineState.h"
 #include "Graphics/Core/Fence.h"
+#include <optional>
 
 namespace Ryu::Gfx
 {
@@ -16,16 +15,19 @@ namespace Ryu::Gfx
 		explicit Renderer(HWND window);
 		~Renderer();
 
-		inline NODISCARD const Device& GetDevice() const { return *m_device; }
-		inline NODISCARD const SwapChain& GetSwapChain() const { return m_swapChain; }
+		inline NODISCARD Device& GetDevice() { return *m_device; }
+		inline NODISCARD SwapChain& GetSwapChain() { return m_swapChain; }
+		
+		inline void SetImGuiCallback(std::function<void(Renderer*)> callback) { m_imguiCallback = callback; }
+		
+		void ProcessDeferredReleases(u32 frameIndex);
+		void DeferredRelease(IUnknown* resource);
 
 		void Render(/*Scene, Camera*/);
 		void OnResize(u32 width, u32 height);
 
 	private:
 		void PopulateCommandList();
-		void WaitForGPU();
-		void MoveToNextFrame();
 		void CreateRootSignature();
 		void CompileShaders();
 		void CreateVB();
@@ -34,16 +36,16 @@ namespace Ryu::Gfx
 		DevicePtr m_device;
 		SwapChain m_swapChain;
 
-		HANDLE                       m_fenceEvent{ nullptr };
-		FrameArray<u64>              m_fenceValues{ 0 };
-		Fence                        m_fence;
-		CommandQueue                 m_cmdQueue;
-		FrameArray<CommandAllocator> m_cmdAllocators;
+		DescHeap                     m_rtvDescHeap;
+		DescHeap                     m_dsvDescHeap;
+		DescHeap                     m_srvDescHeap;
+		DescHeap                     m_uavDescHeap;
+
 		PipelineState                m_pso;
-		CommandList                  m_cmdList;
-		DescriptorHeap               m_rtvHeap;
 		ComPtr<DX12::RootSignature>  m_rootSignature;
 		ComPtr<DX12::Resource>       m_vertexBuffer;
 		D3D12_VERTEX_BUFFER_VIEW     m_vertexBufferView;
+
+		std::optional<std::function<void(Renderer*)>> m_imguiCallback;
 	};
 }

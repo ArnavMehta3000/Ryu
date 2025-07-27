@@ -6,8 +6,10 @@
 #include <crtdbg.h>
 // Use the CRT Debug library to track memory leaks
 #define RYU_DBG_TRACK_MEM() _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF)
+#define RYU_DBG_TRACK_MEM_LEAK(LeakNum) _CrtSetBreakAlloc(LeakNum)
 #else
 #define RYU_DBG_TRACK_MEM() do {} while(false);
+#define RYU_DBG_TRACK_MEM_LEAK(LeakNum) do {} while(false);
 #endif
 
 // WinMain

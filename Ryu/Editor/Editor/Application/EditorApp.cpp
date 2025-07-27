@@ -1,4 +1,7 @@
 #include "EditorApp.h"
+#include "Engine/Engine.h"
+#include "Graphics/Core/Device.h"
+#include "Graphics/Core/CommandContext.h"
 #include "App/Utils/PathManager.h"
 #include "Game/IGameModule.h"
 #include "Logger/Logger.h"
@@ -35,7 +38,6 @@ namespace Ryu::Editor
 			return false;
 		}
 
-		RYU_TODO("Init Imgui");
 		//InitImGui();
 
 		if (!LoadGameModule())
@@ -58,7 +60,7 @@ namespace Ryu::Editor
 		m_userApp->OnShutdown();
 
 		m_userApp.reset();
-		ShutdownImGui();
+		//ShutdownImGui();
 
 		RYU_LOG_INFO(LogEditorApp, "Editor application shutdown");
 	}
@@ -67,6 +69,10 @@ namespace Ryu::Editor
 	{
 		RYU_PROFILE_SCOPE();
 		m_userApp->OnTick(timeInfo);
+	}
+
+	void EditorApp::OnImGui(Gfx::Renderer* renderer)
+	{
 	}
 
 	bool EditorApp::RouteWndProc() const
@@ -86,47 +92,49 @@ namespace Ryu::Editor
 	void EditorApp::InitImGui()
 	{
 		RYU_PROFILE_SCOPE();
-		//IMGUI_CHECKVERSION();
-		//ImGui::CreateContext();
-		//ImGuiIO& io = ImGui::GetIO();
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
-		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // IF using Docking Branch
 
-		//ImGui_ImplWin32_Init(GetWindow()->GetHWND());
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // If using Docking Branch
 
-		//bool result{ true };
-		//switch (Graphics::GraphicsConfig::Get().GraphicsAPI)
-		//{
-		//	using namespace Graphics;
-		//case Graphics::API::DirectX11:
-		//	//result = ImGui_ImplDX11_Init(DX11::Core::GetDevice(), DX11::Core::GetImContext());
-		//	break;
+		ImGui_ImplWin32_Init(GetWindow()->GetHandle());
 
-		//case Graphics::API::DirectX12:
-		//	// result = ImGui_ImplDX12_Init(DX12::Core::GetDevice(), DX12::Core::GetDefaultRenderTargetFormat(), DX12::Core::GetSRVDescHeap(), )
-		//	break;
-		//}
+		Gfx::Renderer* renderer = Engine::Engine::Get().GetRenderer();
+		renderer->SetImGuiCallback(std::bind(&EditorApp::OnImGui, this, std::placeholders::_1));
 
-		
+		Gfx::Device& device = renderer->GetDevice();
+
+		m_imguiHeap.Initialize(
+			device.weak_from_this(),
+			Gfx::DescriptorHeapType::CBV_SRV_UAV, 
+			Gfx::DescriptorHeapFlags::ShaderVisible, 
+			1);
+
+		ImGui_ImplDX12_InitInfo info{};
+		info.Device            = device.GetDevice();
+		info.CommandQueue      = renderer->GetDevice().GetCommand().GetCommandQueue();
+		info.NumFramesInFlight = Gfx::FRAME_BUFFER_COUNT;
+		info.RTVFormat         = DXGI_FORMAT_R8G8B8A8_UNORM;
+		info.DSVFormat         = DXGI_FORMAT_UNKNOWN;
+		info.SrvDescriptorHeap = m_imguiHeap;
+
+
+		//ImGui_ImplDX12_Init()
+				
 		RYU_LOG_TRACE(LogEditorApp, "ImGui initialized");
 	}
 
-	void EditorApp::ShutdownImGui() const
+	void EditorApp::ShutdownImGui()
 	{
-		//switch (Graphics::GraphicsConfig::Get().GraphicsAPI)
-		//{
-		//case Graphics::API::DirectX11:
-		//	//ImGui_ImplDX11_Shutdown();
-		//	break;
+		m_imguiHeap.Destroy();
 
-		//case Graphics::API::DirectX12:
-		//	//ImGui_ImplDX12_Shutdown();
-		//	break;
-		//}
-		
-		//ImGui_ImplWin32_Shutdown();
-		//ImGui::DestroyContext();
+		ImGui_ImplDX12_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+
 		RYU_LOG_INFO(LogEditorApp, "ImGui shutdown");
 	}
 

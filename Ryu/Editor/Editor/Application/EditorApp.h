@@ -1,6 +1,6 @@
 #pragma once
 #include "App/Application.h"
-#include "Logger/LogCategory.h"
+#include "Graphics/Renderer.h"
 
 namespace Ryu::Editor
 {
@@ -16,14 +16,17 @@ namespace Ryu::Editor
 		bool OnInit() override final;
 		void OnShutdown() override final;
 		void OnTick(const Utils::TimeInfo& timeInfo);
+
+		void OnImGui(Gfx::Renderer* renderer);
 		
 		bool RouteWndProc() const;
 		void InitImGui();
-		void ShutdownImGui() const;
+		void ShutdownImGui();
 
 		bool LoadGameModule();
 
 	private:
 		std::shared_ptr<App> m_userApp;
+		Gfx::DescriptorHeap m_imguiHeap;
 	};
 }

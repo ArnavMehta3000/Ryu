@@ -34,7 +34,6 @@ RYU_MAIN()
 	window->AddEventListener([&visitor](const Window::WindowEvent& e) { std::visit(visitor, e); });
 #endif
 
-
 	auto& engine = Ryu::Engine::Engine::Get();
 	engine.RunApp(app);
 	return 0;

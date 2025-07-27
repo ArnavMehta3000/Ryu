@@ -1,4 +1,5 @@
 #pragma once
+#include "Logger/LogCategory.h"
 #include <stdexcept>
 #include <source_location>
 #include <stacktrace>
@@ -12,6 +13,8 @@
 
 namespace Ryu
 {
+    RYU_LOG_DECLARE_CATEGORY(Assert);
+
     class Exception : public std::exception
     {
     public:

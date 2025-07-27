@@ -27,13 +27,14 @@ namespace Ryu::Gfx
 		}
 	}
 
-	SwapChain::SwapChain(std::weak_ptr<Device> parent, CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format)
+	SwapChain::SwapChain(std::weak_ptr<Device> parent, CommandQueue& queue, DescHeap& rtvHeap, HWND window, Format format)
 		: DeviceObject(parent)
 		, m_window(window)
 		, m_format(format)
 		, m_width(0)
 		, m_height(0)
 		, m_frameIndex(0)
+		, m_rtvHeap(&rtvHeap)
 		, m_allowTearing(false)
 		, m_rtvDescriptorSize(0)
 	{
@@ -45,12 +46,13 @@ namespace Ryu::Gfx
 		OnDestruct();
 	}
 
-	void SwapChain::OnConstruct(CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format)
+	void SwapChain::OnConstruct(CommandQueue& queue, DescHeap& rtvHeap, HWND window, Format format)
 	{
 		m_window = window;
 		m_format = format;
+		m_rtvHeap = &rtvHeap;
 		
-		CreateSwapChain(queue, rtvHeap);  // Will call Resize -> CreateFrameResources
+		CreateSwapChain(queue);  // Will call Resize -> CreateFrameResources
 		
 		RYU_LOG_DEBUG(LogGFXSwapChain, "SwapChain created");
 	}
@@ -59,6 +61,10 @@ namespace Ryu::Gfx
 	{
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
+			if (m_surfaceData[i].RTV.IsValid())
+			{
+				m_rtvHeap->Free(m_surfaceData[i].RTV);
+			}
 			m_surfaceData[i].Resource.Reset();
 		}
 
@@ -68,7 +74,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void SwapChain::Resize(DescriptorHeap& rtvHeap, const u32 width, const u32 height)
+	void SwapChain::Resize(const u32 width, const u32 height)
 	{
 		RYU_PROFILE_SCOPE();
 
@@ -77,18 +83,23 @@ namespace Ryu::Gfx
 			return;
 		}
 
-		m_width  = width;
-		m_height = height;
-
-		// Release frame buffers before resize
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
-		{
-			m_surfaceData[i].Resource.Reset();
-		}
-
-
+		// Wait for GPU to finish using current resources
 		if (auto parent = GetParent())
 		{
+			m_width  = width;
+			m_height = height;
+
+			// Release frame buffers before resize
+			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+			{
+				if (m_surfaceData[i].RTV.IsValid())
+				{
+					m_rtvHeap->Free(m_surfaceData[i].RTV);
+				}
+				m_surfaceData[i].Resource.Reset();
+			}
+
+
 			DXGI_SWAP_CHAIN_DESC1 desc{};
 			m_swapChain->GetDesc1(&desc);
 			DXCallEx(m_swapChain->ResizeBuffers(
@@ -100,7 +111,7 @@ namespace Ryu::Gfx
 
 			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-			CreateFrameResources(rtvHeap);
+			CreateFrameResources();
 
 			// Set viewport and rect
 			m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<f32>(m_width), static_cast<f32>(m_height));
@@ -123,7 +134,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void SwapChain::CreateSwapChain(CommandQueue& queue, DescriptorHeap& rtvHeap)
+	void SwapChain::CreateSwapChain(CommandQueue& queue)
 	{
 		RYU_PROFILE_SCOPE();
 
@@ -176,11 +187,11 @@ namespace Ryu::Gfx
 
 			// Reuse desc width and height to get window size
 			GetWindowSize(m_window, desc.Width, desc.Height);
-			Resize(rtvHeap, desc.Width, desc.Height);
+			Resize(desc.Width, desc.Height);
 		}
 	}
 	
-	void SwapChain::CreateFrameResources(DescriptorHeap& rtvHeap)
+	void SwapChain::CreateFrameResources()
 	{
 		if (!m_swapChain)
 		{
@@ -197,16 +208,10 @@ namespace Ryu::Gfx
 				for (u32 i = 0; i < m_surfaceData.size(); i++)
 				{
 					RenderSurface& surface = m_surfaceData[i];
-
-					// Create local handle copy with proper offset
-					CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(
-						rtvHeap.GetCPUHandle(),
-						i,
-						rtvHeap.GetDescriptorSize()
-					);
+					surface.RTV = m_rtvHeap->Allocate();
 
 					DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&surface.Resource)), device);
-					device->CreateRenderTargetView(surface.Resource.Get(), nullptr, rtvHandle);
+					device->CreateRenderTargetView(surface.Resource.Get(), nullptr, surface.RTV.CPU);
 					DX12::SetObjectName(surface.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
 				}
 			}

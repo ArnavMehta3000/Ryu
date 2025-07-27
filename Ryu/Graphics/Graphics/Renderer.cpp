@@ -28,20 +28,25 @@ namespace Ryu::Gfx
 		CompileShaders();
 		CreateVB();
 
-		for (u32 i = 0; i < m_cmdAllocators.size(); i++)
+		bool result = true;
+		static_cast<DeviceObject<DescHeap>*>(&m_rtvDescHeap)->Initialize(parent, DescriptorHeapType::RTV);
+		static_cast<DeviceObject<DescHeap>*>(&m_dsvDescHeap)->Initialize(parent, DescriptorHeapType::DSV);
+		static_cast<DeviceObject<DescHeap>*>(&m_srvDescHeap)->Initialize(parent, DescriptorHeapType::CBV_SRV_UAV);
+		static_cast<DeviceObject<DescHeap>*>(&m_uavDescHeap)->Initialize(parent, DescriptorHeapType::CBV_SRV_UAV);
+		result &= m_rtvDescHeap.Initialize(512, false);
+		result &= m_dsvDescHeap.Initialize(512, false);
+		result &= m_srvDescHeap.Initialize(4096, true);
+		result &= m_uavDescHeap.Initialize(512, false);
+
+		if (!result)
 		{
-			m_cmdAllocators[i].Initialize(parent, CommandListType::Direct);
+			RYU_LOG_FATAL(LogRenderer, "Failed to create descriptor heaps");
 		}
 
-		m_fenceEvent = ::CreateEvent(nullptr, false, false, nullptr);
-		m_fence.Initialize(parent, 0, FenceFlag::None);
-		m_cmdQueue.Initialize(parent, CommandListType::Direct, CommandQueuePriority::Normal);
-		m_cmdList.Initialize(parent, m_cmdAllocators[0], &m_pso, CommandListType::Direct);
-		m_rtvHeap.Initialize(parent, DescriptorHeapType::RTV, DescriptorHeapFlags::None, FRAME_BUFFER_COUNT);
+		auto& cmdQueue = m_device->GetCommand().GetCommandQueue();
+		m_swapChain.Initialize(m_device, cmdQueue, m_rtvDescHeap, window, BACK_BUFFER_FORMAT);
 
-		m_swapChain.Initialize(m_device, m_cmdQueue, m_rtvHeap, window, BACK_BUFFER_FORMAT);
-
-		WaitForGPU();
+		m_device->GetCommand().Flush();
 	}
 
 	Renderer::~Renderer()
@@ -50,8 +55,6 @@ namespace Ryu::Gfx
 
 		if (m_device)
 		{
-			RYU_LOG_DEBUG(LogRenderer, "Waiting for GPU");
-			WaitForGPU();
 
 			RYU_LOG_DEBUG(LogRenderer, "Destroying swapchain");
 			m_swapChain.Destroy();
@@ -59,19 +62,20 @@ namespace Ryu::Gfx
 			m_vertexBuffer.Reset();
 			m_pso.Destroy();
 			m_rootSignature.Reset();
-			m_fence.Destroy();
-			m_rtvHeap.Destroy();
-			m_cmdList.Destroy();
-			m_cmdQueue.Destroy();
 
-			for (auto& allocator : m_cmdAllocators)
+			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 			{
-				allocator.Destroy();
+				ProcessDeferredReleases(i);
 			}
 
-			if (m_fenceEvent)
+			m_rtvDescHeap.Release();
+			m_dsvDescHeap.Release();
+			m_srvDescHeap.Release();
+			m_uavDescHeap.Release();
+
+			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 			{
-				::CloseHandle(m_fenceEvent);
+				ProcessDeferredReleases(i);
 			}
 
 			RYU_LOG_DEBUG(LogRenderer, "Destroying graphics device");
@@ -206,26 +210,45 @@ namespace Ryu::Gfx
 
 	}
 
+	void Renderer::ProcessDeferredReleases(u32 frameIndex)
+	{
+		// TODO: Lock using mutex
+		m_rtvDescHeap.ProcessDeferredFree(frameIndex);
+		m_dsvDescHeap.ProcessDeferredFree(frameIndex);
+		m_srvDescHeap.ProcessDeferredFree(frameIndex);
+		m_uavDescHeap.ProcessDeferredFree(frameIndex);
+
+		m_device->ProcessDeferredReleases(frameIndex);
+	}
+
+	void Renderer::DeferredRelease(IUnknown* resource)
+	{
+		m_device->DeferredRelease(resource);
+	}
+
 	void Renderer::Render()
 	{
 		RYU_PROFILE_SCOPE();
+		
+		m_device->BeginFrame(&m_pso);  // This will process deferred releases
 
-		PopulateCommandList();
+		PopulateCommandList();		
 
-		ID3D12CommandList* ppCommandLists[] = { m_cmdList.Get() };
-		m_cmdQueue.Get()->ExecuteCommandLists(1, ppCommandLists);
+		m_device->EndFrame();
 
 		m_swapChain.Present();
-
-		MoveToNextFrame();
 	}
 
 	void Renderer::OnResize(u32 width, u32 height)
 	{
 		RYU_PROFILE_SCOPE();
 
-		WaitForGPU();
-		m_swapChain.Resize(m_rtvHeap, width, height);
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+		{
+			ProcessDeferredReleases(i);
+		}
+		m_device->GetCommand().Flush();
+		m_swapChain.Resize(width, height);
 	}
 
 	void Renderer::PopulateCommandList()
@@ -234,13 +257,8 @@ namespace Ryu::Gfx
 
 		const u32 currentBackBufferIndex = m_swapChain.GetFrameIndex();
 
-		CommandContext ctx(&m_cmdList, &m_cmdAllocators[currentBackBufferIndex], &m_pso);
-
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(
-			m_rtvHeap.GetCPUHandle(),
-			currentBackBufferIndex,
-			m_rtvHeap.GetDescriptorSize()
-		);
+		auto& ctx = m_device->GetCommand();
+		auto& cmdList = ctx.GetCommandList();
 
 		const RenderSurface& renderSurface = m_swapChain.GetRenderSurface(currentBackBufferIndex);
 		auto backBuffer = renderSurface.Resource;
@@ -252,19 +270,22 @@ namespace Ryu::Gfx
 			D3D12_RESOURCE_STATE_RENDER_TARGET
 		));
 
-		m_cmdList.Get()->SetGraphicsRootSignature(m_rootSignature.Get());
-		m_cmdList.Get()->RSSetViewports(1, &m_swapChain.GetViewport());
-		m_cmdList.Get()->RSSetScissorRects(1, &m_swapChain.GetScissorRect());
+		cmdList.Get()->SetGraphicsRootSignature(m_rootSignature.Get());
+		cmdList.Get()->RSSetViewports(1, &m_swapChain.GetViewport());
+		cmdList.Get()->RSSetScissorRects(1, &m_swapChain.GetScissorRect());
+
+		auto rtvHandle = m_rtvDescHeap.GetCPUStart();
+		rtvHandle.Offset(currentBackBufferIndex, m_rtvDescHeap.GetDescriptorSize());
 
 		// Set render target and clear
 		const float clearColor[] = { 0.2f, 0.3f, 0.4f, 1.0f }; // Dark blue
-		m_cmdList.Get()->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-		m_cmdList.Get()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+		cmdList.Get()->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+		cmdList.Get()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 
 		// Draw
-		m_cmdList.Get()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_cmdList.Get()->IASetVertexBuffers(0, 1, &m_vertexBufferView);
-		m_cmdList.Get()->DrawInstanced(3, 1, 0, 0);
+		cmdList.Get()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		cmdList.Get()->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+		cmdList.Get()->DrawInstanced(3, 1, 0, 0);
 
 		// Transition back to present
 		ctx.SetResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(
@@ -272,54 +293,5 @@ namespace Ryu::Gfx
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_PRESENT
 		));
-	}
-
-	void Renderer::WaitForGPU()
-	{
-		RYU_PROFILE_SCOPE();
-
-		DX12::Device* const device = m_device->GetDevice();
-		const u32 currentBackBufferIndex = m_swapChain.GetFrameIndex();
-
-		// Schedule a signal command in the queue
-		m_cmdQueue.Signal(m_fence, m_fenceValues[currentBackBufferIndex]);
-
-		// Wait until the fence has been crossed
-		DXCallEx(m_fence.Get()->SetEventOnCompletion(m_fenceValues[currentBackBufferIndex], m_fenceEvent), device);
-
-		if (::WaitForSingleObjectEx(m_fenceEvent, 5000, FALSE) == WAIT_TIMEOUT)
-		{
-			RYU_LOG_ERROR(LogRenderer, "GPU wait timed out");
-		}
-
-		// Increment the fence value for the current frame
-		m_fenceValues[currentBackBufferIndex]++;
-	}
-
-	void Renderer::MoveToNextFrame()
-	{
-		DX12::Device* const device = m_device->GetDevice();
-		const u32 currentBackBufferIndex = m_swapChain.GetFrameIndex();
-		const u64 currentFenceValue = m_fenceValues[currentBackBufferIndex];
-
-		// Schedule a signal command in the queue
-		DXCallEx(m_cmdQueue.Get()->Signal(m_fence.Get(), currentFenceValue), device);
-
-		// Update frame index
-		const u32 nextFrameIndex = m_swapChain.GetFrameIndex();
-
-		// If the next frame is not ready to be rendered yet, wait until it is ready
-		if (m_fence.Get()->GetCompletedValue() < m_fenceValues[nextFrameIndex])
-		{
-			DXCallEx(m_fence.Get()->SetEventOnCompletion(m_fenceValues[nextFrameIndex], m_fenceEvent), device);
-
-			if (::WaitForSingleObjectEx(m_fenceEvent, 5000, FALSE) == WAIT_TIMEOUT)
-			{
-				RYU_LOG_ERROR(LogRenderer, "Move to next frame timed out!");
-			}
-		}
-
-		// Set the fence value for the next frame
-		m_fenceValues[nextFrameIndex] = currentFenceValue + 1;
 	}
 }

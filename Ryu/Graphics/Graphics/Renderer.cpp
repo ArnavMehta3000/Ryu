@@ -29,10 +29,10 @@ namespace Ryu::Gfx
 		CreateVB();
 
 		bool result = true;
-		static_cast<DeviceObject<DescHeap>*>(&m_rtvDescHeap)->Initialize(parent, DescriptorHeapType::RTV);
-		static_cast<DeviceObject<DescHeap>*>(&m_dsvDescHeap)->Initialize(parent, DescriptorHeapType::DSV);
-		static_cast<DeviceObject<DescHeap>*>(&m_srvDescHeap)->Initialize(parent, DescriptorHeapType::CBV_SRV_UAV);
-		static_cast<DeviceObject<DescHeap>*>(&m_uavDescHeap)->Initialize(parent, DescriptorHeapType::CBV_SRV_UAV);
+		static_cast<DeviceObject<DescriptorHeap>*>(&m_rtvDescHeap)->Initialize(parent, DescriptorHeapType::RTV);
+		static_cast<DeviceObject<DescriptorHeap>*>(&m_dsvDescHeap)->Initialize(parent, DescriptorHeapType::DSV);
+		static_cast<DeviceObject<DescriptorHeap>*>(&m_srvDescHeap)->Initialize(parent, DescriptorHeapType::CBV_SRV_UAV);
+		static_cast<DeviceObject<DescriptorHeap>*>(&m_uavDescHeap)->Initialize(parent, DescriptorHeapType::CBV_SRV_UAV);
 		result &= m_rtvDescHeap.Initialize(512, false);
 		result &= m_dsvDescHeap.Initialize(512, false);
 		result &= m_srvDescHeap.Initialize(4096, true);
@@ -43,10 +43,8 @@ namespace Ryu::Gfx
 			RYU_LOG_FATAL(LogRenderer, "Failed to create descriptor heaps");
 		}
 
-		auto& cmdQueue = m_device->GetCommand().GetCommandQueue();
+		auto& cmdQueue = m_device->GetCommandContext().GetCommandQueue();
 		m_swapChain.Initialize(m_device, cmdQueue, m_rtvDescHeap, window, BACK_BUFFER_FORMAT);
-
-		m_device->GetCommand().Flush();
 	}
 
 	Renderer::~Renderer()
@@ -55,6 +53,7 @@ namespace Ryu::Gfx
 
 		if (m_device)
 		{
+			m_device->GetCommandContext().Flush();
 
 			RYU_LOG_DEBUG(LogRenderer, "Destroying swapchain");
 			m_swapChain.Destroy();
@@ -243,11 +242,15 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
+		// Wait for all GPU work to complete
+		m_device->GetCommandContext().Flush();
+
+		// Process all deferred releases including descriptor heaps
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
 			ProcessDeferredReleases(i);
 		}
-		m_device->GetCommand().Flush();
+
 		m_swapChain.Resize(width, height);
 	}
 
@@ -257,7 +260,7 @@ namespace Ryu::Gfx
 
 		const u32 currentBackBufferIndex = m_swapChain.GetFrameIndex();
 
-		auto& ctx = m_device->GetCommand();
+		auto& ctx = m_device->GetCommandContext();
 		auto& cmdList = ctx.GetCommandList();
 
 		const RenderSurface& renderSurface = m_swapChain.GetRenderSurface(currentBackBufferIndex);

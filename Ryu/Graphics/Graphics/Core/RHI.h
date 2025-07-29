@@ -12,6 +12,7 @@
 #include <Format.Generated.h>
 #include <TextureFlags.Generated.h>
 #include <TextureType.Generated.h>
+#include <HeapType.Generated.h>
 
 namespace Ryu::Gfx
 {
@@ -25,6 +26,9 @@ namespace Ryu::Gfx
 	class CommandContext;
 	class PipelineState;
 	class Fence;
+	class DescriptorHeap;
+	struct DescriptorHandle;
+	class Texture;
 
 	constexpr u32 TIMEOUT_DURATION        = 5000;
 	constexpr u32 FRAME_BUFFER_COUNT      = 2;

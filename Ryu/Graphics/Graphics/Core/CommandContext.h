@@ -8,32 +8,14 @@
 
 namespace Ryu::Gfx
 {
-	class CommandContext
+	class CommandContext : public DeviceObject<CommandContext>
 	{
-	public:
-		explicit CommandContext(CommandList* cmdList, CommandAllocator* allocator, PipelineState* pso);
-		~CommandContext();
-		
-		void Begin(PipelineState* pso);
-		void End();
-
-		void SetResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier);
-		void SetResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers);
-
-	private:
-		CommandList* m_cmdList{ nullptr };
-		CommandAllocator* m_allocator{ nullptr };
-	};
-
-
-	class Command : public DeviceObject<Command>
-	{
-		RYU_DISABLE_COPY_AND_MOVE(Command)
+		RYU_DISABLE_COPY_AND_MOVE(CommandContext)
 		RYU_GFX_DEVICE_OBJ;
 	public:
-		Command() {}
-		Command(DeviceWeakPtr parent, CommandListType type);
-		~Command();
+		CommandContext() {}
+		CommandContext(DeviceWeakPtr parent, CommandListType type);
+		~CommandContext();
 
 		void BeginFrame(PipelineState* pso);
 		void EndFrame();

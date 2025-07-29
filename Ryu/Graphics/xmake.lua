@@ -30,6 +30,7 @@ target("RyuGraphics")
 				"ShaderType.json",
 				"TextureFlags.json",
 				"TextureType.json",
+				"HeapType.json"
 			},
 			force = false
 		})

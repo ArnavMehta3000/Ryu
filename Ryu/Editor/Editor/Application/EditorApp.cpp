@@ -113,15 +113,15 @@ namespace Ryu::Editor
 
 		Gfx::Device& device = renderer->GetDevice();
 
-		m_imguiHeap.Initialize(
+		/*m_imguiHeap.Initialize(
 			device.weak_from_this(),
 			Gfx::DescriptorHeapType::CBV_SRV_UAV, 
 			Gfx::DescriptorHeapFlags::ShaderVisible, 
-			1);
+			1);*/
 
 		ImGui_ImplDX12_InitInfo info{};
 		info.Device            = device.GetDevice();
-		info.CommandQueue      = renderer->GetDevice().GetCommand().GetCommandQueue();
+		info.CommandQueue      = renderer->GetDevice().GetCommandContext().GetCommandQueue();
 		info.NumFramesInFlight = Gfx::FRAME_BUFFER_COUNT;
 		info.RTVFormat         = DXGI_FORMAT_R8G8B8A8_UNORM;
 		info.DSVFormat         = DXGI_FORMAT_UNKNOWN;

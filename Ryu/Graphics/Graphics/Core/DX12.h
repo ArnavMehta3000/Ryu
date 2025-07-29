@@ -15,6 +15,7 @@ namespace Ryu::Gfx
 		using CommandList         = ID3D12CommandList;
 		using GraphicsCommandList = ID3D12GraphicsCommandList6;
 		using Resource            = ID3D12Resource2;
+		using Heap                = ID3D12Heap1;
 		using InfoQueue           = ID3D12InfoQueue1;
 		using Fence               = ID3D12Fence1;
 		using CommandQueue        = ID3D12CommandQueue;
@@ -31,6 +32,7 @@ namespace Ryu::Gfx
 		D3D12_DESCRIPTOR_HEAP_TYPE ToNative(DescriptorHeapType type);
 		D3D12_FENCE_FLAGS ToNative(FenceFlag flag);
 		D3D12_DESCRIPTOR_HEAP_FLAGS ToNative(DescriptorHeapFlags flags);
+		D3D12_HEAP_TYPE ToNative(HeapType type);
 	}
 
 	namespace DXGI

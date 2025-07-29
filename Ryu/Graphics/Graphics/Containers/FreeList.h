@@ -5,6 +5,14 @@
 
 namespace Ryu::Gfx
 {
+	/*
+	This free list has an issue that if `T` has a destructor (non-trivial type),
+	On destruction of the free list, the dtor of the std::vector will be called which will
+	in turn call the dtor of the type `T`. This may be a problem since when we 'Remove', we
+	mark the memory to be uninitialized.
+	// NOTE if this causes problems in the future, I'll have to fix it, for now we're gucci!
+	*/
+
 	template <typename T>
 	concept FreeListType = requires { sizeof(T) >= sizeof(u32); };
 

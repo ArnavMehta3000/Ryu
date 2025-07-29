@@ -6,56 +6,16 @@
 
 namespace Ryu::Gfx
 {
-	RYU_LOG_DECLARE_CATEGORY(Command);
+	RYU_LOG_DECLARE_CATEGORY(CommandCtx);
 
-	CommandContext::CommandContext(CommandList* cmdList, CommandAllocator* allocator, PipelineState* pso)
-		: m_cmdList(cmdList)
-		, m_allocator(allocator)
-	{
-		Begin(pso);
-	}
-
-	CommandContext::~CommandContext()
-	{
-		End();
-	}
-
-	void CommandContext::Begin(PipelineState* pso)
-	{
-		m_allocator->Reset();
-		m_cmdList->Reset(*m_allocator, pso);
-	}
-
-	void CommandContext::End()
-	{
-		m_cmdList->Close();
-	}
 	
-	void CommandContext::SetResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier)
-	{
-		m_cmdList->Get()->ResourceBarrier(1, &barrier);
-	}
-	
-	void CommandContext::SetResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers)
-	{
-		m_cmdList->Get()->ResourceBarrier(static_cast<u32>(barriers.size()), barriers.data());
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	Command::Command(DeviceWeakPtr parent, CommandListType type)
+	CommandContext::CommandContext(DeviceWeakPtr parent, CommandListType type)
 		: DeviceObject(parent)
 	{
 		OnConstruct(type);
 	}
 	
-	Command::~Command()
+	CommandContext::~CommandContext()
 	{
 		// If there is a valid fence, that means we have not properly destructed
 		// -> This fixes the crash when `OnDestruct` is called from Destroy and the destructor
@@ -68,7 +28,7 @@ namespace Ryu::Gfx
 		RYU_ASSERT(!m_cmdQueue && !m_fence && !m_cmdList);
 	}
 
-	void Command::BeginFrame(PipelineState* pso)
+	void CommandContext::BeginFrame(PipelineState* pso)
 	{
 		CommandFrame& frame = m_cmdFrames[m_frameIndex];
 
@@ -77,7 +37,7 @@ namespace Ryu::Gfx
 		m_cmdList.Reset(frame.Allocator, pso);
 	}
 
-	void Command::EndFrame()
+	void CommandContext::EndFrame()
 	{
 		m_cmdList.Close();
 
@@ -95,20 +55,21 @@ namespace Ryu::Gfx
 		m_frameIndex = (m_frameIndex + 1) % FRAME_BUFFER_COUNT;
 	}
 
-	void Command::SetResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier)
+	void CommandContext::SetResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier)
 	{
 		RYU_ASSERT(m_cmdList, "Command list is not initialized.");
 		m_cmdList.Get()->ResourceBarrier(1, &barrier);
 	}
 
-	void Command::SetResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers)
+	void CommandContext::SetResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers)
 	{
 		RYU_ASSERT(m_cmdList, "Command list is not initialized.");
 		m_cmdList.Get()->ResourceBarrier(static_cast<u32>(barriers.size()), barriers.data());
 	}
 
-	void Command::Flush()
+	void CommandContext::Flush()
 	{
+
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
 			m_cmdFrames[i].Wait(m_fenceEvent, m_fence);
@@ -116,7 +77,7 @@ namespace Ryu::Gfx
 		m_frameIndex = 0;
 	}
 
-	void Command::OnConstruct(CommandListType type)
+	void CommandContext::OnConstruct(CommandListType type)
 	{
 		if (DevicePtr parent = GetParent())
 		{
@@ -139,7 +100,7 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void Command::OnDestruct()
+	void CommandContext::OnDestruct()
 	{
 		Flush();
 		m_fence.Destroy();
@@ -159,7 +120,7 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void Command::CommandFrame::Wait(HANDLE fenceEvent, Fence& fence)
+	void CommandContext::CommandFrame::Wait(HANDLE fenceEvent, Fence& fence)
 	{
 		RYU_ASSERT(fence.Get() && fenceEvent, "Fence is not initialized.");
 
@@ -168,12 +129,12 @@ namespace Ryu::Gfx
 			DXCall(fence.Get()->SetEventOnCompletion(FenceValue, fenceEvent));
 			if (::WaitForSingleObjectEx(fenceEvent, TIMEOUT_DURATION, FALSE) == WAIT_TIMEOUT)
 			{
-				RYU_LOG_ERROR(LogCommand, "Move to next frame timed out!");
+				RYU_LOG_ERROR(LogCommandCtx, "Move to next frame timed out!");
 			}
 		}
 	}
 
-	void Command::CommandFrame::Release()
+	void CommandContext::CommandFrame::Release()
 	{
 		Allocator.Destroy();
 		FenceValue = 0;

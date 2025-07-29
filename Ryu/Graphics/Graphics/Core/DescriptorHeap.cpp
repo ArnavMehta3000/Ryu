@@ -6,96 +6,15 @@
 
 namespace Ryu::Gfx
 {
-	DescriptorHeap::DescriptorHeap(std::weak_ptr<Device> parent, DescriptorHeapType type, DescriptorHeapFlags flags, u32 numDescriptors)
-		: DeviceObject(parent)
-		, m_cpuHandle(InvalidCPUHandle)
-		, m_gpuHandle(InvalidGPUHandle)
-		, m_type(type)
-		, m_count(numDescriptors)
-		, m_descriptorSize(0)
-	{
-		OnConstruct(type, flags, numDescriptors);
-	}
-
-	DescriptorHeap::~DescriptorHeap()
-	{
-		OnDestruct();
-	}
-
-	void DescriptorHeap::OnConstruct(DescriptorHeapType type, DescriptorHeapFlags flags, u32 numDescriptors)
-	{
-		RYU_PROFILE_SCOPE();
-
-		m_type = type;
-		m_count = numDescriptors;
-
-		const bool isShaderVisible = flags == DescriptorHeapFlags::ShaderVisible;
-
-		D3D12_DESCRIPTOR_HEAP_DESC desc
-		{
-			.Type           = DX12::ToNative(type),
-			.NumDescriptors = numDescriptors,
-			.Flags          = DX12::ToNative(flags),
-			.NodeMask       = 0
-		};
-
-		if (auto parent = GetParent())
-		{
-			if (DX12::Device* const device = parent->GetDevice())
-			{
-				m_descriptorSize = device->GetDescriptorHandleIncrementSize(desc.Type);
-
-				DXCallEx(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_heap)), device);
-
-				DX12::SetObjectName(m_heap.Get(),
-					std::format("[{}] Descriptor Heap ({})",
-						isShaderVisible ? "Shader Visible" : "Non-Shader Visible",
-						EnumToString(type)).c_str());
-
-				m_cpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_heap->GetCPUDescriptorHandleForHeapStart());
-
-				if (isShaderVisible)
-				{
-					m_gpuHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_heap->GetGPUDescriptorHandleForHeapStart());
-				}
-			}
-		}
-	}
-
-	void DescriptorHeap::OnDestruct()
-	{
-		if (m_heap)
-		{
-			m_heap.Reset();
-		}
-	}
-
-	bool DescriptorHeap::IsValid() const
-	{
-		return m_cpuHandle.ptr != 0;
-	}
-
-	bool DescriptorHeap::IsShaderVisible() const
-	{
-		return m_gpuHandle.ptr != 0;
-	}
-
-
-
 	// TODO: Use a std:mutex to lock access to the heap
 
-
-	DescHeap::DescHeap(std::weak_ptr<Device> parent, DescriptorHeapType type)
+	DescriptorHeap::DescriptorHeap(std::weak_ptr<Device> parent, DescriptorHeapType type)
 		: DeviceObject(parent)
 		, m_type(type)
 	{
 	}
 
-	DescHeap::~DescHeap()
-	{
-	}
-
-	bool DescHeap::Initialize(u32 capacity, bool isShaderVisible)
+	bool DescriptorHeap::Initialize(u32 capacity, bool isShaderVisible)
 	{
 		RYU_ASSERT(capacity && capacity < D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2,
 			"Descriptor heap capacity must be between 1 and D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2.");
@@ -158,7 +77,7 @@ namespace Ryu::Gfx
 		return false;
 	}
 
-	void DescHeap::Release()
+	void DescriptorHeap::Release()
 	{
 		RYU_ASSERT(!m_size);
 		if (auto parent = GetParent())
@@ -168,7 +87,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	DescriptorHandle DescHeap::Allocate()
+	DescriptorHandle DescriptorHeap::Allocate()
 	{
 		RYU_ASSERT(m_size < m_capacity, "Descriptor heap is full.");
 		RYU_ASSERT(m_heap, "Descriptor heap is not initialized.");
@@ -194,7 +113,7 @@ namespace Ryu::Gfx
 		return handle;
 	}
 
-	void DescHeap::Free(DescriptorHandle& handle)
+	void DescriptorHeap::Free(DescriptorHandle& handle)
 	{
 		if (!handle.IsValid())
 		{
@@ -212,14 +131,15 @@ namespace Ryu::Gfx
 
 		if (auto parent = GetParent())
 		{
-			const u32 frameIndex = 0;
+			const u32 frameIndex = parent->GetCurrentFrameIndex();
 			m_deferredFreeHandles[frameIndex].push_back(index);
+			parent->SetDeferredReleaseFlag();
 		}
 
 		handle = {};
 	}
 	
-	void DescHeap::ProcessDeferredFree(u32 frameIndex)
+	void DescriptorHeap::ProcessDeferredFree(u32 frameIndex)
 	{
 		// TODO: mutex lock
 		RYU_ASSERT(frameIndex < FRAME_BUFFER_COUNT);
@@ -236,7 +156,7 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void DescHeap::OnConstruct(DescriptorHeapType type)
+	void DescriptorHeap::OnConstruct(DescriptorHeapType type)
 	{
 		m_type = type;
 	}

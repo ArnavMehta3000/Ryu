@@ -28,7 +28,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	SwapChain::SwapChain(std::weak_ptr<Device> parent, CommandQueue& queue, DescHeap& rtvHeap, HWND window, Format format)
+	SwapChain::SwapChain(std::weak_ptr<Device> parent, CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format)
 		: DeviceObject(parent)
 		, m_window(window)
 		, m_format(format)
@@ -44,9 +44,10 @@ namespace Ryu::Gfx
 	SwapChain::~SwapChain()
 	{
 		OnDestruct();
+		m_rtvHeap = nullptr;
 	}
 
-	void SwapChain::OnConstruct(CommandQueue& queue, DescHeap& rtvHeap, HWND window, Format format)
+	void SwapChain::OnConstruct(CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format)
 	{
 		m_window = window;
 		m_format = format;

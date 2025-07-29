@@ -15,7 +15,7 @@ namespace Ryu::Gfx
 		RYU_GFX_DEVICE_OBJ;
 	public:
 		SwapChain() = default;
-		SwapChain(std::weak_ptr<Device> parent, CommandQueue& queue, DescHeap& rtvHeap, HWND window, Format format = BACK_BUFFER_FORMAT);
+		SwapChain(std::weak_ptr<Device> parent, CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format = BACK_BUFFER_FORMAT);
 		~SwapChain();
 
 		inline NODISCARD HWND GetWindowHandle() const noexcept { return m_window; }
@@ -30,7 +30,7 @@ namespace Ryu::Gfx
 		void Present() const;
 
 	private:
-		void OnConstruct(CommandQueue& queue, DescHeap& rtvHeap, HWND window, Format format = BACK_BUFFER_FORMAT);
+		void OnConstruct(CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format = BACK_BUFFER_FORMAT);
 		void OnDestruct();
 		void CreateSwapChain(CommandQueue& queue);
 		void CreateFrameResources();
@@ -42,7 +42,7 @@ namespace Ryu::Gfx
 		u32                       m_height;
 		mutable u32               m_frameIndex;
 		u32                       m_rtvDescriptorSize;
-		DescHeap*                 m_rtvHeap;
+		DescriptorHeap*           m_rtvHeap;
 		ComPtr<DXGI::SwapChain>   m_swapChain;
 		FrameArray<RenderSurface> m_surfaceData;
 		CD3DX12_VIEWPORT          m_viewport;

@@ -55,21 +55,6 @@ namespace Ryu::Gfx
 			MAYBE_UNUSED const char* functionName,
 			MAYBE_UNUSED u32 lineNumber);
 	}
-
-	class FreeList
-	{
-	public:
-		explicit FreeList(u32 size);		
-		~FreeList();
-
-		u32 Allocate();
-		void Free(u32 index);		
-		bool CanAllocate() const noexcept;
-
-	private:
-		std::vector<u32> m_freeList;
-		u32 m_numAllocations;
-	};
 }
 
 #define DXCall(hr) ::Ryu::Gfx::Internal::LogHRESULT(hr, nullptr, #hr, __FILE__, __FUNCTION__, __LINE__)

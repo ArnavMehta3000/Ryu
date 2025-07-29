@@ -38,7 +38,6 @@ namespace Ryu::Gfx
 	private:
 		HWND                      m_window{ nullptr };
 		Format                    m_format{ BACK_BUFFER_FORMAT };
-		bool                      m_allowTearing;
 		u32                       m_width;
 		u32                       m_height;
 		mutable u32               m_frameIndex;

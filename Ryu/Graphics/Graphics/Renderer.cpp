@@ -261,11 +261,10 @@ namespace Ryu::Gfx
 		auto& cmdList = ctx.GetCommandList();
 
 		const RenderSurface& renderSurface = m_swapChain.GetRenderSurface(currentBackBufferIndex);
-		auto backBuffer = renderSurface.Resource;
 
 		// Transition to render target
 		ctx.SetResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(
-			backBuffer.Get(),
+			renderSurface.Resource.Get(),
 			D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATE_RENDER_TARGET
 		));
@@ -289,7 +288,7 @@ namespace Ryu::Gfx
 
 		// Transition back to present
 		ctx.SetResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(
-			backBuffer.Get(),
+			renderSurface.Resource.Get(),
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_PRESENT
 		));

@@ -3,6 +3,6 @@ EnableDebugLayer = true
 EnableGPUBasedValidation = true
 
 [Rendering]
-AllowTearing = false
-EnableVSync = true
+AllowTearing = true
+EnableVSync = false
 UseWARP = false

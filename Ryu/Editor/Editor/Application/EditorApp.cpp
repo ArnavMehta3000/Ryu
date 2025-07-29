@@ -68,6 +68,12 @@ namespace Ryu::Editor
 	void EditorApp::OnTick(const Utils::TimeInfo& timeInfo)
 	{
 		RYU_PROFILE_SCOPE();
+
+		// Display FPS stats in debug mode
+#if defined(RYU_BUILD_DEBUG)
+		GetWindow()->Title = std::format("Ryu Editor | DT: {:.5f}ms | FPS: {}", timeInfo.DeltaTime, timeInfo.FPS);
+#endif
+
 		m_userApp->OnTick(timeInfo);
 	}
 

@@ -4,6 +4,7 @@
 #include "Graphics/Core/DescriptorHeap.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
+#include "Logger/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -35,7 +36,6 @@ namespace Ryu::Gfx
 		, m_height(0)
 		, m_frameIndex(0)
 		, m_rtvHeap(&rtvHeap)
-		, m_allowTearing(false)
 		, m_rtvDescriptorSize(0)
 	{
 		OnConstruct(queue, rtvHeap, window, format);
@@ -83,7 +83,6 @@ namespace Ryu::Gfx
 			return;
 		}
 
-		// Wait for GPU to finish using current resources
 		if (auto parent = GetParent())
 		{
 			m_width  = width;
@@ -98,7 +97,6 @@ namespace Ryu::Gfx
 				}
 				m_surfaceData[i].Resource.Reset();
 			}
-
 
 			DXGI_SWAP_CHAIN_DESC1 desc{};
 			m_swapChain->GetDesc1(&desc);
@@ -127,9 +125,26 @@ namespace Ryu::Gfx
 
 	void SwapChain::Present() const
 	{
+		RYU_ASSERT(m_swapChain, "SwapChain is not initialized!");
+
 		if (auto parent = GetParent())
 		{
-			DXCallEx(m_swapChain->Present(0, 0), parent->GetDevice());
+			bool allowTearing = GraphicsConfig::Get().AllowTearing;
+			bool vsync        = GraphicsConfig::Get().EnableVSync;
+
+			if (allowTearing && vsync)
+			{
+				RYU_LOG_WARN(LogGFXSwapChain, 
+					R"(VSync and AllowTearing cannot be enabled at the same time! 
+					Tearing will be disabled when presenting. Change the setting in the GraphicsConfig.toml file)");
+
+				allowTearing = false;
+			}
+
+			DXCallEx(m_swapChain->Present(
+				vsync ? 1 : 0,
+				allowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0), parent->GetDevice());
+
 			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 		}
 	}
@@ -212,6 +227,7 @@ namespace Ryu::Gfx
 
 					DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&surface.Resource)), device);
 					device->CreateRenderTargetView(surface.Resource.Get(), nullptr, surface.RTV.CPU);
+
 					DX12::SetObjectName(surface.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
 				}
 			}

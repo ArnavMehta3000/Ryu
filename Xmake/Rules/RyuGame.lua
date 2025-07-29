@@ -11,11 +11,14 @@ rule("RyuGame")
 				target:add("rules", "win.sdk.application")
 			end
 		end
+
+		-- Add TOML config files
+		target:add("extrafiles", "Config/**.toml")
 	end)
 
 	on_config(function (target)
+		-- Add this target as a dependency of the editor
 		if has_config("ryu-build-with-editor") then
-			-- Add this target as a dependency of the editor
 			import("core.project.project")
 			local editor = project.target("RyuEditor")
 			if editor then

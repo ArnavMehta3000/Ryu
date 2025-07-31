@@ -45,6 +45,9 @@ namespace Ryu::Gfx
 
 		auto& cmdQueue = m_device->GetCommandContext().GetCommandQueue();
 		m_swapChain.Initialize(m_device, cmdQueue, m_rtvDescHeap, window, BACK_BUFFER_FORMAT);
+	
+		// Wait until initialization is complete
+		m_device->GetCommandContext().Flush();
 	}
 
 	Renderer::~Renderer()
@@ -244,12 +247,6 @@ namespace Ryu::Gfx
 
 		// Wait for all GPU work to complete
 		m_device->GetCommandContext().Flush();
-
-		// Process all deferred releases including descriptor heaps
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
-		{
-			ProcessDeferredReleases(i);
-		}
 
 		m_swapChain.Resize(width, height);
 	}

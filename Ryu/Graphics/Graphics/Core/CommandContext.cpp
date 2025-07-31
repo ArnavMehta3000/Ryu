@@ -46,9 +46,7 @@ namespace Ryu::Gfx
 
 		CommandFrame& frame = m_cmdFrames[m_frameIndex];
 
-		u64& fenceValue = m_fenceValue;
-		++fenceValue;
-		frame.FenceValue = fenceValue;
+		frame.FenceValue = ++m_fenceValue;
 		
 		m_cmdQueue.Signal(m_fence, m_fenceValue);
 
@@ -69,7 +67,6 @@ namespace Ryu::Gfx
 
 	void CommandContext::Flush()
 	{
-
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
 			m_cmdFrames[i].Wait(m_fenceEvent, m_fence);
@@ -123,8 +120,8 @@ namespace Ryu::Gfx
 	void CommandContext::CommandFrame::Wait(HANDLE fenceEvent, Fence& fence)
 	{
 		RYU_ASSERT(fence.Get() && fenceEvent, "Fence is not initialized.");
-
-		if (fence.Get()->GetCompletedValue() < FenceValue)
+		const u64 completedValue = fence.Get()->GetCompletedValue();
+		if (completedValue < FenceValue)
 		{
 			DXCall(fence.Get()->SetEventOnCompletion(FenceValue, fenceEvent));
 			if (::WaitForSingleObjectEx(fenceEvent, TIMEOUT_DURATION, FALSE) == WAIT_TIMEOUT)

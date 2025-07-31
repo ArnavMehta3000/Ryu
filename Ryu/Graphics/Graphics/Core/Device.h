@@ -19,6 +19,7 @@ namespace Ryu::Gfx
 
 		inline u32 GetCurrentFrameIndex() const { return m_command.GetFrameIndex(); }
 		inline void SetDeferredReleaseFlag() { m_deferredReleaseFlags[m_command.GetFrameIndex()] = 1; }
+		inline u32 GetDeferredReleaseFlags(u32 frameIndex) const { return m_deferredReleaseFlags[frameIndex]; }
 		void ProcessDeferredReleases(u32 frameIndex);
 		void DeferredRelease(IUnknown* resource);
 

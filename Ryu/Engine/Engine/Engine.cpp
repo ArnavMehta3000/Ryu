@@ -1,5 +1,6 @@
 #include "Engine/Engine.h"
 #include "Globals/Globals.h"
+#include "Memory/New.h"
 #include "App/Utils/PathManager.h"
 #include "App/AppConfig.h"
 #include "Logger/Sinks/DebugSink.h"
@@ -22,6 +23,26 @@ namespace Ryu::Engine
 
 	RYU_LOG_DECLARE_CATEGORY(Engine);
 
+	void PrintMemoryStats()
+	{
+		using namespace Ryu::Memory;
+
+		RYU_LOG_DEBUG(LogEngine,
+			R"(--- Memory Stats (bytes) ---
+		Total Allocated: {}
+		Current Usage: {}
+		Peak Usage: {}
+		Allocation: {}
+		Deallocations: {}
+		Active Allocations: {})",
+			GetTotalAllocated(),
+			GetCurrentUsage(),
+			GetPeakUsage(),
+			GetAllocationCount(),
+			GetDeallocationCount(),
+			(GetAllocationCount() - GetDeallocationCount()));
+	}
+
 	Engine::Engine()
 		: m_app(nullptr)
 	{
@@ -36,6 +57,8 @@ namespace Ryu::Engine
 		Config::ConfigManager::Get().Initialize((pathManager.GetProjectDir() / "Config").string());
 
 		SetupLogger();
+
+		PrintMemoryStats();
 
 		RYU_LOG_DEBUG(LogEngine, "Initializing Engine");
 
@@ -86,6 +109,8 @@ namespace Ryu::Engine
 		Config::ConfigManager::Get().SaveAll();
 
 		RYU_LOG_INFO(LogEngine, "Engine shutdown completed");
+
+		PrintMemoryStats();
 	}
 
 	void Engine::MainLoop()
@@ -104,6 +129,8 @@ namespace Ryu::Engine
 				{
 					m_renderer->Render();
 				}
+
+				Window::Window::ClearPendingEvents();
 			}
 		}
 		else

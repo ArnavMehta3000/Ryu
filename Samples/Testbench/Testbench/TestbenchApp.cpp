@@ -1,4 +1,5 @@
 #include "Testbench/TestbenchApp.h"
+#include "Engine/Engine.h"
 #include "Profiling/Profiling.h"
 #include "App/AppConfig.h"
 #include "Game/World/Entity.h"
@@ -6,6 +7,7 @@
 
 RYU_LOG_DECLARE_CATEGORY(TestbenchApp);
 using namespace Ryu;
+
 
 TestbenchApp::TestbenchApp(std::shared_ptr<Window::Window> window)
 	: App::App(window)
@@ -44,6 +46,23 @@ void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo&)
 {
 	m_gameInput.PollKeyboard();
 	m_gameInput.PollMouse();
+
+	// Only close window from here when we are in editor
+#if defined(RYU_BUILD_DEBUG) && defined(RYU_WITH_EDITOR)
+	auto& events = GetWindow()->GetPendingEvents();
+	for (const Window::WindowEvent& event : events)
+	{
+		if (std::holds_alternative<Window::KeyEvent>(event))
+		{
+			const Window::KeyEvent& keyEvent = std::get<Window::KeyEvent>(event);
+			if (keyEvent.KeyCode == Window::KeyCode::Escape)
+			{
+				Quit();
+			}
+		}
+	}
+#endif
+
 }
 
 void TestbenchApp::TestSerialization()

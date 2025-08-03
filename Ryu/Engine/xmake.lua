@@ -15,6 +15,7 @@ target("RyuEngine")
 		"RyuLogger",
 		"RyuApp",
 		"RyuGame",
+		"RyuMemory",
 		"RyuPlugin",
 		"RyuGraphics",
 		"RyuMath",

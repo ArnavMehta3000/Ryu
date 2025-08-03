@@ -75,7 +75,10 @@ void GInput::Shutdown()
 {
 	RYU_PROFILE_SCOPE();
 
-	m_gameInput.Reset();
+	if (m_gameInput)
+	{
+		m_gameInput.Reset();
+	}
 }
 
 void GInput::PollKeyboard(bool enableLog)

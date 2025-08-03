@@ -33,7 +33,7 @@ namespace Ryu::App
 		m_window.reset();
 	}
 
-	void App::Exit()
+	void App::Quit()
 	{
 		m_isRunning = false;
 
@@ -48,6 +48,5 @@ namespace Ryu::App
 	{
 		// Update window events
 		m_window->Update();
-		m_window->ClearPendingEvents();
 	}
 }

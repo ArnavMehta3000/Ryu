@@ -23,7 +23,7 @@ namespace Ryu::App
 		explicit App(const Window::Window::Config& config);  // Let the application create the window
 		virtual ~App();
 
-		void Exit();
+		void Quit();
 
 		inline NODISCARD std::shared_ptr<Window::Window> GetWindow() const noexcept{ return m_window; }
 		inline NODISCARD bool IsRunning() const noexcept { return m_isRunning; }

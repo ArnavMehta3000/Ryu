@@ -11,6 +11,8 @@
 
 namespace Ryu::Engine
 {
+	static void PrintMemoryStats();
+
 	class Engine : public Utils::Singleton<Engine>
 	{
 		RYU_SINGLETON_DECLARE(Engine);

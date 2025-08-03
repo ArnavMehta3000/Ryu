@@ -27,7 +27,7 @@ RYU_MAIN()
 
 			if (e.KeyCode == KeyCode::Escape)
 			{
-				app->Exit();
+				app->Quit();
 			}
 		}
 	};

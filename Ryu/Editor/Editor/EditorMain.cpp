@@ -9,7 +9,6 @@ using namespace Ryu::Editor;
 RYU_MAIN()
 {
 	RYU_DBG_TRACK_MEM();
-	//RYU_DBG_TRACK_MEM_LEAK(928);
 
 	try
 	{

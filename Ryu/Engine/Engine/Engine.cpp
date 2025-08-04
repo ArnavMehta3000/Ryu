@@ -76,6 +76,7 @@ namespace Ryu::Engine
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
+		m_renderer->Initialize();
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
@@ -104,6 +105,8 @@ namespace Ryu::Engine
 
 		m_scriptEngine.reset();
 		m_app.reset();
+
+		m_renderer->Shutdown();
 		m_renderer.reset();
 
 		Config::ConfigManager::Get().SaveAll();

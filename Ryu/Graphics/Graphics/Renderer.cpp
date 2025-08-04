@@ -18,6 +18,12 @@ namespace Ryu::Gfx
 	RYU_LOG_DECLARE_CATEGORY(Renderer);
 
 	Renderer::Renderer(HWND window)
+		: m_window(window)
+	{
+		RYU_ASSERT(m_window, "Window is not initialized.");
+	}
+
+	void Renderer::Initialize()
 	{
 		RYU_PROFILE_SCOPE();
 
@@ -44,19 +50,28 @@ namespace Ryu::Gfx
 		}
 
 		auto& cmdQueue = m_device->GetCommandContext().GetCommandQueue();
-		m_swapChain.Initialize(m_device, cmdQueue, m_rtvDescHeap, window, BACK_BUFFER_FORMAT);
-	
+		m_swapChain.Initialize(m_device, cmdQueue, m_rtvDescHeap, m_window, BACK_BUFFER_FORMAT);
+
+#if defined(RYU_WITH_EDITOR)
+		m_imguiRenderer = std::make_unique<ImGuiRenderer>();
+		m_imguiRenderer->Initialize(m_device.get(), m_window, m_srvDescHeap, FRAME_BUFFER_COUNT, m_swapChain.GetFormat());
+#endif
 		// Wait until initialization is complete
 		m_device->GetCommandContext().Flush();
 	}
 
-	Renderer::~Renderer()
+	void Renderer::Shutdown()
 	{
 		RYU_PROFILE_SCOPE();
 
 		if (m_device)
 		{
 			m_device->GetCommandContext().Flush();
+
+#if defined(RYU_WITH_EDITOR)
+			m_imguiCallback.reset();
+			m_imguiRenderer.reset();
+#endif
 
 			RYU_LOG_DEBUG(LogRenderer, "Destroying swapchain");
 			m_swapChain.Destroy();
@@ -82,10 +97,10 @@ namespace Ryu::Gfx
 
 			RYU_LOG_DEBUG(LogRenderer, "Destroying graphics device");
 			Device::Destroy(*m_device);
-			RYU_ASSERT(m_device.use_count() == 1);
+			auto useCount = m_device.use_count();
+			RYU_ASSERT(useCount == 1);
 			m_device.reset();
 		}
-
 	}
 
 	void Renderer::CreateRootSignature()
@@ -234,7 +249,7 @@ namespace Ryu::Gfx
 		
 		m_device->BeginFrame(&m_pso);  // This will process deferred releases
 
-		PopulateCommandList();		
+		PopulateCommandList();	
 
 		m_device->EndFrame();
 
@@ -292,6 +307,21 @@ namespace Ryu::Gfx
 		cmdList.Get()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		cmdList.Get()->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 		cmdList.Get()->DrawInstanced(3, 1, 0, 0);
+
+#if defined(RYU_WITH_EDITOR)
+		// Only worth rendering ImGui if the callback is set
+		if (m_imguiCallback.has_value() && m_imguiRenderer)
+		{		
+			m_imguiRenderer->BeginFrame();
+			(*m_imguiCallback)(this);
+
+			// IMPORTANT: Set descriptor heap for ImGui before rendering
+			ID3D12DescriptorHeap* descriptorHeaps[] = { m_srvDescHeap.Get() };
+			cmdList.Get()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+			m_imguiRenderer->Render(cmdList);
+		}
+#endif
 
 		// Transition back to present
 		ctx.SetResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(

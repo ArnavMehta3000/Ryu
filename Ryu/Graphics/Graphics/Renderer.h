@@ -3,8 +3,11 @@
 #include "Graphics/Core/SwapChain.h"
 #include "Graphics/Core/DescriptorHeap.h"
 #include "Graphics/Core/PipelineState.h"
-#include "Graphics/Core/Fence.h"
 #include <optional>
+
+#if defined(RYU_WITH_EDITOR)
+#include "Graphics/ImGui/ImGuiRenderer.h"
+#endif
 
 namespace Ryu::Gfx
 {
@@ -13,13 +16,17 @@ namespace Ryu::Gfx
 	public:
 		Renderer() = delete;
 		explicit Renderer(HWND window);
-		~Renderer();
+		~Renderer() = default;
+
+		void Initialize();
+		void Shutdown();
 
 		inline NODISCARD Device& GetDevice() { return *m_device; }
 		inline NODISCARD SwapChain& GetSwapChain() { return m_swapChain; }
 		
+#if defined(RYU_WITH_EDITOR)
 		inline void SetImGuiCallback(std::function<void(Renderer*)> callback) { m_imguiCallback = callback; }
-		
+#endif
 		void ProcessDeferredReleases(u32 frameIndex);
 		void DeferredRelease(IUnknown* resource);
 
@@ -33,6 +40,7 @@ namespace Ryu::Gfx
 		void CreateVB();
 
 	private:
+		HWND m_window;
 		DevicePtr m_device;
 		SwapChain m_swapChain;
 
@@ -46,6 +54,10 @@ namespace Ryu::Gfx
 		ComPtr<DX12::Resource>       m_vertexBuffer;
 		D3D12_VERTEX_BUFFER_VIEW     m_vertexBufferView;
 
+#if defined(RYU_WITH_EDITOR)
 		std::optional<std::function<void(Renderer*)>> m_imguiCallback;
+		std::unique_ptr<ImGuiRenderer> m_imguiRenderer;
+#endif
+
 	};
 }

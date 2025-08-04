@@ -19,4 +19,6 @@ target("RyuEditor")
 	if has_config("ryu-unity-build") then
 		add_rules("c++.unity_build")
 	end
+
+	add_defines("RYU_WITH_EDITOR", "RYU_IS_EDITOR")
 target_end()

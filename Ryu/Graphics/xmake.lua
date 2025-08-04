@@ -15,6 +15,11 @@ target("RyuGraphics")
 		"RyuMath"
 	)
 
+	if has_config("ryu-build-with-editor") then
+		add_defines("RYU_WITH_EDITOR")
+		add_packages("imgui", { public = true })
+	end
+
 	add_rules("EnumToHeader",
 		{
 			root = path.join(os.projectdir(), "Ryu", "Enums"),

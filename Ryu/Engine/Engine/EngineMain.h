@@ -23,7 +23,8 @@ int WINAPI wWinMain(                               \
 // Default main
 #define RYU_DEF_MAIN() int main(MAYBE_UNUSED int argc, MAYBE_UNUSED char *argv[])
 
-#if defined(RYU_WITH_EDITOR)
+// Use dummy main when we are building with editor (for standalone main func) and not in editor (otherwise the editor gets the dummy main)
+#if defined(RYU_WITH_EDITOR) && !defined(RYU_IS_EDITOR)
 	#define RYU_MAIN() int DummyMain()
 #else
 	#ifdef RYU_BUILD_DEBUG

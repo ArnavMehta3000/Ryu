@@ -20,13 +20,12 @@ namespace Ryu::Editor
 		void OnImGui(Gfx::Renderer* renderer);
 		
 		bool RouteWndProc() const;
-		void InitImGui();
-		void ShutdownImGui();
 
 		bool LoadGameModule();
 
 	private:
 		std::shared_ptr<App> m_userApp;
 		Gfx::DescriptorHeap m_imguiHeap;
+		Gfx::DescriptorHandle m_imguiHeapHandle;
 	};
 }

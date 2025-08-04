@@ -43,6 +43,7 @@ namespace Ryu::Gfx
 
 		DXGI_FORMAT ToNative(Format format);
 		DXGI_FORMAT GetFormatSRGB(DXGI_FORMAT format);
+		DXGI_FORMAT GetFormatNonSRGB(DXGI_FORMAT format);
 	}
 
 	namespace Internal

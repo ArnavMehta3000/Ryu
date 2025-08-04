@@ -20,26 +20,26 @@ namespace Ryu::Gfx
 
 		inline NODISCARD HWND GetWindowHandle() const noexcept { return m_window; }
 		inline NODISCARD DXGI::SwapChain* const GetSwapChain() const noexcept { return m_swapChain.Get(); }
+		inline NODISCARD DX12::Resource* GetBackBuffer() const { return m_surfaceData[m_frameIndex].Resource.Get(); }
 		inline NODISCARD const Format GetFormat() const noexcept { return m_format; }
 		inline NODISCARD const CD3DX12_RECT& GetScissorRect() const noexcept { return m_scissorRect; }
 		inline NODISCARD const CD3DX12_VIEWPORT& GetViewport() const noexcept { return m_viewport; }
 		inline NODISCARD const RenderSurface& GetRenderSurface(const u32 index) const { return m_surfaceData[index]; }
 		inline NODISCARD u32 GetFrameIndex() const noexcept { return m_frameIndex; }
 
-		void Resize(const u32 width, const u32 height);
+		void Resize();
 		void Present() const;
+		void Release();
 
 	private:
 		void OnConstruct(CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format = BACK_BUFFER_FORMAT);
 		void OnDestruct();
 		void CreateSwapChain(CommandQueue& queue);
-		void CreateFrameResources();
+		void Finalize();
 
 	private:
 		HWND                      m_window{ nullptr };
 		Format                    m_format{ BACK_BUFFER_FORMAT };
-		u32                       m_width;
-		u32                       m_height;
 		mutable u32               m_frameIndex;
 		u32                       m_rtvDescriptorSize;
 		DescriptorHeap*           m_rtvHeap;

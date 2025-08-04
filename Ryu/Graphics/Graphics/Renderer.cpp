@@ -245,10 +245,17 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
+		const CD3DX12_VIEWPORT& vp = m_swapChain.GetViewport();
+
+		if (vp.Width == width && vp.Height == height)
+		{
+			return;  // Size is the same
+		}
+
 		// Wait for all GPU work to complete
 		m_device->GetCommandContext().Flush();
 
-		m_swapChain.Resize(width, height);
+		m_swapChain.Resize();
 	}
 
 	void Renderer::PopulateCommandList()

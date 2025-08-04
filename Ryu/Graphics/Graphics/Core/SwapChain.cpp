@@ -12,7 +12,7 @@ namespace Ryu::Gfx
 
 	namespace
 	{
-		static void GetWindowSize(HWND window, u32& outWidth, u32& outHeight)
+		void GetWindowSize(HWND window, u32& outWidth, u32& outHeight)
 		{
 			if (!window)
 			{
@@ -32,8 +32,6 @@ namespace Ryu::Gfx
 		: DeviceObject(parent)
 		, m_window(window)
 		, m_format(format)
-		, m_width(0)
-		, m_height(0)
 		, m_frameIndex(0)
 		, m_rtvHeap(&rtvHeap)
 		, m_rtvDescriptorSize(0)
@@ -53,70 +51,51 @@ namespace Ryu::Gfx
 		m_format = format;
 		m_rtvHeap = &rtvHeap;
 		
-		CreateSwapChain(queue);  // Will call Resize -> CreateFrameResources
+		CreateSwapChain(queue);
 		
 		RYU_LOG_DEBUG(LogGFXSwapChain, "SwapChain created");
 	}
 
 	void SwapChain::OnDestruct()
 	{
-		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
-		{
-			if (m_surfaceData[i].RTV.IsValid())
-			{
-				m_rtvHeap->Free(m_surfaceData[i].RTV);
-			}
-			m_surfaceData[i].Resource.Reset();
-		}
-
-		if (m_swapChain)
-		{
-			m_swapChain.Reset();
-		}
+		Release();
 	}
 
-	void SwapChain::Resize(const u32 width, const u32 height)
+	void SwapChain::Resize()
 	{
 		RYU_PROFILE_SCOPE();
 
-		if (!m_window || (m_width == width && m_height == height))
-		{
-			return;
-		}
+		RYU_ASSERT(m_rtvHeap, "Descriptor heap is not initialized.");
+		RYU_ASSERT(m_window, "Window is not initialized.");
+		RYU_ASSERT(m_swapChain, "SwapChain is not initialized.");
 
 		if (auto parent = GetParent())
 		{
-			m_width  = width;
-			m_height = height;
-
-			// Release frame buffers before resize
-			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+			// Release old resources
+			for (auto& data : m_surfaceData)
 			{
-				if (m_surfaceData[i].RTV.IsValid())
-				{
-					m_rtvHeap->Free(m_surfaceData[i].RTV);
-				}
-				m_surfaceData[i].Resource.Reset();
+				data.Resource.Reset();
 			}
 
 			DXGI_SWAP_CHAIN_DESC1 desc{};
-			m_swapChain->GetDesc1(&desc);
+			m_swapChain->GetDesc1(&desc); // For flags
+
 			DXCallEx(m_swapChain->ResizeBuffers(
 				FRAME_BUFFER_COUNT,
-				m_width, m_height,
-				DXGI::ToNative(m_format),
+				0, 0,
+				DXGI_FORMAT_UNKNOWN,
 				desc.Flags
 			), parent->GetDevice());
 
 			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-			CreateFrameResources();
+			// We reuse the allocated descriptors to put the new RTV's in
+			Finalize();
 
-			// Set viewport and rect
-			m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<f32>(m_width), static_cast<f32>(m_height));
-			m_scissorRect = CD3DX12_RECT(0l, 0l, static_cast<LONG>(m_width), static_cast<LONG>(m_height));
-
-			RYU_LOG_TRACE(LogGFXSwapChain, "SwapChain resized to {}x{}", m_width, m_height);
+			RYU_DEBUG_BLOCK(
+				m_swapChain->GetDesc1(&desc);
+				RYU_LOG_TRACE(LogGFXSwapChain, "SwapChain resized to {}x{}", desc.Width, desc.Height);
+			)
 		}
 		else
 		{
@@ -152,6 +131,8 @@ namespace Ryu::Gfx
 
 	void SwapChain::CreateSwapChain(CommandQueue& queue)
 	{
+		RYU_ASSERT(m_rtvHeap, "Descriptor heap is not initialized.");
+
 		RYU_PROFILE_SCOPE();
 
 		if (auto device = GetParent())
@@ -170,7 +151,7 @@ namespace Ryu::Gfx
 			desc.AlphaMode   = DXGI_ALPHA_MODE_IGNORE;
 			desc.BufferCount = FRAME_BUFFER_COUNT;
 			desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			desc.Format      = DXGI::ToNative(m_format);  // SRGB format not enforced
+			desc.Format      = DXGI::GetFormatNonSRGB(DXGI::ToNative(m_format));
 			desc.Width       = 0;
 			desc.Height      = 0;
 			desc.Scaling     = DXGI_SCALING_NONE;
@@ -201,37 +182,76 @@ namespace Ryu::Gfx
 
 			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-			// Reuse desc width and height to get window size
-			GetWindowSize(m_window, desc.Width, desc.Height);
-			Resize(desc.Width, desc.Height);
+			for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
+			{
+				m_surfaceData[i].RTV = m_rtvHeap->Allocate();
+			}
+
+			Finalize();
+		}
+		else
+		{
+			RYU_LOG_ERROR(LogGFXSwapChain, "SwapChain creation failed, parent device is null");
 		}
 	}
-	
-	void SwapChain::CreateFrameResources()
+
+	void SwapChain::Finalize()
 	{
-		if (!m_swapChain)
-		{
-			RYU_LOG_FATAL(LogGFXSwapChain, "Trying to create frame resources for null swapchain!");
-			std::unreachable();  // Why and how did this happen?
-		}
-
-		RYU_PROFILE_SCOPE();
-
 		if (auto parent = GetParent())
 		{
-			if (DX12::Device* const device = parent->GetDevice())
+			DX12::Device* const device = parent->GetDevice();
+
+			for (u32 i = 0; i < m_surfaceData.size(); i++)
 			{
-				for (u32 i = 0; i < m_surfaceData.size(); i++)
-				{
-					RenderSurface& surface = m_surfaceData[i];
-					surface.RTV = m_rtvHeap->Allocate();
+				RenderSurface& surface = m_surfaceData[i];
 
-					DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&surface.Resource)), device);
-					device->CreateRenderTargetView(surface.Resource.Get(), nullptr, surface.RTV.CPU);
+				// Ensure the resource is empty before creating the RTV
+				RYU_ASSERT(!surface.Resource, "Resource is not empty!");
+				DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&surface.Resource)), device);
 
-					DX12::SetObjectName(surface.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
-				}
+				RYU_NOTE("Make the format sRGB. Currently it is using the default (swapchain) format which is linear.");
+				D3D12_RENDER_TARGET_VIEW_DESC desc{};
+				desc.Format        = DXGI::ToNative(m_format);
+				desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+				// Expecting surfaceData RTV CPU handle to be allocated/valid
+				device->CreateRenderTargetView(surface.Resource.Get(), &desc, surface.RTV.CPU);
+				DX12::SetObjectName(surface.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
 			}
+
+			DXGI_SWAP_CHAIN_DESC1 desc{};
+			DXCall(m_swapChain->GetDesc1(&desc));
+
+			const u32 width  = desc.Width;
+			const u32 height = desc.Height;
+
+#if defined(RYU_BUILD_DEBUG)
+			{
+				u32 windowWidth = 0, windowHeight = 0;
+				GetWindowSize(m_window, windowWidth, windowHeight);
+				RYU_ASSERT(width == windowWidth && height == windowHeight, "Window size does not match swapchain size.");
+			}
+#endif
+
+			m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<f32>(width), static_cast<f32>(height), 0.0f, 1.0f);
+			m_scissorRect = CD3DX12_RECT(0l, 0l, static_cast<LONG>(width), static_cast<LONG>(height));
+		}
+	}
+
+	void SwapChain::Release()
+	{
+		for (u32 i = 0; i < m_surfaceData.size(); i++)
+		{
+			if (m_surfaceData[i].RTV.IsValid())
+			{
+				m_rtvHeap->Free(m_surfaceData[i].RTV);
+			}
+			m_surfaceData[i].Resource.Reset();
+		}
+
+		if (m_swapChain)
+		{
+			m_swapChain.Reset();
 		}
 	}
 }

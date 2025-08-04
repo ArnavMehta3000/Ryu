@@ -54,9 +54,9 @@
 
 // Only executes code if RYU_BUILD_DEBUG is defined
 #if defined(RYU_BUILD_DEBUG)
-#define RYU_DEBUG_BLOCK(X) X
+#define RYU_DEBUG_BLOCK(...) __VA_ARGS__
 #else
-#define RYU_DEBUG_BLOCK(X)
+#define RYU_DEBUG_BLOCK(...)
 #endif
 
 #define RYU_PROPERTY(Name, ...) __declspec(property(get = RYU_CONCAT(Get, Name), put = RYU_CONCAT(Set, Name))) __VA_ARGS__ Name

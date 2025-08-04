@@ -129,6 +129,7 @@ namespace Ryu::Gfx
 		const u64 completedValue = fence.Get()->GetCompletedValue();
 		if (completedValue < FenceValue)
 		{
+			DXCall(fence.Get()->SetEventOnCompletion(FenceValue, fenceEvent));
 			if (::WaitForSingleObjectEx(fenceEvent, TIMEOUT_DURATION, FALSE) == WAIT_TIMEOUT)
 			{
 				RYU_LOG_ERROR(LogCommandCtx, "Move to next frame timed out!");

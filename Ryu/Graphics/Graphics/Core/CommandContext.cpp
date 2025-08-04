@@ -44,11 +44,13 @@ namespace Ryu::Gfx
 		ID3D12CommandList* cmdLists[] = { m_cmdList.Get() };
 		m_cmdQueue.Get()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
 
-		CommandFrame& frame = m_cmdFrames[m_frameIndex];
+		u64& fenceValue = m_fenceValue;
+		++fenceValue;
 
-		frame.FenceValue = ++m_fenceValue;
+		CommandFrame& frame = m_cmdFrames[m_frameIndex];
+		frame.FenceValue = fenceValue;
 		
-		m_cmdQueue.Signal(m_fence, m_fenceValue);
+		m_cmdQueue.Signal(m_fence, fenceValue);
 
 		m_frameIndex = (m_frameIndex + 1) % FRAME_BUFFER_COUNT;
 	}
@@ -120,10 +122,13 @@ namespace Ryu::Gfx
 	void CommandContext::CommandFrame::Wait(HANDLE fenceEvent, Fence& fence)
 	{
 		RYU_ASSERT(fence.Get() && fenceEvent, "Fence is not initialized.");
+		
+		// If the current (completed) 'fenceValue' is less than 'FenceValue'
+		// We know that the GPU has not reached the fence value yet (not finished executing the command lists)
+
 		const u64 completedValue = fence.Get()->GetCompletedValue();
 		if (completedValue < FenceValue)
 		{
-			DXCall(fence.Get()->SetEventOnCompletion(FenceValue, fenceEvent));
 			if (::WaitForSingleObjectEx(fenceEvent, TIMEOUT_DURATION, FALSE) == WAIT_TIMEOUT)
 			{
 				RYU_LOG_ERROR(LogCommandCtx, "Move to next frame timed out!");

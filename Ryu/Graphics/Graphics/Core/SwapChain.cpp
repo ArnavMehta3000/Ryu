@@ -10,6 +10,7 @@ namespace Ryu::Gfx
 {
 	RYU_LOG_DECLARE_CATEGORY(GFXSwapChain);
 
+RYU_DEBUG_BLOCK(
 	namespace
 	{
 		void GetWindowSize(HWND window, u32& outWidth, u32& outHeight)
@@ -27,6 +28,7 @@ namespace Ryu::Gfx
 			outHeight = static_cast<u32>(r.bottom - r.top);
 		}
 	}
+)
 
 	SwapChain::SwapChain(std::weak_ptr<Device> parent, CommandQueue& queue, DescriptorHeap& rtvHeap, HWND window, Format format)
 		: DeviceObject(parent)
@@ -69,38 +71,31 @@ namespace Ryu::Gfx
 		RYU_ASSERT(m_window, "Window is not initialized.");
 		RYU_ASSERT(m_swapChain, "SwapChain is not initialized.");
 
-		if (auto parent = GetParent())
+		// Release old resources
+		for (auto& data : m_surfaceData)
 		{
-			// Release old resources
-			for (auto& data : m_surfaceData)
-			{
-				data.Resource.Reset();
-			}
-
-			DXGI_SWAP_CHAIN_DESC1 desc{};
-			m_swapChain->GetDesc1(&desc); // For flags
-
-			DXCallEx(m_swapChain->ResizeBuffers(
-				FRAME_BUFFER_COUNT,
-				0, 0,
-				DXGI_FORMAT_UNKNOWN,
-				desc.Flags
-			), parent->GetDevice());
-
-			m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-			// We reuse the allocated descriptors to put the new RTV's in
-			Finalize();
-
-			RYU_DEBUG_BLOCK(
-				m_swapChain->GetDesc1(&desc);
-				RYU_LOG_TRACE(LogGFXSwapChain, "SwapChain resized to {}x{}", desc.Width, desc.Height);
-			)
+			data.Resource.Reset();
 		}
-		else
-		{
-			RYU_LOG_ERROR(LogGFXSwapChain, "SwapChain resize failed, parent device is null");
-		}
+
+		DXGI_SWAP_CHAIN_DESC1 desc{};
+		m_swapChain->GetDesc1(&desc); // For flags
+
+		DXCall(m_swapChain->ResizeBuffers(
+			FRAME_BUFFER_COUNT,
+			0, 0,  // Dimensions
+			DXGI_FORMAT_UNKNOWN,
+			desc.Flags
+		));
+
+		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+		// We reuse the allocated descriptors to put the new RTV's in
+		Finalize();
+
+		RYU_DEBUG_BLOCK(
+			m_swapChain->GetDesc1(&desc);
+			RYU_LOG_TRACE(LogGFXSwapChain, "SwapChain resized to {}x{}", desc.Width, desc.Height);
+		)
 	}
 
 	void SwapChain::Present() const
@@ -225,13 +220,12 @@ namespace Ryu::Gfx
 			const u32 width  = desc.Width;
 			const u32 height = desc.Height;
 
-#if defined(RYU_BUILD_DEBUG)
+			RYU_DEBUG_BLOCK(
 			{
 				u32 windowWidth = 0, windowHeight = 0;
 				GetWindowSize(m_window, windowWidth, windowHeight);
 				RYU_ASSERT(width == windowWidth && height == windowHeight, "Window size does not match swapchain size.");
-			}
-#endif
+			})
 
 			m_viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<f32>(width), static_cast<f32>(height), 0.0f, 1.0f);
 			m_scissorRect = CD3DX12_RECT(0l, 0l, static_cast<LONG>(width), static_cast<LONG>(height));

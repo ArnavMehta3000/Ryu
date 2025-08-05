@@ -1,5 +1,6 @@
 #include "Engine/Engine.h"
 #include "Globals/Globals.h"
+#include "Graphics/Core/Core.h"
 #include "Memory/New.h"
 #include "App/Utils/PathManager.h"
 #include "App/AppConfig.h"
@@ -73,6 +74,9 @@ namespace Ryu::Engine
 		{
 			RYU_LOG_INFO(LogEngine, "--- A debugger is attached to the Engine!---");
 		}
+
+		Gfx::Init();
+		Gfx::Shutdown();
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());

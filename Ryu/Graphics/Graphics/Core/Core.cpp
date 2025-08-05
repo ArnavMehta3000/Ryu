@@ -1,0 +1,146 @@
+#include "Graphics/Core/Core.h"
+#include "Graphics/Debug/DebugLayer.h"
+#include "Graphics/GraphicsConfig.h"
+#include "Logger/Logger.h"
+#include "Logger/Assert.h"
+#include "Math/Math.h"
+#include "Profiling/Profiling.h"
+#include "Utils/StringConv.h"
+
+namespace Ryu::Gfx
+{
+	RYU_LOG_DECLARE_CATEGORY(GFX);
+
+#pragma region Variables
+	ComPtr<DX12::Device> g_device;
+	ComPtr<DXGI::Factory> g_factory;
+	CD3DX12FeatureSupport g_featureSupport;
+#pragma endregion
+
+#pragma region Accessors
+	const ComPtr<DX12::Device>& GetDevice() { return g_device; }
+	const ComPtr<DXGI::Factory>& GetFactory() { return g_factory; }
+#pragma endregion
+
+#pragma region Forward declarations
+	void CreateDevice();
+	void GetHardwareAdapter(DXGI::Adapter** ppAdapter);
+#pragma endregion
+
+	void Init()
+	{
+		RYU_PROFILE_SCOPE();
+
+		DebugLayer::Initialize();
+
+		CreateDevice();
+	}
+
+	void Shutdown()
+	{
+		RYU_PROFILE_SCOPE();
+
+		ComRelease(g_factory);
+
+#if defined(RYU_BUILD_DEBUG)
+		DebugLayer::SetupSeverityBreaks(g_device, false);
+		DebugLayer::SetStablePowerState(g_device, false);
+		DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(g_device);
+		DebugLayer::Shutdown();
+#else
+		ComRelease(g_device);  // Manually release device
+#endif
+
+		ComRelease(g_device);
+	}
+
+
+	void CreateDevice()
+	{
+		RYU_PROFILE_SCOPE();
+
+		const auto& config = GraphicsConfig::Get();
+		const bool useWarpDevice = config.UseWARP;
+
+		u32 dxgiFactoryFlags = 0;
+
+		// --- Enable debug layer ---
+#if defined(RYU_BUILD_DEBUG)
+		if (config.EnableDebugLayer)
+		{
+			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+		}
+#endif
+
+		// --- Create DXGI factory---
+		DXCall(::CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&g_factory)));
+
+		// Temporary workaround because SetStablePowerState() is crashing
+		::D3D12EnableExperimentalFeatures(0, nullptr, nullptr, nullptr);
+
+		// --- Create Adapter ---
+		ComPtr<DXGI::Adapter> adapter;
+		GetHardwareAdapter(&adapter);
+
+		// --- Create Device ---
+		DXCall(::D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&g_device)));
+
+		// --- Create WARP Device if needed ---
+		if (!g_device)
+		{
+			if (useWarpDevice)
+			{
+				RYU_LOG_DEBUG(LogGFX, "WARP software adapter requested");
+			}
+			else
+			{
+				RYU_LOG_WARN(LogGFX, "Failed to find a hardware adapter.  Falling back to WARP");
+			}
+
+			DXCall(g_factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter)));
+			DXCall(::D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&g_device)));
+		}
+
+		// Enable severity breaks and stable power state
+		RYU_DEBUG_OP(DebugLayer::SetupSeverityBreaks(g_device, true));
+		RYU_DEBUG_OP(DebugLayer::SetStablePowerState(g_device, true));
+
+		// --- Set debug name & cache capabilities ---
+		DX12::SetObjectName(g_device.Get(), "Main Device");
+		DXCallEx(g_featureSupport.Init(g_device.Get()), g_device.Get());
+	}
+
+	void GetHardwareAdapter(DXGI::Adapter** ppAdapter)
+	{
+		RYU_PROFILE_SCOPE();
+
+		ComPtr<DXGI::Adapter> adapter;
+		*ppAdapter = nullptr;
+
+		for (UINT adapterIndex = 0;
+			SUCCEEDED(g_factory->EnumAdapterByGpuPreference(
+				adapterIndex,
+				DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+				IID_PPV_ARGS(&adapter)));
+			adapterIndex++)
+		{
+			DXGI_ADAPTER_DESC1 desc;
+			adapter->GetDesc1(&desc);
+
+			if (desc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)
+			{
+				continue;  // Don't select the Basic Render Driver adapter.
+			}
+
+			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+			{
+				const std::string description = Utils::ToNarrowStr(desc.Description);
+				RYU_LOG_DEBUG(LogGFX,
+					"Using GPU: {} - {:.2f} GB", description, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
+				break;
+			}
+		}
+
+		*ppAdapter = adapter.Detach();
+	}
+}

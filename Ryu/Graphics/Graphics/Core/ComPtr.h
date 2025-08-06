@@ -28,7 +28,7 @@ namespace Ryu::Gfx
 
 	// Release a ComPtr directly by calling Reset
 	template<Internal::ComPtrType T>
-	void ComRelease(T& ptr)
+	inline void ComRelease(T& ptr)
 	{
 		ptr.Reset();
 	}
@@ -39,7 +39,7 @@ namespace Ryu::Gfx
 	ComRelease(ptr);
 	*/
 	template<Internal::RawComPtrType T>
-	void ComRelease(T& ptr)
+	inline void ComRelease(T& ptr)
 	{
 		if (ptr)
 		{

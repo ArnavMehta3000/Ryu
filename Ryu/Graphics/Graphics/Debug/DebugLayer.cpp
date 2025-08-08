@@ -184,7 +184,7 @@ namespace Ryu::Gfx::DebugLayer
 		ComPtr<ID3D12DebugDevice2> debugDevice;
 		if (SUCCEEDED(device.As(&debugDevice)))
 		{
-			device.Reset();  // Release the device so that when we report we have the lowest possible nummber of refs
+			ComRelease(device);  // Release the device so that when we report we have the lowest possible nummber of refs
 			DXCall(debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL));
 		}
 	}

@@ -1,5 +1,6 @@
 #include "Graphics/Core/Core.h"
 #include "Graphics/Debug/DebugLayer.h"
+#include "Graphics/Core/CommandContext2.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Logger/Logger.h"
 #include "Logger/Assert.h"
@@ -7,17 +8,20 @@
 #include "Profiling/Profiling.h"
 #include "Utils/StringConv.h"
 
-namespace Ryu::Gfx
+namespace Ryu::Gfx::Core
 {
 	RYU_LOG_DECLARE_CATEGORY(GFX);
 
 #pragma region Variables
-	ComPtr<DX12::Device> g_device;
-	ComPtr<DXGI::Factory> g_factory;
-	CD3DX12FeatureSupport g_featureSupport;
+	ComPtr<DX12::Device>    g_device;
+	ComPtr<DXGI::Factory>   g_factory;
+	ComPtr<DXGI::SwapChain> g_swapChain;
+	CD3DX12FeatureSupport   g_featureSupport;
+	CommandContext2         g_cmdCtx;
 #pragma endregion
 
 #pragma region Accessors
+	const CD3DX12FeatureSupport& GetFeatureSupport() { return g_featureSupport; }
 	const ComPtr<DX12::Device>& GetDevice() { return g_device; }
 	const ComPtr<DXGI::Factory>& GetFactory() { return g_factory; }
 #pragma endregion
@@ -25,15 +29,29 @@ namespace Ryu::Gfx
 #pragma region Forward declarations
 	void CreateDevice();
 	void GetHardwareAdapter(DXGI::Adapter** ppAdapter);
+	void CreateSwapChain(HWND window, DXGI_FORMAT backBufferFormat);
 #pragma endregion
 
-	void Init()
+
+	void Render()
+	{
+		g_cmdCtx.BeginFrame();
+
+		auto& cmdList = g_cmdCtx.GetCommandList();
+
+		g_cmdCtx.EndFrame();
+	}
+
+
+	void Init(HWND window, DXGI_FORMAT backBufferFormat)
 	{
 		RYU_PROFILE_SCOPE();
-
 		DebugLayer::Initialize();
 
 		CreateDevice();
+		CreateSwapChain(window, backBufferFormat);
+
+		g_cmdCtx.Create(CommandListType::Direct);
 	}
 
 	void Shutdown()
@@ -50,7 +68,7 @@ namespace Ryu::Gfx
 #else
 		ComRelease(g_device);  // Manually release device
 #endif
-
+		ComRelease(g_swapChain);
 		ComRelease(g_device);
 	}
 
@@ -142,5 +160,10 @@ namespace Ryu::Gfx
 		}
 
 		*ppAdapter = adapter.Detach();
+	}
+	
+	void CreateSwapChain(HWND window, DXGI_FORMAT backBufferFormat)
+	{
+		RYU_ASSERT(g_factory, "DXGI factory is not initialized.");
 	}
 }

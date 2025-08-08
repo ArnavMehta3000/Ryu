@@ -44,11 +44,6 @@ namespace Ryu::Engine
 			(GetAllocationCount() - GetDeallocationCount()));
 	}
 
-	Engine::Engine()
-		: m_app(nullptr)
-	{
-	}
-
 	bool Engine::Init()
 	{
 		RYU_PROFILE_SCOPE();

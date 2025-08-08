@@ -28,7 +28,7 @@ namespace Ryu::Engine
 		void RYU_API RunApp(std::shared_ptr<App::App> app);
 
 	protected:
-		Engine();
+		Engine() {}
 
 	private:
 		bool Init();

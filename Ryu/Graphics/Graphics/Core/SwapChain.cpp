@@ -104,14 +104,14 @@ RYU_DEBUG_BLOCK(
 
 		if (auto parent = GetParent())
 		{
-			bool allowTearing = GraphicsConfig::Get().AllowTearing;
-			bool vsync        = GraphicsConfig::Get().EnableVSync;
+			bool allowTearing = Gfx::IsTearingAllowed();
+			i32 vsync         = Gfx::GetSyncInterval();
 
 			if (allowTearing && vsync)
 			{
 				RYU_LOG_WARN(LogGFXSwapChain, 
 					R"(VSync and AllowTearing cannot be enabled at the same time! 
-					Tearing will be disabled when presenting. Change the setting in the GraphicsConfig.toml file)");
+					Tearing will be disabled when presenting. Disable one through settings/cmdline)");
 
 				allowTearing = false;
 			}
@@ -132,8 +132,7 @@ RYU_DEBUG_BLOCK(
 
 		if (auto device = GetParent())
 		{
-			auto& config                 = GraphicsConfig::Get();
-			const bool wantsTearing      = config.AllowTearing;
+			const bool wantsTearing      = Gfx::IsTearingAllowed();
 			DXGI::Factory* const factory = device->GetFactory();
 
 			DXGI_SWAP_CHAIN_DESC1 desc{};

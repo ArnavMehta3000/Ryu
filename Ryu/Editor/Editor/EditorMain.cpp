@@ -12,6 +12,8 @@ RYU_MAIN()
 
 	try
 	{
+		Ryu::Engine::Setup();
+
 		// Create editor window
 		Window::Window::Config windowConfig{ .Title = "Ryu Editor" };
 		auto editorWindow = std::make_shared<Window::Window>(windowConfig);

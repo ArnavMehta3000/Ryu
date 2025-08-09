@@ -49,14 +49,13 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		const auto& config = GraphicsConfig::Get();
-		const bool useWarpDevice = config.UseWARP;
+		const bool useWarpDevice = Gfx::ShouldUseWARPDevice();
 
 		u32 dxgiFactoryFlags = 0;
 
 		// --- Enable debug layer ---
 #if defined(RYU_BUILD_DEBUG)
-		if (config.EnableDebugLayer)
+		if (Gfx::IsDebugLayerEnabled())
 		{
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}

@@ -1,3 +1,5 @@
+add_requires("spdlog", { configs = { wchar = true }})
+add_requires("cli11 v2.5.0")
 add_requires("fmt", { configs = { unicode = true }})
 add_requires("directx-headers v1.616.0")
 add_requires("directxshadercompiler 1.8.2405")

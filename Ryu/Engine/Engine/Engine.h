@@ -4,14 +4,13 @@
 #include "Utils/Singleton.h"
 #include "Utils/ServiceLocator.h"
 #include "Graphics/Renderer.h"
-#include "Logger/LogCategory.h"
 #include "Scripting/ScriptEngine.h"
 #include <memory>
-#include <stacktrace>
 
 namespace Ryu::Engine
 {
 	static void PrintMemoryStats();
+	void Setup();
 
 	class Engine : public Utils::Singleton<Engine>
 	{

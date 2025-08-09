@@ -77,14 +77,11 @@ namespace Ryu::Gfx::Core
 	{
 		RYU_PROFILE_SCOPE();
 
-		const auto& config = GraphicsConfig::Get();
-		const bool useWarpDevice = config.UseWARP;
-
 		u32 dxgiFactoryFlags = 0;
 
 		// --- Enable debug layer ---
 #if defined(RYU_BUILD_DEBUG)
-		if (config.EnableDebugLayer)
+		if (Gfx::IsDebugLayerEnabled())
 		{
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
@@ -106,7 +103,7 @@ namespace Ryu::Gfx::Core
 		// --- Create WARP Device if needed ---
 		if (!g_device)
 		{
-			if (useWarpDevice)
+			if (Gfx::ShouldUseWARPDevice())
 			{
 				RYU_LOG_DEBUG(LogGFX, "WARP software adapter requested");
 			}

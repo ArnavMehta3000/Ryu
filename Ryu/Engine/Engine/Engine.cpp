@@ -1,4 +1,5 @@
 #include "Engine/Engine.h"
+#include "Config/CmdLine.h"
 #include "Globals/Globals.h"
 #include "Graphics/Core/Core.h"
 #include "Memory/New.h"
@@ -42,6 +43,11 @@ namespace Ryu::Engine
 			GetAllocationCount(),
 			GetDeallocationCount(),
 			(GetAllocationCount() - GetDeallocationCount()));
+	}
+
+	void Setup()
+	{
+		Config::CmdLine::Get().ParseCommandLine();
 	}
 
 	bool Engine::Init()
@@ -96,6 +102,8 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
 		RYU_LOG_DEBUG(LogEngine, "Shutting down Engine");
+
+		Config::CmdLine::Get().SaveFileConfig(fs::current_path() / "RyuConfig.toml");
 
 		ShutdownPlugins(Plugin::PluginPhase::OnUnload);
 

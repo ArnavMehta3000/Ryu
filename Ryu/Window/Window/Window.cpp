@@ -1,12 +1,20 @@
 #include "Window/Window.h"
 #include "Utils/StringConv.h"
+#include "Config/CmdLine.h"
 #include "Logger/Assert.h"
 #include "Profiling/Profiling.h"
 #include <stdexcept>
 #include <dwmapi.h>
 
+
 namespace Ryu::Window
 {
+	static Config::CVar<i32> cv_winWidth("Wnd.Width", -1, "Width of the window.", Config::CVarFlags::ReadOnly);
+	static Config::CVar<i32> cv_winHeight("Wnd.Height", -1, "Height of the window.", Config::CVarFlags::ReadOnly);
+	static Config::CVar<i32> cv_winPosX("Wnd.PosX", CW_USEDEFAULT, "X-Position of the window.", Config::CVarFlags::ReadOnly);
+	static Config::CVar<i32> cv_winPosY("Wnd.PosY", CW_USEDEFAULT, "Y-Position of the window.", Config::CVarFlags::ReadOnly);
+
+
 	namespace Internal
 	{
 		static const char* g_windowNotCreatedError = "Window not created. Call Window::Create() first.";
@@ -42,6 +50,19 @@ namespace Ryu::Window
 		DWORD style   = GetWindowStyle();
 		DWORD exStyle = GetExtendedWindowStyle();
 
+		// Update dimensions if they are passed in by the user
+		const i32 winWidth = cv_winWidth.Get();
+		if (winWidth != -1)
+		{
+			m_config.WindowSize[0] = winWidth;
+		}
+		
+		const i32 winHeight = cv_winHeight.Get();
+		if (winHeight != -1)
+		{
+			m_config.WindowSize[1] = winHeight;
+		}
+
 		RECT windowRect{ 0, 0, static_cast<LONG>(m_config.WindowSize[0]), static_cast<LONG>(m_config.WindowSize[1]) };
 		::AdjustWindowRectEx(&windowRect, style, FALSE, exStyle);
 
@@ -49,6 +70,23 @@ namespace Ryu::Window
 		const i32 windowHeight = windowRect.bottom - windowRect.top;
 
 		const std::wstring windowTitle = Utils::ToWideStr(m_config.Title);
+
+		// Check if custom position is passed in
+		const i32 winPosX = cv_winPosX.Get();
+		const i32 winPosY = cv_winPosY.Get();
+
+		if (winPosX != CW_USEDEFAULT)
+		{
+			m_config.WindowPos[0] = winPosX;
+		}
+		
+		if (winPosY != CW_USEDEFAULT)
+		{
+			m_config.WindowPos[1] = winPosY;
+		}
+
+		// If no position arguments are passed in, then assume that the user may have set the position via the config struct
+		// If the config position is also `CW_USEDEFAULT`, then we center the window
 
 		// Center on screen
 		if (m_config.WindowPos[0] == CW_USEDEFAULT && m_config.WindowPos[1] == CW_USEDEFAULT)

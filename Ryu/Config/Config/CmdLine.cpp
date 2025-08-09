@@ -60,9 +60,16 @@ namespace Ryu::Config
 	{
 		EnsureCLIApp();
 
-		// Save to file
-		std::ofstream file(filename);
-		file << m_cliApp->config_to_str(true, true);
+		try
+		{
+			// Save to file
+			std::ofstream file(filename);
+			file << m_cliApp->config_to_str(true, true);
+		}
+		catch (const std::exception& e)
+		{
+			OutputDebugStringA(e.what());
+		}
 	}
 	
 	void CmdLine::EnsureCLIApp()
@@ -75,7 +82,7 @@ namespace Ryu::Config
 			m_cliApp->allow_config_extras(true);
 			
 			m_cliApp->set_config(
-				"--cfgfile",
+				"--ConfigFile",
 				"RyuConfig.toml",
 				"Read a config TOML file",
 				false   // Required

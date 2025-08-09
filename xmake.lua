@@ -65,3 +65,13 @@ add_rules("ExportAPI")
 
 -- Include xmake projects
 includes("**/xmake.lua")
+
+
+-- Command line arguments
+set_runargs(
+	--"--ConfigFile="RyuConfig.toml",
+	"--Wnd.Width=1280",
+	"--Wnd.Height=720",
+	"--Gfx.EnableDebugLayer=true",
+	"--Gfx.EnableValidation=true"
+)

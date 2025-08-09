@@ -1,6 +1,4 @@
 #pragma once
-#include "Globals/Globals.h"
-#include "Config/Config.h"
 
 namespace Ryu::Gfx
 {

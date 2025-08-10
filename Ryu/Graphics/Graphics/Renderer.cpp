@@ -1,11 +1,11 @@
 #include "Graphics/Renderer.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Graphics/Core/CommandContext.h"
+#include "Common/Assert.h"
 #include "Globals/Globals.h"
 #include "Config/CmdLine.h"
 #include "Profiling/Profiling.h"
-#include "Logger/Logger.h"
-#include "Logger/Assert.h"
+#include "Logging/Logger.h"
 #include "Math/Math.h"
 #include <expected>
 

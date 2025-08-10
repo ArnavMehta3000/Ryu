@@ -4,6 +4,30 @@
 namespace Ryu::Config
 {
     template <Internal::CVarAllTypes T>
+    inline const T CVar<T>::Get() const noexcept
+    {
+        // Return default values if nothing is set
+        // If string, there is a chance the optional might have a value, 
+        // but it will be an empty string
+        if constexpr (IsSame<T, std::string>)
+        {
+            if (m_cliValue.has_value())
+            {
+                auto& value = m_cliValue.value();
+                return value.empty() ? m_value : value;
+            }
+            else
+            {
+				return m_value;
+            }
+		}
+        else
+        {
+            return m_cliValue.value_or(m_value);
+        }
+    }
+
+    template <Internal::CVarAllTypes T>
     inline bool CVar<T>::Set(const T& value)
     {
         if (IsReadOnly())
@@ -26,7 +50,7 @@ namespace Ryu::Config
     template <Internal::CVarAllTypes T>
 	inline std::string CVar<T>::GetAsString() const
 	{
-        if constexpr (requires(T t) { { t.size() } -> std::convertible_to<std::size_t>; })
+        if constexpr (Internal::CVarVectorType<T>)
         {
             std::string result;
             for (size_t i = 0; i < m_value.size(); ++i)
@@ -80,7 +104,7 @@ namespace Ryu::Config
         try
         {
             // For vectors
-            if constexpr (requires(T t) { { t.size() } -> std::convertible_to<std::size_t>; })
+            if constexpr (Internal::CVarVectorType<T>)
             {
                 try
                 {

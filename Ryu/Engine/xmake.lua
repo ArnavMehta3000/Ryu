@@ -12,7 +12,7 @@ target("RyuEngine")
 		"RyuGlobals",
 		"RyuUtils",
 		"RyuConfig",
-		"RyuLogger",
+		"RyuLogging",
 		"RyuApp",
 		"RyuGame",
 		"RyuMemory",

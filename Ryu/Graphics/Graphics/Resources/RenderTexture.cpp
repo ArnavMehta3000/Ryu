@@ -1,6 +1,6 @@
 #include "Graphics/Resources/RenderTexture.h"
 #include "Graphics/Core/Device.h"
-#include "Logger/Assert.h"
+#include "Common/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -9,7 +9,7 @@ namespace Ryu::Gfx
 	{
 		OnConstruct(info, rtvHeap);
 	}
-	
+
 	RenderTexture::~RenderTexture()
 	{
 		OnDestruct();
@@ -22,8 +22,8 @@ namespace Ryu::Gfx
 			DX12::Device* const device = parent->GetDevice();
 
 			m_texture.Initialize(parent->weak_from_this(), info, rtvHeap);
-			
-			m_mipCount = m_texture.GetDesc().MipLevels;			
+
+			m_mipCount = m_texture.GetDesc().MipLevels;
 			RYU_ASSERT(m_mipCount > Texture::MAX_MIPS, "Texture has too many mip levels");
 
 			D3D12_RENDER_TARGET_VIEW_DESC desc{};
@@ -41,7 +41,7 @@ namespace Ryu::Gfx
 			}
 		}
 	}
-	
+
 	void RenderTexture::OnDestruct()
 	{
 		for (auto& rtv : m_rtv)

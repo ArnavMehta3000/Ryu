@@ -51,6 +51,7 @@ end
 -- Add common window definitions
 add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "WIN32_LEAN_AND_MEAN")
 add_links("user32.lib")
+add_cxxflags("/utf-8", { public = true })
 
 -- Bring standard types namespace to global namespace
 if has_config("use-std-types-globally") then
@@ -73,5 +74,7 @@ set_runargs(
 	"--Wnd.Width=1280",
 	"--Wnd.Height=720",
 	"--Gfx.EnableDebugLayer=true",
-	"--Gfx.EnableValidation=true"
+	"--Gfx.EnableValidation=true",
+	"--Log.Level=0",  -- For trace logs
+	"--Log.ToFile=true"
 )

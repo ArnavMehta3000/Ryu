@@ -2,8 +2,8 @@
 #include "Graphics/Debug/DebugLayer.h"
 #include "Graphics/Core/CommandContext2.h"
 #include "Graphics/GraphicsConfig.h"
-#include "Logger/Logger.h"
-#include "Logger/Assert.h"
+#include "Logging/Logger.h"
+#include "Common/Assert.h"
 #include "Math/Math.h"
 #include "Profiling/Profiling.h"
 #include "Utils/StringConv.h"
@@ -158,7 +158,7 @@ namespace Ryu::Gfx::Core
 
 		*ppAdapter = adapter.Detach();
 	}
-	
+
 	void CreateSwapChain(HWND window, DXGI_FORMAT backBufferFormat)
 	{
 		RYU_ASSERT(g_factory, "DXGI factory is not initialized.");

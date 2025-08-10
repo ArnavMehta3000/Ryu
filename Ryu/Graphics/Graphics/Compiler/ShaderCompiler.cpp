@@ -1,7 +1,7 @@
 #include "Graphics/Compiler/ShaderCompiler.h"
+#include "Common/Assert.h"
+#include "Logging/Logger.h"
 #include "Utils/StringConv.h"
-#include "Logger/Logger.h"
-#include "Logger/Assert.h"
 #include <fstream>
 
 namespace Ryu::Gfx
@@ -9,7 +9,7 @@ namespace Ryu::Gfx
 	static constexpr std::wstring_view g_shaderCSOExt = L".cso";
 	static constexpr std::wstring_view g_shaderPDBExt = L".pdb";
 	static constexpr std::wstring_view g_CompiledShaderBasePath = L"Shaders\\Compiled";
-	
+
 	ShaderCompiler::ShaderCompiler()
 	{
 		DXCall(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&m_utils)));
@@ -20,7 +20,7 @@ namespace Ryu::Gfx
 	std::wstring ShaderCompiler::GetCSOOutputPath(const ShaderCompileInfo& info)
 	{
 		// Returns <current_path>/<g_CompiledShaderBasePath>/<filename>.<g_shaderCSOExt>
-		return fs::current_path() 
+		return fs::current_path()
 			/ g_CompiledShaderBasePath
 			/ (info.FilePath.stem().wstring() + g_shaderCSOExt.data());
 	}
@@ -144,7 +144,7 @@ namespace Ryu::Gfx
 		RYU_ASSERT(m_utils, "Shader utils is not initialized!");
 
 		RYU_LOG_TRACE(LogShaderCompiler, "Compiling shader: {}", info.FilePath.string());
-		
+
 		ComPtr<IDxcBlobEncoding> source;
 		HRESULT hr = m_utils->LoadFile(
 			info.FilePath.c_str(),
@@ -210,7 +210,7 @@ namespace Ryu::Gfx
 		{
 			return std::unexpected(getResult.error());
 		}
-		
+
 #if defined (RYU_BUILD_DEBUG)
 		// Save shader PDB
 		ComPtr<IDxcBlob> pdbBlob;
@@ -296,7 +296,7 @@ namespace Ryu::Gfx
 
 		return compilerArgs;
 	}
-	
+
 	VoidResult ShaderCompiler::WriteBlobToFile(const ComPtr<IDxcBlob>& blob, const fs::path& path)
 	{
 		if (!blob)
@@ -321,7 +321,7 @@ namespace Ryu::Gfx
 			return MakeResultError{ std::format("Failed to write file: {}", path.string()) };
 		}
 	}
-	
+
 	Result<ComPtr<IDxcBlob>> ShaderCompiler::GetCSOBlob(const ComPtr<IDxcResult>& result, fs::path outFile)
 	{
 		ComPtr<IDxcBlob> shaderBlob;
@@ -345,14 +345,14 @@ namespace Ryu::Gfx
 
 		return pdbBlob;
 	}
-	
+
 	Result<ComPtr<IDxcBlob>> ShaderCompiler::GetReflectionBlob(const ComPtr<IDxcResult>& result)
 	{
 		ComPtr<IDxcBlob> reflectionBlob;
 		DXCall(result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(&reflectionBlob), nullptr));
 		return reflectionBlob;
 	}
-	
+
 	std::string ShaderCompiler::GetHash(const ComPtr<IDxcResult>& result)
 	{
 		std::string hash;

@@ -1,6 +1,6 @@
 #pragma once
 #include "Common/ObjectMacros.h"
-#include "Logger/LogLevel.h"
+#include "Logging/LogLevel.h"
 #include "Scripting/ScriptBuilder.h"
 #include <string>
 #include <unordered_map>

@@ -1,7 +1,7 @@
 #include "Graphics/Resources/Texture.h"
 #include "Graphics/Core/DescriptorHeap.h"
 #include "Graphics/Core/Device.h"
-#include "Logger/Assert.h"
+#include "Common/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -13,14 +13,14 @@ namespace Ryu::Gfx
 	{
 		OnConstruct(info, srvHeap);
 	}
-	
+
 	Texture::~Texture()
 	{
 		OnDestruct();
 
 		m_srvHeap = nullptr;
 	}
-	
+
 	void Texture::OnConstruct(const TextureInitInfo& info, DescriptorHeap& srvHeap)
 	{
 		if (!m_srvHeap)
@@ -32,7 +32,7 @@ namespace Ryu::Gfx
 		{
 			DX12::Device* const device = parent->GetDevice();
 
-			const CD3DX12_CLEAR_VALUE* const clearValue = (info.ResourceDesc 
+			const CD3DX12_CLEAR_VALUE* const clearValue = (info.ResourceDesc
 				&& (info.ResourceDesc->Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET
 				|| info.ResourceDesc->Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)) ? &info.ClearValue : nullptr;
 
@@ -71,11 +71,11 @@ namespace Ryu::Gfx
 
 			RYU_ASSERT(m_resource);
 			m_srv = m_srvHeap->Allocate();
-			
+
 			device->CreateShaderResourceView(m_resource.Get(), &info.SRVDesc, m_srv.CPU);
 		}
 	}
-	
+
 	void Texture::OnDestruct()
 	{
 		// Heap should be valid during destruction

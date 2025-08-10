@@ -4,13 +4,13 @@ target("RyuConfig")
 	add_includedirs(".", { public = true })
 	add_headerfiles("**.h", "**.inl")
 	add_files("**.cpp", { unity_group = "Config" })
-	
+
 	add_packages("toml++", "Elos", "cli11", { public = true })
 
 	add_deps(
 		"RyuCommon",
 		"RyuUtils",
-		"RyuLogger",
+		"RyuLogging",
 		"RyuProfiling"
 	)
 	if has_config("ryu-unity-build") then

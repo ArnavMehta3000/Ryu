@@ -4,6 +4,7 @@
 #include <string_view>
 #include <functional>
 #include <vector>
+#include <optional>
 
 namespace Ryu::Config
 {
@@ -12,7 +13,7 @@ namespace Ryu::Config
 
 		// Helper to get the element type from vector
 		template<typename T>
-		struct VectorElementType {};
+		struct VectorElementType { using type = T; };
 
 		template<typename U>
 		struct VectorElementType<std::vector<U>> { using type = U; };
@@ -24,11 +25,16 @@ namespace Ryu::Config
 		concept CVarType = IsSame<T, i32> || IsSame<T, f32> || IsSame<T, bool> || IsSame<T, std::string>;
 	
 		template <typename T>
-		concept CVarVectorType = 
-			IsSame<VectorElementType_t<T>, i32>
-			|| IsSame<VectorElementType_t<T>, f32>
-			|| IsSame<VectorElementType_t<T>, bool>
-			|| IsSame<VectorElementType_t<T>, std::string>;
+		concept CVarVectorType = !IsSame<T, std::string> && requires(T t)
+		{
+			typename T::value_type;
+			{ t.size() } -> std::convertible_to<std::size_t>;
+			{ t.push_back(std::declval<typename T::value_type>()) };
+		} && 
+		(IsSame<typename T::value_type, i32>
+		|| IsSame<typename T::value_type, f32>
+		|| IsSame<typename T::value_type, bool>
+		|| IsSame<typename T::value_type, std::string>);
 
 		template <typename T>
 		concept CVarAllTypes = CVarType<T> || CVarVectorType<T>;
@@ -67,11 +73,11 @@ namespace Ryu::Config
 		using CallbackType = std::function<void(const T&)>;
 
 		// Auto registration
-		constexpr CVar(std::string_view name, const T& defaultValue, std::string_view description = "", CVarFlags flags = CVarFlags::None, CallbackType callback = nullptr);
+		constexpr CVar(std::string_view name, const T defaultValue, std::string_view description = "", CVarFlags flags = CVarFlags::None, CallbackType callback = nullptr);
 		
-		const T& Get() const noexcept { return m_value; }
+		const T Get() const noexcept;
 		bool Set(const T& value);
-		operator const T& () const noexcept { return m_value; }
+		operator const T () const noexcept { return Get(); }
 		CVar& operator=(const T& value);
 
 		template<typename U = T>
@@ -113,11 +119,12 @@ namespace Ryu::Config
 		
 		template<typename ElementType>
 		bool ParseElement(std::string_view str, ElementType& out) const;
+
 	private:
 		std::string m_name;
 		std::string m_description;
 		T m_value;
-		T m_defaultValue;
+		mutable std::optional<T> m_cliValue;
 		CVarFlags m_flags;
 		CallbackType m_callback;
 	};

@@ -2,7 +2,7 @@
 #include "Graphics/Core/Device.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
-#include "Logger/Logger.h"
+#include "Logging/Logger.h"
 #include <dxgidebug.h>
 
 namespace Ryu::Gfx::DebugLayer

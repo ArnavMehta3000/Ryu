@@ -2,6 +2,12 @@
 
 namespace Ryu::Config
 {
+	static CVar<bool> s_saveConfig(
+		"Cfg.SaveFile",
+		false,
+		"Save config to file",
+		CVarFlags::ReadOnly);
+
 	ICVarBase* CmdLine::FindCVar(std::string_view name) const
 	{
 		if (name.empty())
@@ -50,7 +56,7 @@ namespace Ryu::Config
 		catch (const CLI::ParseError& e)
 		{
 			OutputDebugStringA(e.what());
-			m_cliApp->exit(e);
+			return false;
 		}
 		
 		return true;
@@ -82,7 +88,7 @@ namespace Ryu::Config
 			m_cliApp->allow_config_extras(true);
 			
 			m_cliApp->set_config(
-				"--ConfigFile",
+				"--Cfg.File",
 				"RyuConfig.toml",
 				"Read a config TOML file",
 				false   // Required

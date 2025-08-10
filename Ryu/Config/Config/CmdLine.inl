@@ -6,11 +6,11 @@
 namespace Ryu::Config
 {
 	template<Internal::CVarAllTypes T>
-	constexpr inline CVar<T>::CVar(std::string_view name, const T& defaultValue, std::string_view description, CVarFlags flags, CallbackType callback)
+	constexpr inline CVar<T>::CVar(std::string_view name, const T defaultValue, std::string_view description, CVarFlags flags, CallbackType callback)
 		: m_name(name)
 		, m_description(description)
 		, m_value(defaultValue)
-		, m_defaultValue(defaultValue)
+		, m_cliValue(std::nullopt)
 		, m_flags(flags)
 		, m_callback(std::move(callback))
 	{
@@ -76,8 +76,9 @@ namespace Ryu::Config
 
 		try
 		{
-			auto* option = m_cliApp->add_option(cliName, cvar->m_value, description)->ignore_case();
-
+			CLI::Option* option = m_cliApp->add_option(cliName, cvar->m_cliValue, description);
+			option->ignore_case();
+			
 			// Configure CLI11 option for vectors
 			if constexpr (Internal::CVarVectorType<T>)
 			{

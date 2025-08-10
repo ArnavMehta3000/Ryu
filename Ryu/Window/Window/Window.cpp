@@ -1,7 +1,7 @@
 #include "Window/Window.h"
+#include "Common/Assert.h"
 #include "Utils/StringConv.h"
 #include "Config/CmdLine.h"
-#include "Logger/Assert.h"
 #include "Profiling/Profiling.h"
 #include <stdexcept>
 #include <dwmapi.h>
@@ -56,7 +56,7 @@ namespace Ryu::Window
 		{
 			m_config.WindowSize[0] = winWidth;
 		}
-		
+
 		const i32 winHeight = cv_winHeight.Get();
 		if (winHeight != -1)
 		{
@@ -79,7 +79,7 @@ namespace Ryu::Window
 		{
 			m_config.WindowPos[0] = winPosX;
 		}
-		
+
 		if (winPosY != CW_USEDEFAULT)
 		{
 			m_config.WindowPos[1] = winPosY;
@@ -112,8 +112,8 @@ namespace Ryu::Window
 			GetModuleHandle(nullptr),
 			this
 		);
-		
-		if (!m_hwnd) 
+
+		if (!m_hwnd)
 		{
 			return false;
 		}
@@ -125,7 +125,7 @@ namespace Ryu::Window
 		{
 			Show();
 		}
-		
+
 		m_shouldClose = false;  // Set to true when window is closed
 		return true;
 	}
@@ -134,7 +134,7 @@ namespace Ryu::Window
 	{
 		RYU_PROFILE_SCOPE();
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
-		if (m_hwnd) 
+		if (m_hwnd)
 		{
 			m_input.Shutdown();
 			s_windowMap.erase(m_hwnd);
@@ -253,7 +253,7 @@ namespace Ryu::Window
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		m_config.HasCloseButton = hasCloseButton;
-		if (m_hwnd) 
+		if (m_hwnd)
 		{
 			if (HMENU system_menu = ::GetSystemMenu(m_hwnd, FALSE))
 			{
@@ -274,12 +274,12 @@ namespace Ryu::Window
 			::SetWindowPos(m_hwnd, nullptr, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		}
 	}
-	
+
 	void Window::RemoveAllEventListeners()
 	{
 		m_eventListeners.clear();
 	}
-	
+
 	void Window::ClearPendingEvents()
 	{
 		s_pendingEvents.clear();
@@ -305,8 +305,8 @@ namespace Ryu::Window
 		}
 
 		// Pass messages to window if valid
-		return window 
-			? window->WindowProc(hwnd, msg, wParam, lParam) 
+		return window
+			? window->WindowProc(hwnd, msg, wParam, lParam)
 			: ::DefWindowProcW(hwnd, msg, wParam, lParam);
 	}
 
@@ -327,7 +327,7 @@ namespace Ryu::Window
 		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 		wc.lpszClassName = s_className;
 
-		if (!RegisterClassExW(&wc)) 
+		if (!RegisterClassExW(&wc))
 		{
 			throw std::runtime_error("Failed to register window class");
 		}
@@ -359,12 +359,12 @@ namespace Ryu::Window
 	{
 		DWORD style = WS_OVERLAPPEDWINDOW;
 
-		if (!m_config.IsResizable) 
+		if (!m_config.IsResizable)
 		{
 			style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
 		}
 
-		if (!m_config.HasMinimizeButton) 
+		if (!m_config.HasMinimizeButton)
 		{
 			style &= ~WS_MINIMIZEBOX;
 		}
@@ -417,7 +417,7 @@ namespace Ryu::Window
 			m_prevSize = m_currentSize;
 		}
 	}
-	
+
 	bool Window::GetIsVisible() const noexcept
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
@@ -435,7 +435,7 @@ namespace Ryu::Window
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		return m_hwnd && ::IsIconic(m_hwnd);
 	}
-	
+
 	bool Window::GetIsResizable() const noexcept
 	{
 		return false;

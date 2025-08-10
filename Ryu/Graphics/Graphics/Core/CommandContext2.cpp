@@ -1,8 +1,8 @@
 #include "Graphics/Core/CommandContext2.h"
 #include "Graphics/Core/Core.h"
 #include "Profiling/Profiling.h"
-#include "Logger/Assert.h"
-#include "Logger/Logger.h"
+#include "Common/Assert.h"
+#include "Logging/Logger.h"
 #include <format>
 
 namespace Ryu::Gfx
@@ -26,7 +26,7 @@ namespace Ryu::Gfx
 			}
 		}
 	}
-	
+
 	void CommandContext2::CommandFrame::Release()
 	{
 
@@ -76,7 +76,7 @@ namespace Ryu::Gfx
 	void CommandContext2::BeginFrame()  // Wait for the current frame to be singalled
 	{
 		RYU_PROFILE_SCOPE();
-		
+
 		CommandFrame& frame = m_cmdFrames[m_frameIndex];
 		frame.Wait(m_fenceEvent, m_fence);
 
@@ -84,18 +84,18 @@ namespace Ryu::Gfx
 		frame.Allocator->Reset();
 		m_cmdList->Reset(frame.Allocator.Get(), nullptr);
 	}
-	
+
 	void CommandContext2::EndFrame()  // Signal the fence with a new value
 	{
 		RYU_PROFILE_SCOPE();
 
 		m_cmdList->Close();
-		
+
 		std::array<ID3D12CommandList*, 1> cmdLists = { m_cmdList.Get() };
 		m_cmdQueue.Get()->ExecuteCommandLists(cmdLists.size(), cmdLists.data());
 
 		++m_fenceValue;
-		
+
 		CommandFrame& frame = m_cmdFrames[m_frameIndex];
 		frame.FenceValue = m_fenceValue;
 
@@ -112,7 +112,7 @@ namespace Ryu::Gfx
 		}
 		m_frameIndex = 0;
 	}
-	
+
 	void CommandContext2::CreateCommandQueue(DX12::Device* device, CommandListType type)
 	{
 
@@ -134,11 +134,11 @@ namespace Ryu::Gfx
 		for (u32 i = 0; i < m_cmdFrames.size(); i++)
 		{
 			DXCallEx(device->CreateCommandAllocator(nativeType, IID_PPV_ARGS(&m_cmdFrames[i].Allocator)), device);
-			
-			DX12::SetObjectName(m_cmdFrames[i].Allocator.Get(), 
+
+			DX12::SetObjectName(m_cmdFrames[i].Allocator.Get(),
 				std::format("{} Command Allocator ({})", EnumToString(type), i).c_str());
 		}
-		
+
 	}
 
 	void CommandContext2::CreateCommandList(DX12::Device* device, CommandListType type)
@@ -155,7 +155,7 @@ namespace Ryu::Gfx
 		m_cmdList->Close();
 		DX12::SetObjectName(m_cmdList.Get(), std::format("Command List ({})", EnumToString(type)).c_str());
 	}
-	
+
 	void CommandContext2::CreateSynchronization(DX12::Device* device)
 	{
 		DXCallEx(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)), device);

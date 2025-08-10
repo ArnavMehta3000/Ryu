@@ -1,20 +1,20 @@
 #include "Graphics/Core/CommandContext.h"
+#include "Common/Assert.h"
 #include "Graphics/Core/Device.h"
-#include "Logger/Assert.h"
-#include "Logger/Logger.h"
+#include "Logging/Logger.h"
 #include <format>
 
 namespace Ryu::Gfx
 {
 	RYU_LOG_DECLARE_CATEGORY(CommandCtx);
 
-	
+
 	CommandContext::CommandContext(DeviceWeakPtr parent, CommandListType type)
 		: DeviceObject(parent)
 	{
 		OnConstruct(type);
 	}
-	
+
 	CommandContext::~CommandContext()
 	{
 		// If there is a valid fence, that means we have not properly destructed
@@ -49,7 +49,7 @@ namespace Ryu::Gfx
 
 		CommandFrame& frame = m_cmdFrames[m_frameIndex];
 		frame.FenceValue = fenceValue;
-		
+
 		m_cmdQueue.Signal(m_fence, fenceValue);
 
 		m_frameIndex = (m_frameIndex + 1) % FRAME_BUFFER_COUNT;
@@ -98,7 +98,7 @@ namespace Ryu::Gfx
 			m_fenceEvent = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
 		}
 	}
-	
+
 	void CommandContext::OnDestruct()
 	{
 		Flush();
@@ -118,11 +118,11 @@ namespace Ryu::Gfx
 			m_cmdFrames[i].Release();
 		}
 	}
-	
+
 	void CommandContext::CommandFrame::Wait(HANDLE fenceEvent, Fence& fence)
 	{
 		RYU_ASSERT(fence.Get() && fenceEvent, "Fence is not initialized.");
-		
+
 		// If the current (completed) 'fenceValue' is less than 'FenceValue'
 		// We know that the GPU has not reached the fence value yet (not finished executing the command lists)
 

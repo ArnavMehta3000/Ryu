@@ -2,7 +2,7 @@
 #include "Graphics/Core/Device.h"
 #include "Graphics/Core/CommandAllocator.h"
 #include "Graphics/Core/PipelineState.h"
-#include "Logger/Logger.h"
+#include "Logging/Logger.h"
 #include <format>
 
 namespace Ryu::Gfx

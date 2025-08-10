@@ -1,7 +1,7 @@
 #include "EditorApp.h"
 #include "Engine/Engine.h"
 #include "Game/IGameModule.h"
-#include "Logger/Logger.h"
+#include "Logging/Logger.h"
 #include "Profiling/Profiling.h"
 #include <imgui_impl_win32.h>
 
@@ -84,7 +84,7 @@ namespace Ryu::Editor
 	{
 		RYU_PROFILE_SCOPE();
 		s_originalWndProc = (WNDPROC)::SetWindowLongPtr(GetWindow()->GetHandle(), GWLP_WNDPROC, (LONG_PTR)&EditorApp::EditorWndProc);
-		
+
 		const bool success = s_originalWndProc != nullptr;
 		if (success)
 		{

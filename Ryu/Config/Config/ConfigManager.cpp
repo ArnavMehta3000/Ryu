@@ -1,7 +1,7 @@
 #include "ConfigManager.h"
 #include "Config/ConfigBase.h"
 #include "Profiling/Profiling.h"
-#include <Logger/Logger.h>
+#include "Logging/Logger.h"
 
 namespace Ryu::Config
 {

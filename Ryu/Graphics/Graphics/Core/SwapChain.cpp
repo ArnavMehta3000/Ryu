@@ -4,7 +4,7 @@
 #include "Graphics/Core/DescriptorHeap.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
-#include "Logger/Assert.h"
+#include "Common/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -52,9 +52,9 @@ RYU_DEBUG_BLOCK(
 		m_window = window;
 		m_format = format;
 		m_rtvHeap = &rtvHeap;
-		
+
 		CreateSwapChain(queue);
-		
+
 		RYU_LOG_DEBUG(LogGFXSwapChain, "SwapChain created");
 	}
 
@@ -109,8 +109,8 @@ RYU_DEBUG_BLOCK(
 
 			if (allowTearing && vsync)
 			{
-				RYU_LOG_WARN(LogGFXSwapChain, 
-					R"(VSync and AllowTearing cannot be enabled at the same time! 
+				RYU_LOG_WARN(LogGFXSwapChain,
+					R"(VSync and AllowTearing cannot be enabled at the same time!
 					Tearing will be disabled when presenting. Disable one through settings/cmdline)");
 
 				allowTearing = false;

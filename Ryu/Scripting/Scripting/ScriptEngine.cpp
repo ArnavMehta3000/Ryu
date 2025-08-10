@@ -1,7 +1,7 @@
 #include "Scripting/ScriptEngine.h"
 #include "Common/StandardTypes.h"
-#include "Logger/Logger.h"
-#include "Logger/Assert.h"
+#include "Common/Assert.h"
+#include "Logging/Logger.h"
 #include "Profiling/Profiling.h"
 #include <scriptstdstring/scriptstdstring.h>
 #include <scriptbuilder/scriptbuilder.h>

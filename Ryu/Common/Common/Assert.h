@@ -1,9 +1,9 @@
 #pragma once
-#include "Logger/LogCategory.h"
 #include <stdexcept>
 #include <source_location>
 #include <stacktrace>
 #include <format>
+#include <functional>
 
 #if defined(RYU_BUILD_DEBUG)
 #define RYU_ASSERT_ENABLED 1
@@ -13,13 +13,12 @@
 
 namespace Ryu
 {
-    RYU_LOG_DECLARE_CATEGORY(Assert);
+    namespace Logging { struct LogCategory; }
 
-    class Exception : public std::exception
+    class AssertException : public std::exception
     {
     public:
-        // Constructor with condition expression and optional message
-        Exception(std::string_view condition,
+        AssertException(std::string_view condition,
             std::string_view message = "",
             const std::source_location& location = std::source_location::current(),
             std::stacktrace trace = std::stacktrace::current())
@@ -54,9 +53,46 @@ namespace Ryu
             return m_trace;
         }
 
+        const std::string& Message() const noexcept
+        {
+            return m_message;
+        }
+
     private:
         std::string m_message;
         std::stacktrace m_trace;
+    };
+
+    using AssertHandler = std::function<void(const AssertException&)>;
+
+    class AssertManager
+    {
+    public:
+        static void SetAssertHandler(AssertHandler handler)
+        {
+            GetHandler() = std::move(handler);
+        }
+
+        static void HandleAssert(const AssertException& exception)
+        {
+            auto& handler = GetHandler();
+            if (handler)
+            {
+                handler(exception);
+            }
+            else
+            {
+                // Default behavior: throw the exception
+                throw exception;
+            }
+        }
+
+    private:
+        static AssertHandler& GetHandler()
+        {
+            static AssertHandler s_handler;
+            return s_handler;
+        }
     };
 
 
@@ -70,7 +106,8 @@ namespace Ryu
         {
             if (!result)
             {
-                throw ::Ryu::Exception(condition, message, location);
+                AssertException exception(condition, message, location);
+                AssertManager::HandleAssert(exception);
             }
         }
     }

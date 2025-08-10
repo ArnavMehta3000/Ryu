@@ -12,7 +12,6 @@ target("RyuTestbench")
 	add_deps(
 		"RyuEngine",
 		"GameInput"  -- External deps
-		--,"RyuTestbenchEnginePlugin"
 	)
 
 	if has_config("ryu-unity-build") then

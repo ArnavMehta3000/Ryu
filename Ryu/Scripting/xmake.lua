@@ -6,7 +6,7 @@ target("RyuScripting")
 	add_files("**.cpp", { unity_group = "Scripting" })
 
 	add_deps(
-		"RyuLogger",
+		"RyuLogging",
 		"RyuProfiling"
 	)
 

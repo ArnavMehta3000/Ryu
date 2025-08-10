@@ -1,4 +1,4 @@
-#include "Logger/Assert.h"
+#include "Common/Assert.h"
 #include "Entity.h"
 
 #define WorldCheck() RYU_ASSERT(m_world, "Entity is not attached to a world!")
@@ -13,14 +13,14 @@ namespace Ryu::Game
 		DestroyCheck();
 		return m_world->GetRegistry().emplace<T>(m_handle, std::forward<Args>(args)...);
 	}
-	
+
 	template<typename T>
 	inline T& Entity::GetComponent()
 	{
 		WorldCheck();
 		return m_world->GetRegistry().get<T>(m_handle);
 	}
-	
+
 	template<typename T>
 	inline const T& Entity::GetComponent() const
 	{
@@ -41,13 +41,13 @@ namespace Ryu::Game
 		WorldCheck();
 		return m_world->GetRegistry().try_get<T>(m_handle);
 	}
-	
+
 	template<typename T>
 	inline bool Entity::HasComponent() const
 	{
 		return m_world && m_world->GetRegistry().all_of<T>(m_handle);
 	}
-	
+
 	template<typename T>
 	inline void Entity::RemoveComponent()
 	{

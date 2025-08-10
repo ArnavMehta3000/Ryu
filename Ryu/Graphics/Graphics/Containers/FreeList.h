@@ -1,6 +1,6 @@
 #pragma once
 #include "Common/StandardTypes.h"
-#include "Logger/Assert.h"
+#include "Common/Assert.h"
 #include <vector>
 
 namespace Ryu::Gfx
@@ -22,21 +22,21 @@ namespace Ryu::Gfx
 	{
 	public:
 		static constexpr u32 InvalidIndex = static_cast<u32>(-1);
-	
+
 	public:
 		FreeList() = default;
-		
+
 		explicit FreeList(u32 count)
 		{
 			m_storage.reserve(count);
 		}
-		
+
 		~FreeList()
 		{
 			RYU_ASSERT(!m_size, "FreeList<T> was not empty on destruction!");
 		}
-		
-		template <typename... Args> 
+
+		template <typename... Args>
 		constexpr u32 Add(Args&&... args);
 
 		constexpr void Remove(u32 id);

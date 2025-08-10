@@ -1,14 +1,50 @@
 #include "Graphics/Renderer.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Graphics/Core/CommandContext.h"
+#include "Common/Assert.h"
+#include "Globals/Globals.h"
+#include "Config/CmdLine.h"
 #include "Profiling/Profiling.h"
-#include "Logger/Logger.h"
-#include "Logger/Assert.h"
+#include "Logging/Logger.h"
 #include "Math/Math.h"
 #include <expected>
 
 namespace Ryu::Gfx
 {
+	static Config::CVar<bool> cv_debugLayerEnabled(
+		"Gfx.EnableDebugLayer",
+		Globals::g_isDebug,
+		"Enable graphics debug layer. Enabled by default in debug builds",
+		Config::CVarFlags::Debug | Config::CVarFlags::ReadOnly);
+
+	static Config::CVar<bool> cv_enableValidation(
+		"Gfx.EnableValidation",
+		false,
+		"Enable GPU based validation. Off by default",
+		Config::CVarFlags::Debug | Config::CVarFlags::ReadOnly);
+
+	static Config::CVar<i32> cv_syncInterval(
+		"Gfx.SyncInterval",
+		0,
+		"Swapchain sync interval. 0: no sync (default) | 1: vsync enabled");
+
+	static Config::CVar<bool> cv_allowTearing(
+		"Gfx.AllowTearing",
+		true,
+		"Allow screen tearing if supported. Note vsync and tearing cannot be enabled at the same time");
+
+	static Config::CVar<bool> cv_useWarp(
+		"Gfx.UseWARP",
+		false,
+		"Use WARP graphics device (Default: false)");
+	
+
+	bool IsDebugLayerEnabled() { return cv_debugLayerEnabled.Get(); }
+	bool IsGPUBasedValidationEnabled() { return cv_enableValidation.Get(); }
+	bool IsTearingAllowed() { return cv_allowTearing.Get(); }
+	i32 GetSyncInterval() { return cv_syncInterval.Get(); }
+	bool ShouldUseWARPDevice() { return cv_useWarp.Get(); }
+
 	struct Vertex
 	{
 		SM::Vector3 Position;
@@ -69,6 +105,7 @@ namespace Ryu::Gfx
 			m_device->GetCommandContext().Flush();
 
 #if defined(RYU_WITH_EDITOR)
+			m_imguiRenderer->Shutdown();
 			m_imguiCallback.reset();
 			m_imguiRenderer.reset();
 #endif

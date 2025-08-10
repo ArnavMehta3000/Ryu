@@ -1,4 +1,5 @@
-add_requires("fmt", { configs = { unicode = true }})
+add_requires("spdlog", { configs = { wchar = true, std_format = false, fmt_external = false }})
+add_requires("cli11 v2.5.0")
 add_requires("directx-headers v1.616.0")
 add_requires("directxshadercompiler 1.8.2405")
 add_requires("imgui docking", { configs = { dx12 = true, win32 = true }})

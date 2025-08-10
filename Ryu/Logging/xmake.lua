@@ -1,11 +1,11 @@
-target("RyuLogger")
+target("RyuLogging")
 	set_group("Ryu/Core")
 	set_kind("static")
 	add_includedirs(".", { public = true })
-	add_files("**.cpp", { unity_group = "Logger" })
-	add_headerfiles("**.h")
+	add_files("**.cpp", { unity_group = "Logging" })
+	add_headerfiles("**.h", "**.inl")
 
-	add_packages("fmt", { public = true })
+	add_packages("spdlog", { public = true })
 	add_deps("RyuUtils", "RyuGlobals")
 	add_options(
 		"ryu-log-trace-enabled",
@@ -26,16 +26,6 @@ target("RyuLogger")
 	if get_config("ryu-log-warn-enabled") then
 		add_defines("RYU_LOG_ENABLED_WARN", { public = true })
 	end
-
-	add_rules("EnumToHeader",
-		{
-			root = path.join(os.projectdir(), "Ryu", "Enums"),
-			files =
-			{
-				"LogLevel.json"
-			},
-			force = false
-		})
 
 	if has_config("ryu-unity-build") then
 		add_rules("c++.unity_build")

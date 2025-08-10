@@ -27,7 +27,7 @@ namespace Ryu::Gfx
     {
     public:
         ImGuiRenderer() = default;
-        ~ImGuiRenderer() { Shutdown(); }
+        ~ImGuiRenderer() = default;
 
         void Initialize(Device* device, HWND window, DescriptorHeap& srvHeap, u32 frameCount, Format rtvFormat);
         void Shutdown();

@@ -1,8 +1,7 @@
 #include "Graphics/Core/DX12.h"
+#include "Common/Assert.h"
 #include "Common/StandardTypes.h"
 #include "Utils/StringConv.h"
-#include "Logger/Logger.h"
-#include "Logger/Assert.h"
 #include <numeric>
 
 namespace Ryu::Gfx

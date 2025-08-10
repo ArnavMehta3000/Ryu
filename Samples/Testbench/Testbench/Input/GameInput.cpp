@@ -1,6 +1,6 @@
 #include "Testbench/Input/GameInput.h"
 #include "Profiling/Profiling.h"
-#include "Logger/Logger.h"
+#include "Logging/Logger.h"
 
 RYU_LOG_DECLARE_CATEGORY(GameInput);
 using namespace Ryu;

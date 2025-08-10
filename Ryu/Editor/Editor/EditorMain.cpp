@@ -1,6 +1,7 @@
-#include "Engine/EngineMain.h"
+#include "Common/Assert.h"
+#include "Engine/Setup/EngineMain.h"
+#include "Engine/Setup/Setup.h"
 #include "Editor/Application/EditorApp.h"
-#include "Logger/Assert.h"
 
 using namespace Ryu;
 using namespace Ryu::Editor;
@@ -12,6 +13,12 @@ RYU_MAIN()
 
 	try
 	{
+		if (!Engine::Setup())
+		{
+			Engine::Shutdown();
+			return 1;
+		}
+
 		// Create editor window
 		Window::Window::Config windowConfig{ .Title = "Ryu Editor" };
 		auto editorWindow = std::make_shared<Window::Window>(windowConfig);
@@ -20,10 +27,15 @@ RYU_MAIN()
 		// Create editor application
 		auto editorApp = std::make_shared<Editor::EditorApp>(editorWindow);
 		Engine::Engine::Get().RunApp(editorApp);
+
+		Engine::Shutdown();
 	}
-	catch (const Exception& e)
+	catch (const AssertException& e)
 	{
+		static constexpr ::Ryu::Logging::LogCategory LogAssert{ "Assert" };
 		RYU_LOG_FATAL(LogAssert, "{}", e.what());
+		
+		Engine::Shutdown();
 	}
 
 	return 0;

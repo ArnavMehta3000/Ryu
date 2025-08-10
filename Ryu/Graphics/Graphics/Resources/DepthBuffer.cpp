@@ -1,6 +1,6 @@
 #include "Graphics/Resources/DepthBuffer.h"
 #include "Graphics/Core/Device.h"
-#include "Logger/Assert.h"
+#include "Common/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -46,7 +46,7 @@ namespace Ryu::Gfx
 			device->CreateDepthStencilView(m_texture.Get(), &dsvDesc, m_dsv.CPU);
 		}
 	}
-	
+
 	void DepthBuffer::OnDestruct()
 	{
 

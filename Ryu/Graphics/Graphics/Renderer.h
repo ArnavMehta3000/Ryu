@@ -56,7 +56,7 @@ namespace Ryu::Gfx
 
 #if defined(RYU_WITH_EDITOR)
 		std::optional<std::function<void(Renderer*)>> m_imguiCallback;
-		std::unique_ptr<ImGuiRenderer> m_imguiRenderer;
+		std::unique_ptr<ImGuiRenderer> m_imguiRenderer{ nullptr };
 #endif
 
 	};

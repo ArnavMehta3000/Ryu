@@ -1,5 +1,5 @@
 #include "Graphics/Core/SwapChain2.h"
-#include "Logger/Assert.h"
+#include "Common/Assert.h"
 
 namespace Ryu::Gfx
 {

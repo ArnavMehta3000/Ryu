@@ -1,4 +1,4 @@
-#include "Engine/EngineMain.h"
+#include "Engine/Setup/EngineMain.h"
 #include "Testbench/TestbenchApp.h"
 
 using namespace Ryu;
@@ -7,7 +7,7 @@ using namespace Ryu;
 RYU_MAIN()
 {
 	RYU_DBG_TRACK_MEM();
-	
+
 	// Create application window
 	Window::Window::Config windowConfig
 	{

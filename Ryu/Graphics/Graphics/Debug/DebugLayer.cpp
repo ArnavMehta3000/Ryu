@@ -2,7 +2,7 @@
 #include "Graphics/Core/Device.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
-#include "Logger/Logger.h"
+#include "Logging/Logger.h"
 #include <dxgidebug.h>
 
 namespace Ryu::Gfx::DebugLayer
@@ -13,9 +13,8 @@ namespace Ryu::Gfx::DebugLayer
 	void Initialize()
 	{
 		RYU_PROFILE_SCOPE();
-		const GraphicsConfig& config = GraphicsConfig::Get();
 
-		if (config.EnableDebugLayer)
+		if (Gfx::IsDebugLayerEnabled())
 		{
 			ComPtr<ID3D12Debug6> d3dDebug;
 			if (SUCCEEDED(::D3D12GetDebugInterface(IID_PPV_ARGS(&d3dDebug))))
@@ -23,7 +22,7 @@ namespace Ryu::Gfx::DebugLayer
 				d3dDebug->EnableDebugLayer();
 				RYU_LOG_TRACE(LogGFXDebugLayer, "DX12 Debug layer enabled");
 
-				if (config.EnableGPUBasedValidation)
+				if (Gfx::IsGPUBasedValidationEnabled())
 				{
 					d3dDebug->SetEnableGPUBasedValidation(TRUE);
 					RYU_LOG_WARN(LogGFXDebugLayer, "DX12 GPU based validation enabled");

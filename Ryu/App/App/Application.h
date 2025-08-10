@@ -3,7 +3,7 @@
 #include "App/Utils/PathManager.h"
 #include "Utils/Timer.h"
 #include "Window/Window.h"
-#include "Logger/LogCategory.h"
+#include "Logging/Logger.h"
 #include <memory>
 
 namespace Ryu::Engine { class Engine; }

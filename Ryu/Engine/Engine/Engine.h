@@ -1,13 +1,10 @@
 #pragma once
 #include "App/Application.h"
-#include "Engine/Plugin/EnginePlugin.h"
 #include "Utils/Singleton.h"
 #include "Utils/ServiceLocator.h"
 #include "Graphics/Renderer.h"
-#include "Logger/LogCategory.h"
 #include "Scripting/ScriptEngine.h"
 #include <memory>
-#include <stacktrace>
 
 namespace Ryu::Engine
 {
@@ -35,14 +32,9 @@ namespace Ryu::Engine
 		void Shutdown();
 		void MainLoop();
 		void OnAppResize(u32 width, u32 height) const noexcept;
-		void SetupLogger();
-		void InitializePlugins(Plugin::PluginPhase phase);
-		void ShutdownPlugins(Plugin::PluginPhase phase);
 
 	private:
 		Utils::Timer                                  m_timer;
-		Plugin::PluginManager                         m_pluginManager;
-		EngineContext                                 m_engineContext;
 		std::shared_ptr<App::App>                     m_app;
 		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;

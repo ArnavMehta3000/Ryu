@@ -1,7 +1,7 @@
 #pragma once
 #include "Graphics/Core/ComPtr.h"
 #include "Graphics/Core/RHI.h"
-#include "Logger/LogCategory.h"
+#include "Logging/Logger.h"
 #include <directx/d3dx12.h>
 #include <dxgi1_6.h>
 #include <vector>

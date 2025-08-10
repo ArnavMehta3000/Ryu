@@ -1,7 +1,7 @@
 #include "Graphics/Core/DescriptorHeap.h"
 #include "Graphics/Core/Device.h"
 #include "Profiling/Profiling.h"
-#include "Logger/Assert.h"
+#include "Common/Assert.h"
 #include <format>
 
 namespace Ryu::Gfx
@@ -18,7 +18,7 @@ namespace Ryu::Gfx
 	{
 		RYU_ASSERT(capacity && capacity < D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2,
 			"Descriptor heap capacity must be between 1 and D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2.");
-		
+
 		RYU_ASSERT(!(m_type == DescriptorHeapType::Sampler && capacity < D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE),
 			"Sampler heap capacity must be between 1 and D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE.");
 
@@ -51,12 +51,12 @@ namespace Ryu::Gfx
 				m_freeHandles = std::move(std::make_unique<u32[]>(capacity));
 				m_capacity = capacity;
 				m_size = 0;
-				
+
 				for (u32 i = 0; i < capacity; ++i)
 				{
 					m_freeHandles[i] = i;
 				}
-				
+
 #if defined(RYU_BUILD_DEBUG)
 				for (u32 i = 0; i < m_deferredFreeHandles.size(); ++i)
 				{
@@ -138,7 +138,7 @@ namespace Ryu::Gfx
 
 		handle = {};
 	}
-	
+
 	void DescriptorHeap::ProcessDeferredFree(u32 frameIndex)
 	{
 		// TODO: mutex lock
@@ -155,7 +155,7 @@ namespace Ryu::Gfx
 			indices.clear();
 		}
 	}
-	
+
 	void DescriptorHeap::OnConstruct(DescriptorHeapType type)
 	{
 		m_type = type;

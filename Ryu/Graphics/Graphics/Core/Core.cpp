@@ -2,8 +2,8 @@
 #include "Graphics/Debug/DebugLayer.h"
 #include "Graphics/Core/CommandContext2.h"
 #include "Graphics/GraphicsConfig.h"
-#include "Logger/Logger.h"
-#include "Logger/Assert.h"
+#include "Logging/Logger.h"
+#include "Common/Assert.h"
 #include "Math/Math.h"
 #include "Profiling/Profiling.h"
 #include "Utils/StringConv.h"
@@ -77,14 +77,11 @@ namespace Ryu::Gfx::Core
 	{
 		RYU_PROFILE_SCOPE();
 
-		const auto& config = GraphicsConfig::Get();
-		const bool useWarpDevice = config.UseWARP;
-
 		u32 dxgiFactoryFlags = 0;
 
 		// --- Enable debug layer ---
 #if defined(RYU_BUILD_DEBUG)
-		if (config.EnableDebugLayer)
+		if (Gfx::IsDebugLayerEnabled())
 		{
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
@@ -106,7 +103,7 @@ namespace Ryu::Gfx::Core
 		// --- Create WARP Device if needed ---
 		if (!g_device)
 		{
-			if (useWarpDevice)
+			if (Gfx::ShouldUseWARPDevice())
 			{
 				RYU_LOG_DEBUG(LogGFX, "WARP software adapter requested");
 			}
@@ -161,7 +158,7 @@ namespace Ryu::Gfx::Core
 
 		*ppAdapter = adapter.Detach();
 	}
-	
+
 	void CreateSwapChain(HWND window, DXGI_FORMAT backBufferFormat)
 	{
 		RYU_ASSERT(g_factory, "DXGI factory is not initialized.");

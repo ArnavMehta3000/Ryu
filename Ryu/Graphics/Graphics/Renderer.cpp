@@ -55,6 +55,9 @@ namespace Ryu::Gfx
 
 	Renderer::Renderer(HWND window)
 		: m_window(window)
+#if defined(RYU_WITH_EDITOR)
+		, m_imguiRenderer(std::make_unique<ImGuiRenderer>())
+#endif
 	{
 		RYU_ASSERT(m_window, "Window is not initialized.");
 	}
@@ -89,7 +92,6 @@ namespace Ryu::Gfx
 		m_swapChain.Initialize(m_device, cmdQueue, m_rtvDescHeap, m_window, BACK_BUFFER_FORMAT);
 
 #if defined(RYU_WITH_EDITOR)
-		m_imguiRenderer = std::make_unique<ImGuiRenderer>();
 		m_imguiRenderer->Initialize(m_device.get(), m_window, m_srvDescHeap, FRAME_BUFFER_COUNT, m_swapChain.GetFormat());
 #endif
 		// Wait until initialization is complete

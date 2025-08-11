@@ -44,10 +44,10 @@ namespace Ryu::Gfx
 		DevicePtr m_device;
 		SwapChain m_swapChain;
 
-		DescriptorHeap                     m_rtvDescHeap;
-		DescriptorHeap                     m_dsvDescHeap;
-		DescriptorHeap                     m_srvDescHeap;
-		DescriptorHeap                     m_uavDescHeap;
+		DescriptorHeap m_rtvDescHeap;
+		DescriptorHeap m_dsvDescHeap;
+		DescriptorHeap m_srvDescHeap;
+		DescriptorHeap m_uavDescHeap;
 
 		PipelineState                m_pso;
 		ComPtr<DX12::RootSignature>  m_rootSignature;

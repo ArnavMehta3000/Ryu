@@ -55,6 +55,7 @@ namespace Ryu::Gfx
 
 	Renderer::Renderer(HWND window)
 		: m_window(window)
+		, m_vertexBufferView()
 #if defined(RYU_WITH_EDITOR)
 		, m_imguiRenderer(std::make_unique<ImGuiRenderer>())
 #endif

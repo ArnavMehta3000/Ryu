@@ -7,8 +7,6 @@
 
 namespace Ryu::Gfx
 {
-	RYU_LOG_DECLARE_CATEGORY(GFXDevice);
-
 	DevicePtr Device::Create()
 	{
 		auto device = DevicePtr(new Device());
@@ -41,7 +39,7 @@ namespace Ryu::Gfx
 
 		m_command.Initialize(weak_from_this(), CommandListType::Direct);
 
-		RYU_LOG_DEBUG(LogGFXDevice, "DX12 Device created with max feature level: {}",
+		RYU_LOG_DEBUG("DX12 Device created with max feature level: {}",
 			Internal::FeatureLevelToString(m_featureSupport.MaxSupportedFeatureLevel()));
 	}
 
@@ -77,11 +75,11 @@ namespace Ryu::Gfx
 		{
 			if (useWarpDevice)
 			{
-				RYU_LOG_DEBUG(LogGFXDevice, "WARP software adapter requested");
+				RYU_LOG_DEBUG("WARP software adapter requested");
 			}
 			else
 			{
-				RYU_LOG_WARN(LogGFXDevice, "Failed to find a hardware adapter.  Falling back to WARP");
+				RYU_LOG_WARN("Failed to find a hardware adapter.  Falling back to WARP");
 			}
 
 			DXCall(m_factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter)));
@@ -124,8 +122,7 @@ namespace Ryu::Gfx
 			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
 				const std::string description = Utils::ToNarrowStr(desc.Description);
-				RYU_LOG_DEBUG(LogGFXDevice,
-					"Using GPU: {} ({}) - {:.2f} GB", description, desc.VendorId, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
+				RYU_LOG_DEBUG("Using GPU: {} ({}) - {:.2f} GB", description, desc.VendorId, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
 				break;
 			}
 		}

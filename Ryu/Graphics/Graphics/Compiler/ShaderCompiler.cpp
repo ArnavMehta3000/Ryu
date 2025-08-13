@@ -55,7 +55,7 @@ namespace Ryu::Gfx
 			.Encoding = DXC_CP_ACP
 		};
 
-		RYU_LOG_INFO(LogShaderCompiler, "Compiling shader: {}", info.FilePath.string());
+		RYU_LOG_INFO("Compiling shader: {}", info.FilePath.string());
 
 		// Compile the shader
 		ComPtr<IDxcCompilerArgs> args = MakeCompilerArgs(info);
@@ -91,7 +91,7 @@ namespace Ryu::Gfx
 		{
 			const std::string outFile = (outPath / (filename + ".cso")).string();
 
-			RYU_LOG_DEBUG(LogShaderCompiler, "Writing compiled shader: {}", outFile);
+			RYU_LOG_DEBUG("Writing compiled shader: {}", outFile);
 
 			std::ofstream shaderOut(
 				outFile,
@@ -115,7 +115,7 @@ namespace Ryu::Gfx
 		{
 			const std::string outFile = (outPath / (filename + ".pdb")).string();
 
-			RYU_LOG_DEBUG(LogShaderCompiler, "Writing compiled shader PDB: {}", outFile);
+			RYU_LOG_DEBUG("Writing compiled shader PDB: {}", outFile);
 
 			std::ofstream pdbOut(
 				outFile,
@@ -143,7 +143,7 @@ namespace Ryu::Gfx
 		RYU_ASSERT(m_compiler, "Shader compiler is not initialized!");
 		RYU_ASSERT(m_utils, "Shader utils is not initialized!");
 
-		RYU_LOG_TRACE(LogShaderCompiler, "Compiling shader: {}", info.FilePath.string());
+		RYU_LOG_TRACE("Compiling shader: {}", info.FilePath.string());
 
 		ComPtr<IDxcBlobEncoding> source;
 		HRESULT hr = m_utils->LoadFile(
@@ -155,7 +155,7 @@ namespace Ryu::Gfx
 		if (FAILED(hr))
 		{
 			const auto message = std::format("Failed to load shader file: {}", info.FilePath.string());
-			RYU_LOG_ERROR(LogShaderCompiler, "{}", message);
+			RYU_LOG_ERROR("{}", message);
 			return MakeResultError{ message };
 		}
 
@@ -180,14 +180,14 @@ namespace Ryu::Gfx
 
 		if (FAILED(hr))
 		{
-			RYU_LOG_ERROR(LogShaderCompiler, "Failed to compile shader file: {}", info.FilePath.string());
+			RYU_LOG_ERROR("Failed to compile shader file: {}", info.FilePath.string());
 		}
 
 		ComPtr<IDxcBlobEncoding> errors;
 		DXCall(result->GetErrorBuffer(&errors));
 		if (errors && errors->GetBufferSize() != 0)
 		{
-			RYU_LOG_ERROR(LogShaderCompiler, "{}", (const char*)errors->GetBufferPointer());
+			RYU_LOG_ERROR("{}", (const char*)errors->GetBufferPointer());
 			return MakeResultError{"Shader compiled with errors! "};
 		}
 
@@ -227,7 +227,7 @@ namespace Ryu::Gfx
 		// Print hash
 		const std::string name = info.Name.empty() ? info.FilePath.stem().string() : info.Name;
 		std::string hash = GetHash(result);
-		RYU_LOG_DEBUG(LogShaderCompiler, "Shader ({}) hash: {}", name, hash);
+		RYU_LOG_DEBUG("Shader ({}) hash: {}", name, hash);
 
 		// Get reflection blob
 		ComPtr<IDxcBlob> reflectionBlob;
@@ -240,7 +240,7 @@ namespace Ryu::Gfx
 			return std::unexpected(getResult.error());
 		}
 
-		RYU_LOG_INFO(LogShaderCompiler, "Shader [{}] compiled successfully", name);
+		RYU_LOG_INFO("Shader [{}] compiled successfully", name);
 
 		return ShaderCompileResult
 		{

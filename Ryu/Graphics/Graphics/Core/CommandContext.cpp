@@ -6,7 +6,6 @@
 
 namespace Ryu::Gfx
 {
-	RYU_LOG_DECLARE_CATEGORY(CommandCtx);
 
 
 	CommandContext::CommandContext(DeviceWeakPtr parent, CommandListType type)
@@ -132,7 +131,7 @@ namespace Ryu::Gfx
 			DXCall(fence.Get()->SetEventOnCompletion(FenceValue, fenceEvent));
 			if (::WaitForSingleObjectEx(fenceEvent, TIMEOUT_DURATION, FALSE) == WAIT_TIMEOUT)
 			{
-				RYU_LOG_ERROR(LogCommandCtx, "Move to next frame timed out!");
+				RYU_LOG_ERROR("Move to next frame timed out!");
 			}
 		}
 	}

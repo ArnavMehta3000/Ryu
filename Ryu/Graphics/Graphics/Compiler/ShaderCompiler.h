@@ -7,7 +7,6 @@
 namespace Ryu::Gfx
 {
 	namespace fs = std::filesystem;
-	RYU_LOG_DECLARE_CATEGORY(ShaderCompiler);
 
 	struct ShaderCompileInfo
 	{

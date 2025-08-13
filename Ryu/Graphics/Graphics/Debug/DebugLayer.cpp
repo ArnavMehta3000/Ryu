@@ -8,7 +8,6 @@
 namespace Ryu::Gfx::DebugLayer
 {
 	DWORD g_callbackCookie = 0;
-	RYU_LOG_DECLARE_CATEGORY(GFXDebugLayer);
 
 	void Initialize()
 	{
@@ -20,17 +19,17 @@ namespace Ryu::Gfx::DebugLayer
 			if (SUCCEEDED(::D3D12GetDebugInterface(IID_PPV_ARGS(&d3dDebug))))
 			{
 				d3dDebug->EnableDebugLayer();
-				RYU_LOG_TRACE(LogGFXDebugLayer, "DX12 Debug layer enabled");
+				RYU_LOG_TRACE("DX12 Debug layer enabled");
 
 				if (Gfx::IsGPUBasedValidationEnabled())
 				{
 					d3dDebug->SetEnableGPUBasedValidation(TRUE);
-					RYU_LOG_WARN(LogGFXDebugLayer, "DX12 GPU based validation enabled");
+					RYU_LOG_WARN("DX12 GPU based validation enabled");
 				}
 			}
 			else
 			{
-				RYU_LOG_WARN(LogGFXDebugLayer, "DX12 Debug layer not available");
+				RYU_LOG_WARN("DX12 Debug layer not available");
 			}
 
 			ComPtr<IDXGIDebug1> dxgiDebug;
@@ -40,7 +39,7 @@ namespace Ryu::Gfx::DebugLayer
 			}
 			else
 			{
-				RYU_LOG_WARN(LogGFXDebugLayer, "DXGI Debug layer not available");
+				RYU_LOG_WARN("DXGI Debug layer not available");
 			}
 
 			ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
@@ -61,7 +60,7 @@ namespace Ryu::Gfx::DebugLayer
 			}
 			else
 			{
-				RYU_LOG_WARN(LogGFXDebugLayer, "DXGI Info Queue not available");
+				RYU_LOG_WARN("DXGI Info Queue not available");
 			}
 		}
 	}
@@ -100,17 +99,17 @@ namespace Ryu::Gfx::DebugLayer
 					{
 						if (severity == D3D12_MESSAGE_SEVERITY_INFO || severity == D3D12_MESSAGE_SEVERITY_MESSAGE)
 						{
-							RYU_LOG_INFO(LogGFXDebugLayer, "D3D12 Validation Layer: {}", description);
+							RYU_LOG_INFO("D3D12 Validation Layer: {}", description);
 						}
 
 						if (severity == D3D12_MESSAGE_SEVERITY_ERROR)
 						{
-							RYU_LOG_ERROR(LogGFXDebugLayer, "D3D12 Validation Layer: {}", description);
+							RYU_LOG_ERROR("D3D12 Validation Layer: {}", description);
 						}
 
 						if (severity == D3D12_MESSAGE_SEVERITY_WARNING)
 						{
-							RYU_LOG_WARN(LogGFXDebugLayer, "D3D12 Validation Layer: {}", description);
+							RYU_LOG_WARN("D3D12 Validation Layer: {}", description);
 						}
 					};
 
@@ -213,7 +212,7 @@ namespace Ryu::Gfx::DebugLayer
 		}
 		else
 		{
-			RYU_LOG_WARN(LogGFXDebugLayer, "Enable Developer Mode on Windows 10 to get consistent profiling results");
+			RYU_LOG_WARN("Enable Developer Mode on Windows 10 to get consistent profiling results");
 		}
 	}
 }

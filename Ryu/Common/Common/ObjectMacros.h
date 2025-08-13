@@ -1,5 +1,6 @@
 #pragma once
 #include <type_traits>
+#include <string_view>
 
 #define RYU_DISABLE_COPY(T)        \
 	explicit T(const T&) = delete; \
@@ -43,7 +44,7 @@
 #define RYU_NOTE(msg) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): NOTE: " msg))
 
 // Macro to say that the function is not implemented
-#define RYU_NOT_IMPLEMENTED(LogCategory) RYU_LOG_WARN(LogCategory, "Function {} not implemented", std::string_view(__FUNCTION__))
+#define RYU_NOT_IMPLEMENTED() RYU_LOG_WARN("Function {} not implemented", std::string_view(__FUNCTION__))
 
 // Only executes code if RYU_BUILD_DEBUG is defined
 #if defined(RYU_BUILD_DEBUG)
@@ -62,3 +63,45 @@
 #define RYU_PROPERTY(Name, ...) __declspec(property(get = RYU_CONCAT(Get, Name), put = RYU_CONCAT(Set, Name))) __VA_ARGS__ Name
 #define RYU_GET_ONLY_PROPERTY(Name, ...) __declspec(property(get = RYU_CONCAT(Get, Name))) __VA_ARGS__ Name
 #define RYU_SET_ONLY_PROPERTY(Name, ...) __declspec(property(put = RYU_CONCAT(Set, Name))) __VA_ARGS__ Name
+
+
+namespace Ryu
+{
+	constexpr std::string_view ExtractFilename(std::string_view path) noexcept
+	{
+		// Find the last occurrence of either '/' or '\'
+		size_t lastSlash = path.find_last_of("/\\");
+
+		// No slash found, return the entire string (it's already just a filename)
+		if (lastSlash == std::string_view::npos)
+		{
+			return path;
+		}
+
+		// Return substring starting after the last slash
+		return path.substr(lastSlash + 1);
+	}
+
+	constexpr std::string_view ExtractFilenameNoExt(std::string_view path) noexcept
+	{
+		std::string_view filename = ExtractFilename(path);
+
+		// Find last dot
+		size_t lastDot = filename.find_last_of('.');
+
+		// No dot found, return the entire filename
+		if (lastDot == std::string_view::npos)
+		{
+			return filename;
+		}
+
+		// Return substring up to (but not including) the last dot
+		return filename.substr(0, lastDot);
+	}
+}
+
+// The filename with extension of the current file
+#define RYU_FILENAME ::Ryu::ExtractFilename(__FILE__)
+
+// The filename without extension of the current file
+#define RYU_FILE ::Ryu::ExtractFilenameNoExt(__FILE__)

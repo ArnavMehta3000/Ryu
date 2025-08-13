@@ -87,7 +87,6 @@ namespace Ryu::Config
 		const toml::table* GetSectionTable(const toml::table& table) const;
 
 	protected:
-		RYU_LOG_DECLARE_CATEGORY(ConfigValue);
 		ConfigBase* m_owner;
 		std::string m_section;
 		std::string m_key;
@@ -166,8 +165,7 @@ namespace Ryu::Config
 					}
 					else
 					{
-						RYU_LOG_WARN(LogConfigValue,
-							"Type mismatch for '{}': expected string", m_key);
+						RYU_LOG_WARN("Type mismatch for '{}': expected string", m_key);
 					}
 				}
 				else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
@@ -178,8 +176,7 @@ namespace Ryu::Config
 					}
 					else
 					{
-						RYU_LOG_WARN(LogConfigValue,
-							"Type mismatch for '{}': expected integer", m_key);
+						RYU_LOG_WARN("Type mismatch for '{}': expected integer", m_key);
 					}
 				}
 				else if constexpr (std::is_floating_point_v<T>)
@@ -190,8 +187,7 @@ namespace Ryu::Config
 					}
 					else
 					{
-						RYU_LOG_WARN(LogConfigValue,
-							"Type mismatch for '{}': expected floating point", m_key);
+						RYU_LOG_WARN("Type mismatch for '{}': expected floating point", m_key);
 					}
 				}
 				else if constexpr (std::is_same_v<T, bool>)
@@ -202,8 +198,7 @@ namespace Ryu::Config
 					}
 					else
 					{
-						RYU_LOG_WARN(LogConfigValue,
-							"Type mismatch for '{}': expected boolean", m_key);
+						RYU_LOG_WARN("Type mismatch for '{}': expected boolean", m_key);
 					}
 				}
 			}
@@ -289,8 +284,7 @@ namespace Ryu::Config
 				}
 				else
 				{
-					RYU_LOG_WARN(LogConfigValue,
-						"Type mismatch for '{}': expected string for enum", m_key);
+					RYU_LOG_WARN("Type mismatch for '{}': expected string for enum", m_key);
 				}
 			}
 		}
@@ -463,7 +457,7 @@ namespace Ryu::Config
 				}
 				else
 				{
-					RYU_LOG_WARN(LogConfigValue,
+					RYU_LOG_WARN(
 						"Type mismatch for '{}': expected array for flags", m_key);
 				}
 			}
@@ -642,8 +636,7 @@ namespace Ryu::Config
 				}
 				else
 				{
-					RYU_LOG_WARN(LogConfigValue,
-						"Type mismatch for '{}': expected array", m_key);
+					RYU_LOG_WARN("Type mismatch for '{}': expected array", m_key);
 				}
 			}
 		}

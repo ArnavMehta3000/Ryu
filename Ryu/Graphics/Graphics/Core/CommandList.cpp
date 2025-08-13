@@ -7,8 +7,6 @@
 
 namespace Ryu::Gfx
 {
-	RYU_LOG_DECLARE_CATEGORY(GfxCommandList);
-
 	CommandList::CommandList(DeviceWeakPtr parent, CommandAllocator& allocator, PipelineState* pso, CommandListType type)
 		: DeviceObject(parent)
 		, m_state(State::Closed)
@@ -25,7 +23,7 @@ namespace Ryu::Gfx
 	{
 		if (m_state == State::Recording)
 		{
-			RYU_LOG_WARN(LogGfxCommandList, "Resetting command list while recording - auto-closing first");
+			RYU_LOG_WARN("Resetting command list while recording - auto-closing first");
 			Close();
 		}
 

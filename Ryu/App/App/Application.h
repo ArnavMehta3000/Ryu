@@ -15,7 +15,6 @@ namespace Ryu::App
 	{
 		friend class Engine::Engine;
 		friend class Editor::EditorApp;
-		RYU_LOG_DECLARE_CATEGORY(App);
 	public:
 		static void InitWindow(Window::Window& window);
 

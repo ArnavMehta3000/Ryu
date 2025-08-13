@@ -7,8 +7,6 @@
 
 namespace Ryu::Gfx
 {
-	RYU_LOG_DECLARE_CATEGORY(CommandCtx2);
-
 	void CommandContext2::CommandFrame::Wait(HANDLE fenceEvent, const ComPtr<DX12::Fence>& fence)
 	{
 		// If the current (completed) 'fenceValue' is less than 'FenceValue'
@@ -22,7 +20,7 @@ namespace Ryu::Gfx
 			// Wait for the fence event
 			if (::WaitForSingleObjectEx(fenceEvent, TIMEOUT_DURATION, FALSE) == WAIT_TIMEOUT)
 			{
-				RYU_LOG_ERROR(LogCommandCtx2, "Move to next frame timed out!");
+				RYU_LOG_ERROR("Move to next frame timed out!");
 			}
 		}
 	}

@@ -10,8 +10,6 @@
 
 namespace Ryu::Gfx::Core
 {
-	RYU_LOG_DECLARE_CATEGORY(GFX);
-
 #pragma region Variables
 	ComPtr<DX12::Device>    g_device;
 	ComPtr<DXGI::Factory>   g_factory;
@@ -105,11 +103,11 @@ namespace Ryu::Gfx::Core
 		{
 			if (Gfx::ShouldUseWARPDevice())
 			{
-				RYU_LOG_DEBUG(LogGFX, "WARP software adapter requested");
+				RYU_LOG_DEBUG("WARP software adapter requested");
 			}
 			else
 			{
-				RYU_LOG_WARN(LogGFX, "Failed to find a hardware adapter.  Falling back to WARP");
+				RYU_LOG_WARN("Failed to find a hardware adapter.  Falling back to WARP");
 			}
 
 			DXCall(g_factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter)));
@@ -150,8 +148,7 @@ namespace Ryu::Gfx::Core
 			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
 				const std::string description = Utils::ToNarrowStr(desc.Description);
-				RYU_LOG_DEBUG(LogGFX,
-					"Using GPU: {} - {:.2f} GB", description, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
+				RYU_LOG_DEBUG("Using GPU: {} - {:.2f} GB", description, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
 				break;
 			}
 		}

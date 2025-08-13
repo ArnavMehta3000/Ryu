@@ -2,7 +2,6 @@
 #include "Profiling/Profiling.h"
 #include "Logging/Logger.h"
 
-RYU_LOG_DECLARE_CATEGORY(GameInput);
 using namespace Ryu;
 
 void CALLBACK OnDeviceEnumerated(
@@ -30,17 +29,17 @@ void CALLBACK OnDeviceEnumerated(
 
 				if (info->supportedInput & GameInputKindGamepad)
 				{
-					RYU_LOG_INFO(LogGameInput, "Gamepad connected");
+					RYU_LOG_INFO("Gamepad connected");
 				}
 
 				if (info->supportedInput == GameInputKindKeyboard)
 				{
-					RYU_LOG_INFO(LogGameInput, "Keyboard connected");
+					RYU_LOG_INFO("Keyboard connected");
 				}
 
 				if (info->supportedInput == GameInputKindMouse)
 				{
-					RYU_LOG_INFO(LogGameInput, "Mouse connected");
+					RYU_LOG_INFO("Mouse connected");
 				}
 			}
 		}
@@ -119,7 +118,7 @@ void GInput::PollKeyboard(bool enableLog)
 
 				if (states.size() > 0 && enableLog)
 				{
-					RYU_LOG_INFO(LogGameInput, "Buffer entries ({}) - {}", validBufferEntries, keys);
+					RYU_LOG_INFO("Buffer entries ({}) - {}", validBufferEntries, keys);
 				}
 			}
 		}
@@ -150,8 +149,7 @@ void GInput::PollMouse(bool enableLog)
 		GameInputMouseState state{};
 		if (reading->GetMouseState(&state) && enableLog)
 		{
-			RYU_LOG_INFO(LogGameInput,
-				"AbsPos({}, {}) | Pos({}, {}) | Wheel({}, {}) | PosEnum({}) | Buttons({})",
+			RYU_LOG_INFO("AbsPos({}, {}) | Pos({}, {}) | Wheel({}, {}) | PosEnum({}) | Buttons({})",
 				state.absolutePositionX, state.absolutePositionY,
 				state.positionX, state.positionY,
 				state.wheelX, state.wheelY,

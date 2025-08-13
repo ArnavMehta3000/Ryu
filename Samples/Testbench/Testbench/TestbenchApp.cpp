@@ -5,7 +5,6 @@
 #include "Game/World/Entity.h"
 #include "Game/Components/Transform.h"
 
-RYU_LOG_DECLARE_CATEGORY(TestbenchApp);
 using namespace Ryu;
 
 
@@ -18,11 +17,11 @@ TestbenchApp::TestbenchApp(std::shared_ptr<Window::Window> window)
 bool TestbenchApp::OnInit()
 {
 	RYU_PROFILE_SCOPE();
-	RYU_LOG_INFO(LogTestbenchApp, "Initializing Testbench App");
+	RYU_LOG_INFO("Initializing Testbench App");
 
 	if (!m_gameInput.Init())
 	{
-		RYU_LOG_WARN(LogTestbenchApp, "Failed to initialize GameInput");
+		RYU_LOG_WARN("Failed to initialize GameInput");
 	}
 
 	// m_world.CreateEntity("Player1").GetComponent<Game::Transform>().Position.z = 15.7;
@@ -37,7 +36,7 @@ bool TestbenchApp::OnInit()
 void TestbenchApp::OnShutdown()
 {
 	RYU_PROFILE_SCOPE();
-	RYU_LOG_INFO(LogTestbenchApp, "Shutting down Testbench App");
+	RYU_LOG_INFO("Shutting down Testbench App");
 	
 	m_gameInput.Shutdown();
 }
@@ -128,6 +127,6 @@ void TestbenchApp::TestDeserialization()
 	}
 	catch (const toml::parse_error& e)
 	{
-		RYU_LOG_ERROR(LogTestbenchApp, "Error parsing TOML file: {}", e.description().data());
+		RYU_LOG_ERROR("Error parsing TOML file: {}", e.description().data());
 	}
 }

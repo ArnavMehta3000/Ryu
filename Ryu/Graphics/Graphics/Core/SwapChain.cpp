@@ -8,8 +8,6 @@
 
 namespace Ryu::Gfx
 {
-	RYU_LOG_DECLARE_CATEGORY(GFXSwapChain);
-
 RYU_DEBUG_BLOCK(
 	namespace
 	{
@@ -55,7 +53,7 @@ RYU_DEBUG_BLOCK(
 
 		CreateSwapChain(queue);
 
-		RYU_LOG_DEBUG(LogGFXSwapChain, "SwapChain created");
+		RYU_LOG_DEBUG("SwapChain created");
 	}
 
 	void SwapChain::OnDestruct()
@@ -94,7 +92,7 @@ RYU_DEBUG_BLOCK(
 
 		RYU_DEBUG_BLOCK(
 			m_swapChain->GetDesc1(&desc);
-			RYU_LOG_TRACE(LogGFXSwapChain, "SwapChain resized to {}x{}", desc.Width, desc.Height);
+			RYU_LOG_TRACE("SwapChain resized to {}x{}", desc.Width, desc.Height);
 		)
 	}
 
@@ -109,7 +107,7 @@ RYU_DEBUG_BLOCK(
 
 			if (allowTearing && vsync)
 			{
-				RYU_LOG_WARN(LogGFXSwapChain,
+				RYU_LOG_WARN(
 					R"(VSync and AllowTearing cannot be enabled at the same time!
 					Tearing will be disabled when presenting. Disable one through settings/cmdline)");
 
@@ -169,7 +167,7 @@ RYU_DEBUG_BLOCK(
 				&swapChain
 			));
 
-			RYU_LOG_DEBUG(LogGFXSwapChain, "This SwapChain does not support fullscreen transitions (TODO)");
+			RYU_LOG_DEBUG("This SwapChain does not support fullscreen transitions (TODO)");
 			DXCallEx(factory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER), device->GetDevice());
 
 			DXCallEx(swapChain.As(&m_swapChain), device->GetDevice());
@@ -185,7 +183,7 @@ RYU_DEBUG_BLOCK(
 		}
 		else
 		{
-			RYU_LOG_ERROR(LogGFXSwapChain, "SwapChain creation failed, parent device is null");
+			RYU_LOG_ERROR("SwapChain creation failed, parent device is null");
 		}
 	}
 

@@ -6,14 +6,12 @@
 
 namespace Ryu::Gfx
 {
-	RYU_LOG_DECLARE_CATEGORY(D3D12);
-
 	void DX12::SetObjectName(DX12::Object* object, const char* name)
 	{
 		if (object)
 		{
 			DXCall(object->SetPrivateData(WKPDID_D3DDebugObjectName, (u32)strlen(name) + 1, name));
-			RYU_LOG_TRACE(LogD3D12, "Set D3D12 object name: {}", name);
+			RYU_LOG_TRACE("Set D3D12 object name: {}", name);
 		}
 	}
 
@@ -169,9 +167,9 @@ namespace Ryu::Gfx
 		if (FAILED(hr))
 		{
 #if defined(RYU_THROW_ON_FAIL_HRESULT)
-			RYU_LOG_FATAL(LogD3D12, "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
+			RYU_LOG_FATAL("HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
 #else
-			RYU_LOG_ERROR(LogD3D12, "HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
+			RYU_LOG_ERROR("HRESULT failed {}({}):{} - {} ", fileName, lineNumber, functionName, Internal::GetErrorString(hr, device));
 #endif
 			return false;
 		}

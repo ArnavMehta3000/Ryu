@@ -5,8 +5,6 @@
 
 namespace Ryu::Gfx
 {
-	RYU_LOG_DECLARE_CATEGORY(Texture);
-
 	Texture::Texture(DeviceWeakPtr parent, const TextureInitInfo& info, DescriptorHeap& srvHeap)
 		: DeviceObject(parent)
 		, m_srvHeap(&srvHeap)

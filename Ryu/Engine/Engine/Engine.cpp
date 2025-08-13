@@ -12,13 +12,11 @@
 
 namespace Ryu::Engine
 {
-	RYU_LOG_DECLARE_CATEGORY(Engine);
-
 	void PrintMemoryStats()
 	{
 		using namespace Ryu::Memory;
 
-		RYU_LOG_DEBUG(LogEngine,
+		RYU_LOG_DEBUG(
 			R"(--- Memory Stats (bytes) ---
 		Total Allocated: {}
 		Current Usage: {}
@@ -44,18 +42,18 @@ namespace Ryu::Engine
 
 		PrintMemoryStats();
 
-		RYU_LOG_DEBUG(LogEngine, "Initializing Engine");
+		RYU_LOG_DEBUG("Initializing Engine");
 
 		if (!DirectX::XMVerifyCPUSupport())
 		{
-			RYU_LOG_FATAL(LogEngine, "DirectX is not supported on this system");
+			RYU_LOG_FATAL("DirectX is not supported on this system");
 			return false;
 		}
 
 		// Check if debugger is attached
 		if (Globals::IsDebuggerAttached())
 		{
-			RYU_LOG_INFO(LogEngine, "--- A debugger is attached to the Engine!---");
+			RYU_LOG_INFO("--- A debugger is attached to the Engine!---");
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
@@ -66,7 +64,7 @@ namespace Ryu::Engine
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
 			pathManager.GetProjectDir() / "Scripts").string());
 
-		RYU_LOG_TRACE(LogEngine, "Engine initialization completed");
+		RYU_LOG_TRACE("Engine initialization completed");
 		return true;
 	}
 
@@ -74,7 +72,7 @@ namespace Ryu::Engine
 	{
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
-		RYU_LOG_DEBUG(LogEngine, "Shutting down Engine");
+		RYU_LOG_DEBUG("Shutting down Engine");
 
 		// Flush the log here in case something fails during shutdown
 		if (auto* logger = Logging::Internal::GetLoggerInstance())
@@ -90,7 +88,7 @@ namespace Ryu::Engine
 
 		Config::ConfigManager::Get().SaveAll();
 
-		RYU_LOG_INFO(LogEngine, "Engine shutdown completed");
+		RYU_LOG_INFO("Engine shutdown completed");
 
 		PrintMemoryStats();
 
@@ -124,7 +122,7 @@ namespace Ryu::Engine
 		}
 		else
 		{
-			RYU_LOG_FATAL(LogEngine, "Failed to initialize application! Exiting.");
+			RYU_LOG_FATAL("Failed to initialize application! Exiting.");
 		}
 	}
 
@@ -155,7 +153,7 @@ namespace Ryu::Engine
 		// Init engine
 		if (!Init())
 		{
-			RYU_LOG_FATAL(LogEngine, "Failed to initialize Engine! Exiting.");
+			RYU_LOG_FATAL("Failed to initialize Engine! Exiting.");
 			return;
 		}
 
@@ -166,7 +164,7 @@ namespace Ryu::Engine
 			{
 				if (m_app)
 				{
-					RYU_LOG_DEBUG(LogEngine, "Application window closed, shutting down...");
+					RYU_LOG_DEBUG("Application window closed, shutting down...");
 					m_app->m_isRunning = false;
 				}
 			},
@@ -201,7 +199,7 @@ namespace Ryu::Engine
 				- OnFatal callback will throw AssertException and we can catch it here
 			*/
 
-			RYU_LOG_ERROR(LogEngine, "Assertion failed: {}", e.what());
+			RYU_LOG_ERROR("Assertion failed: {}", e.what());
 			if (auto* logger = Logging::Internal::GetLoggerInstance())
 			{
 				logger->Flush();
@@ -226,7 +224,14 @@ namespace Ryu::Engine
 
 	void Engine::OnAppResize(u32 width, u32 height) const noexcept
 	{
-		RYU_LOG_TRACE(LogEngine, "Engine::OnAppResize -  {}x{}", width, height);
+		RYU_LOG_TRACE("Engine::OnAppResize -  {}x{}", width, height);
+
+		if (auto* logger = Logging::Internal::GetLoggerInstance())
+		{
+			// Flush the log here in case something fails
+			logger->Flush();
+		}
+
 		if (m_renderer)
 		{
 			m_renderer->OnResize(width, height);

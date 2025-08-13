@@ -51,8 +51,6 @@ namespace Ryu::Gfx
 		SM::Vector4 Color;
 	};
 
-	RYU_LOG_DECLARE_CATEGORY(Renderer);
-
 	Renderer::Renderer(HWND window)
 		: m_window(window)
 		, m_vertexBufferView()
@@ -86,7 +84,7 @@ namespace Ryu::Gfx
 
 		if (!result)
 		{
-			RYU_LOG_FATAL(LogRenderer, "Failed to create descriptor heaps");
+			RYU_LOG_FATAL("Failed to create descriptor heaps");
 		}
 
 		auto& cmdQueue = m_device->GetCommandContext().GetCommandQueue();
@@ -112,7 +110,7 @@ namespace Ryu::Gfx
 			m_imguiRenderer.reset();
 #endif
 
-			RYU_LOG_DEBUG(LogRenderer, "Destroying swapchain");
+			RYU_LOG_DEBUG("Destroying swapchain");
 			m_swapChain.Destroy();
 
 			m_vertexBuffer.Reset();
@@ -134,7 +132,7 @@ namespace Ryu::Gfx
 				ProcessDeferredReleases(i);
 			}
 
-			RYU_LOG_DEBUG(LogRenderer, "Destroying graphics device");
+			RYU_LOG_DEBUG("Destroying graphics device");
 			Device::Destroy(*m_device);
 			auto useCount = m_device.use_count();
 			RYU_ASSERT(useCount == 1);
@@ -189,7 +187,7 @@ namespace Ryu::Gfx
 		}
 		else
 		{
-			RYU_LOG_ERROR(LogRenderer, "Shader Compiler Error: {}", result.error());
+			RYU_LOG_ERROR("Shader Compiler Error: {}", result.error());
 		}
 
 		if (auto result = compiler.Compile(psInfo))
@@ -198,7 +196,7 @@ namespace Ryu::Gfx
 		}
 		else
 		{
-			RYU_LOG_ERROR(LogRenderer, "Shader Compiler Error: {}", result.error());
+			RYU_LOG_ERROR("Shader Compiler Error: {}", result.error());
 		}
 
 

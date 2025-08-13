@@ -10,19 +10,10 @@
 #include <functional>
 #include <unordered_map>
 
-#define RYU_LOG_DECLARE_CATEGORY(CategoryName) static inline constexpr ::Ryu::Logging::LogCategory RYU_CONCAT(Log, CategoryName){ #CategoryName }
-
 namespace Ryu::Engine { class Engine; }
 
 namespace Ryu::Logging
 {
-	struct LogCategory
-	{
-		std::string_view Name;
-
-		explicit constexpr LogCategory(std::string_view name) : Name(name) {}
-	};
-
 	class Logger
 	{
 		friend class Engine::Engine;
@@ -41,36 +32,36 @@ namespace Ryu::Logging
 		RYU_API bool IsSinkEnabled(const std::string& sinkName) const;
 		inline void SetOnFatalCallback(OnFatalCallback callback) { m_onFatalCallback = std::move(callback); }
 
-		RYU_API std::shared_ptr<spdlog::logger> GetCategoryLogger(const LogCategory& category);
+		RYU_API std::shared_ptr<spdlog::logger> GetCategoryLogger(std::string_view category);
 
 		RYU_API void Flush();
 
 		template<typename... Args>
-		void Log(const LogCategory& category, LogLevel level, fmt::format_string<Args...> format, Args&&... args);
+		void Log(std::string_view category, LogLevel level, fmt::format_string<Args...> format, Args&&... args);
 
 		template<typename... Args>
-		void Trace(const LogCategory& category, fmt::format_string<Args...> format, Args&&... args);
+		void Trace(std::string_view category, fmt::format_string<Args...> format, Args&&... args);
 
 		template<typename... Args>
-		void Debug(const LogCategory& category, fmt::format_string<Args...> format, Args&&... args);
+		void Debug(std::string_view category, fmt::format_string<Args...> format, Args&&... args);
 
 		template<typename... Args>
-		void Info(const LogCategory& category, fmt::format_string<Args...> format, Args&&... args);
+		void Info(std::string_view category, fmt::format_string<Args...> format, Args&&... args);
 
 		template<typename... Args>
-		void Warn(const LogCategory& category, fmt::format_string<Args...> format, Args&&... args);
+		void Warn(std::string_view category, fmt::format_string<Args...> format, Args&&... args);
 
 		template<typename... Args>
-		void Error(const LogCategory& category, fmt::format_string<Args...> format, Args&&... args);
+		void Error(std::string_view category, fmt::format_string<Args...> format, Args&&... args);
 
 		template<typename... Args>
-		void Fatal(const LogCategory& category, fmt::format_string<Args...> format, Args&&... args);
+		void Fatal(std::string_view category, fmt::format_string<Args...> format, Args&&... args);
 
 	private:
 		void Shutdown();
 		void CreateSinks(const LoggingConfig& config);
 		void UpdateLoggers();
-		std::string FormatCategoryName(const LogCategory& category) const;
+		std::string FormatCategoryName(std::string_view category) const;
 
 	private:
 		LoggingConfig                                                    m_config;
@@ -94,68 +85,68 @@ namespace Ryu::Logging
 #include "Logging/Logger.inl"
 
 
-#define RYU_LOG_TRACE(category, ...)                                                                                                   \
-    do                                                                                                                                 \
-	{                                                                                                                                  \
-        if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Trace) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL))   \
-		{                                                                                                                              \
-            if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                          \
-			{                                                                                                                          \
-                logger->Trace(category, __VA_ARGS__);                                                                                  \
-            }                                                                                                                          \
-        }                                                                                                                              \
+#define RYU_LOG_TRACE(...)                                                                                                           \
+    do                                                                                                                               \
+	{                                                                                                                                \
+        if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Trace) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
+		{                                                                                                                            \
+            if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                        \
+			{                                                                                                                        \
+                logger->Trace(RYU_FILE, __VA_ARGS__);                                                                            \
+            }                                                                                                                        \
+        }                                                                                                                            \
     } while(0)
 
-#define RYU_LOG_DEBUG(category, ...)                                                                                                 \
+#define RYU_LOG_DEBUG(...)                                                                                                           \
     do                                                                                                                               \
 	{                                                                                                                                \
         if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Debug) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
 		{                                                                                                                            \
             if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                        \
 			{                                                                                                                        \
-                logger->Debug(category, __VA_ARGS__);                                                                                \
+                logger->Debug(RYU_FILE, __VA_ARGS__);                                                                            \
             }                                                                                                                        \
         }                                                                                                                            \
     } while(0)
 
-#define RYU_LOG_INFO(category, ...)                                                                                                 \
+#define RYU_LOG_INFO(...)                                                                                                           \
     do                                                                                                                              \
 	{                                                                                                                               \
         if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Info) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
 		{                                                                                                                           \
             if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                       \
 			{                                                                                                                       \
-                logger->Info(category, __VA_ARGS__);                                                                                \
+                logger->Info(RYU_FILE, __VA_ARGS__);                                                                            \
             }                                                                                                                       \
         }                                                                                                                           \
     } while(0)
 
-#define RYU_LOG_WARN(category, ...)                                                                                                 \
+#define RYU_LOG_WARN(...)                                                                                                           \
     do                                                                                                                              \
 	{                                                                                                                               \
         if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Warn) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
 		{                                                                                                                           \
             if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                       \
 			{                                                                                                                       \
-                logger->Warn(category, __VA_ARGS__);                                                                                \
+                logger->Warn(RYU_FILE, __VA_ARGS__);                                                                            \
             }                                                                                                                       \
         }                                                                                                                           \
     } while(0)
 
-#define RYU_LOG_ERROR(category, ...)                                      \
-    do                                                                    \
-	{                                                                     \
-        if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance()) \
-		{                                                                 \
-            logger->Error(category, __VA_ARGS__);                         \
-        }                                                                 \
+#define RYU_LOG_ERROR(...)                                                    \
+    do                                                                        \
+	{                                                                         \
+        if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())     \
+		{                                                                     \
+            logger->Error(RYU_FILE, __VA_ARGS__);                         \
+        }                                                                     \
     } while(0)
 
-#define RYU_LOG_FATAL(category, ...)                                      \
-    do                                                                    \
-	{                                                                     \
-        if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance()) \
-		{                                                                 \
-            logger->Fatal(category, __VA_ARGS__);                         \
-        }                                                                 \
+#define RYU_LOG_FATAL(...)                                                    \
+    do                                                                        \
+	{                                                                         \
+        if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())     \
+		{                                                                     \
+            logger->Fatal(RYU_FILE, __VA_ARGS__);                         \
+        }                                                                     \
     } while(0)

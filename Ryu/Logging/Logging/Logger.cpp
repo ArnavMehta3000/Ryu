@@ -6,6 +6,7 @@
 namespace Ryu::Logging
 {
     namespace fs = std::filesystem;
+
     Logger s_logger;
 
     std::string LoggingConfig::GetSpdlogPattern() const
@@ -30,7 +31,7 @@ namespace Ryu::Logging
             pattern += " | [%t]";
         }
 
-        pattern += " | [%n] - %v";
+        pattern += " | %n%$: %v";
 
         return pattern;
     }
@@ -116,7 +117,7 @@ namespace Ryu::Logging
         return false;
     }
 
-    std::shared_ptr<spdlog::logger> Logger::GetCategoryLogger(const LogCategory& category)
+    std::shared_ptr<spdlog::logger> Logger::GetCategoryLogger(std::string_view category)
     {
         std::string categoryName = FormatCategoryName(category);
 
@@ -226,9 +227,9 @@ namespace Ryu::Logging
         spdlog::shutdown();
     }
 
-    std::string Logger::FormatCategoryName(const LogCategory& category) const
+    std::string Logger::FormatCategoryName(std::string_view category) const
     {
-        return std::string(category.Name);
+        return std::string(category);
     }
 
     Logger* Internal::GetLoggerInstance()

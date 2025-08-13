@@ -15,6 +15,7 @@ namespace Ryu::Config
 	{
         RYU_SINGLETON_DECLARE(CmdLine);
 	public:
+        ~CmdLine() = default;
         template<Internal::CVarAllTypes T>
         void RegisterCVar(std::string_view name, CVar<T>* cvar);
 
@@ -35,7 +36,7 @@ namespace Ryu::Config
         CmdLine() = default;
 
     private:
-        std::unordered_map<std::string, std::unique_ptr<ICVarBase>> m_cvars;
+        std::unordered_map<std::string, ICVarBase*> m_cvars;
         std::unique_ptr<CLI::App> m_cliApp;
 
         void EnsureCLIApp();

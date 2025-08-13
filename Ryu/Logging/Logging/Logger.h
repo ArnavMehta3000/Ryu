@@ -12,6 +12,8 @@
 
 #define RYU_LOG_DECLARE_CATEGORY(CategoryName) static inline constexpr ::Ryu::Logging::LogCategory RYU_CONCAT(Log, CategoryName){ #CategoryName }
 
+namespace Ryu::Engine { class Engine; }
+
 namespace Ryu::Logging
 {
 	struct LogCategory
@@ -23,11 +25,12 @@ namespace Ryu::Logging
 
 	class Logger
 	{
+		friend class Engine::Engine;
 	public:
 		using OnFatalCallback = std::function<void(LogLevel, const std::string&)>;
 
 		RYU_API Logger();
-		RYU_API ~Logger();
+		~Logger() = default;
 
 		RYU_API void Configure(const LoggingConfig& config);
 		RYU_API void SetRuntimeLogLevel(LogLevel level);
@@ -64,6 +67,7 @@ namespace Ryu::Logging
 		void Fatal(const LogCategory& category, fmt::format_string<Args...> format, Args&&... args);
 
 	private:
+		void Shutdown();
 		void CreateSinks(const LoggingConfig& config);
 		void UpdateLoggers();
 		std::string FormatCategoryName(const LogCategory& category) const;

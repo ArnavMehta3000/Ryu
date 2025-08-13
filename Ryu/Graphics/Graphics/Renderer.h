@@ -25,7 +25,7 @@ namespace Ryu::Gfx
 		inline NODISCARD SwapChain& GetSwapChain() { return m_swapChain; }
 		
 #if defined(RYU_WITH_EDITOR)
-		inline void SetImGuiCallback(std::function<void(Renderer*)> callback) { m_imguiCallback = callback; }
+		inline void SetImGuiCallback(std::function<void(Renderer*)> callback) { m_imguiCallback = std::move(callback); }
 #endif
 		void ProcessDeferredReleases(u32 frameIndex);
 		void DeferredRelease(IUnknown* resource);
@@ -55,7 +55,7 @@ namespace Ryu::Gfx
 		D3D12_VERTEX_BUFFER_VIEW     m_vertexBufferView;
 
 #if defined(RYU_WITH_EDITOR)
-		std::optional<std::function<void(Renderer*)>> m_imguiCallback;
+		std::function<void(Renderer*)> m_imguiCallback;
 		std::unique_ptr<ImGuiRenderer> m_imguiRenderer{ nullptr };
 #endif
 

@@ -14,7 +14,7 @@ target("RyuEditor")
 	add_headerfiles("**.h")
 
 	add_packages("imgui")
-	add_deps("RyuEngine", "RyuPlugin")
+	add_deps("RyuEngine")
 
 	if has_config("ryu-unity-build") then
 		add_rules("c++.unity_build")

@@ -8,9 +8,10 @@
 namespace Ryu::Game
 {
 	class Entity;
-
-	using EntityHandle = entt::entity;
-	using Registry = entt::registry;
+	
+	using Registry         = entt::registry;
+	using EntityHandle     = entt::entity;
+	using EntityHandleType = entt::id_type;
 
 	class World
 	{

@@ -84,7 +84,7 @@ namespace Ryu::Gfx
 		fs::create_directories(outPath, ec);
 		if (ec)
 		{
-			return MakeResultError{ std::format("Failed to create output directory: {}", outPath.parent_path().string()) };
+			return MakeResultError{ fmt::format("Failed to create output directory: {}", outPath.parent_path().string()) };
 		}
 
 		// Write CSO file
@@ -107,7 +107,7 @@ namespace Ryu::Gfx
 			}
 			else
 			{
-				return MakeResultError{ std::format("Failed to write CSO file: {}" , outFile) };
+				return MakeResultError{ fmt::format("Failed to write CSO file: {}" , outFile) };
 			}
 		}
 
@@ -131,7 +131,7 @@ namespace Ryu::Gfx
 			}
 			else
 			{
-				return MakeResultError{ std::format("Failed to write PDB file: {}" , outFile) };
+				return MakeResultError{ fmt::format("Failed to write PDB file: {}" , outFile) };
 			}
 		}
 
@@ -154,7 +154,7 @@ namespace Ryu::Gfx
 
 		if (FAILED(hr))
 		{
-			const auto message = std::format("Failed to load shader file: {}", info.FilePath.string());
+			const auto message = fmt::format("Failed to load shader file: {}", info.FilePath.string());
 			RYU_LOG_ERROR("{}", message);
 			return MakeResultError{ message };
 		}
@@ -194,7 +194,7 @@ namespace Ryu::Gfx
 		hr = result->GetStatus(&hr);
 		if (FAILED(hr))
 		{
-			return MakeResultError{ std::format("Failed to compile shader ({})", info.FilePath.string()) };
+			return MakeResultError{ fmt::format("Failed to compile shader ({})", info.FilePath.string()) };
 		}
 
 		const std::wstring csoOutputPath = GetCSOOutputPath(info);
@@ -318,7 +318,7 @@ namespace Ryu::Gfx
 		}
 		else
 		{
-			return MakeResultError{ std::format("Failed to write file: {}", path.string()) };
+			return MakeResultError{ fmt::format("Failed to write file: {}", path.string()) };
 		}
 	}
 
@@ -363,7 +363,7 @@ namespace Ryu::Gfx
 			DxcShaderHash* hashBuffer = (DxcShaderHash*)hashBlob->GetBufferPointer();
 			for (u32 i = 0; i < _countof(hashBuffer->HashDigest); i++)
 			{
-				hash += std::format("{:02x}", hashBuffer->HashDigest[i]);
+				hash += fmt::format("{:02x}", hashBuffer->HashDigest[i]);
 			}
 		}
 

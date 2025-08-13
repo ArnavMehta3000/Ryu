@@ -125,7 +125,7 @@ namespace Ryu::Engine
 						std::string stackTraceStr;
 						for (const auto& entry : trace)
 						{
-							stackTraceStr += std::format("  {} ({}:{})\n",
+							stackTraceStr += fmt::format("  {} ({}:{})\n",
 								entry.description(),
 								entry.source_file(),
 								entry.source_line());

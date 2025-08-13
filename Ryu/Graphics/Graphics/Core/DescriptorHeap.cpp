@@ -2,7 +2,6 @@
 #include "Graphics/Core/Device.h"
 #include "Profiling/Profiling.h"
 #include "Common/Assert.h"
-#include <format>
 
 namespace Ryu::Gfx
 {
@@ -16,6 +15,8 @@ namespace Ryu::Gfx
 
 	bool DescriptorHeap::Initialize(u32 capacity, bool isShaderVisible)
 	{
+		RYU_PROFILE_SCOPE();
+
 		RYU_ASSERT(capacity && capacity < D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2,
 			"Descriptor heap capacity must be between 1 and D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2.");
 
@@ -44,7 +45,7 @@ namespace Ryu::Gfx
 				DXCallEx(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_heap)), device);
 
 				DX12::SetObjectName(m_heap.Get(),
-					std::format("[{}] Descriptor Heap ({})",
+					fmt::format("[{}] Descriptor Heap ({})",
 						isShaderVisible ? "Shader Visible" : "Non-Shader Visible",
 						EnumToString(m_type)).c_str());
 
@@ -89,6 +90,8 @@ namespace Ryu::Gfx
 
 	DescriptorHandle DescriptorHeap::Allocate()
 	{
+		RYU_PROFILE_SCOPE();
+
 		RYU_ASSERT(m_size < m_capacity, "Descriptor heap is full.");
 		RYU_ASSERT(m_heap, "Descriptor heap is not initialized.");
 
@@ -115,6 +118,8 @@ namespace Ryu::Gfx
 
 	void DescriptorHeap::Free(DescriptorHandle& handle)
 	{
+		RYU_PROFILE_SCOPE();
+
 		if (!handle.IsValid())
 		{
 			return;
@@ -141,7 +146,9 @@ namespace Ryu::Gfx
 
 	void DescriptorHeap::ProcessDeferredFree(u32 frameIndex)
 	{
-		// TODO: mutex lock
+		RYU_PROFILE_SCOPE();
+		RYU_TODO("mutex lock");
+
 		RYU_ASSERT(frameIndex < FRAME_BUFFER_COUNT);
 
 		auto& indices = m_deferredFreeHandles[frameIndex];

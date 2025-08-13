@@ -7,13 +7,6 @@
 
 namespace Ryu::Gfx
 {
-	DevicePtr Device::Create()
-	{
-		auto device = DevicePtr(new Device());
-		device->Initialize();
-		return device;
-	}
-
 	void Device::Destroy(Device& device)
 	{
 		device.m_command.Destroy();
@@ -118,8 +111,8 @@ namespace Ryu::Gfx
 			{
 				continue;  // Don't select the Basic Render Driver adapter.
 			}
-
-			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+			HRESULT hr{ S_OK };
+			if (SUCCEEDED(hr = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
 				const std::string description = Utils::ToNarrowStr(desc.Description);
 				RYU_LOG_DEBUG("Using GPU: {} ({}) - {:.2f} GB", description, desc.VendorId, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);

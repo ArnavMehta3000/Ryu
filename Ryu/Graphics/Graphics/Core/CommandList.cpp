@@ -3,7 +3,6 @@
 #include "Graphics/Core/CommandAllocator.h"
 #include "Graphics/Core/PipelineState.h"
 #include "Logging/Logger.h"
-#include <format>
 
 namespace Ryu::Gfx
 {
@@ -55,7 +54,7 @@ namespace Ryu::Gfx
 			device);
 
 			m_cmdList->Close();
-			SetName(std::format("Command List ({})", EnumToString(type)).c_str());
+			SetName(fmt::format("Command List ({})", EnumToString(type)).c_str());
 		}
 	}
 

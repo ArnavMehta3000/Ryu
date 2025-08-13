@@ -208,7 +208,7 @@ RYU_DEBUG_BLOCK(
 
 				// Expecting surfaceData RTV CPU handle to be allocated/valid
 				device->CreateRenderTargetView(surface.Resource.Get(), &desc, surface.RTV.CPU);
-				DX12::SetObjectName(surface.Resource.Get(), std::format("Surface Resource - Frame {}", i).c_str());
+				DX12::SetObjectName(surface.Resource.Get(), fmt::format("Surface Resource - Frame {}", i).c_str());
 			}
 
 			DXGI_SWAP_CHAIN_DESC1 desc{};

@@ -30,7 +30,7 @@ namespace Ryu::Gfx
 			};
 
 			DXCallEx(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_queue)), device);
-			SetName(std::format("Command Queue ({})", EnumToString(type)).c_str());
+			SetName(fmt::format("Command Queue ({})", EnumToString(type)).c_str());
 		}
 	}
 

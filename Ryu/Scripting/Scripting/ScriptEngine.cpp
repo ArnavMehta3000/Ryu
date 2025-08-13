@@ -89,7 +89,7 @@ namespace Ryu::Scripting
 			if (asIScriptFunction* func = ctx->GetFunction())
 			{
 				const fs::path scriptName = func->GetScriptSectionName();
-				callInfo = std::format("{}({})",
+				callInfo = fmt::format("{}({})",
 					scriptName.filename().string(), ctx->GetLineNumber());
 			}
 		}

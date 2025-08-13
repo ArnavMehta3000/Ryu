@@ -1,6 +1,7 @@
 #include "Game/World/World.h"
 #include "Game/World/Entity.h"
 #include "Game/Components/Transform.h"
+#include "Logging/Logger.h"
 #include <entt/entity/registry.hpp>
 
 namespace Ryu::Game
@@ -11,10 +12,12 @@ namespace Ryu::Game
 
 		// Add metadata component
 		auto& meta = m_registry.emplace<EntityMetadata>(handle);
-		meta.Name = name.empty() ? std::format("Entity{}", GetEntityCount()) : name;
+		meta.Name = name.empty() ? fmt::format("Entity{}", GetEntityCount()) : name;
 
 		// Add transform component
 		m_registry.emplace<Transform>(handle);
+
+		RYU_LOG_TRACE("Created entity {}", name);
 
 		return Entity(handle, this);
 	}
@@ -26,6 +29,10 @@ namespace Ryu::Game
 			entity.MarkForDestroy();
 			m_pendingDestructions.push_back(entity.GetHandle());
 		}
+		else
+		{
+			RYU_LOG_WARN("Tried to destroy invalid entity");
+		}
 	}
 	
 	void World::DestroyEntityImmediate(const Entity& entity)
@@ -33,6 +40,10 @@ namespace Ryu::Game
 		if (entity.IsValid() && entity.GetWorld() == this)
 		{
 			m_registry.destroy(entity.GetHandle());
+		}
+		else
+		{
+			RYU_LOG_WARN("Tried to immediately destroy invalid entity");
 		}
 	}
 	
@@ -43,12 +54,12 @@ namespace Ryu::Game
 			return Entity(handle, this);
 		}
 		
+		RYU_LOG_WARN("Tried to get entity with an invalid handle (id:{})", (EntityHandleType)handle);
 		return Entity();
 	}
 	
 	u64 World::GetEntityCount() const
 	{
-
 		return m_registry.view<entt::entity>().size();
 	}
 

@@ -9,8 +9,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace Ryu::Editor
 {
-	RYU_LOG_DECLARE_CATEGORY(EditorApp);
-
 	namespace
 	{
 		// Handle to the original application window procedure
@@ -26,26 +24,26 @@ namespace Ryu::Editor
 	{
 		RYU_PROFILE_SCOPE();
 
-		RYU_LOG_TRACE(LogEditorApp, "Initializing editor application");
+		RYU_LOG_TRACE("Initializing editor application");
 
 		if (!RouteWndProc())
 		{
-			RYU_LOG_ERROR(LogEditorApp, "Failed to route Editor WndProc!");
+			RYU_LOG_ERROR("Failed to route Editor WndProc!");
 			return false;
 		}
 
 
 		if (!LoadGameModule())
 		{
-			RYU_LOG_ERROR(LogEditorApp, "Failed to load game module!");
+			RYU_LOG_ERROR("Failed to load game module!");
 			return false;
 		}
 
 		Gfx::Renderer* renderer = Engine::Engine::Get().GetRenderer();
-		renderer->SetImGuiCallback([this](Gfx::Renderer* renderer) { OnImGui(renderer); });
+		renderer->ImGuiCallback = [this](Gfx::Renderer* renderer) { OnImGui(renderer); };
 
 		// Init user application
-		RYU_LOG_TRACE(LogEditorApp, "Initializing user application");
+		RYU_LOG_TRACE("Initializing user application");
 		m_userApp->m_isRunning = m_userApp->OnInit();
 		return m_userApp->m_isRunning;
 	}
@@ -54,13 +52,13 @@ namespace Ryu::Editor
 	{
 		RYU_PROFILE_SCOPE();
 
-		RYU_LOG_TRACE(LogEditorApp, "Shutting down editor application");
+		RYU_LOG_TRACE("Shutting down editor application");
 
 		m_userApp->OnShutdown();
 
 		m_userApp.reset();
 
-		RYU_LOG_INFO(LogEditorApp, "Editor application shutdown");
+		RYU_LOG_INFO("Editor application shutdown");
 	}
 
 	void EditorApp::OnTick(const Utils::TimeInfo& timeInfo)
@@ -69,7 +67,7 @@ namespace Ryu::Editor
 
 		// Display FPS stats in debug mode
 #if defined(RYU_BUILD_DEBUG)
-		GetWindow()->Title = std::format("Ryu Editor | DT: {:.5f}ms | FPS: {}", timeInfo.DeltaTime, timeInfo.FPS);
+		GetWindow()->Title = fmt::format("Ryu Editor | DT: {:.5f}ms | FPS: {}", timeInfo.DeltaTime, timeInfo.FPS);
 #endif
 
 		m_userApp->OnTick(timeInfo);
@@ -88,7 +86,7 @@ namespace Ryu::Editor
 		const bool success = s_originalWndProc != nullptr;
 		if (success)
 		{
-			RYU_LOG_TRACE(LogEditorApp, "WndProc routed to EditorApp");
+			RYU_LOG_TRACE("WndProc routed to EditorApp");
 		}
 
 		return success;
@@ -102,7 +100,7 @@ namespace Ryu::Editor
 		if (gm)
 		{
 			m_userApp = gm->CreateApplication(GetWindow());
-			GetWindow()->Title = std::format("Ryu Editor - {}", gm->GetName());
+			GetWindow()->Title = fmt::format("Ryu Editor - {}", gm->GetName());
 			return m_userApp != nullptr;
 		}
 

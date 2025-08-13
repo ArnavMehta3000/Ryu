@@ -3,7 +3,6 @@
 #include "Profiling/Profiling.h"
 #include "Common/Assert.h"
 #include "Logging/Logger.h"
-#include <format>
 
 namespace Ryu::Gfx
 {
@@ -123,7 +122,7 @@ namespace Ryu::Gfx
 		};
 
 		DXCallEx(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_cmdQueue)), device);
-		DX12::SetObjectName(m_cmdQueue.Get(), std::format("Command Queue ({})", EnumToString(type)).c_str());
+		DX12::SetObjectName(m_cmdQueue.Get(), fmt::format("Command Queue ({})", EnumToString(type)).c_str());
 	}
 
 	void CommandContext2::CreateCommandAllocators(DX12::Device* device, CommandListType type)
@@ -134,7 +133,7 @@ namespace Ryu::Gfx
 			DXCallEx(device->CreateCommandAllocator(nativeType, IID_PPV_ARGS(&m_cmdFrames[i].Allocator)), device);
 
 			DX12::SetObjectName(m_cmdFrames[i].Allocator.Get(),
-				std::format("{} Command Allocator ({})", EnumToString(type), i).c_str());
+				fmt::format("{} Command Allocator ({})", EnumToString(type), i).c_str());
 		}
 
 	}
@@ -151,7 +150,7 @@ namespace Ryu::Gfx
 		device);
 
 		m_cmdList->Close();
-		DX12::SetObjectName(m_cmdList.Get(), std::format("Command List ({})", EnumToString(type)).c_str());
+		DX12::SetObjectName(m_cmdList.Get(), fmt::format("Command List ({})", EnumToString(type)).c_str());
 	}
 
 	void CommandContext2::CreateSynchronization(DX12::Device* device)

@@ -22,8 +22,8 @@ namespace Ryu::Gfx
 
 		inline State GetState() const { return m_state; }
 
-		inline void Reset(CommandAllocator& allocator, PipelineState* pso = nullptr) const;
-		inline void Close() const;
+		void Reset(CommandAllocator& allocator, PipelineState* pso = nullptr) const;
+		void Close() const;
 
 	private:
 		void OnConstruct(CommandAllocator& allocator, PipelineState* pso, CommandListType type);

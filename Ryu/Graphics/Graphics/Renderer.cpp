@@ -54,10 +54,10 @@ namespace Ryu::Gfx
 	Renderer::Renderer(HWND window)
 		: m_window(window)
 		, m_vertexBufferView()
-	{
 #if defined(RYU_WITH_EDITOR)
-		m_imguiRenderer = std::make_unique<ImGuiRenderer>();
+		, m_imguiRenderer()
 #endif
+	{
 		RYU_ASSERT(m_window, "Window is not initialized.");
 	}
 
@@ -65,8 +65,9 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_device = Device::Create();
-		DeviceWeakPtr parent = m_device;
+		m_device = std::make_shared<Device>();
+		m_device->Initialize();
+		DeviceWeakPtr parent = m_device->weak_from_this();
 
 		CreateRootSignature();
 		CompileShaders();
@@ -91,7 +92,7 @@ namespace Ryu::Gfx
 		m_swapChain.Initialize(m_device, cmdQueue, m_rtvDescHeap, m_window, BACK_BUFFER_FORMAT);
 
 #if defined(RYU_WITH_EDITOR)
-		m_imguiRenderer->Initialize(m_device.get(), m_window, m_srvDescHeap, FRAME_BUFFER_COUNT, m_swapChain.GetFormat());
+		m_imguiRenderer.Initialize(m_device.get(), m_window, m_srvDescHeap, FRAME_BUFFER_COUNT, m_swapChain.GetFormat());
 #endif
 		// Wait until initialization is complete
 		m_device->GetCommandContext().Flush();
@@ -106,8 +107,7 @@ namespace Ryu::Gfx
 			m_device->GetCommandContext().Flush();
 
 #if defined(RYU_WITH_EDITOR)
-			m_imguiRenderer->Shutdown();
-			m_imguiRenderer.reset();
+			m_imguiRenderer.Shutdown();
 #endif
 
 			RYU_LOG_DEBUG("Destroying swapchain");
@@ -222,7 +222,7 @@ namespace Ryu::Gfx
 		psoDesc.RTVFormats[0]                   = DXGI_FORMAT_R8G8B8A8_UNORM;
 		psoDesc.SampleDesc.Count                = 1;
 
-		m_pso.Initialize(m_device, psoDesc);
+		m_pso.Initialize(m_device->weak_from_this(), psoDesc);
 	}
 
 	void Renderer::CreateVB()
@@ -347,16 +347,16 @@ namespace Ryu::Gfx
 
 #if defined(RYU_WITH_EDITOR)
 		// Only worth rendering ImGui if the callback is set
-		if (m_imguiCallback && m_imguiRenderer)
+		if (ImGuiCallback)
 		{		
-			m_imguiRenderer->BeginFrame();
-			std::invoke(m_imguiCallback, this);
+			m_imguiRenderer.BeginFrame();
+			std::invoke(ImGuiCallback, this);
 
 			// IMPORTANT: Set descriptor heap for ImGui before rendering
 			ID3D12DescriptorHeap* descriptorHeaps[] = { m_srvDescHeap.Get() };
 			cmdList.Get()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-			m_imguiRenderer->Render(cmdList);
+			m_imguiRenderer.Render(cmdList);
 		}
 #endif
 

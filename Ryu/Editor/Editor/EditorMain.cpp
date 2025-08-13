@@ -6,7 +6,6 @@
 using namespace Ryu;
 using namespace Ryu::Editor;
 
-
 RYU_MAIN()
 {
 	RYU_DBG_TRACK_MEM();
@@ -32,9 +31,8 @@ RYU_MAIN()
 	}
 	catch (const AssertException& e)
 	{
-		static constexpr ::Ryu::Logging::LogCategory LogAssert{ "Assert" };
-		RYU_LOG_FATAL(LogAssert, "{}", e.what());
-		
+		RYU_LOG_FATAL("{}", e.what());
+
 		Engine::Shutdown();
 	}
 

@@ -1,8 +1,7 @@
 #include "Graphics/Core/CommandContext.h"
-#include "Common/Assert.h"
 #include "Graphics/Core/Device.h"
+#include "Common/Assert.h"
 #include "Logging/Logger.h"
-#include <format>
 
 namespace Ryu::Gfx
 {
@@ -86,7 +85,7 @@ namespace Ryu::Gfx
 			for (u32 i = 0; i < m_cmdFrames.size(); i++)
 			{
 				m_cmdFrames[i].Allocator.Initialize(parent->weak_from_this(), type);
-				m_cmdFrames[i].Allocator.SetName(std::format("{} Command Allocator ({})", EnumToString(type), i).c_str());
+				m_cmdFrames[i].Allocator.SetName(fmt::format("{} Command Allocator ({})", EnumToString(type), i).c_str());
 			}
 
 			// Init cmd list

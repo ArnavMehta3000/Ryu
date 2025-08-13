@@ -1,5 +1,6 @@
 #pragma once
 #include "Graphics/Core/DeviceObject.h"
+#include "Graphics/Core/DescriptorHeap.h"
 #include <optional>
 
 namespace Ryu::Gfx
@@ -22,7 +23,7 @@ namespace Ryu::Gfx
 		static constexpr u32 MAX_MIPS = 14;
 
 		RYU_GFX_NATIVE(m_resource)
-		
+
 		Texture() = default;
 		explicit Texture(DeviceWeakPtr parent, const TextureInitInfo& info, DescriptorHeap& srvHeap);
 		~Texture();

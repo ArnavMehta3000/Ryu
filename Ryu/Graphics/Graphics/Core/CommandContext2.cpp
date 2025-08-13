@@ -92,7 +92,7 @@ namespace Ryu::Gfx
 		m_cmdList->Close();
 
 		std::array<ID3D12CommandList*, 1> cmdLists = { m_cmdList.Get() };
-		m_cmdQueue.Get()->ExecuteCommandLists(cmdLists.size(), cmdLists.data());
+		m_cmdQueue.Get()->ExecuteCommandLists((u32)cmdLists.size(), cmdLists.data());
 
 		++m_fenceValue;
 

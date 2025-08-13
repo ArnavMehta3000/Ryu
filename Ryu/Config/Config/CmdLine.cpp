@@ -21,7 +21,7 @@ namespace Ryu::Config
 			return nullptr;
 		}
 		
-		return it->second.get();
+		return it->second;
 	}
 	
 	std::string CmdLine::GetCVarValue(std::string_view name) const

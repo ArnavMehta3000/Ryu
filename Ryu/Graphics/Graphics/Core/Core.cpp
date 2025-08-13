@@ -37,7 +37,7 @@ namespace Ryu::Gfx::Core
 	{
 		g_cmdCtx.BeginFrame();
 
-		auto& cmdList = g_cmdCtx.GetCommandList();
+		//auto& cmdList = g_cmdCtx.GetCommandList();
 
 		g_cmdCtx.EndFrame();
 	}
@@ -162,5 +162,7 @@ namespace Ryu::Gfx::Core
 	void CreateSwapChain(HWND window, DXGI_FORMAT backBufferFormat)
 	{
 		RYU_ASSERT(g_factory, "DXGI factory is not initialized.");
+
+		// Not finished implementing
 	}
 }

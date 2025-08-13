@@ -12,12 +12,6 @@
 
 namespace Ryu::Engine
 {
-	namespace
-	{
-		// Logger pointer used by plugins
-		Logging::Logger* g_pluginLogger = nullptr;
-	}
-
 	RYU_LOG_DECLARE_CATEGORY(Engine);
 
 	void PrintMemoryStats()
@@ -99,6 +93,13 @@ namespace Ryu::Engine
 		RYU_LOG_INFO(LogEngine, "Engine shutdown completed");
 
 		PrintMemoryStats();
+
+		// Shutdown the logger
+		if (auto* logger = Logging::Internal::GetLoggerInstance())
+		{
+			logger->Flush();
+			logger->Shutdown();
+		}
 	}
 
 	void Engine::MainLoop()

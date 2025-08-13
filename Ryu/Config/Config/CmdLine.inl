@@ -35,7 +35,7 @@ namespace Ryu::Config
 			throw std::runtime_error("CVar with same name found!");
 		}
 
-		m_cvars[nameStr] = std::unique_ptr<ICVarBase>(cvar);
+		m_cvars[nameStr] = cvar;
 
 		AddToCLI(name, cvar);
 	}

@@ -11,6 +11,9 @@ namespace Ryu::Gfx
     class ImGuiDescriptorAllocator
     {
     public:
+        ImGuiDescriptorAllocator() = default;
+        ~ImGuiDescriptorAllocator();
+
         void Initialize(DescriptorHeap* heap, Device* device);
         void Shutdown();
 
@@ -26,7 +29,7 @@ namespace Ryu::Gfx
     class ImGuiRenderer
     {
     public:
-        ImGuiRenderer() = default;
+        ImGuiRenderer();
         ~ImGuiRenderer() = default;
 
         void Initialize(Device* device, HWND window, DescriptorHeap& srvHeap, u32 frameCount, Format rtvFormat);

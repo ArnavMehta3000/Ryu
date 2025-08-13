@@ -42,7 +42,7 @@ namespace Ryu::Editor
 		}
 
 		Gfx::Renderer* renderer = Engine::Engine::Get().GetRenderer();
-		renderer->SetImGuiCallback(std::bind(&EditorApp::OnImGui, this, std::placeholders::_1));
+		renderer->SetImGuiCallback([this](Gfx::Renderer* renderer) { OnImGui(renderer); });
 
 		// Init user application
 		RYU_LOG_TRACE(LogEditorApp, "Initializing user application");

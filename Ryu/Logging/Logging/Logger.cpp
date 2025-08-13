@@ -6,7 +6,7 @@
 namespace Ryu::Logging
 {
     namespace fs = std::filesystem;
-    static std::unique_ptr<Logger> s_logger{ nullptr };
+    Logger s_logger;
 
     std::string LoggingConfig::GetSpdlogPattern() const
     {
@@ -38,12 +38,6 @@ namespace Ryu::Logging
     Logger::Logger()
         : m_onFatalCallback([](LogLevel, const std::string&) { std::abort(); })
     {
-    }
-
-    Logger::~Logger()
-    {
-        Flush();
-        spdlog::shutdown();
     }
 
     void Logger::Configure(const LoggingConfig& config)
@@ -227,6 +221,11 @@ namespace Ryu::Logging
         }
     }
 
+    void Logger::Shutdown()
+    {
+        spdlog::shutdown();
+    }
+
     std::string Logger::FormatCategoryName(const LogCategory& category) const
     {
         return std::string(category.Name);
@@ -234,12 +233,7 @@ namespace Ryu::Logging
 
     Logger* Internal::GetLoggerInstance()
     {
-        if (!s_logger)
-        {
-			s_logger = std::make_unique<Logger>();
-        }
-
-		return s_logger.get();
+        return &s_logger;
     }
 }
 

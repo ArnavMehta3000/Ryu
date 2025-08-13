@@ -65,7 +65,7 @@ namespace Ryu::Config
 	};
 
 	template <Internal::CVarAllTypes T>
-	class CVar : public ICVarBase
+	class CVar final : public ICVarBase
 	{
 		friend class CmdLine;
 	public:
@@ -74,7 +74,8 @@ namespace Ryu::Config
 
 		// Auto registration
 		constexpr CVar(std::string_view name, const T defaultValue, std::string_view description = "", CVarFlags flags = CVarFlags::None, CallbackType callback = nullptr);
-		
+		~CVar() {}
+
 		const T Get() const noexcept;
 		bool Set(const T& value);
 		operator const T () const noexcept { return Get(); }

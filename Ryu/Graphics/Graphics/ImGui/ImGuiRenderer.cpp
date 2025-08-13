@@ -6,6 +6,11 @@
 
 namespace Ryu::Gfx
 {
+	ImGuiDescriptorAllocator::~ImGuiDescriptorAllocator()
+	{
+		m_heap = nullptr;
+		m_device = nullptr;
+	}
 	void ImGuiDescriptorAllocator::Initialize(DescriptorHeap* heap, Device* device)
 	{
 		m_heap = heap;
@@ -59,6 +64,11 @@ namespace Ryu::Gfx
 		}
 	}
 
+	ImGuiRenderer::ImGuiRenderer()
+		: m_descriptorAllocator()
+	{
+	}
+
 	void ImGuiRenderer::Initialize(Device* device, HWND window, DescriptorHeap& srvHeap, u32 frameCount, Format rtvFormat)
 	{
 		// Setup ImGui context
@@ -76,7 +86,7 @@ namespace Ryu::Gfx
 
 		m_descriptorAllocator.Initialize(&srvHeap, device);
 
-		ImGui_ImplDX12_InitInfo init_info = {};
+		ImGui_ImplDX12_InitInfo init_info{};
 		init_info.Device                  = device->GetDevice();
 		init_info.CommandQueue            = device->GetCommandContext().GetCommandQueue().Get();
 		init_info.NumFramesInFlight       = frameCount;

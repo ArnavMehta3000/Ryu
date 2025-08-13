@@ -48,7 +48,7 @@ namespace Ryu::Engine
 
 	static Config::CVar<std::string> s_logPattern(
 		"Log.Pattern",
-		"",
+		std::string(),
 		"Use custom log pattern");
 
 	static Config::CVar<bool> s_logAsync(

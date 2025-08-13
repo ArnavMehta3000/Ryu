@@ -56,10 +56,10 @@ namespace Ryu::Gfx
 	Renderer::Renderer(HWND window)
 		: m_window(window)
 		, m_vertexBufferView()
-#if defined(RYU_WITH_EDITOR)
-		, m_imguiRenderer(std::make_unique<ImGuiRenderer>())
-#endif
 	{
+#if defined(RYU_WITH_EDITOR)
+		m_imguiRenderer = std::make_unique<ImGuiRenderer>();
+#endif
 		RYU_ASSERT(m_window, "Window is not initialized.");
 	}
 
@@ -109,7 +109,6 @@ namespace Ryu::Gfx
 
 #if defined(RYU_WITH_EDITOR)
 			m_imguiRenderer->Shutdown();
-			m_imguiCallback.reset();
 			m_imguiRenderer.reset();
 #endif
 
@@ -350,10 +349,10 @@ namespace Ryu::Gfx
 
 #if defined(RYU_WITH_EDITOR)
 		// Only worth rendering ImGui if the callback is set
-		if (m_imguiCallback.has_value() && m_imguiRenderer)
+		if (m_imguiCallback && m_imguiRenderer)
 		{		
 			m_imguiRenderer->BeginFrame();
-			(*m_imguiCallback)(this);
+			std::invoke(m_imguiCallback, this);
 
 			// IMPORTANT: Set descriptor heap for ImGui before rendering
 			ID3D12DescriptorHeap* descriptorHeaps[] = { m_srvDescHeap.Get() };

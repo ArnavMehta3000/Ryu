@@ -232,9 +232,6 @@ namespace Ryu::Engine
 			logger->Flush();
 		}
 
-		if (m_renderer)
-		{
-			m_renderer->OnResize(width, height);
-		}
+		Gfx::Core::Resize(width, height);
 	}
 }

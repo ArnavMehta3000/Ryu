@@ -57,8 +57,7 @@ namespace Ryu::Engine
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
-		m_renderer->Initialize();
+		Gfx::Core::Init(m_app->GetWindow()->GetHandle(), DXGI_FORMAT_R8G8B8A8_UNORM);
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
@@ -83,8 +82,7 @@ namespace Ryu::Engine
 		m_scriptEngine.reset();
 		m_app.reset();
 
-		m_renderer->Shutdown();
-		m_renderer.reset();
+		Gfx::Core::Shutdown();
 
 		Config::ConfigManager::Get().SaveAll();
 
@@ -111,11 +109,6 @@ namespace Ryu::Engine
 					m_app->ProcessWindowEvents();
 					m_app->OnTick(info);
 				});
-
-				if (m_renderer)
-				{
-					m_renderer->Render();
-				}
 
 				Window::Window::ClearPendingEvents();
 			}

@@ -1,5 +1,4 @@
 #include "EditorApp.h"
-#include "Engine/Engine.h"
 #include "Game/IGameModule.h"
 #include "Logging/Logger.h"
 #include "Profiling/Profiling.h"
@@ -39,8 +38,8 @@ namespace Ryu::Editor
 			return false;
 		}
 
-		Gfx::Renderer* renderer = Engine::Engine::Get().GetRenderer();
-		renderer->ImGuiCallback = [this](Gfx::Renderer* renderer) { OnImGui(renderer); };
+		//Gfx::Renderer* renderer = Engine::Engine::Get().GetRenderer();
+		//renderer->ImGuiCallback = [this](Gfx::Renderer* renderer) { OnImGui(renderer); };
 
 		// Init user application
 		RYU_LOG_TRACE("Initializing user application");
@@ -73,10 +72,10 @@ namespace Ryu::Editor
 		m_userApp->OnTick(timeInfo);
 	}
 
-	void EditorApp::OnImGui(MAYBE_UNUSED Gfx::Renderer* renderer)
-	{
-		ImGui::ShowDemoWindow();
-	}
+	//void EditorApp::OnImGui(MAYBE_UNUSED Gfx::Renderer* renderer)
+	//{
+	//	ImGui::ShowDemoWindow();
+	//}
 
 	bool EditorApp::RouteWndProc() const
 	{

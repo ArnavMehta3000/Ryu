@@ -17,7 +17,6 @@ namespace Ryu::Engine
 	public:
 		~Engine() = default;
 		inline RYU_API std::shared_ptr<App::App> GetApplication() const { return m_app; }
-		inline RYU_API Gfx::Renderer* GetRenderer() { return m_renderer.get(); }
 		inline RYU_API const Utils::Timer& GetTimer() const { return m_timer; }
 		RYU_API f64 GetEngineUpTime();
 		RYU_API void Quit() const noexcept;
@@ -36,7 +35,6 @@ namespace Ryu::Engine
 	private:
 		Utils::Timer                                  m_timer;
 		std::shared_ptr<App::App>                     m_app;
-		std::unique_ptr<Gfx::Renderer>                m_renderer;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
 	};
 

@@ -44,7 +44,10 @@ namespace Ryu::Gfx::Core
 	void Init(HWND window, DXGI_FORMAT backBufferFormat)
 	{
 		RYU_PROFILE_SCOPE();
+		
+#if defined(RYU_BUILD_DEBUG)
 		DebugLayer::Initialize();
+#endif
 
 		CreateDevice();
 		CreateSwapChain(window, backBufferFormat);

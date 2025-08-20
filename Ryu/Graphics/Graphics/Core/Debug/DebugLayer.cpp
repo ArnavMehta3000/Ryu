@@ -1,5 +1,4 @@
-#include "Graphics/Debug/DebugLayer.h"
-#include "Graphics/Core/Device.h"
+#include "Graphics/Core/Debug/DebugLayer.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
 #include "Logging/Logger.h"

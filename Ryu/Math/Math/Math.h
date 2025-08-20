@@ -6,11 +6,7 @@ namespace SM = DirectX::SimpleMath;
 
 namespace Ryu::Math
 {
-	constexpr float BytesToKiloBytes = 1.0f / (1 << 10);
-	constexpr float BytesToMegaBytes = 1.0f / (1 << 20);
-	constexpr float BytesToGigaBytes = 1.0f / (1 << 30);
-
-	constexpr UINT KilobytesToBytes = 1 << 10;
-	constexpr UINT MegaBytesToBytes = 1 << 20;
-	constexpr UINT GigaBytesToBytes = 1 << 30;
+	constexpr auto BytesToKB(auto bytes) { return bytes / 1024.0f; }
+	constexpr auto BytesToMB(auto bytes) { return BytesToKB(bytes) / 1024.0f; }
+	constexpr auto BytesToGB(auto bytes) { return BytesToMB(bytes) / 1024.0f; }
 }

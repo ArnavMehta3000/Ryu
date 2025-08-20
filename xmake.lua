@@ -71,10 +71,10 @@ includes("**/xmake.lua")
 -- Command line arguments
 set_runargs(
 	--"--ConfigFile="RyuConfig.toml",
-	"--Wnd.Width=1280",
-	"--Wnd.Height=720",
 	"--Gfx.EnableDebugLayer=true",
 	"--Gfx.EnableValidation=true",
+	"--Wnd.Width=1280",
+	"--Wnd.Height=720",
 	"--Log.Level=0",  -- For trace logs
 	"--Log.ToFile=true"
 )

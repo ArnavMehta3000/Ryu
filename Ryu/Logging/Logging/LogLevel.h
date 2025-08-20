@@ -23,13 +23,9 @@ namespace Ryu::Logging
     constexpr LogLevel COMPILE_TIME_LOG_LEVEL = LogLevel::Info;
 #elif defined(RYU_LOG_LEVEL_WARN)
     constexpr LogLevel COMPILE_TIME_LOG_LEVEL = LogLevel::Warn;
-#elif defined(RYU_LOG_LEVEL_ERROR)
-    constexpr LogLevel COMPILE_TIME_LOG_LEVEL = LogLevel::Error;
-#elif defined(RYU_LOG_LEVEL_FATAL)
-    constexpr LogLevel COMPILE_TIME_LOG_LEVEL = LogLevel::Fatal;
 #else
     #if defined(RYU_BUILD_DEBUG)
-        constexpr LogLevel COMPILE_TIME_LOG_LEVEL = LogLevel::Debug;
+        constexpr LogLevel COMPILE_TIME_LOG_LEVEL = LogLevel::Trace;
     #else
         constexpr LogLevel COMPILE_TIME_LOG_LEVEL = LogLevel::Info;
     #endif

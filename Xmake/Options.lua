@@ -1,29 +1,31 @@
-option("ryu-log-trace-enabled")
+option("ryu-log-level")
 	set_showmenu(true)
-	set_default(true)
+	set_default("default")
+	set_values("default", "trace", "debug", "info", "warn")
 	set_category("root Ryu/Logging")
-	set_description("Compile time switch to enable trace verbosity logs")
-option_end()
+	set_description("Compile time switch to set log level")
 
-option("ryu-log-debug-enabled")
-	set_showmenu(true)
-	set_default(true)
-	set_category("root Ryu/Logging")
-	set_description("Compile time switch to enable debug verbosity logs")
-option_end()
+	after_check(function (option)
+		local value = string.lower(option:value())
+		local define = ""  -- define to add
 
-option("ryu-log-info-enabled")
-	set_showmenu(true)
-	set_default(true)
-	set_category("root Ryu/Logging")
-	set_description("Compile time switch to enable info verbosity logs")
-option_end()
+		if value == "trace" then
+			define = "RYU_LOG_LEVEL_TRACE"
+		elseif value == "debug" then
+			define = "RYU_LOG_LEVEL_DEBUG"
+		elseif value == "info" then
+			define = "RYU_LOG_LEVEL_INFO"
+		elseif value == "warn" then
+			define = "RYU_LOG_LEVEL_WARN"
+		else
+			define = "default"
+		end
 
-option("ryu-log-warn-enabled")
-	set_showmenu(true)
-	set_default(true)
-	set_category("root Ryu/Logging")
-	set_description("Compile time switch to enable warn verbosity logs")
+		if define ~= "default" then
+			option:add("defines", define, { public = true })
+		end
+		cprint(format("Compile-time log level set to ${cyan}%s${clear}", value))
+	end)
 option_end()
 
 option("ryu-throw-on-fail-hresult")

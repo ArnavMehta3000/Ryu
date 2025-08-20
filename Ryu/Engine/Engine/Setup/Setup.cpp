@@ -117,7 +117,7 @@ namespace Ryu::Engine
 				// Integrate logging with assertion
 				Ryu::AssertManager::SetAssertHandler([](const AssertException& exception)
 				{
-					RYU_LOG_FATAL("Assertion failed: {}", exception.Message());
+					RYU_LOG_ERROR("Assertion failed: {}", exception.Message());
 
 					const auto& trace = exception.GetTrace();
 					if (!trace.empty())
@@ -130,7 +130,7 @@ namespace Ryu::Engine
 								entry.source_file(),
 								entry.source_line());
 						}
-						RYU_LOG_FATAL("Stack trace:\n{}", stackTraceStr);
+						RYU_LOG_ERROR("Stack trace:\n{}", stackTraceStr);
 					}
 
 					// Still throw the exception to maintain existing behavior

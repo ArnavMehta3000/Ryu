@@ -37,10 +37,9 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Engine Initialize");
 
+		// Setup path manager
 		const App::PathManager& pathManager = m_app->GetPathManager();
 		Config::ConfigManager::Get().Initialize((pathManager.GetProjectDir() / "Config").string());
-
-		PrintMemoryStats();
 
 		RYU_LOG_DEBUG("Initializing Engine");
 
@@ -78,6 +77,11 @@ namespace Ryu::Engine
 		{
 			logger->Flush();
 		}
+		
+		// Unsubscribe listeners
+		auto window = m_app->GetWindow();
+		window->Unsubscribe(m_resizeListener);
+		window->Unsubscribe(m_closeListener);
 
 		m_scriptEngine.reset();
 		m_app.reset();
@@ -110,7 +114,7 @@ namespace Ryu::Engine
 					m_app->OnTick(info);
 				});
 
-				Window::Window::ClearPendingEvents();
+				m_app->GetWindow()->ProcessEventQueue();
 			}
 		}
 		else
@@ -150,23 +154,18 @@ namespace Ryu::Engine
 			return;
 		}
 
-		// Close engine on application exit
-		auto visitor = Window::WindowEventVisitor
+		// Create window event listeners
+		auto window = m_app->GetWindow();
+
+		m_resizeListener = window->On<Window::ResizeEvent>([this] (const Window::ResizeEvent& e)
 		{
-			[this](const Window::CloseEvent&)  // Handle window close event
-			{
-				if (m_app)
-				{
-					RYU_LOG_DEBUG("Application window closed, shutting down...");
-					m_app->m_isRunning = false;
-				}
-			},
-			[this](const Window::ResizeEvent& e)  // Handle window resize event
-			{
-				OnAppResize(e.Width, e.Height);
-			}
-		};
-		m_app->GetWindow()->AddEventListener([&visitor](const Window::WindowEvent& e) { std::visit(visitor, e); });
+			OnAppResize(e.Width, e.Height);
+		});
+
+		m_closeListener = window->On<Window::CloseEvent>([this] (const Window::CloseEvent&)
+		{
+			Quit(); 
+		});
 
 		// Main loop
 		try

@@ -1,16 +1,17 @@
 #pragma once
 #include "Common/ObjectMacros.h"
-#include "Window/Events.h"
+#include "Window/WindowEvents.h"
 #include "Window/Input/InputSystem.h"
+#include "Event/EventEmitter.h"
 #include <unordered_map>
-#include <vector>
-#include <functional>
 #include <memory>
 #include <array>
 
 namespace Ryu::Window
 {
-	class Window : public std::enable_shared_from_this<Ryu::Window::Window>
+	class Window 
+		: public std::enable_shared_from_this<Ryu::Window::Window>
+		, public Event::EventEmitter
 	{
 		RYU_DISABLE_COPY_AND_MOVE(Window);
 	public:
@@ -26,6 +27,7 @@ namespace Ryu::Window
 			bool HasCloseButton              = true;
 			bool IsVisible                   = true;
 		};
+
 	public:
 		explicit Window(const Window::Config& config);
 		~Window();
@@ -85,16 +87,6 @@ namespace Ryu::Window
 		RYU_GET_ONLY_PROPERTY(Input, InputSystem);
 		const InputSystem& GetInput() const noexcept { return m_input; }
 
-		template <EventListener T>
-		void AddEventListener(T&& listener)
-		{
-			m_eventListeners.emplace_back(std::forward<T>(listener));
-		}
-
-		void RemoveAllEventListeners();
-
-		static inline const std::vector<WindowEvent>& GetPendingEvents() { return s_pendingEvents; }
-		static void ClearPendingEvents();
 
 		operator HWND() const { return m_hwnd; }
 		operator bool() const { return m_hwnd != nullptr; }
@@ -106,22 +98,19 @@ namespace Ryu::Window
 		void UpdateWindowStyle();
 		DWORD GetWindowStyle() const;
 		DWORD GetExtendedWindowStyle() const;
-		void DispatchEvent(WindowEvent event);
 		void HandleResizeTracking();
 		void EndResizeTracking();
 
 		static inline bool                              s_isWindowClassRegistered = false;
 		static inline const wchar_t*                    s_className = L"RyuWindow";
 		static inline std::unordered_map<HWND, Window*> s_windowMap;
-		static inline std::vector<WindowEvent>          s_pendingEvents;
 
-		HWND                                                 m_hwnd = nullptr;
-		Window::Config                                       m_config;
-		InputSystem                                          m_input;
-		std::vector<std::function<void(const WindowEvent&)>> m_eventListeners;
-		std::pair<i32, i32>                                  m_prevSize;
-		std::pair<i32, i32>                                  m_currentSize;
-		bool                                                 m_shouldClose = true;
-		bool                                                 m_isResizing  = false;
+		HWND                m_hwnd = nullptr;
+		Window::Config      m_config;
+		InputSystem         m_input;
+		std::pair<i32, i32> m_prevSize;
+		std::pair<i32, i32> m_currentSize;
+		bool                m_shouldClose = true;
+		bool                m_isResizing  = false;
 	};
 }

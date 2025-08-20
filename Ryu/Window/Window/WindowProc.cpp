@@ -2,7 +2,7 @@
 #include "Profiling/Profiling.h"
 
 /**
- * This file implements the Ryu::Window::Window::WWindowProc
+ * This file implements the Ryu::Window::Window::WindowProc
  */
 
 namespace Ryu::Window
@@ -15,7 +15,7 @@ namespace Ryu::Window
 		case WM_CLOSE:
 		{
 			m_shouldClose = true;
-			DispatchEvent(CloseEvent{ hwnd });
+			Emit(CloseEvent(hwnd));
 			break;
 		}
 
@@ -48,23 +48,23 @@ namespace Ryu::Window
 
 			if (wParam == SIZE_MINIMIZED)
 			{
-				DispatchEvent(MinimizeEvent{ hwnd });
+				Emit(MinimizeEvent(hwnd));
 			}
 			else if (wParam == SIZE_MAXIMIZED)
 			{
-				DispatchEvent(MaximizeEvent{ hwnd });
+				Emit(MaximizeEvent(hwnd));
 				if (m_currentSize != m_prevSize)
 				{
-					DispatchEvent(ResizeEvent{ hwnd, width, height });
+					Emit(ResizeEvent(hwnd, width, height));
 					m_prevSize = m_currentSize;
 				}
 			}
 			else if (wParam == SIZE_RESTORED && !m_isResizing)
 			{
-				DispatchEvent(RestoreEvent{ hwnd });
+				Emit(RestoreEvent(hwnd));
 				if (m_currentSize != m_prevSize)
 				{
-					DispatchEvent(ResizeEvent{ hwnd, width, height });
+					Emit(ResizeEvent(hwnd, width, height));
 					m_prevSize = m_currentSize;
 				}
 			}
@@ -78,7 +78,7 @@ namespace Ryu::Window
 
 			m_config.WindowPos = { xPos, yPos };
 
-			DispatchEvent(MoveEvent{ hwnd, xPos, yPos });
+			Emit(MoveEvent(hwnd, xPos, yPos ));
 			break;
 		}
 
@@ -107,7 +107,7 @@ namespace Ryu::Window
 				eventState = KeyState::Released;
 			}
 
-			DispatchEvent(KeyEvent{ hwnd, keyCode, eventState, modifiers, isRepeat });
+			Emit(KeyEvent(hwnd, keyCode, eventState, modifiers, isRepeat));
 			break;
 		}
 
@@ -144,7 +144,7 @@ namespace Ryu::Window
 			// Determine the KeyState for the event
 			KeyState eventState = isDown ? KeyState::Down : KeyState::Released;
 
-			DispatchEvent(MouseButtonEvent{ hwnd, LOWORD(lParam), HIWORD(lParam), button, eventState, modifiers });
+			Emit(MouseButtonEvent(hwnd, LOWORD(lParam), HIWORD(lParam), button, eventState, modifiers));
 			break;
 		}
 
@@ -155,7 +155,7 @@ namespace Ryu::Window
 			m_input.SetMousePosition(LOWORD(lParam), HIWORD(lParam));
 			m_input.SetModifierKeys(modifiers);
 
-			DispatchEvent(MouseMoveEvent{ hwnd, LOWORD(lParam), HIWORD(lParam), modifiers });
+			Emit(MouseMoveEvent(hwnd, LOWORD(lParam), HIWORD(lParam), modifiers));
 			break;
 		}
 
@@ -170,22 +170,24 @@ namespace Ryu::Window
 
 			m_input.SetModifierKeys(modifiers);
 
-			DispatchEvent(
+			Emit(
 				MouseWheelEvent
-				{
-					hwnd, pt.x, pt.y, delta,
+				(
+					hwnd,
+					pt.x, pt.y,
+					delta,
 					(msg == WM_MOUSEWHEEL)
 						? MouseWheelEvent::WheelType::Vertical
 						: MouseWheelEvent::WheelType::Horizontal,
 					modifiers
-				});
+				));
 			break;
 		}
 
 		case WM_CHAR:
 		{
 			char32 unicodeChar = static_cast<char32>(wParam);
-			DispatchEvent(TextInputEvent{ unicodeChar });
+			Emit(TextInputEvent(hwnd, unicodeChar));
 			break;
 		}
 
@@ -212,7 +214,7 @@ namespace Ryu::Window
 							m_input.SetMouseDelta(deltaX, deltaY);
 							m_input.SetModifierKeys(modifiers);
 
-							DispatchEvent(MouseMoveRawEvent{ hwnd, deltaX, deltaY, modifiers });
+							Emit(MouseMoveRawEvent(hwnd, deltaX, deltaY, modifiers));
 						}
 					}
 				}

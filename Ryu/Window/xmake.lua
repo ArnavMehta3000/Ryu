@@ -5,7 +5,7 @@ target("RyuWindow")
 	add_files("**.cpp", { unity_group = "Window" })
 	add_headerfiles("**.h")
 
-	add_deps("RyuConfig", "RyuProfiling")
+	add_deps("RyuConfig", "RyuProfiling", "RyuEvent")
 	add_links("Dwmapi")
 
 	if has_config("ryu-unity-build") then

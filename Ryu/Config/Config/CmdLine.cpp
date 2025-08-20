@@ -56,6 +56,7 @@ namespace Ryu::Config
 		catch (const CLI::ParseError& e)
 		{
 			OutputDebugStringA(e.what());
+			OutputDebugStringA("\n");
 			return false;
 		}
 		

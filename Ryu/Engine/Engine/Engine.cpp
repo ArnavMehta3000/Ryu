@@ -3,6 +3,7 @@
 #include "Globals/Globals.h"
 #include "Graphics/Core/Core.h"
 #include "Memory/New.h"
+#include "Math/Math.h"
 #include "App/Utils/PathManager.h"
 #include "App/AppConfig.h"
 #include "Logging/Logger.h"
@@ -14,22 +15,33 @@ namespace Ryu::Engine
 {
 	void PrintMemoryStats()
 	{
-		using namespace Ryu::Memory;
+		if (Memory::IsMemoryTrackingEnabled())
+		{
+			const size_t totalAllocated = Memory::GetTotalAllocated();
+			const size_t currentUsage = Memory::GetCurrentUsage();
+			const size_t peakUsage = Memory::GetPeakUsage();
+			const size_t allocationCount = Memory::GetAllocationCount();
+			const size_t deallocationCount = Memory::GetDeallocationCount();
+			const size_t activeAllocationCount = (allocationCount - deallocationCount);
 
-		RYU_LOG_DEBUG(
-			R"(--- Memory Stats (bytes) ---
-		Total Allocated: {}
-		Current Usage: {}
-		Peak Usage: {}
-		Allocation: {}
-		Deallocations: {}
-		Active Allocations: {})",
-			GetTotalAllocated(),
-			GetCurrentUsage(),
-			GetPeakUsage(),
-			GetAllocationCount(),
-			GetDeallocationCount(),
-			(GetAllocationCount() - GetDeallocationCount()));
+			RYU_LOG_DEBUG(R"(--- Memory Stats ---
+				  Total Allocated: {} ({:.2f}MB)
+				  Current Usage: {} ({:.2f}MB)
+				  Peak Usage: {} ({:.2f}MB)
+				  Allocations Count: {}
+				  Deallocations Count: {}
+				  Active Allocations Count: {})",
+				totalAllocated, Math::BytesToMB(totalAllocated),
+				currentUsage, Math::BytesToMB(currentUsage),
+				peakUsage, Math::BytesToMB(currentUsage),
+				allocationCount,
+				deallocationCount,
+				activeAllocationCount);
+		}
+		else
+		{
+			RYU_LOG_WARN("Tried to report memory stats, but memory tracking is disabled! See Memory/New.cpp");
+		}
 	}
 
 	bool Engine::Init()

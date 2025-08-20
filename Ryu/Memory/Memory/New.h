@@ -40,6 +40,8 @@ namespace Ryu::Memory
 		}
 	};
 
+	bool IsMemoryTrackingEnabled();
+
 	size_t GetTotalAllocated();
 	size_t GetCurrentUsage();
 	size_t GetPeakUsage();

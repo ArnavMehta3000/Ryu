@@ -2,7 +2,7 @@
 #include "App/Application.h"
 #include "Utils/Singleton.h"
 #include "Utils/ServiceLocator.h"
-#include "Graphics/Renderer.h"
+#include "Event/ListenerHandle.h"
 #include "Scripting/ScriptEngine.h"
 #include <memory>
 
@@ -36,6 +36,9 @@ namespace Ryu::Engine
 		Utils::Timer                                  m_timer;
 		std::shared_ptr<App::App>                     m_app;
 		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
+
+		Event::ListenerHandle m_resizeListener;
+		Event::ListenerHandle m_closeListener;
 	};
 
 	Utils::ServiceLocator& GetServiceLocator();

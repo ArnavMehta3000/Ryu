@@ -1,5 +1,5 @@
 #pragma once
-#include "Window/Events.h"
+#include "Window/WindowEvents.h"
 #include <functional>
 
 namespace Ryu::Window

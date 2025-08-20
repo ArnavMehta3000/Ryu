@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <dwmapi.h>
 
-
 namespace Ryu::Window
 {
 	static Config::CVar<i32> cv_winWidth("Wnd.Width", -1, "Width of the window.", Config::CVarFlags::ReadOnly);
@@ -275,16 +274,6 @@ namespace Ryu::Window
 		}
 	}
 
-	void Window::RemoveAllEventListeners()
-	{
-		m_eventListeners.clear();
-	}
-
-	void Window::ClearPendingEvents()
-	{
-		s_pendingEvents.clear();
-	}
-
 	LRESULT Window::StaticWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		Window* window{ nullptr };
@@ -382,20 +371,6 @@ namespace Ryu::Window
 		return WS_EX_APPWINDOW;
 	}
 
-	void Window::DispatchEvent(WindowEvent event)
-	{
-		RYU_PROFILE_SCOPE();
-		s_pendingEvents.push_back(event);
-
-		if (m_eventListeners.size() > 0)
-		{
-			for (const auto& listener : m_eventListeners)
-			{
-				listener(event);
-			}
-		}
-	}
-
 	void Window::HandleResizeTracking()
 	{
 		m_isResizing = true;
@@ -413,7 +388,7 @@ namespace Ryu::Window
 		// Only fire resize event if size changed
 		if (m_currentSize != m_prevSize)
 		{
-			DispatchEvent(ResizeEvent{ m_hwnd, m_currentSize.first, m_currentSize.second });
+			Emit(ResizeEvent(m_hwnd, m_currentSize.first, m_currentSize.second));
 			m_prevSize = m_currentSize;
 		}
 	}

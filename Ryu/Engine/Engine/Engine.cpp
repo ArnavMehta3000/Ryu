@@ -102,9 +102,9 @@ namespace Ryu::Engine
 
 		Config::ConfigManager::Get().SaveAll();
 
-		RYU_LOG_INFO("Engine shutdown completed");
-
 		PrintMemoryStats();
+
+		RYU_LOG_INFO("Engine shutdown completed");
 
 		// Shutdown the logger
 		if (auto* logger = Logging::Internal::GetLoggerInstance())

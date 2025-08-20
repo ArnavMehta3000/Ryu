@@ -1,68 +1,104 @@
 #include "Graphics/Core/CommandContext.h"
-#include "Graphics/Core/Device.h"
+#include "Graphics/Core/Core.h"
+#include "Profiling/Profiling.h"
 #include "Common/Assert.h"
 #include "Logging/Logger.h"
 
 namespace Ryu::Gfx
 {
-
-
-	CommandContext::CommandContext(DeviceWeakPtr parent, CommandListType type)
-		: DeviceObject(parent)
+	void CommandContext::CommandFrame::Wait(HANDLE fenceEvent, const ComPtr<DX12::Fence>& fence)
 	{
-		OnConstruct(type);
+		// If the current (completed) 'fenceValue' is less than 'FenceValue'
+		// We know that the GPU has not reached the fence value yet
+		// -> not finished executing the command lists / reached the 'm_cmdQieie->Signal' command
+		if (fence.Get()->GetCompletedValue() < FenceValue)
+		{
+			// Signal the fence event when the fence's current value reaches 'FenceValue'
+			DXCall(fence.Get()->SetEventOnCompletion(FenceValue, fenceEvent));
+
+			// Wait for the fence event
+			if (::WaitForSingleObjectEx(fenceEvent, TIMEOUT_DURATION, FALSE) == WAIT_TIMEOUT)
+			{
+				RYU_LOG_ERROR("Move to next frame timed out!");
+			}
+		}
+	}
+
+	void CommandContext::CommandFrame::Release()
+	{
+
 	}
 
 	CommandContext::~CommandContext()
 	{
-		// If there is a valid fence, that means we have not properly destructed
-		// -> This fixes the crash when `OnDestruct` is called from Destroy and the destructor
-		// -> Causing double calls to `Flush` -> `Wait` (where the assert fails on the fence)
-		if (m_fence)
+		RYU_ASSERT(!m_cmdQueue && !m_fence && !m_cmdList,
+			"CommandContext is not properly destructed. Call Destroy() first.");
+	}
+
+	void CommandContext::Create(CommandListType type)
+	{
+		RYU_PROFILE_SCOPE();
+
+		auto* device = Core::GetDevice().Get();
+
+		CreateCommandQueue(device, type);
+		CreateCommandAllocators(device, type);
+		CreateCommandList(device, type);
+		CreateSynchronization(device);
+	}
+
+	void CommandContext::Destroy()
+	{
+		RYU_PROFILE_SCOPE();
+
+		Flush();
+
+		ComRelease(m_fence);
+
+		if (m_fenceEvent)
 		{
-			OnDestruct();
+			::CloseHandle(m_fenceEvent);
+			m_fenceEvent = nullptr;
 		}
-		// Ensure everything is released
-		RYU_ASSERT(!m_cmdQueue && !m_fence && !m_cmdList);
+
+		ComRelease(m_cmdQueue);
+		ComRelease(m_cmdList);
+
+		for (u32 i = 0; i < m_cmdFrames.size(); i++)
+		{
+			m_cmdFrames[i].Release();
+		}
 	}
 
-	void CommandContext::BeginFrame(PipelineState* pso)
+	void CommandContext::BeginFrame()  // Wait for the current frame to be singalled
 	{
-		CommandFrame& frame = m_cmdFrames[m_frameIndex];
+		RYU_PROFILE_SCOPE();
 
+		CommandFrame& frame = m_cmdFrames[m_frameIndex];
 		frame.Wait(m_fenceEvent, m_fence);
-		frame.Allocator.Reset();
-		m_cmdList.Reset(frame.Allocator, pso);
+
+		// Reset the command buffers for this frame
+		frame.Allocator->Reset();
+		m_cmdList->Reset(frame.Allocator.Get(), nullptr);
 	}
 
-	void CommandContext::EndFrame()
+	void CommandContext::EndFrame()  // Signal the fence with a new value
 	{
-		m_cmdList.Close();
+		RYU_PROFILE_SCOPE();
 
-		ID3D12CommandList* cmdLists[] = { m_cmdList.Get() };
-		m_cmdQueue.Get()->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+		m_cmdList->Close();
 
-		u64& fenceValue = m_fenceValue;
-		++fenceValue;
+		std::array<ID3D12CommandList*, 1> cmdLists = { m_cmdList.Get() };
+		m_cmdQueue.Get()->ExecuteCommandLists((u32)cmdLists.size(), cmdLists.data());
+
+		++m_fenceValue;
 
 		CommandFrame& frame = m_cmdFrames[m_frameIndex];
-		frame.FenceValue = fenceValue;
+		frame.FenceValue = m_fenceValue;
 
-		m_cmdQueue.Signal(m_fence, fenceValue);
+		m_cmdQueue->Signal(m_fence.Get(), m_fenceValue);
 
 		m_frameIndex = (m_frameIndex + 1) % FRAME_BUFFER_COUNT;
-	}
-
-	void CommandContext::SetResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier)
-	{
-		RYU_ASSERT(m_cmdList, "Command list is not initialized.");
-		m_cmdList.Get()->ResourceBarrier(1, &barrier);
-	}
-
-	void CommandContext::SetResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers)
-	{
-		RYU_ASSERT(m_cmdList, "Command list is not initialized.");
-		m_cmdList.Get()->ResourceBarrier(static_cast<u32>(barriers.size()), barriers.data());
 	}
 
 	void CommandContext::Flush()
@@ -74,70 +110,55 @@ namespace Ryu::Gfx
 		m_frameIndex = 0;
 	}
 
-	void CommandContext::OnConstruct(CommandListType type)
+	void CommandContext::CreateCommandQueue(DX12::Device* device, CommandListType type)
 	{
-		if (DevicePtr parent = GetParent())
+
+		D3D12_COMMAND_QUEUE_DESC desc
 		{
-			// Init queue
-			m_cmdQueue.Initialize(parent, type, CommandQueuePriority::Normal);
+			.Type = DX12::ToNative(type),
+			.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+			.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
+			.NodeMask = 0
+		};
 
-			// Init allocators
-			for (u32 i = 0; i < m_cmdFrames.size(); i++)
-			{
-				m_cmdFrames[i].Allocator.Initialize(parent->weak_from_this(), type);
-				m_cmdFrames[i].Allocator.SetName(fmt::format("{} Command Allocator ({})", EnumToString(type), i).c_str());
-			}
-
-			// Init cmd list
-			m_cmdList.Initialize(parent->weak_from_this(), m_cmdFrames[0].Allocator, nullptr, type);
-
-			// Init fence
-			m_fence.Initialize(parent, 0, FenceFlag::None);
-			m_fenceEvent = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
-		}
+		DXCallEx(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_cmdQueue)), device);
+		DX12::SetObjectName(m_cmdQueue.Get(), fmt::format("Command Queue ({})", EnumToString(type)).c_str());
 	}
 
-	void CommandContext::OnDestruct()
+	void CommandContext::CreateCommandAllocators(DX12::Device* device, CommandListType type)
 	{
-		Flush();
-		m_fence.Destroy();
-
-		if (m_fenceEvent)
-		{
-			::CloseHandle(m_fenceEvent);
-			m_fenceEvent = nullptr;
-		}
-
-		m_cmdQueue.Destroy();
-		m_cmdList.Destroy();
-
+		D3D12_COMMAND_LIST_TYPE nativeType = DX12::ToNative(type);
 		for (u32 i = 0; i < m_cmdFrames.size(); i++)
 		{
-			m_cmdFrames[i].Release();
+			DXCallEx(device->CreateCommandAllocator(nativeType, IID_PPV_ARGS(&m_cmdFrames[i].Allocator)), device);
+
+			DX12::SetObjectName(m_cmdFrames[i].Allocator.Get(),
+				fmt::format("{} Command Allocator ({})", EnumToString(type), i).c_str());
 		}
+
 	}
 
-	void CommandContext::CommandFrame::Wait(HANDLE fenceEvent, Fence& fence)
+	void CommandContext::CreateCommandList(DX12::Device* device, CommandListType type)
 	{
-		RYU_ASSERT(fence.Get() && fenceEvent, "Fence is not initialized.");
+		// Create the graphics command list using the first allocator
+		DXCallEx(device->CreateCommandList(
+			0,                                    // Node mask
+			DX12::ToNative(type),
+			m_cmdFrames[0].Allocator.Get(),
+			nullptr,                              // PSO
+			IID_PPV_ARGS(&m_cmdList)),
+		device);
 
-		// If the current (completed) 'fenceValue' is less than 'FenceValue'
-		// We know that the GPU has not reached the fence value yet (not finished executing the command lists)
-
-		const u64 completedValue = fence.Get()->GetCompletedValue();
-		if (completedValue < FenceValue)
-		{
-			DXCall(fence.Get()->SetEventOnCompletion(FenceValue, fenceEvent));
-			if (::WaitForSingleObjectEx(fenceEvent, TIMEOUT_DURATION, FALSE) == WAIT_TIMEOUT)
-			{
-				RYU_LOG_ERROR("Move to next frame timed out!");
-			}
-		}
+		m_cmdList->Close();
+		DX12::SetObjectName(m_cmdList.Get(), fmt::format("Command List ({})", EnumToString(type)).c_str());
 	}
 
-	void CommandContext::CommandFrame::Release()
+	void CommandContext::CreateSynchronization(DX12::Device* device)
 	{
-		Allocator.Destroy();
-		FenceValue = 0;
+		DXCallEx(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)), device);
+		DX12::SetObjectName(m_fence.Get(), "Frame Fence");
+
+		m_fenceEvent = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
+		RYU_ASSERT(m_fenceEvent, "Failed to create fence event.");
 	}
 }

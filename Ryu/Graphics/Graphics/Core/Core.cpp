@@ -1,7 +1,6 @@
 #include "Graphics/Core/Core.h"
-#include "Graphics/Debug/DebugLayer.h"
-#include "Graphics/Core/CommandContext2.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
+#include "Graphics/Core/CommandContext.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Logging/Logger.h"
 #include "Common/Assert.h"
@@ -14,15 +13,23 @@ namespace Ryu::Gfx::Core
 #pragma region Variables
 	ComPtr<DX12::Device>    g_device;
 	ComPtr<DXGI::Factory>   g_factory;
-	ComPtr<DXGI::SwapChain> g_swapChain;
 	CD3DX12FeatureSupport   g_featureSupport;
-	CommandContext2         g_cmdCtx;
+	//DescriptorHeap          g_rtvHeap(DescriptorHeapType::RTV);
+	//DescriptorHeap          g_dsvHeap(DescriptorHeapType::DSV);
+	//DescriptorHeap          g_srvHeap(DescriptorHeapType::CBV_SRV_UAV);
+	//DescriptorHeap          g_uavHeap(DescriptorHeapType::CBV_SRV_UAV);
+	CommandContext          g_cmdCtx;
+	//SwapChain2              g_swapChain2;
 #pragma endregion
 
 #pragma region Accessors
 	const CD3DX12FeatureSupport& GetFeatureSupport() { return g_featureSupport; }
 	const ComPtr<DX12::Device>& GetDevice() { return g_device; }
 	const ComPtr<DXGI::Factory>& GetFactory() { return g_factory; }
+	//DescriptorHeap& GetRTVHeap() { return g_rtvHeap; }
+	//DescriptorHeap& GetDSVHeap() { return g_dsvHeap; }
+	//DescriptorHeap& GetSRVHeap() { return g_srvHeap; }
+	//DescriptorHeap& GetUAVHeap() { return g_uavHeap; }
 #pragma endregion
 
 #pragma region Forward declarations
@@ -60,6 +67,8 @@ namespace Ryu::Gfx::Core
 	{
 		RYU_PROFILE_SCOPE();
 
+		g_cmdCtx.Destroy();
+
 		ComRelease(g_factory);
 
 #if defined(RYU_BUILD_DEBUG)
@@ -70,7 +79,7 @@ namespace Ryu::Gfx::Core
 #else
 		ComRelease(g_device);  // Manually release device
 #endif
-		ComRelease(g_swapChain);
+		//g_swapChain2.Destroy();
 		ComRelease(g_device);
 	}
 
@@ -152,7 +161,7 @@ namespace Ryu::Gfx::Core
 			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
 				const std::string description = Utils::ToNarrowStr(desc.Description);
-				RYU_LOG_DEBUG("Using GPU: {} - {:.2f} GB", description, desc.DedicatedVideoMemory * Math::BytesToGigaBytes);
+				RYU_LOG_DEBUG("Using GPU: {} - {:.2f} GB", description, Math::BytesToGB(desc.DedicatedVideoMemory));
 				break;
 			}
 		}

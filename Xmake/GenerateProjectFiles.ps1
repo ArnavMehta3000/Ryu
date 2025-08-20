@@ -41,6 +41,50 @@ function Get-UserChoice {
 	return $result
 }
 
+# Function to get log level choice
+function Get-LogLevel {
+	param(
+		[string]$DefaultValue = "default"
+	)
+
+	Write-Host "Available log levels:"
+	Write-Host "  1. default - Default logging level"
+	Write-Host "  2. trace   - Most verbose logging"
+	Write-Host "  3. debug   - Debug level logging"
+	Write-Host "  4. info    - Info level logging"
+	Write-Host "  5. warn    - Warning level logging only"
+
+	$response = Read-Host "Select log level [1-5] or enter level name [$DefaultValue]"
+
+	if ([string]::IsNullOrWhiteSpace($response))
+	{
+		$logLevel = $DefaultValue
+	}
+	else
+	{
+		switch ($response.ToLower())
+		{
+			"1" { $logLevel = "default" }
+			"2" { $logLevel = "trace" }
+			"3" { $logLevel = "debug" }
+			"4" { $logLevel = "info" }
+			"5" { $logLevel = "warn" }
+			"default" { $logLevel = "default" }
+			"trace" { $logLevel = "trace" }
+			"debug" { $logLevel = "debug" }
+			"info" { $logLevel = "info" }
+			"warn" { $logLevel = "warn" }
+			default {
+				Write-Host "Invalid selection. Using default log level." -ForegroundColor Yellow
+				$logLevel = "default"
+			}
+		}
+	}
+
+	Write-Host "  > Log level set to: $logLevel" -ForegroundColor Yellow
+	return $logLevel
+}
+
 # Function to get output directory
 function Get-OutputDirectory
 {
@@ -107,11 +151,8 @@ function Get-ProjectConfiguration
 
 	$config = @{}
 
-	# RYU logging options
-	$config.ryuDebug = Get-UserChoice -Prompt "Enable debug logs? (y/n)" -OptionName "Debug logs"
-	$config.ryuWarn = Get-UserChoice -Prompt "Enable warning logs? (y/n)" -OptionName "Warning logs"
-	$config.ryuTrace = Get-UserChoice -Prompt "Enable trace logs? (y/n)" -OptionName "Trace logs"
-	$config.ryuInfo = Get-UserChoice -Prompt "Enable info logs? (y/n)" -OptionName "Info logs"
+	# RYU logging options - now simplified to a single log level
+	$config.logLevel = Get-LogLevel -DefaultValue "default"
 
 	# Assert options
 	$config.assertOnFail = Get-UserChoice -Prompt "Throw exceptions on HRESULT failure? (y/n)" -OptionName "Throw exceptions on HRESULT failure"
@@ -134,10 +175,7 @@ function Apply-ProjectConfiguration
 	Write-Host "`nApplying project configurations..." -ForegroundColor Cyan
 
 	xmake f `
-		--ryu-log-debug-enabled=$($Config.ryuDebug) `
-		--ryu-log-warn-enabled=$($Config.ryuWarn) `
-		--ryu-log-trace-enabled=$($Config.ryuTrace) `
-		--ryu-log-info-enabled=$($Config.ryuInfo) `
+		--ryu-log-level=$($Config.logLevel) `
 		--ryu-throw-on-fail-hresult=$($Config.assertOnFail) `
 		--ryu-enable-tracy-profiling=$($Config.enableProfiling) `
 		--ryu-build-with-editor=$($Config.withEditor)

@@ -1,6 +1,7 @@
 #pragma once
 #include "App/Application.h"
 #include "Game/World/World.h"
+#include "Event/ScopedListener.h"
 #include "Testbench/Input/GameInput.h"
 
 class TestbenchApp : public Ryu::App::App
@@ -19,4 +20,5 @@ private:
 private:
 	Ryu::Game::World m_world;
 	GInput m_gameInput;
+	Event::ScopedListener<Ryu::Window::KeyEvent> m_keyListener;
 };

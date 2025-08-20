@@ -1,4 +1,6 @@
 #include "Config/CmdLine.h"
+#include <sstream>
+#include <print>
 
 namespace Ryu::Config
 {
@@ -55,8 +57,32 @@ namespace Ryu::Config
 		}
 		catch (const CLI::ParseError& e)
 		{
-			OutputDebugStringA(e.what());
-			OutputDebugStringA("\n");
+			// I'll manually dump the error to the debug console and stdout
+			const auto Print = [](const std::string& msg)
+			{
+				OutputDebugStringA(msg.c_str());
+				OutputDebugStringA("\n");
+
+				std::println("{}", msg);
+			};
+
+			// Manually print error
+			std::ostringstream ssOut, ssErr;
+			m_cliApp->exit(e, ssOut, ssErr);
+			
+			const std::string out = ssOut.str();
+			const std::string err = ssErr.str();
+			
+			if (!out.empty())
+			{
+				Print(out);
+			}
+
+			if (!err.empty())
+			{
+				Print(err);
+			}
+
 			return false;
 		}
 		

@@ -51,6 +51,15 @@ namespace
 }
 
 #pragma region Getters
+bool Ryu::Memory::IsMemoryTrackingEnabled()
+{
+#if RYU_ENABLE_MEMORY_STATS
+	return true;
+#else
+	return false;
+#endif
+}
+
 size_t Ryu::Memory::GetTotalAllocated()
 {
     return g_stats.TotalAllocated.load();

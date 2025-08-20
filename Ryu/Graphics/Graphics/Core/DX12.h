@@ -63,6 +63,7 @@ namespace Ryu::Gfx
 #define DXCall(hr) ::Ryu::Gfx::Internal::LogHRESULT(hr, nullptr, #hr, __FILE__, __FUNCTION__, __LINE__)
 #define DXCallEx(hr, dx12Device) ::Ryu::Gfx::Internal::LogHRESULT(hr, dx12Device, #hr, __FILE__, __FUNCTION__, __LINE__)
 
+// Useful for wrapping D3D12 objects
 #define RYU_GFX_NATIVE(VarName)                                                                 \
 	inline NODISCARD auto* Get() const noexcept { return VarName.Get(); }                       \
 	inline void SetName(const char* name) const { DX12::SetObjectName(VarName.Get(), name); }   \

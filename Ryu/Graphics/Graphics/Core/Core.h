@@ -11,5 +11,10 @@ namespace Ryu::Gfx::Core
 	const CD3DX12FeatureSupport& GetFeatureSupport();
 	const ComPtr<DX12::Device>& GetDevice();
 	const ComPtr<DXGI::Factory>& GetFactory();
-	const ComPtr<DXGI::SwapChain&> GetSwapChain();
+	//const ComPtr<DXGI::SwapChain&> GetSwapChain();
+
+	//DescriptorHeap& GetRTVHeap();
+	//DescriptorHeap& GetDSVHeap();
+	//DescriptorHeap& GetSRVHeap();
+	//DescriptorHeap& GetUAVHeap();
 }

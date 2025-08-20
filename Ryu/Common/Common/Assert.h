@@ -70,15 +70,14 @@ namespace Ryu
     public:
         static void SetAssertHandler(AssertHandler handler)
         {
-            GetHandler() = std::move(handler);
+            s_handler = handler;
         }
 
         static void HandleAssert(const AssertException& exception)
         {
-            auto& handler = GetHandler();
-            if (handler)
+            if (s_handler)
             {
-                handler(exception);
+                std::invoke(s_handler, exception);
             }
             else
             {
@@ -88,11 +87,7 @@ namespace Ryu
         }
 
     private:
-        static AssertHandler& GetHandler()
-        {
-            static AssertHandler s_handler;
-            return s_handler;
-        }
+        static inline AssertHandler s_handler;
     };
 
 

@@ -6,6 +6,9 @@
 I am storing the size of the allocation in the first sizeof(size_t) bytes of the allocation.
 ----------------------------------------------------------------------------------------- */
 
+// Change this to 0 to disable memory stats
+#define RYU_ENABLE_MEMORY_STATS 1
+
 static Ryu::Memory::UsageStats g_stats{};
 
 namespace
@@ -74,82 +77,84 @@ size_t Ryu::Memory::GetDeallocationCount()
 }
 #pragma endregion
 
+// Override new/delete operations
+#if RYU_ENABLE_MEMORY_STATS
+[[nodiscard]] void* operator new(size_t size)
+{
+    size_t totalSize = GetTotalAllocationSize(size);
+    void* rawPtr = std::malloc(totalSize);
+    if (!rawPtr)
+    {
+        throw std::bad_alloc();
+    }
 
-//[[nodiscard]] void* operator new(size_t size)
-//{
-//    size_t totalSize = GetTotalAllocationSize(size);
-//    void* rawPtr = std::malloc(totalSize);
-//    if (!rawPtr)
-//    {
-//        throw std::bad_alloc();
-//    }
-//
-//    StoreSize(rawPtr, size);
-//    void* userPtr = GetUserPtr(rawPtr);
-//
-//    g_stats.AddAllocation(size);
-//
-//    return userPtr;
-//}
-//
-//[[nodiscard]] void* operator new(size_t size, const std::nothrow_t&) noexcept
-//{
-//    size_t totalSize = GetTotalAllocationSize(size);
-//    void* rawPtr = std::malloc(totalSize);
-//    if (!rawPtr)
-//    {
-//        return nullptr;
-//    }
-//
-//    StoreSize(rawPtr, size);
-//    void* userPtr = GetUserPtr(rawPtr);
-//
-//    g_stats.AddAllocation(size);
-//
-//    return userPtr;
-//}
-//
-//void operator delete(void* ptr) noexcept
-//{
-//    if (!ptr)
-//    {
-//        return;
-//    }
-//
-//    size_t size = GetStoredSize(ptr);
-//    void* rawPtr = GetRawPtr(ptr);
-//
-//    g_stats.RemoveAllocation(size);
-//    std::free(rawPtr);
-//}
-//
-//void operator delete(void* ptr, size_t size) noexcept
-//{
-//    if (!ptr)
-//    {
-//        return;
-//    }
-//
-//#if defined(RYU_BUILD_DEBUG)
-//    size_t stored_size = GetStoredSize(ptr);
-//    if (stored_size != size)
-//    {
-//        assert(false && "Provided size does not match stored size");
-//    }
-//#endif
-//
-//    void* rawPtr = GetRawPtr(ptr);
-//    g_stats.RemoveAllocation(size);
-//    std::free(rawPtr);
-//}
-//
-//[[nodiscard]] void* operator new[](size_t size) { return operator new(size); }
-//[[nodiscard]] void* operator new[](size_t size, const std::nothrow_t&) noexcept { return operator new(size, std::nothrow); }
-//
-//void operator delete(void* ptr, const std::nothrow_t&) noexcept { operator delete(ptr); }
-//void operator delete(void* ptr, size_t size, const std::nothrow_t&) noexcept { operator delete(ptr, size); }
-//
-//void operator delete[](void* ptr) noexcept { operator delete(ptr); }
-//void operator delete[](void* ptr, const std::nothrow_t&) noexcept { operator delete(ptr); }
-//void operator delete[](void* ptr, size_t size) noexcept { operator delete(ptr, size); }
-//void operator delete[](void* ptr, size_t size, const std::nothrow_t&) noexcept { operator delete(ptr, size); }
+    StoreSize(rawPtr, size);
+    void* userPtr = GetUserPtr(rawPtr);
+
+    g_stats.AddAllocation(size);
+
+    return userPtr;
+}
+
+[[nodiscard]] void* operator new(size_t size, const std::nothrow_t&) noexcept
+{
+    size_t totalSize = GetTotalAllocationSize(size);
+    void* rawPtr = std::malloc(totalSize);
+    if (!rawPtr)
+    {
+        return nullptr;
+    }
+
+    StoreSize(rawPtr, size);
+    void* userPtr = GetUserPtr(rawPtr);
+
+    g_stats.AddAllocation(size);
+
+    return userPtr;
+}
+
+void operator delete(void* ptr) noexcept
+{
+    if (!ptr)
+    {
+        return;
+    }
+
+    size_t size = GetStoredSize(ptr);
+    void* rawPtr = GetRawPtr(ptr);
+
+    g_stats.RemoveAllocation(size);
+    std::free(rawPtr);
+}
+
+void operator delete(void* ptr, size_t size) noexcept
+{
+    if (!ptr)
+    {
+        return;
+    }
+
+#if defined(RYU_BUILD_DEBUG)
+    size_t stored_size = GetStoredSize(ptr);
+    if (stored_size != size)
+    {
+        assert(false && "Provided size does not match stored size");
+    }
+#endif
+
+    void* rawPtr = GetRawPtr(ptr);
+    g_stats.RemoveAllocation(size);
+    std::free(rawPtr);
+}
+
+[[nodiscard]] void* operator new[](size_t size) { return operator new(size); }
+[[nodiscard]] void* operator new[](size_t size, const std::nothrow_t&) noexcept { return operator new(size, std::nothrow); }
+
+void operator delete(void* ptr, const std::nothrow_t&) noexcept { operator delete(ptr); }
+void operator delete(void* ptr, size_t size, const std::nothrow_t&) noexcept { operator delete(ptr, size); }
+
+void operator delete[](void* ptr) noexcept { operator delete(ptr); }
+void operator delete[](void* ptr, const std::nothrow_t&) noexcept { operator delete(ptr); }
+void operator delete[](void* ptr, size_t size) noexcept { operator delete(ptr, size); }
+void operator delete[](void* ptr, size_t size, const std::nothrow_t&) noexcept { operator delete(ptr, size); }
+#endif

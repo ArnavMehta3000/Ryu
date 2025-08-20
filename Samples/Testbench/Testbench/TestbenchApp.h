@@ -20,5 +20,5 @@ private:
 private:
 	Ryu::Game::World m_world;
 	GInput m_gameInput;
-	Event::ScopedListener<Ryu::Window::KeyEvent> m_keyListener;
+	Ryu::Event::ScopedListener<Ryu::Window::KeyEvent> m_keyListener;
 };

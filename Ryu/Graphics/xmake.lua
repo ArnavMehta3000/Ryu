@@ -10,6 +10,7 @@ target("RyuGraphics")
 		"RyuGlobals",
 		"RyuGame",
 		"RyuProfiling",
+		"RyuThreading",
 		"RyuLogging",
 		"RyuConfig",
 		"RyuMath"

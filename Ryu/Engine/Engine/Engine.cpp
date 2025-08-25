@@ -237,7 +237,10 @@ namespace Ryu::Engine
 			// Flush the log here in case something fails
 			logger->Flush();
 		}
+		
+		UNREFERENCED_PARAMETER(width);
+		UNREFERENCED_PARAMETER(height);
 
-		Gfx::Core::Resize(width, height);
+		Gfx::Core::Resize();
 	}
 }

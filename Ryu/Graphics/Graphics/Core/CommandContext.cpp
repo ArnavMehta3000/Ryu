@@ -51,7 +51,7 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		Flush();
+		// Assume fkush has been called externally
 
 		ComRelease(m_fence);
 

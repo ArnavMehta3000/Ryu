@@ -16,9 +16,9 @@ namespace Ryu::Gfx
 	{
 	}
 	
-	CD3DX12_CPU_DESCRIPTOR_HANDLE DescriptorAllocator::Allocate(u32 count)
+	DescriptorHandle DescriptorAllocator::Allocate(u32 count)
 	{
-		RYU_LOG_TRACE("Allocating {} descriptors", count);
+		RYU_LOG_TRACE("Allocating {} descriptor(s)", count);
 
 		if (!m_currentHeap || m_remainingFreeHandles < count)
 		{
@@ -32,7 +32,7 @@ namespace Ryu::Gfx
 			}
 		}
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE handle(m_currentHandle);
+		DescriptorHandle handle(m_currentHandle, {});  // No GPU handle
 
 		m_currentHandle.Offset(count, m_descriptorSize);
 		m_remainingFreeHandles -= count;

@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/Core/DX12.h"
+#include "Graphics/Core/DescriptorHandle.h"
 #include <mutex>
 #include <vector>
 
@@ -13,7 +13,7 @@ namespace Ryu::Gfx
 
 		DescriptorAllocator(DescriptorHeapType type);
 
-		CD3DX12_CPU_DESCRIPTOR_HANDLE Allocate(u32 count);
+		DescriptorHandle Allocate(u32 count);
 		static void DestroyAll();
 	
 	private:

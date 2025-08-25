@@ -1,4 +1,9 @@
 #include "Config/CmdLine.h"
+
+#if defined (RYU_BUILD_DEBUG)
+	#include "Utils/StringConv.h"
+#endif
+
 #include <sstream>
 #include <print>
 
@@ -53,6 +58,12 @@ namespace Ryu::Config
 		try
 		{
 			std::wstring cmd(GetCommandLine());
+			RYU_DEBUG_BLOCK(
+				const std::string str = Utils::ToNarrowStr(cmd);
+				::OutputDebugStringA(str.c_str());
+				::OutputDebugStringA("\n");
+				std::println("{}\n\n", str);
+			)
 			m_cliApp->parse(cmd, true);
 		}
 		catch (const CLI::ParseError& e)
@@ -60,8 +71,8 @@ namespace Ryu::Config
 			// I'll manually dump the error to the debug console and stdout
 			const auto Print = [](const std::string& msg)
 			{
-				OutputDebugStringA(msg.c_str());
-				OutputDebugStringA("\n");
+				::OutputDebugStringA(msg.c_str());
+				::OutputDebugStringA("\n");
 
 				std::println("{}", msg);
 			};

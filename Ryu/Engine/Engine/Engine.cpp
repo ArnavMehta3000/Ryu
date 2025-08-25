@@ -68,7 +68,7 @@ namespace Ryu::Engine
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		Gfx::Core::Init(m_app->GetWindow()->GetHandle(), DXGI_FORMAT_R8G8B8A8_UNORM);
+		Gfx::Core::Init(m_app->GetWindow()->GetHandle());
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
@@ -125,6 +125,8 @@ namespace Ryu::Engine
 					m_app->ProcessWindowEvents();
 					m_app->OnTick(info);
 				});
+				
+				Gfx::Core::Render();
 
 				m_app->GetWindow()->ProcessEventQueue();
 			}

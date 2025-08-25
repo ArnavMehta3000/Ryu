@@ -103,6 +103,8 @@ namespace Ryu::Gfx
 
 	void CommandContext::Flush()
 	{
+		RYU_LOG_DEBUG("Flushing all command frames");
+
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
 			m_cmdFrames[i].Wait(m_fenceEvent, m_fence);

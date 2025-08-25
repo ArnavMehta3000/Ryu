@@ -26,7 +26,7 @@ namespace Ryu::Gfx
 
 	void CommandContext::CommandFrame::Release()
 	{
-
+		ComRelease(Allocator);
 	}
 
 	CommandContext::~CommandContext()

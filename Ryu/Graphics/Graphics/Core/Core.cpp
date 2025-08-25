@@ -1,6 +1,9 @@
 #include "Graphics/Core/Core.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
 #include "Graphics/Core/CommandContext.h"
+#include "Graphics/Core/DescriptorAllocator.h"
+#include "Graphics/Core/DescriptorHeap.h"
+#include "Graphics/Core/SwapChain.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Logging/Logger.h"
 #include "Common/Assert.h"
@@ -10,32 +13,34 @@
 
 namespace Ryu::Gfx::Core
 {
+	using HeapAllocArray = std::array<DescriptorAllocator, (size_t)DescriptorHeapType::_COUNT>;
+
 #pragma region Variables
 	ComPtr<DX12::Device>    g_device;
 	ComPtr<DXGI::Factory>   g_factory;
+	SwapChain               g_swapChain;
 	CD3DX12FeatureSupport   g_featureSupport;
-	//DescriptorHeap          g_rtvHeap(DescriptorHeapType::RTV);
-	//DescriptorHeap          g_dsvHeap(DescriptorHeapType::DSV);
-	//DescriptorHeap          g_srvHeap(DescriptorHeapType::CBV_SRV_UAV);
-	//DescriptorHeap          g_uavHeap(DescriptorHeapType::CBV_SRV_UAV);
+	DescriptorHeap          g_shaderVisibleHeap;
 	CommandContext          g_cmdCtx;
-	//SwapChain2              g_swapChain2;
+	HeapAllocArray          g_heapAllocators{ DescriptorAllocator(DescriptorHeapType::CBV_SRV_UAV), DescriptorAllocator(DescriptorHeapType::DSV),
+											  DescriptorAllocator(DescriptorHeapType::RTV)        , DescriptorAllocator(DescriptorHeapType::Sampler) };
 #pragma endregion
 
 #pragma region Accessors
 	const CD3DX12FeatureSupport& GetFeatureSupport() { return g_featureSupport; }
 	const ComPtr<DX12::Device>& GetDevice() { return g_device; }
 	const ComPtr<DXGI::Factory>& GetFactory() { return g_factory; }
-	//DescriptorHeap& GetRTVHeap() { return g_rtvHeap; }
-	//DescriptorHeap& GetDSVHeap() { return g_dsvHeap; }
-	//DescriptorHeap& GetSRVHeap() { return g_srvHeap; }
-	//DescriptorHeap& GetUAVHeap() { return g_uavHeap; }
+	const SwapChain& GetSwapChain() { return g_swapChain; }
+	CommandContext& GetCommandContext() { return g_cmdCtx; }
+	DescriptorHeap& GetShaderVisibleHeap() { return g_shaderVisibleHeap; }
+	DescriptorAllocator& GetDescriptorAllocator(DescriptorHeapType type) { return g_heapAllocators[(size_t)type]; }
+
 #pragma endregion
 
 #pragma region Forward declarations
 	void CreateDevice();
+	void CreateSwapChain(HWND window);
 	void GetHardwareAdapter(DXGI::Adapter** ppAdapter);
-	void CreateSwapChain(HWND window, DXGI_FORMAT backBufferFormat);
 #pragma endregion
 
 
@@ -46,30 +51,39 @@ namespace Ryu::Gfx::Core
 		//auto& cmdList = g_cmdCtx.GetCommandList();
 
 		g_cmdCtx.EndFrame();
+
+		g_swapChain.Present();
 	}
 
 
-	void Init(HWND window, DXGI_FORMAT backBufferFormat)
+	void Init(HWND window)
 	{
 		RYU_PROFILE_SCOPE();
-		
+
 #if defined(RYU_BUILD_DEBUG)
 		DebugLayer::Initialize();
 #endif
 
 		CreateDevice();
-		CreateSwapChain(window, backBufferFormat);
-
 		g_cmdCtx.Create(CommandListType::Direct);
+		CreateSwapChain(window);
+		RYU_CODE_BLOCK("Create resources")
+		{
+		}
+
+		// Wait for the GPU to finish all commands
+		g_cmdCtx.Flush();
 	}
 
 	void Shutdown()
 	{
 		RYU_PROFILE_SCOPE();
+		g_cmdCtx.Flush();
 
-		g_cmdCtx.Destroy();
-
+		DescriptorAllocator::DestroyAll();
 		ComRelease(g_factory);
+		g_swapChain.Destroy();
+		g_cmdCtx.Destroy();
 
 #if defined(RYU_BUILD_DEBUG)
 		DebugLayer::SetupSeverityBreaks(g_device, false);
@@ -79,7 +93,6 @@ namespace Ryu::Gfx::Core
 #else
 		ComRelease(g_device);  // Manually release device
 #endif
-		//g_swapChain2.Destroy();
 		ComRelease(g_device);
 	}
 
@@ -94,6 +107,7 @@ namespace Ryu::Gfx::Core
 #if defined(RYU_BUILD_DEBUG)
 		if (Gfx::IsDebugLayerEnabled())
 		{
+			RYU_LOG_TRACE("Creating DX12 device with debug layer enabled");
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
 #endif
@@ -134,6 +148,15 @@ namespace Ryu::Gfx::Core
 		// --- Set debug name & cache capabilities ---
 		DX12::SetObjectName(g_device.Get(), "Main Device");
 		DXCallEx(g_featureSupport.Init(g_device.Get()), g_device.Get());
+
+		RYU_LOG_DEBUG("Created DX12 device with feature level {}", Internal::FeatureLevelToString(g_featureSupport.MaxSupportedFeatureLevel()).data());
+	}
+
+	void CreateSwapChain(HWND window)
+	{
+		RYU_ASSERT(g_factory, "DXGI factory is not initialized.");
+
+		g_swapChain.Create(window);
 	}
 
 	void GetHardwareAdapter(DXGI::Adapter** ppAdapter)
@@ -169,10 +192,9 @@ namespace Ryu::Gfx::Core
 		*ppAdapter = adapter.Detach();
 	}
 
-	void CreateSwapChain(HWND window, DXGI_FORMAT backBufferFormat)
+	void Resize()
 	{
-		RYU_ASSERT(g_factory, "DXGI factory is not initialized.");
-
-		// Not finished implementing
+		g_cmdCtx.Flush();
+		g_swapChain.Resize();
 	}
 }

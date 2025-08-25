@@ -27,13 +27,14 @@ namespace Ryu::Gfx
 	class PipelineState;
 	class Fence;
 	class DescriptorHeap;
+	class DescriptorAllocator;
 	struct DescriptorHandle;
 	class Texture;
 
 	constexpr u32 TIMEOUT_DURATION        = 5000;
 	constexpr u32 FRAME_BUFFER_COUNT      = 2;
 	constexpr Format BACK_BUFFER_FORMAT   = Format::RGBA8_UNORM;
-	constexpr Format DEPTH_STENCIL_FORMAT = Format::D24S8;
+	constexpr Format DEPTH_STENCIL_FORMAT = Format::D32_FLOAT;
 
 	// Array of frame resources
 	template <typename T>

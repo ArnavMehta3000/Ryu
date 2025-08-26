@@ -13,8 +13,8 @@ namespace Ryu::Scripting
 		ScriptEngine(const std::string& scriptDir);
 		~ScriptEngine();
 
-		inline NODISCARD asIScriptEngine* GetEngine() const noexcept { return m_engine; }
-		inline NODISCARD asIScriptModule* GetModule() const noexcept { return m_module; }
+		[[nodiscard]] inline asIScriptEngine* GetEngine() const noexcept { return m_engine; }
+		[[nodiscard]] inline asIScriptModule* GetModule() const noexcept { return m_module; }
 
 	private:
 		static void EngineLogMessageCallback(asSMessageInfo* msg, void* param);

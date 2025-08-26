@@ -90,11 +90,11 @@ namespace Ryu::Gfx::DebugLayer
 			if (SUCCEEDED(d3dInfoQueue.As(&infoQueue1)))
 			{
 				const auto MessageCallback = [](
-					MAYBE_UNUSED D3D12_MESSAGE_CATEGORY category,
-					MAYBE_UNUSED D3D12_MESSAGE_SEVERITY severity,
-					MAYBE_UNUSED D3D12_MESSAGE_ID id,
-					MAYBE_UNUSED LPCSTR description,
-					MAYBE_UNUSED void* context)
+					[[maybe_unused]] D3D12_MESSAGE_CATEGORY category,
+					[[maybe_unused]] D3D12_MESSAGE_SEVERITY severity,
+					[[maybe_unused]] D3D12_MESSAGE_ID id,
+					[[maybe_unused]] LPCSTR description,
+					[[maybe_unused]] void* context)
 					{
 						if (severity == D3D12_MESSAGE_SEVERITY_INFO || severity == D3D12_MESSAGE_SEVERITY_MESSAGE)
 						{

@@ -38,8 +38,8 @@ namespace Ryu::Event
 			m_dispatcher.ProcessQueue();
 		}
 
-		NODISCARD EventDispatcher& GetDispatcher() { return m_dispatcher; }
-		NODISCARD const EventDispatcher& GetDispatcher() const { return m_dispatcher; }
+		[[nodiscard]] EventDispatcher& GetDispatcher() { return m_dispatcher; }
+		[[nodiscard]] const EventDispatcher& GetDispatcher() const { return m_dispatcher; }
 
 	protected:
 		EventDispatcher m_dispatcher;

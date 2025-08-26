@@ -7,7 +7,7 @@ namespace Ryu::Utils
 	class Singleton
 	{
 	public:
-		NODISCARD static T& Get()
+		[[nodiscard]] static T& Get()
 		{
 			static T instance;
 			return instance;

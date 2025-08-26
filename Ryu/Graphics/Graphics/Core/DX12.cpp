@@ -157,12 +157,12 @@ namespace Ryu::Gfx
 	}
 	
 	bool Internal::LogHRESULT(
-		MAYBE_UNUSED HRESULT hr,
-		MAYBE_UNUSED DX12::Device* device,
-		MAYBE_UNUSED const char* code,
-		MAYBE_UNUSED const char* fileName,
-		MAYBE_UNUSED const char* functionName,
-		MAYBE_UNUSED u32 lineNumber)
+		[[maybe_unused]] HRESULT hr,
+		[[maybe_unused]] DX12::Device* device,
+		[[maybe_unused]] const char* code,
+		[[maybe_unused]] const char* fileName,
+		[[maybe_unused]] const char* functionName,
+		[[maybe_unused]] u32 lineNumber)
 	{
 		if (FAILED(hr))
 		{

@@ -33,7 +33,7 @@ namespace Ryu::Gfx
 		void Resize();
 
 		inline bool CheckFlag(Flag flag) { return m_flags.test((u64)flag); }
-		inline NODISCARD const auto& Get() { return m_swapChain; }
+		[[nodiscard]] inline const auto& Get() { return m_swapChain; }
 
 	private:
 		void CreateSwapChain();

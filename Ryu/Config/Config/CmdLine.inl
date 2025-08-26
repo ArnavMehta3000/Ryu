@@ -6,7 +6,7 @@
 namespace Ryu::Config
 {
 	template<Internal::CVarAllTypes T>
-	constexpr inline CVar<T>::CVar(std::string_view name, const T defaultValue, std::string_view description, CVarFlags flags, CallbackType callback)
+	inline constexpr CVar<T>::CVar(std::string_view name, const T defaultValue, std::string_view description, CVarFlags flags, CallbackType callback)
 		: m_name(name)
 		, m_description(description)
 		, m_value(defaultValue)

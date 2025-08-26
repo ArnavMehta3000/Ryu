@@ -72,7 +72,7 @@ namespace Ryu::Editor
 		m_userApp->OnTick(timeInfo);
 	}
 
-	//void EditorApp::OnImGui(MAYBE_UNUSED Gfx::Renderer* renderer)
+	//void EditorApp::OnImGui([[maybe_unused]] Gfx::Renderer* renderer)
 	//{
 	//	ImGui::ShowDemoWindow();
 	//}

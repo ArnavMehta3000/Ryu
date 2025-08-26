@@ -23,11 +23,11 @@ namespace Ryu::Config
 		bool Save() const;
 		inline void MarkDirty() { m_isDirty = true; }
 
-		inline NODISCARD bool IsDirty() const { return m_isDirty; }
-		inline NODISCARD const toml::table& GetTable() const { return m_table; }
-		inline NODISCARD toml::table& GetTable() { return m_table; }
+		[[nodiscard]] inline bool IsDirty() const { return m_isDirty; }
+		[[nodiscard]] inline const toml::table& GetTable() const { return m_table; }
+		[[nodiscard]] inline toml::table& GetTable() { return m_table; }
 
-		NODISCARD fs::path GetFullPath() const;
+		[[nodiscard]] fs::path GetFullPath() const;
 
 	protected:
 		virtual void Serialize(toml::table& table) const { SerializeAll(table); }
@@ -68,8 +68,8 @@ namespace Ryu::Config
 
 		virtual ~ConfigValueBase() = default;
 
-		inline NODISCARD const std::string& GetSection() const { return m_section; }
-		inline NODISCARD const std::string& GetKey() const { return m_key; }
+		[[nodiscard]] inline const std::string& GetSection() const { return m_section; }
+		[[nodiscard]] inline const std::string& GetKey() const { return m_key; }
 
 		virtual void Serialize(toml::table& table) const = 0;
 		virtual void Deserialize(const toml::table& table) = 0;
@@ -107,7 +107,7 @@ namespace Ryu::Config
 		}
 
 		operator ValueType() const { return m_value; }
-		inline NODISCARD const T& Get() const { return m_value; }
+		[[nodiscard]] inline const T& Get() const { return m_value; }
 
 		ConfigValue& operator=(const ValueType& value)
 		{
@@ -228,7 +228,7 @@ namespace Ryu::Config
 		}
 
 		operator ValueType() const { return m_value; }
-		inline NODISCARD const ValueType& Get() const { return m_value; }
+		[[nodiscard]] inline const ValueType& Get() const { return m_value; }
 
 		ConfigValue& operator=(const ValueType& value)
 		{
@@ -314,7 +314,7 @@ namespace Ryu::Config
 		}
 
 		operator ValueType() const { return m_value; }
-		inline NODISCARD const ValueType& Get() const { return m_value; }
+		[[nodiscard]] inline const ValueType& Get() const { return m_value; }
 
 		ConfigValue& operator=(const ValueType& value)
 		{
@@ -525,7 +525,7 @@ namespace Ryu::Config
 		}
 
 		operator const T& () const { return m_value; }
-		inline NODISCARD const T& Get() const { return m_value; }
+		[[nodiscard]] inline const T& Get() const { return m_value; }
 
 		ConfigValue& operator=(const T& value)
 		{
@@ -545,7 +545,7 @@ namespace Ryu::Config
 			}
 		}
 
-		NODISCARD const ElementType& operator[](size_t index) const
+		[[nodiscard]] const ElementType& operator[](size_t index) const
 		{
 			return m_value[index];
 		}
@@ -668,7 +668,7 @@ namespace Ryu::Config
 		}
 
 		operator const T& () const { return m_value; }
-		inline NODISCARD const T& Get() const { return m_value; }
+		[[nodiscard]] inline const T& Get() const { return m_value; }
 
 		ConfigValue& operator=(const T& value)
 		{
@@ -688,7 +688,7 @@ namespace Ryu::Config
 			}
 		}
 
-		NODISCARD const ElementType& operator[](size_t index) const
+		[[nodiscard]] const ElementType& operator[](size_t index) const
 		{
 			return m_value[index];
 		}

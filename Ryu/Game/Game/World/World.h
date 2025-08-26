@@ -3,7 +3,6 @@
 #include "Utils/Serializer.h"
 #include <entt/entity/registry.hpp>
 #include <vector>
-#include <tuple>
 
 namespace Ryu::Game
 {
@@ -34,7 +33,7 @@ namespace Ryu::Game
 
 		template <Utils::Deserializable T> void DeserializeIntoExistingComponent(EntityHandle handle, const toml::table& table);
 
-		inline NODISCARD auto GetAllEntities() const { return m_registry.view<entt::entity>(); }
+		[[nodiscard]] inline auto GetAllEntities() const { return m_registry.view<entt::entity>(); }
 		inline Registry& GetRegistry() { return m_registry; }
 		inline const Registry& GetRegistry() const { return m_registry; }
 

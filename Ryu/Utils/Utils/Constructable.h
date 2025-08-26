@@ -223,7 +223,7 @@ namespace Ryu::Utils
         }
 
         // Get the stored compulsory arguments
-        const inline NODISCARD std::tuple<CompulsoryInitArgs...>& GetCompulsoryArgs() const noexcept
+        [[nodiscard]] inline const std::tuple<CompulsoryInitArgs...>& GetCompulsoryArgs() const noexcept
         {
             return m_compulsoryArgs;
         }

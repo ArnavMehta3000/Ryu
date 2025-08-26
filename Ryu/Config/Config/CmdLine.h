@@ -3,7 +3,6 @@
 #include "Config/CVar.h"
 #include <CLI/CLI.hpp>
 #include <unordered_map>
-#include <vector>
 #include <memory>
 #include <filesystem>
 
@@ -29,8 +28,8 @@ namespace Ryu::Config
         bool ParseCommandLine();
         void SaveFileConfig(const fs::path& filename);
 
-        const inline NODISCARD auto& GetAllCVars() const { return m_cvars; }
-        const inline NODISCARD auto& GetCLIApp() const { return *m_cliApp; }
+        [[nodiscard]] inline const auto& GetAllCVars() const { return m_cvars; }
+        [[nodiscard]] inline const auto& GetCLIApp() const { return *m_cliApp; }
 
     private:
         CmdLine() = default;

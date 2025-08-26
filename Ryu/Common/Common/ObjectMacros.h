@@ -17,13 +17,6 @@
 	extern "C" RYU_API ret name(__VA_ARGS__);\
 	using name##_f = decltype(&name)
 
-#define NODISCARD [[nodiscard]]
-#define FALLTHROUGH [[fallthrough]]
-#define LIKELY [[likely]]
-#define UNLIKELY [[unlikely]]
-#define MAYBE_UNUSED [[maybe_unused]]
-#define NO_RETURN [[noreturn]]
-
 #define RYU_STRING_IMPL(x) #x
 #define RYU_STRING(x) RYU_STRING_IMPL(x)
 

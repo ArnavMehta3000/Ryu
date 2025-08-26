@@ -15,13 +15,13 @@
 // WinMain
 #define RYU_WIN_MAIN()                             \
 int WINAPI wWinMain(                               \
-	_In_     MAYBE_UNUSED HINSTANCE hInstance,     \
-	_In_opt_ MAYBE_UNUSED HINSTANCE hPrevInstance, \
-	_In_     MAYBE_UNUSED LPWSTR    lpCmdLine,     \
-	_In_     MAYBE_UNUSED int       nCmdShow)
+	_In_     [[maybe_unused]] HINSTANCE hInstance,     \
+	_In_opt_ [[maybe_unused]] HINSTANCE hPrevInstance, \
+	_In_     [[maybe_unused]] LPWSTR    lpCmdLine,     \
+	_In_     [[maybe_unused]] int       nCmdShow)
 
 // Default main
-#define RYU_DEF_MAIN() int main(MAYBE_UNUSED int argc, MAYBE_UNUSED char *argv[])
+#define RYU_DEF_MAIN() int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 
 // Use dummy main when we are building with editor (for standalone main func) and not in editor (otherwise the editor gets the dummy main)
 #if defined(RYU_WITH_EDITOR) && !defined(RYU_IS_EDITOR)

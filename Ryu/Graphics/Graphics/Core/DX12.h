@@ -51,12 +51,12 @@ namespace Ryu::Gfx
 		std::string_view FeatureLevelToString(D3D_FEATURE_LEVEL level);
 		std::string GetErrorString(HRESULT errorCode, DX12::Device* device);
 		bool LogHRESULT(
-			MAYBE_UNUSED HRESULT hr,
-			MAYBE_UNUSED DX12::Device* device,
-			MAYBE_UNUSED const char* code,
-			MAYBE_UNUSED const char* fileName,
-			MAYBE_UNUSED const char* functionName,
-			MAYBE_UNUSED u32 lineNumber);
+			[[maybe_unused]] HRESULT hr,
+			[[maybe_unused]] DX12::Device* device,
+			[[maybe_unused]] const char* code,
+			[[maybe_unused]] const char* fileName,
+			[[maybe_unused]] const char* functionName,
+			[[maybe_unused]] u32 lineNumber);
 	}
 }
 
@@ -65,7 +65,7 @@ namespace Ryu::Gfx
 
 // Useful for wrapping D3D12 objects
 #define RYU_GFX_NATIVE(VarName)                                                                 \
-	inline NODISCARD auto& GetNative() const noexcept { return VarName; }                       \
+	[[nodiscard]] inline auto& GetNative() const noexcept { return VarName; }                   \
 	inline void SetName(const char* name) const { DX12::SetObjectName(VarName.Get(), name); }   \
 	operator auto* () const noexcept { return VarName.Get(); }                                  \
 	operator bool () const noexcept { return VarName.Get() != nullptr; }

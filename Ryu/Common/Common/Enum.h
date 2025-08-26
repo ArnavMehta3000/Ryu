@@ -20,13 +20,13 @@
 namespace Ryu
 {
 	template<typename Enum, typename = std::enable_if_t<std::is_enum_v<Enum>>>
-	constexpr inline bool EnumHasAllFlags(Enum flags, Enum contains)
+	inline constexpr bool EnumHasAllFlags(Enum flags, Enum contains)
 	{
 		return (((std::underlying_type_t<Enum>)flags) & (std::underlying_type_t<Enum>)contains) == ((std::underlying_type_t<Enum>)contains);
 	}
 
 	template<typename Enum, typename = std::enable_if_t<std::is_enum_v<Enum>>>
-	constexpr inline bool EnumHasAnyFlags(Enum flags, Enum contains)
+	inline constexpr bool EnumHasAnyFlags(Enum flags, Enum contains)
 	{
 		return (((std::underlying_type_t<Enum>)flags) & (std::underlying_type_t<Enum>)contains) != 0;
 	}

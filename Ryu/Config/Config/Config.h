@@ -13,7 +13,7 @@
 		friend class ::Ryu::Utils::Singleton<ThisType>;                                                 \
 		friend class ::Ryu::Config::ConfigBase;                                                         \
 		friend class ::Ryu::Config::ConfigManager;                                                      \
-		static inline const struct ConfigRegistrar                                                      \
+		inline static const struct ConfigRegistrar                                                      \
 		{                                                                                               \
 			::Elos::Connection<bool> m_onInitializedConnection;                                         \
 			ConfigRegistrar()                                                                           \

@@ -31,9 +31,9 @@ namespace Ryu::Game
 			m_uuidBytes = prettyUUIDStr.empty() ? Utils::UUID::GenerateBytes() : Utils::UUID::FromPrettyStringToBytes(prettyUUIDStr);
 		}
 
-		const inline NODISCARD Utils::UUID::Type GetUUID() const { return Utils::UUID::FromBytes(m_uuidBytes); }
-		const inline NODISCARD std::string& GetUUIDBytes() const { return m_uuidBytes; }
-		inline NODISCARD std::string GetUUIDPretty() const { return Utils::UUID::FromBytesToPrettyString(m_uuidBytes); }
+		[[nodiscard]] inline const Utils::UUID::Type GetUUID() const { return Utils::UUID::FromBytes(m_uuidBytes); }
+		[[nodiscard]] inline const std::string& GetUUIDBytes() const { return m_uuidBytes; }
+		[[nodiscard]] inline std::string GetUUIDPretty() const { return Utils::UUID::FromBytesToPrettyString(m_uuidBytes); }
 
 		std::string Name;
 		EntityFlags Flags;

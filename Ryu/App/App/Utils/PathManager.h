@@ -1,5 +1,4 @@
 #pragma  once
-#include "Common/ObjectMacros.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -11,8 +10,8 @@ namespace Ryu::App
 	public:
 		PathManager();
 
-		inline NODISCARD const fs::path& GetRootDir() const { return m_rootDir; }
-		inline NODISCARD const fs::path& GetProjectDir() const { return m_projectDir; }
+		inline [[nodiscard]] const fs::path& GetRootDir() const { return m_rootDir; }
+		inline [[nodiscard]] const fs::path& GetProjectDir() const { return m_projectDir; }
 
 	private:
 		fs::path FindRootDirectory();

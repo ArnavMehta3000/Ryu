@@ -21,6 +21,7 @@ RYU_MAIN()
 		Window::Window::Config windowConfig
 		{
 			.Title = "Testbench App"
+			.Type  = Window::WindowType::Borderless
 		};
 
 		auto window = std::make_shared<Window::Window>(windowConfig);

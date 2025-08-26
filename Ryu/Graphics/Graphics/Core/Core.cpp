@@ -22,8 +22,8 @@ namespace Ryu::Gfx::Core
 	CD3DX12FeatureSupport   g_featureSupport;
 	DescriptorHeap          g_shaderVisibleHeap;
 	CommandContext          g_cmdCtx;
-	HeapAllocArray          g_heapAllocators{ DescriptorAllocator(DescriptorHeapType::CBV_SRV_UAV), DescriptorAllocator(DescriptorHeapType::DSV),
-											  DescriptorAllocator(DescriptorHeapType::RTV)        , DescriptorAllocator(DescriptorHeapType::Sampler) };
+	HeapAllocArray          g_heapAllocators{ DescriptorAllocator(DescriptorHeapType::CBV_SRV_UAV), DescriptorAllocator(DescriptorHeapType::Sampler),
+											  DescriptorAllocator(DescriptorHeapType::RTV)        , DescriptorAllocator(DescriptorHeapType::DSV) };
 #pragma endregion
 
 #pragma region Accessors
@@ -192,8 +192,15 @@ namespace Ryu::Gfx::Core
 		*ppAdapter = adapter.Detach();
 	}
 
-	void Resize()
+	void Resize(u32 width, u32 height)
 	{
+		RYU_PROFILE_SCOPE();
+
+		if (width == 0 || height == 0)
+		{
+			return;
+		}
+
 		g_cmdCtx.Flush();
 		g_swapChain.Resize();
 	}

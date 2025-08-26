@@ -16,10 +16,10 @@ namespace Ryu::Gfx
 			_COUNT
 		};
 
-		struct BackBuffer
+		struct Surface
 		{
 			ComPtr<DX12::Resource> Resource;
-			DescriptorHandle       RTVHandle;
+			DescriptorHandle       Handle;
 		};
 
 	public:
@@ -45,8 +45,7 @@ namespace Ryu::Gfx
 		HWND                    m_window = nullptr;
 		DXGI_FORMAT             m_format;
 		ComPtr<DXGI::SwapChain> m_swapChain;
-		ComPtr<DX12::Resource>  m_depthStencil;
-		FrameArray<BackBuffer>  m_renderTargets;
+		FrameArray<Surface>     m_renderTargets;
 		u32                     m_currentFrameIndex = 0;
 		CD3DX12_VIEWPORT        m_viewport;
 		CD3DX12_RECT            m_scissorRect;

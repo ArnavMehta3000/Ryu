@@ -4,6 +4,7 @@
 #include "Config/CmdLine.h"
 #include "Profiling/Profiling.h"
 #include <stdexcept>
+#include <system_error>
 #include <dwmapi.h>
 
 namespace Ryu::Window
@@ -13,17 +14,73 @@ namespace Ryu::Window
 	static Config::CVar<i32> cv_winPosX("Wnd.PosX", CW_USEDEFAULT, "X-Position of the window.", Config::CVarFlags::ReadOnly);
 	static Config::CVar<i32> cv_winPosY("Wnd.PosY", CW_USEDEFAULT, "Y-Position of the window.", Config::CVarFlags::ReadOnly);
 
-
 	namespace Internal
 	{
-		static const char* g_windowNotCreatedError = "Window not created. Call Window::Create() first.";
-		static const char* g_windowAlreadyCreatedError = "Trying to create already created window.";
+		static constexpr auto g_windowNotCreatedError     = "Window not created. Call Window::Create() first.";
+		static constexpr auto g_windowAlreadyCreatedError = "Trying to create already created window.";
+
+		// Updates the window size from the cvars (if needed)
+		void UpdateWindowDimensions(WindowSizePos& current)
+		{
+			const i32 winWidth = cv_winWidth.Get();
+			const i32 winHeight = cv_winHeight.Get();
+
+			if (winWidth != -1)
+			{
+				current.Width = winWidth;
+			}
+
+			if (winHeight != -1)
+			{
+				current.Height = winHeight;
+			}
+		}
+
+		// Updates the window position from the cvars (if needed)
+		void UpdateWindowPosition(WindowSizePos& current, const WindowSizePos size)
+		{
+			const i32 winPosX = cv_winPosX.Get();
+			const i32 winPosY = cv_winPosY.Get();
+
+			if (winPosX != CW_USEDEFAULT)
+			{
+				current.X = winPosX;
+			}
+
+			if (winPosY != CW_USEDEFAULT)
+			{
+				current.Y = winPosY;
+			}
+
+			// If no position cmdline arguments are passed in, then assume that the user may have set the position via the config struct
+			// If the config position is also `CW_USEDEFAULT`, then we center the window
+			// Since Internal::UpdateWindowPosition will not change the position value if cmdline doesn't override it
+
+			// Center on screen
+			if (current.X == CW_USEDEFAULT && current.Y == CW_USEDEFAULT)
+			{
+				const HDC screenDC = ::GetDC(nullptr);
+				current =
+				{
+					.X = ::GetDeviceCaps(screenDC, HORZRES) / 2 - size.Width / 2,
+					.Y = ::GetDeviceCaps(screenDC, VERTRES) / 2 - size.Height / 2
+				};
+				::ReleaseDC(nullptr, screenDC);
+			}
+		}
+
+		void SetWindowDarkTheme(HWND hWnd, bool isDarkMode)
+		{
+			BOOL enable = isDarkMode;
+			::DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &enable, sizeof(enable));
+			::SetWindowPos(hWnd, nullptr, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		}
 	}
 
 	Window::Window(const Window::Config& config)
 		: m_config(config)
-		, m_prevSize(config.WindowSize[0], config.WindowSize[1])
-		, m_currentSize(config.WindowSize[0], config.WindowSize[1])
+		, m_prevSize({ config.WindowSize.Width, config.WindowSize.Height })
+		, m_currentSize({ config.WindowSize.Width, config.WindowSize.Height })
 	{
 		RYU_PROFILE_SCOPE();
 		::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
@@ -46,69 +103,33 @@ namespace Ryu::Window
 			return true;
 		}
 
-		DWORD style   = GetWindowStyle();
-		DWORD exStyle = GetExtendedWindowStyle();
+		// Get style flags from config/window type
+		const DWORD style = std::to_underlying(GetStyleInternal());
 
 		// Update dimensions if they are passed in by the user
-		const i32 winWidth = cv_winWidth.Get();
-		if (winWidth != -1)
-		{
-			m_config.WindowSize[0] = winWidth;
-		}
+		Internal::UpdateWindowDimensions(m_config.WindowSize);
 
-		const i32 winHeight = cv_winHeight.Get();
-		if (winHeight != -1)
-		{
-			m_config.WindowSize[1] = winHeight;
-		}
-
-		RECT windowRect{ 0, 0, static_cast<LONG>(m_config.WindowSize[0]), static_cast<LONG>(m_config.WindowSize[1]) };
-		::AdjustWindowRectEx(&windowRect, style, FALSE, exStyle);
+		// Calculate new window size based on style
+		RECT windowRect{ 0, 0, static_cast<LONG>(m_config.WindowSize.Width), static_cast<LONG>(m_config.WindowSize.Height) };
+		::AdjustWindowRectEx(&windowRect, style, FALSE, 0);
 
 		const i32 windowWidth  = windowRect.right - windowRect.left;
 		const i32 windowHeight = windowRect.bottom - windowRect.top;
 
+		// Update position, centre based on screen size if not set
+		Internal::UpdateWindowPosition(m_config.WindowPos, { windowWidth, windowHeight });		
+
 		const std::wstring windowTitle = Utils::ToWideStr(m_config.Title);
-
-		// Check if custom position is passed in
-		const i32 winPosX = cv_winPosX.Get();
-		const i32 winPosY = cv_winPosY.Get();
-
-		if (winPosX != CW_USEDEFAULT)
-		{
-			m_config.WindowPos[0] = winPosX;
-		}
-
-		if (winPosY != CW_USEDEFAULT)
-		{
-			m_config.WindowPos[1] = winPosY;
-		}
-
-		// If no position arguments are passed in, then assume that the user may have set the position via the config struct
-		// If the config position is also `CW_USEDEFAULT`, then we center the window
-
-		// Center on screen
-		if (m_config.WindowPos[0] == CW_USEDEFAULT && m_config.WindowPos[1] == CW_USEDEFAULT)
-		{
-			const HDC screenDC = ::GetDC(nullptr);
-			m_config.WindowPos =
-			{
-				::GetDeviceCaps(screenDC, HORZRES) / 2 - windowWidth / 2,
-				::GetDeviceCaps(screenDC, VERTRES) / 2 - windowHeight / 2
-			};
-			::ReleaseDC(nullptr, screenDC);
-		}
-
 		m_hwnd = ::CreateWindowExW(
-			exStyle,
+			0,
 			s_className,
 			windowTitle.c_str(),
 			style,
-			m_config.WindowPos[0], m_config.WindowPos[1],
+			m_config.WindowPos.X, m_config.WindowPos.Y,
 			windowWidth, windowHeight,
 			nullptr,  // Parent
 			nullptr,  // Menu
-			GetModuleHandle(nullptr),
+			::GetModuleHandle(nullptr),
 			this
 		);
 
@@ -119,6 +140,8 @@ namespace Ryu::Window
 
 		s_windowMap[m_hwnd] = this;
 		m_input.Initialize(m_hwnd);
+
+		//ToggleBorderless();
 
 		if (m_config.IsVisible)
 		{
@@ -148,7 +171,6 @@ namespace Ryu::Window
 		if (m_hwnd)
 		{
 			ShowWindow(m_hwnd, SW_SHOW);
-			UpdateWindow(m_hwnd);
 		}
 	}
 
@@ -180,14 +202,20 @@ namespace Ryu::Window
 		}
 	}
 
-	void Window::SetTitle(const std::string& title)
+	void Window::SetWindowType(WindowType newType)
+	{
+		m_config.Type = newType;
+		ToggleBorderless();
+	}
+
+	void Window::SetTitle(const std::string& newTitle)
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
-		m_config.Title = title;
+		m_config.Title = newTitle;
 
 		if (m_hwnd)
 		{
-			SetWindowTextW(m_hwnd, Utils::ToWideStr(title).c_str());
+			SetWindowTextW(m_hwnd, Utils::ToWideStr(newTitle).c_str());
 		}
 	}
 
@@ -200,11 +228,8 @@ namespace Ryu::Window
 
 		if (m_hwnd)
 		{
-			DWORD style = GetWindowStyle();
-			DWORD exStyle = GetExtendedWindowStyle();
-
 			RECT windowRect = { 0, 0, width, height };
-			::AdjustWindowRectEx(&windowRect, style, FALSE, exStyle);
+			::AdjustWindowRectEx(&windowRect, std::to_underlying(GetStyleInternal()), FALSE, 0);
 
 			::SetWindowPos(m_hwnd, nullptr, 0, 0,
 				windowRect.right - windowRect.left,
@@ -221,56 +246,6 @@ namespace Ryu::Window
 		if (m_hwnd)
 		{
 			::SetWindowPos(m_hwnd, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-		}
-	}
-
-	bool Window::GetCanResize() const noexcept
-	{
-		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
-		return m_hwnd && m_config.IsResizable;
-	}
-
-	void Window::SetCanResize(bool canResize)
-	{
-		m_config.IsResizable = canResize;
-		UpdateWindowStyle();
-	}
-
-	void Window::SetHasMaximizeButton(bool hasMaximizeButton)
-	{
-		m_config.HasMaximizeButton = hasMaximizeButton;
-		UpdateWindowStyle();
-	}
-
-	void Window::SetHasMinimizeButton(bool hasMinimizeButton)
-	{
-		m_config.HasMinimizeButton = hasMinimizeButton;
-		UpdateWindowStyle();
-	}
-
-	void Window::SetHasCloseButton(bool hasCloseButton)
-	{
-		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
-		m_config.HasCloseButton = hasCloseButton;
-		if (m_hwnd)
-		{
-			if (HMENU system_menu = ::GetSystemMenu(m_hwnd, FALSE))
-			{
-				::EnableMenuItem(system_menu, SC_CLOSE,
-					MF_BYCOMMAND | ((system_menu && hasCloseButton) ? MF_ENABLED : MF_GRAYED));
-			}
-		}
-	}
-
-	void Window::SetIsDarkMode(bool isDarkMode) const
-	{
-		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
-		if (m_hwnd)
-		{
-			BOOL enable = isDarkMode;
-
-			::DwmSetWindowAttribute(m_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &enable, sizeof(enable));
-			::SetWindowPos(m_hwnd, nullptr, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		}
 	}
 
@@ -318,57 +293,12 @@ namespace Ryu::Window
 
 		if (!RegisterClassExW(&wc))
 		{
-			throw std::runtime_error("Failed to register window class");
+			throw std::system_error(
+				std::error_code(::GetLastError(), std::system_category()),
+				"Failed to register window class");
 		}
 
 		s_isWindowClassRegistered = true;
-	}
-
-	void Window::UpdateWindowStyle()
-	{
-		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
-		if (!m_hwnd)
-		{
-			return;
-		}
-
-		DWORD style = GetWindowStyle();
-		DWORD exStyle = GetExtendedWindowStyle();
-
-		::SetWindowLongPtrW(m_hwnd, GWL_STYLE, style);
-		::SetWindowLongPtrW(m_hwnd, GWL_EXSTYLE, exStyle);
-
-		::SetWindowPos(m_hwnd, nullptr, 0, 0, 0, 0,
-			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-
-		::UpdateWindow(m_hwnd);
-	}
-
-	DWORD Window::GetWindowStyle() const
-	{
-		DWORD style = WS_OVERLAPPEDWINDOW;
-
-		if (!m_config.IsResizable)
-		{
-			style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
-		}
-
-		if (!m_config.HasMinimizeButton)
-		{
-			style &= ~WS_MINIMIZEBOX;
-		}
-
-		if (!m_config.HasMaximizeButton)
-		{
-			style &= ~WS_MAXIMIZEBOX;
-		}
-
-		return style;
-	}
-
-	DWORD Window::GetExtendedWindowStyle() const
-	{
-		return WS_EX_APPWINDOW;
 	}
 
 	void Window::HandleResizeTracking()
@@ -388,29 +318,69 @@ namespace Ryu::Window
 		// Only fire resize event if size changed
 		if (m_currentSize != m_prevSize)
 		{
-			Emit(ResizeEvent(m_hwnd, m_currentSize.first, m_currentSize.second));
+			Emit(ResizeEvent(m_hwnd, m_currentSize.Width, m_currentSize.Height));
 			m_prevSize = m_currentSize;
 		}
 	}
 
-	bool Window::GetIsVisible() const noexcept
+	bool Window::IsCompositionEnabled() const
+	{
+		BOOL compositionEnabled = FALSE;
+		bool success = ::DwmIsCompositionEnabled(&compositionEnabled) == S_OK;
+		return success && compositionEnabled;
+	}
+
+	void Window::ToggleBorderless()
+	{
+		Internal::Style newStyle = GetStyleInternal();
+		Internal::Style oldStyle = static_cast<Internal::Style>(::GetWindowLongPtrW(m_hwnd, GWL_STYLE));
+
+		if (newStyle != oldStyle)
+		{
+			::SetWindowLongPtrW(m_hwnd, GWL_STYLE , static_cast<LONG>(newStyle));
+
+			// When switching between borderless and windowed, restore appropriate shadow state
+			if (IsCompositionEnabled())
+			{
+				const bool enabled = newStyle!= Internal::Style::Windowed;
+				static const MARGINS shadow_state[2]{ { 0,0,0,0 },{ 1,1,1,1 } };
+				::DwmExtendFrameIntoClientArea(m_hwnd, &shadow_state[enabled]);
+			}
+
+			// Redraw
+			::SetWindowPos(m_hwnd, nullptr, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE);
+			Show();
+		}
+	}
+
+	Internal::Style Window::GetStyleInternal() const
+	{
+		if (m_config.Type == WindowType::Borderless)
+		{
+			return IsCompositionEnabled() ? Internal::Style::AeroBorderless : Internal::Style::BasicBorderless;
+		}
+
+		return Internal::Style::Windowed;
+	}
+
+	bool Window::IsVisible() const noexcept
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		return m_hwnd && ::IsWindowVisible(m_hwnd);
 	}
 
-	bool Window::GetIsMaximized() const noexcept
+	bool Window::IsMaximized() const noexcept
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		return m_hwnd && ::IsZoomed(m_hwnd);
 	}
 
-	bool Window::GetIsMinimized() const noexcept
+	bool Window::IsMinimized() const noexcept
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		return m_hwnd && ::IsIconic(m_hwnd);
 	}
-
+	
 	bool Window::GetIsResizable() const noexcept
 	{
 		return false;

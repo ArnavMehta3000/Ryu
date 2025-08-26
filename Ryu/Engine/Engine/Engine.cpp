@@ -238,9 +238,6 @@ namespace Ryu::Engine
 			logger->Flush();
 		}
 		
-		UNREFERENCED_PARAMETER(width);
-		UNREFERENCED_PARAMETER(height);
-
-		Gfx::Core::Resize();
+		Gfx::Core::Resize(width, height);
 	}
 }

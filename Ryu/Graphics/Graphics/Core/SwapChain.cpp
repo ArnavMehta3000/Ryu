@@ -60,8 +60,6 @@ namespace Ryu::Gfx
 			ComRelease(rtv.Resource);
 		}
 
-		ComRelease(m_depthStencil);
-
 		ComRelease(m_swapChain);
 	}
 
@@ -72,15 +70,13 @@ namespace Ryu::Gfx
 		DescriptorAllocator& rtvHeapAllocator = Core::GetDescriptorAllocator(DescriptorHeapType::RTV);
 		DescriptorAllocator& dsvHeapAllocator = Core::GetDescriptorAllocator(DescriptorHeapType::DSV);
 
-		for (auto& rtv : m_renderTargets)
+		RYU_CODE_BLOCK("Release existing resources")
 		{
-			ComRelease(rtv.Resource);
-			if (rtv.Resource)
+			for (auto& rtv : m_renderTargets)
 			{
+				ComRelease(rtv.Resource);
 			}
 		}
-
-		m_depthStencil.Reset();
 
 		if (m_swapChain)  // Resize
 		{
@@ -131,7 +127,7 @@ namespace Ryu::Gfx
 		{
 			for (u32 i = 0; i < m_renderTargets.size(); i++)
 			{
-				BackBuffer& bb = m_renderTargets[i];
+				Surface& bb = m_renderTargets[i];
 				DXCallEx(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&bb.Resource)), device.Get());
 				DX12::SetObjectName(bb.Resource.Get(), fmt::format("BackbufferRT {}", i).c_str());
 
@@ -141,18 +137,16 @@ namespace Ryu::Gfx
 					.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D,
 				};
 
-				bb.RTVHandle = rtvHeapAllocator.Allocate(1);
-				device->CreateRenderTargetView(bb.Resource.Get(), &rtvDesc, bb.RTVHandle);
+				if (!bb.Handle.IsValid())
+				{
+					bb.Handle = rtvHeapAllocator.Allocate(1);
+				}
+				device->CreateRenderTargetView(bb.Resource.Get(), &rtvDesc, bb.Handle);
 			}
 		}
 
 		m_currentFrameIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-		RYU_CODE_BLOCK("Create depth buffer")
-		{
-			RYU_LOG_WARN("Depth buffer creation not implemented!");
-		}
-		
+				
 		RYU_CODE_BLOCK("Set rects")
 		{
 			DXGI_SWAP_CHAIN_DESC1 scDesc{};

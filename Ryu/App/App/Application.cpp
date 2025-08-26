@@ -6,13 +6,12 @@ namespace Ryu::App
 	void App::InitWindow(Window::Window& window)
 	{
 		// Create the window if needed
-		if (!window.IsOpen)
+		if (!window.IsOpen())
 		{
 			window.Create();
 		}
 
-		window.Input.EnableRawMouseInput(true);
-		window.IsDarkMode = true;
+		window.GetInput().EnableRawMouseInput(true);
 	}
 
 	App::App(std::shared_ptr<Window::Window> window)
@@ -38,7 +37,7 @@ namespace Ryu::App
 		m_isRunning = false;
 
 		// Send a close message to the window
-		if (m_window && m_window->IsOpen)
+		if (m_window && m_window->IsOpen())
 		{
 			::SendMessage(m_window->GetHandle(), WM_CLOSE, 0, 0);
 		}

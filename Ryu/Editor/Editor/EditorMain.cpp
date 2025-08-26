@@ -122,7 +122,7 @@ RYU_MAIN()
 		}
 
 		// Create editor window
-		Window::Window::Config windowConfig{ .Title = "Ryu Editor" };
+		Window::Window::Config windowConfig{ .Title = "Ryu Editor", .Type = Window::WindowType::Borderless };
 		auto editorWindow = std::make_shared<Window::Window>(windowConfig);
 		App::App::InitWindow(*editorWindow);
 

@@ -1,15 +1,17 @@
 #include "Window/Window.h"
-#include "Profiling/Profiling.h"
 
 /**
- * This file implements the Ryu::Window::Window::WindowProc
+ * This file implements:
+ * - Ryu::Window::Window::WindowProc
+ * - Ryu::Window::Window::HitTest()
  */
+
+ // Ref: https://github.com/melak47/BorderlessWindow
 
 namespace Ryu::Window
 {
 	LRESULT Window::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		RYU_PROFILE_SCOPE();
 		switch (msg)
 		{
 		case WM_CLOSE:
@@ -22,8 +24,8 @@ namespace Ryu::Window
 		case WM_GETMINMAXINFO:
 		{
 			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
-			lpMMI->ptMinTrackSize.x = static_cast<LONG>(m_config.WindowMinSize[0]);
-			lpMMI->ptMinTrackSize.y = static_cast<LONG>(m_config.WindowMinSize[1]);
+			lpMMI->ptMinTrackSize.x = static_cast<LONG>(m_config.WindowMinSize.X);
+			lpMMI->ptMinTrackSize.y = static_cast<LONG>(m_config.WindowMinSize.Y);
 			break;
 		}
 
@@ -221,8 +223,38 @@ namespace Ryu::Window
 			}
 			break;
 		}
+
+		case WM_NCCALCSIZE:
+		{
+
+		}
+
+		case WM_NCHITTEST:
+		{
+
+		}
+
+		case WM_NCACTIVATE:
+		{
+
+		}
 		}
 
 		return ::DefWindowProcW(hwnd, msg, wParam, lParam);
+	}
+
+	LRESULT Window::HitTest(POINT cursor) const
+	{
+		const POINT border
+		{
+			::GetSystemMetrics(SM_CXFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER),
+        	::GetSystemMetrics(SM_CYFRAME) + ::GetSystemMetrics(SM_CXPADDEDBORDER)
+		};
+
+		RECT window{};
+		if (!::GetWindowRect(m_hwnd, &window))
+		{
+			return HTNOWHERE;
+		}
 	}
 }

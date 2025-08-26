@@ -66,7 +66,7 @@ namespace Ryu::Editor
 
 		// Display FPS stats in debug mode
 #if defined(RYU_BUILD_DEBUG)
-		GetWindow()->Title = fmt::format("Ryu Editor | DT: {:.5f}ms | FPS: {}", timeInfo.DeltaTime, timeInfo.FPS);
+		GetWindow()->SetTitle(fmt::format("Ryu Editor | DT: {:.5f}ms | FPS: {}", timeInfo.DeltaTime, timeInfo.FPS));
 #endif
 
 		m_userApp->OnTick(timeInfo);
@@ -99,7 +99,7 @@ namespace Ryu::Editor
 		if (gm)
 		{
 			m_userApp = gm->CreateApplication(GetWindow());
-			GetWindow()->Title = fmt::format("Ryu Editor - {}", gm->GetName());
+			GetWindow()->SetTitle(fmt::format("Ryu Editor - {}", gm->GetName()));
 			return m_userApp != nullptr;
 		}
 

@@ -17,14 +17,16 @@ namespace Ryu::Logging
         }
 
         // Formatting help: https://github.com/gabime/spdlog/wiki/Custom-formatting
-        // LEVEL | TIMESTAMP | THREAD | [CATEGORY] - MESSAGE
+        // TIMESTAMP | LEVEL | THREAD | CATEGORY: MESSAGE
 
-        std::string pattern = "%^%-7l%$";  // Start off with level
+        std::string pattern = "%^";  // Color output
 
         if (Pattern.IncludeTimestamp)
         {
-            pattern += " | [%H:%M:%S.%e]";
+            pattern += "%H:%M:%S.%e | ";
         }
+
+        pattern += "%-7l";  // Level
 
         if (Pattern.IncludeThreadId)
         {

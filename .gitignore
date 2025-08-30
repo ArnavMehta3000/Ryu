@@ -1,4 +1,5 @@
 .xmake
+.vscode
 .vs
 .idea
 .cache

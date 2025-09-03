@@ -20,29 +20,13 @@ RYU_MAIN()
 		// Create application window
 		Window::Window::Config windowConfig
 		{
-			.Title = "Testbench App"
+			.Title = "Testbench App",
 			.Type  = Window::WindowType::Borderless
 		};
 
 		auto window = std::make_shared<Window::Window>(windowConfig);
 		App::App::InitWindow(*window);
 		auto app = std::make_shared<TestbenchApp>(window);
-
-#if defined(RYU_BUILD_DEBUG)  // Close on escape
-		auto visitor = Window::WindowEventVisitor
-		{
-			[&](const Window::KeyEvent& e)
-			{
-				using namespace Ryu::Window;
-
-				if (e.KeyCode == KeyCode::Escape)
-				{
-					app->Quit();
-				}
-			}
-		};
-		window->AddEventListener([&visitor](const Window::WindowEvent& e) { std::visit(visitor, e); });
-#endif
 
 		auto& engine = Ryu::Engine::Engine::Get();
 		engine.RunApp(app);

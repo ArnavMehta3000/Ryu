@@ -6,14 +6,14 @@
 #include "Game/Components/Transform.h"
 
 using namespace Ryu;
+using namespace Ryu::Window;
 
-
-TestbenchApp::TestbenchApp(std::shared_ptr<Window::Window> window)
+TestbenchApp::TestbenchApp(std::shared_ptr<Ryu::Window::Window> window)
 	: App::App(window)
 	, m_world("TestbenchWorld")
-	, m_keyListener(window->GetDispatcher(), [this](const Ryu::Window::KeyEvent& e)
+	, m_keyListener(window->GetDispatcher(), [this](const KeyEvent& e)
 	{
-		if (e.KeyCode == Ryu::Window::KeyCode::Escape)
+		if (e.KeyCode == KeyCode::Escape)
 		{
 #if defined(RYU_BUILD_DEBUG) && defined(RYU_WITH_EDITOR)
 			Quit();  // Only close window from here when we are in editor

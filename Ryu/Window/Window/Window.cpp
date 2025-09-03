@@ -104,7 +104,7 @@ namespace Ryu::Window
 		}
 
 		// Get style flags from config/window type
-		const DWORD style = std::to_underlying(GetStyleInternal());
+		const DWORD style = static_cast<DWORD>(GetStyleInternal());
 
 		// Update dimensions if they are passed in by the user
 		Internal::UpdateWindowDimensions(m_config.WindowSize);
@@ -141,12 +141,13 @@ namespace Ryu::Window
 		s_windowMap[m_hwnd] = this;
 		m_input.Initialize(m_hwnd);
 
-		//ToggleBorderless();
+		ToggleBorderless();
+		Internal::SetWindowDarkTheme(m_hwnd, true);
 
 		if (m_config.IsVisible)
 		{
 			Show();
-		}
+		}		
 
 		m_shouldClose = false;  // Set to true when window is closed
 		return true;
@@ -372,7 +373,14 @@ namespace Ryu::Window
 	bool Window::IsMaximized() const noexcept
 	{
 		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
-		return m_hwnd && ::IsZoomed(m_hwnd);
+		
+		WINDOWPLACEMENT placement{};
+		if (!::GetWindowPlacement(m_hwnd, &placement))
+		{
+			return false;
+		}
+
+		return placement.showCmd == SW_MAXIMIZE;
 	}
 
 	bool Window::IsMinimized() const noexcept

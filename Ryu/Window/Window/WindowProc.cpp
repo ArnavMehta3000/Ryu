@@ -226,17 +226,52 @@ namespace Ryu::Window
 
 		case WM_NCCALCSIZE:
 		{
+			if (wParam == TRUE && m_config.Type == WindowType::Borderless)
+			{
+				NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+				
+				// Adjust maximized client rect
+				if (IsMaximized())
+				{
+					HMONITOR monitor = ::MonitorFromWindow(hwnd, MONITOR_DEFAULTTONULL);
+					if (monitor)
+					{
+						MONITORINFO monitorInfo{ .cbSize = sizeof(MONITORINFO) };
+						if (::GetMonitorInfo(monitor, &monitorInfo))
+						{
+							params->rgrc[0] = monitorInfo.rcWork;
+						}
+					}
+				}
+				
+				// ALWAYS return 0 for borderless windows to remove non-client area
+				return 0;
+			}
 
+			break;
 		}
 
 		case WM_NCHITTEST:
 		{
+			// When we have no border or title bar, we need to perform our
+			// own hit testing to allow resizing and moving.
+			if (m_config.Type == WindowType::Borderless)
+			{
+				return HitTest({ LOWORD(lParam), HIWORD(lParam) });
+			}
 
+			break;
 		}
 
 		case WM_NCACTIVATE:
 		{
-
+			if (!IsCompositionEnabled())
+			{
+				// Prevents window frame reappearing on window activation
+				// in "basic" theme, where no aero shadow is present.
+				return 1;
+			}
+			break;
 		}
 		}
 
@@ -255,6 +290,39 @@ namespace Ryu::Window
 		if (!::GetWindowRect(m_hwnd, &window))
 		{
 			return HTNOWHERE;
+		}
+
+		const LRESULT drag = m_config.CanBorderlessDrag ? HTCAPTION : HTCLIENT;
+		const bool borderlessResize = m_config.CanBorderlessResize;
+
+		enum RegionMask
+		{
+			Client = 0b0000,
+			Left   = 0b0001,
+			Right  = 0b0010,
+			Top    = 0b0100,
+			Bottom = 0b1000,
+		};
+
+		const i32 result = Left * (cursor.x <  (window.left + border.x)) 
+			| Right  * (cursor.x >= (window.right - border.x))
+			| Top    * (cursor.y <  (window.top + border.y))
+			| Bottom * (cursor.y >= (window.bottom - border.y));
+
+		
+
+		switch (result)
+		{
+		case Left          : return borderlessResize ? HTLEFT        : drag;
+		case Right         : return borderlessResize ? HTRIGHT       : drag;
+		case Top           : return borderlessResize ? HTTOP         : drag;
+		case Bottom        : return borderlessResize ? HTBOTTOM      : drag;
+		case Top | Left    : return borderlessResize ? HTTOPLEFT     : drag;
+		case Top | Right   : return borderlessResize ? HTTOPRIGHT    : drag;
+		case Bottom | Left : return borderlessResize ? HTBOTTOMLEFT  : drag;
+		case Bottom | Right: return borderlessResize ? HTBOTTOMRIGHT : drag;
+		case Client        : return drag;
+		default            : return HTNOWHERE;
 		}
 	}
 }

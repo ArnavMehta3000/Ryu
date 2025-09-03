@@ -64,9 +64,8 @@ namespace Ryu::Window
 			WindowSizePos WindowPos          = { CW_USEDEFAULT, CW_USEDEFAULT };
 			std::string Title                = "Ryu Window";
 			bool IsVisible                   = true;
-			bool IsBorderless                = true;  // Is the window currently borderless
-			bool IsBorderlessResize          = true;  // Should the window allow resizing by dragging the borders while borderless
-			bool CanBorderlessDrag           = true;  // Should the window allow moving my dragging the client area
+			bool CanBorderlessResize         = true;  // Should the window allow resizing by dragging the borders while borderless
+			bool CanBorderlessDrag           = false;  // Should the window allow moving my dragging the client area
 			WindowType Type                  = WindowType::Windowed;
 		};
 
@@ -85,6 +84,8 @@ namespace Ryu::Window
 		[[nodiscard]] inline const WindowSizePos GetSize() const noexcept { return m_config.WindowSize; }
 		[[nodiscard]] inline const WindowSizePos GetPosition() const noexcept { return m_config.WindowPos; }
 		[[nodiscard]] inline bool IsOpen() const noexcept { return !m_shouldClose; }
+		[[nodiscard]] inline WindowType GetType() const noexcept { return m_config.Type; }
+		[[nodiscard]] const InputSystem& GetInput() const noexcept { return m_input; }
 
 		void SetWindowType(WindowType newType);
 		void SetTitle(const std::string& newTitle);
@@ -95,8 +96,6 @@ namespace Ryu::Window
 		bool IsMaximized() const noexcept;
 		bool IsMinimized() const noexcept;
 		bool GetIsResizable() const noexcept;
-
-		const InputSystem& GetInput() const noexcept { return m_input; }
 
 		operator HWND() const { return m_hwnd; }
 		operator bool() const { return m_hwnd != nullptr; }

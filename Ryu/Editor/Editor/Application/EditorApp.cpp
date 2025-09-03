@@ -11,7 +11,7 @@ namespace Ryu::Editor
 	namespace
 	{
 		// Handle to the original application window procedure
-		WNDPROC s_originalWndProc{ nullptr };
+		WNDPROC g_originalWndProc{ nullptr };
 	}
 
 	EditorApp::EditorApp(std::shared_ptr<Window::Window> window)
@@ -80,9 +80,9 @@ namespace Ryu::Editor
 	bool EditorApp::RouteWndProc() const
 	{
 		RYU_PROFILE_SCOPE();
-		s_originalWndProc = (WNDPROC)::SetWindowLongPtr(GetWindow()->GetHandle(), GWLP_WNDPROC, (LONG_PTR)&EditorApp::EditorWndProc);
+		g_originalWndProc = (WNDPROC)::SetWindowLongPtr(GetWindow()->GetHandle(), GWLP_WNDPROC, (LONG_PTR)&EditorApp::EditorWndProc);
 
-		const bool success = s_originalWndProc != nullptr;
+		const bool success = g_originalWndProc != nullptr;
 		if (success)
 		{
 			RYU_LOG_TRACE("WndProc routed to EditorApp");
@@ -110,6 +110,6 @@ namespace Ryu::Editor
 	{
 		// Call the ImGui window proc, then call our window proc
 		std::ignore = ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
-		return ::CallWindowProc(s_originalWndProc, hWnd, msg, wParam, lParam);
+		return ::CallWindowProc(g_originalWndProc, hWnd, msg, wParam, lParam);
 	}
 }

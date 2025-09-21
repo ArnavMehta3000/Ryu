@@ -10,7 +10,7 @@ target("GameInput")
 	set_kind("headeronly")
 	add_extrafiles("External/GameInput/README.md")
 	add_headerfiles("External/GameInput/**.h")
-	add_links("$(scriptdir)/External/External/GameInput/GameInput.lib", { public = true })
+	add_links(path.translate("$(scriptdir)/External/External/GameInput/GameInput.lib"), { public = true })
 target_end()
 
 -- A phony target to include all external source files

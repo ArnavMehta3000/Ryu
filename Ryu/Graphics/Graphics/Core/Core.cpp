@@ -134,7 +134,7 @@ namespace Ryu::Gfx::Core
 			}
 			else
 			{
-				RYU_LOG_WARN("Failed to find a hardware adapter.  Falling back to WARP");
+				RYU_LOG_WARN("Failed to find a hardware adapter. Falling back to WARP");
 			}
 
 			DXCall(g_factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter)));
@@ -181,7 +181,7 @@ namespace Ryu::Gfx::Core
 				continue;  // Don't select the Basic Render Driver adapter.
 			}
 
-			if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+			if (SUCCEEDED(::D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
 				const std::string description = Utils::ToNarrowStr(desc.Description);
 				RYU_LOG_DEBUG("Using GPU: {} - {:.2f} GB", description, Math::BytesToGB(desc.DedicatedVideoMemory));

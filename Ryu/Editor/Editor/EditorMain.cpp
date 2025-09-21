@@ -126,7 +126,7 @@ RYU_MAIN()
 		{
 			.Title             = "Ryu Editor",
 			.CanBorderlessDrag = true,
-			.Type              = Window::WindowType::Borderless,
+			.Type              = Window::WindowType::Windowed,
 		};
 		auto editorWindow = std::make_shared<Window::Window>(windowConfig);
 		App::App::InitWindow(*editorWindow);

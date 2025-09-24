@@ -15,8 +15,8 @@ TestbenchApp::TestbenchApp(std::shared_ptr<Ryu::Window::Window> window)
 	{
 		if (e.KeyCode == KeyCode::Escape)
 		{
-#if defined(RYU_BUILD_DEBUG) && defined(RYU_WITH_EDITOR)
-			Quit();  // Only close window from here when we are in editor
+#if defined(RYU_BUILD_DEBUG) && !defined(RYU_WITH_EDITOR)
+			Quit();  // Only close window from here when we are in debug and not in editor
 #endif
 		}
 	})

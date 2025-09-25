@@ -4,7 +4,7 @@
 /**
  * @brief Namespace for standard types
  */
-namespace Ryu::StandardTypes
+namespace Ryu
 {
 	/**
 	 * @brief Signed 8-bit integer
@@ -73,5 +73,3 @@ namespace Ryu::StandardTypes
 	 */
 	using byte = std::uint8_t;
 }
-
-using namespace Ryu::StandardTypes;

@@ -21,6 +21,7 @@ RYU_MAIN()
 		Window::Window::Config windowConfig
 		{
 			.Title = "Testbench App",
+			.CanBorderlessDrag = true,
 			.Type  = Window::WindowType::Borderless
 		};
 

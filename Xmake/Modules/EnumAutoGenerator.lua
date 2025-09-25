@@ -48,8 +48,6 @@ function extract_enums(content)
 		
 		-- Extract enum values
 		local values = {}
-		-- Extract enum values
-		local values = {}
 		
 		-- First try to match entries with explicit values (name = value)
 		for line in enum_body:gmatch("[^\n]+") do

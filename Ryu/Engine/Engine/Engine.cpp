@@ -17,11 +17,11 @@ namespace Ryu::Engine
 	{
 		if (Memory::IsMemoryTrackingEnabled())
 		{
-			const size_t totalAllocated = Memory::GetTotalAllocated();
-			const size_t currentUsage = Memory::GetCurrentUsage();
-			const size_t peakUsage = Memory::GetPeakUsage();
-			const size_t allocationCount = Memory::GetAllocationCount();
-			const size_t deallocationCount = Memory::GetDeallocationCount();
+			const size_t peakUsage             = Memory::GetPeakUsage();
+			const size_t currentUsage          = Memory::GetCurrentUsage();
+			const size_t totalAllocated        = Memory::GetTotalAllocated();
+			const size_t allocationCount       = Memory::GetAllocationCount();
+			const size_t deallocationCount     = Memory::GetDeallocationCount();
 			const size_t activeAllocationCount = (allocationCount - deallocationCount);
 
 			RYU_LOG_DEBUG(R"(--- Memory Stats ---

@@ -57,6 +57,9 @@
 #define RYU_GET_ONLY_PROPERTY(Name, ...) __declspec(property(get = RYU_CONCAT(Get, Name))) __VA_ARGS__ Name
 #define RYU_SET_ONLY_PROPERTY(Name, ...) __declspec(property(put = RYU_CONCAT(Set, Name))) __VA_ARGS__ Name
 
+// Helper macro to generate getter functions with attributes
+#define RYU_GETTER_FUNC(ReturnType, FuncName, ReturnValue) [[nodisard]] inline ReturnType FuncName() const noexcept { return ReturnValue; }
+
 // Empty macro to make code blocks easier to read
 #define RYU_CODE_BLOCK(Name)
 

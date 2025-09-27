@@ -17,6 +17,8 @@
 	extern "C" RYU_API ret name(__VA_ARGS__);\
 	using name##_f = decltype(&name)
 
+#define RYU_DEBUGBREAK() __debugbreak()
+
 #define RYU_STRING_IMPL(x) #x
 #define RYU_STRING(x) RYU_STRING_IMPL(x)
 
@@ -37,7 +39,7 @@
 #define RYU_NOTE(msg) __pragma(message(__FILE__ "(" RYU_STRING(__LINE__) "): NOTE: " msg))
 
 // Macro to say that the function is not implemented
-#define RYU_NOT_IMPLEMENTED() RYU_LOG_WARN("Function {} not implemented", std::string_view(__FUNCTION__))
+#define RYU_NOT_IMPLEMENTED() RYU_LOG_WARN("Function {} not implemented", std::string_view(__FUNCTION__)); RYU_DEBUGBREAK()
 
 // Only executes code if RYU_BUILD_DEBUG is defined
 #if defined(RYU_BUILD_DEBUG)
@@ -58,7 +60,7 @@
 #define RYU_SET_ONLY_PROPERTY(Name, ...) __declspec(property(put = RYU_CONCAT(Set, Name))) __VA_ARGS__ Name
 
 // Helper macro to generate getter functions with attributes
-#define RYU_GETTER_FUNC(ReturnType, FuncName, ReturnValue) [[nodisard]] inline ReturnType FuncName() const noexcept { return ReturnValue; }
+#define RYU_GETTER_FUNC(ReturnType, FuncName, ReturnValue) [[nodiscard]] inline ReturnType FuncName() const noexcept { return ReturnValue; }
 
 // Empty macro to make code blocks easier to read
 #define RYU_CODE_BLOCK(Name)

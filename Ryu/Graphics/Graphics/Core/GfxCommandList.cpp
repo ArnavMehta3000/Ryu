@@ -18,4 +18,57 @@ namespace Ryu::Gfx
 		SetName(name.data());
 		m_cmdList->Close();
 	}
+	
+	void GfxCommandList::ResetAllocator()
+	{
+		m_cmdAllocator->Reset();
+	}
+	
+	void GfxCommandList::Begin()
+	{
+		m_cmdList->Reset(m_cmdAllocator.Get(), nullptr);
+		// Reset state
+	}
+	
+	void GfxCommandList::End()
+	{
+		// Flush Barriers
+		m_cmdList->Close();
+	}
+	
+	void GfxCommandList::Wait(GfxFence& fence, u64 value)
+	{
+		m_pendingWaits.emplace_back(fence, value);
+	}
+	
+	void GfxCommandList::Signal(GfxFence& fence, u64 value)
+	{
+		m_pendingSignals.emplace_back(fence, value);
+	}
+	
+	void GfxCommandList::WaitAll()
+	{
+		for (auto& [fence, value] : m_pendingWaits)
+		{
+			m_cmdQueue.Wait(fence, value);
+		}
+		m_pendingWaits.clear();
+	}
+	
+	void GfxCommandList::Submit()
+	{
+		WaitAll();
+		std::array lists{ this };
+		m_cmdQueue.ExecuteCommandLists(lists);
+		SignalAll();
+	}
+	
+	void GfxCommandList::SignalAll()
+	{
+		for (auto& [fence, value] : m_pendingSignals)
+		{
+			m_cmdQueue.Signal(fence, value);
+		}
+		m_pendingSignals.clear();
+	}
 }

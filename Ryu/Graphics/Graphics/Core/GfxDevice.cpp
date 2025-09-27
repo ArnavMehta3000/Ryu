@@ -53,7 +53,7 @@ namespace Ryu::Gfx
 			if (SUCCEEDED(::D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 			{
 				const std::string description = Utils::ToNarrowStr(desc.Description);
-				RYU_LOG_DEBUG("Using GPU: {} - {:.2f} GB", description, Math::BytesToGB(desc.DedicatedVideoMemory));
+				RYU_LOG_INFO("Using GPU: {} - {:.2f} GB", description, Math::BytesToGB(desc.DedicatedVideoMemory));
 				break;
 			}
 		}
@@ -73,7 +73,7 @@ namespace Ryu::Gfx
 		DXCall(::D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
 		D3D12_FEATURE_DATA_FEATURE_LEVELS caps{};
 		caps.pFeatureLevelsRequested = featureLevels.data();
-		caps.NumFeatureLevels = featureLevels.size();
+		caps.NumFeatureLevels = (u32)featureLevels.size();
 		DXCall(m_device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &caps, sizeof(caps)));
 		DXCall(::D3D12CreateDevice(adapter.Get(), caps.MaxSupportedFeatureLevel, IID_PPV_ARGS(&m_device)));
 
@@ -85,8 +85,8 @@ namespace Ryu::Gfx
 		DX12::SetObjectName(m_device.Get(), "Main Device");
 
 		m_graphicsQueue.Create(this, CommandListType::Direct, "Graphics Queue");
-		m_computeQueue.Create(this, CommandListType::Compute, "Compute Queue");
-		m_copyQueue.Create(this, CommandListType::Copy, "Copy Queue");
+		//m_computeQueue.Create(this, CommandListType::Compute, "Compute Queue");
+		//m_copyQueue.Create(this, CommandListType::Copy, "Copy Queue");
 	}
 
 	GfxDevice::~GfxDevice()
@@ -96,16 +96,48 @@ namespace Ryu::Gfx
 	
 	GfxCommandQueue& GfxDevice::GetCommandQueue(CommandListType type)
 	{
+		using enum Ryu::Gfx::CommandListType;
+
 		switch (type)
 		{
-		case Ryu::Gfx::CommandListType::Direct: return m_graphicsQueue;
-		case Ryu::Gfx::CommandListType::Compute: return m_computeQueue;
-		case Ryu::Gfx::CommandListType::Copy: return m_computeQueue;
+		case Direct: return m_graphicsQueue;
+		//case Compute: return m_computeQueue;
+		//case Copy: return m_copyQueue;
 		default:
 		{
 			RYU_LOG_WARN("Requested queue type ({}) is not supported! Returning graphics queue.", EnumToString(type));
 			return m_graphicsQueue;
 		}
 		}
+	}
+	
+	void GfxDevice::WaitForGPU()
+	{
+		m_graphicsQueue.Signal(m_waitFence, m_waitFenceValue);
+		m_waitFence.Wait(m_waitFenceValue);
+		m_waitFenceValue++;
+
+		//compute_queue.Signal(wait_fence, wait_fence_value);
+		//wait_fence.Wait(wait_fence_value);
+		//wait_fence_value++;
+
+		//copy_queue.Signal(wait_fence, wait_fence_value);
+		//wait_fence.Wait(wait_fence_value);
+		//wait_fence_value++;
+	}
+
+	GfxDescriptor GfxDevice::AllocateDescriptorCPU(DescriptorHeapType type)
+	{
+		return m_descriptorAllocatorsCPU[(u64)type]->AllocateDescriptor();
+	}
+
+	void GfxDevice::FreeDescriptorCPU(GfxDescriptor descriptor, DescriptorHeapType type)
+	{
+		m_descriptorAllocatorsCPU[(u64)type]->FreeDescriptor(descriptor);
+	}
+
+	std::unique_ptr<GfxTexture> GfxDevice::CreateBackBufferTexture(const GfxTexture::Desc& desc, DX12::Resource* backbuffer)
+	{
+		return std::make_unique<GfxTexture>(this, desc, backbuffer);
 	}
 }

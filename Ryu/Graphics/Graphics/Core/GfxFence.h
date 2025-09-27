@@ -3,7 +3,7 @@
 
 namespace Ryu::Gfx
 {
-	class GFxDevice;
+	class GfxDevice;
 
 	class GfxFence
 	{

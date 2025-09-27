@@ -1,36 +1,11 @@
 #pragma once
 #include "Graphics/Core/GfxFence.h"
+#include "Graphics/Core/GfxSwapChain.h"
 #include "Graphics/Core/GfxCommandQueue.h"
+#include "Graphics/Core/GfxDescriptorAllocator.h"
 
 namespace Ryu::Gfx
 {
-	class GfxDevice;
-
-	class GfxSwapChain
-	{
-	public:
-		struct Desc
-		{
-			u32 Width = 0;
-			u32 Height = 0;
-			DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-		};
-	public:
-		GfxSwapChain(GfxDevice* device, const GfxSwapChain::Desc& desc);
-		~GfxSwapChain();
-
-		inline u32 GetBackBufferIndex() const noexcept { return m_backBufferIndex; }
-
-	private:
-		void CreateBackBuffers();
-
-	private:
-		GfxDevice* m_device = nullptr;
-		ComPtr<DXGI::SwapChain> m_swapChain;
-		u32 m_width, n_height;
-		u32 m_backBufferIndex;
-	};
-
 	class GfxDevice
 	{
 	public:
@@ -42,25 +17,30 @@ namespace Ryu::Gfx
 		[[nodiscard]] inline auto GetFactory() const noexcept { return m_dxgiFactory.Get(); }
 		[[nodiscard]] inline auto& GetCapabilities() const noexcept { return m_capabilities; }
 		[[nodiscard]] inline GfxFence& GetGraphicsFence() noexcept { return m_graphicsFence; }
-		[[nodiscard]] inline GfxFence& GetComputeFence() noexcept { return m_computeFence; }
-		[[nodiscard]] inline GfxFence& GetCopyFence() noexcept { return m_copyFence; }
+		//[[nodiscard]] inline GfxFence& GetComputeFence() noexcept { return m_computeFence; }
+		//[[nodiscard]] inline GfxFence& GetCopyFence() noexcept { return m_copyFence; }
 		[[nodiscard]] inline u64 GetGraphicsFenceValue() const noexcept { return m_graphicsFenceValue; }
-		[[nodiscard]] inline u64 GetComputeFenceValue() const noexcept { return m_computeFenceValue; }
-		[[nodiscard]] inline u64 GetCopyFenceValue() const noexcept { return m_copyFenceValue; }
+		//[[nodiscard]] inline u64 GetComputeFenceValue() const noexcept { return m_computeFenceValue; }
+		//[[nodiscard]] inline u64 GetCopyFenceValue() const noexcept { return m_copyFenceValue; }
 
 		[[nodiscard]] GfxCommandQueue& GetCommandQueue(CommandListType type);
 		[[nodiscard]] GfxCommandQueue& GetGraphicsCommandQueue() { return GetCommandQueue(CommandListType::Direct); }
-		[[nodiscard]] GfxCommandQueue& GetComputeCommandQueue() { return GetCommandQueue(CommandListType::Compute); }
-		[[nodiscard]] GfxCommandQueue& GetCopyCommandQueue() { return GetCommandQueue(CommandListType::Copy); }
-
-
+		//[[nodiscard]] GfxCommandQueue& GetComputeCommandQueue() { return GetCommandQueue(CommandListType::Compute); }
+		//[[nodiscard]] GfxCommandQueue& GetCopyCommandQueue() { return GetCommandQueue(CommandListType::Copy); }
 
 		inline void SetGraphicsFenceValue(u64 value) { m_graphicsFenceValue = value; }
-		inline void SetComputeFenceValue(u64 value) { m_computeFenceValue = value; }
-		inline void SetCopyFenceValue(u64 value) { m_copyFenceValue = value; }
-
+		//inline void SetComputeFenceValue(u64 value) { m_computeFenceValue = value; }
+		//inline void SetCopyFenceValue(u64 value) { m_copyFenceValue = value; }
 
 		void WaitForGPU();
+
+		GfxDescriptor AllocateDescriptorCPU(DescriptorHeapType type);
+		void FreeDescriptorCPU(GfxDescriptor descriptor, DescriptorHeapType type);
+		std::unique_ptr<GfxTexture> CreateBackBufferTexture(const GfxTexture::Desc& desc, DX12::Resource* backbuffer);
+		//GfxDescriptor CreateTextureRTV(GfxTexture* texture /*, GfxTextureDescriptorDesc const* = nullptr*/);
+	
+	private:
+		//GfxDescriptor CreateTextureView(GfxTexture* texture, D3D12_RESOUR);
 
 	private:
 		HWND m_hWnd;
@@ -74,8 +54,8 @@ namespace Ryu::Gfx
 		std::unique_ptr<GfxSwapChain> m_swapChain;
 
 		GfxCommandQueue m_graphicsQueue;
-		GfxCommandQueue m_computeQueue;
-		GfxCommandQueue m_copyQueue;
+		//GfxCommandQueue m_computeQueue;
+		//GfxCommandQueue m_copyQueue;
 
 		GfxFence        m_frameFence;
 		u64             m_frameFenceValue = 1;
@@ -84,16 +64,19 @@ namespace Ryu::Gfx
 		GfxFence m_graphicsFence;
 		u64 m_graphicsFenceValue = 0;
 
-		GfxFence m_computeFence;
-		u64 m_computeFenceValue = 0;
+		//GfxFence m_computeFence;
+		//u64 m_computeFenceValue = 0;
 		
-		GfxFence m_copyFence;
-		u64 m_copyFenceValue = 0;
+		//GfxFence m_copyFence;
+		//u64 m_copyFenceValue = 0;
 
 		GfxFence m_waitFence;
 		u64 m_waitFenceValue = 1;
 
 		GfxFence m_releaseFence;
 		u64 m_releaseFenceValue = 1;
+
+		std::array<
+			std::unique_ptr<GfxDescriptorAllocator>, (u64)DescriptorHeapType::_COUNT> m_descriptorAllocatorsCPU;
 	};
 }

@@ -1,4 +1,5 @@
 #include "Graphics/Core/GfxCommandQueue.h"
+#include "Graphics/Core/GfxCommandList.h"
 #include "Graphics/Core/GfxDevice.h"
 #include "Graphics/Core/GfxFence.h"
 #include "Common/Assert.h"
@@ -38,5 +39,32 @@ namespace Ryu::Gfx
 	{
 		RYU_ASSERT(m_cmdQueue, "Command queue must be created before waiting.");
 		DXCall(m_cmdQueue->Wait(fence, fenceValue));
+	}
+	
+	void GfxCommandQueue::ExecuteCommandLists(std::span<GfxCommandList*> cmdLists)
+	{
+		if (cmdLists.empty())
+		{
+			return;
+		}
+
+		for (GfxCommandList* cmdList : cmdLists)
+		{
+			cmdList->WaitAll();
+		}
+
+		// Convert to native
+		std::vector<ID3D12CommandList*> nativeCmdLists(cmdLists.size(), nullptr);
+		for (u32 i = 0; i < cmdLists.size(); ++i)
+		{
+			nativeCmdLists[i] = cmdLists[i]->GetNative().Get();
+		}
+
+		m_cmdQueue->ExecuteCommandLists((u32)nativeCmdLists.size(), nativeCmdLists.data());
+
+		for (GfxCommandList* cmdList : cmdLists)
+		{
+			cmdList->SignalAll();
+		}
 	}
 }

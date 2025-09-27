@@ -68,7 +68,8 @@ namespace Ryu::Engine
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		Gfx::Core::Init(m_app->GetWindow()->GetHandle());
+		//Gfx::Core::Init(m_app->GetWindow()->GetHandle());
+		m_gfxDevice = std::make_unique<Gfx::GfxDevice>(m_app->GetWindow()->GetHandle());
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
@@ -98,7 +99,7 @@ namespace Ryu::Engine
 		m_scriptEngine.reset();
 		m_app.reset();
 
-		Gfx::Core::Shutdown();
+		//Gfx::Core::Shutdown();
 
 		Config::ConfigManager::Get().SaveAll();
 
@@ -126,7 +127,7 @@ namespace Ryu::Engine
 					m_app->OnTick(info);
 				});
 				
-				Gfx::Core::Render();
+				//Gfx::Core::Render();
 
 				m_app->GetWindow()->ProcessEventQueue();
 			}

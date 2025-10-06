@@ -1,5 +1,6 @@
 #include "Globals/Globals.h"
 #include "Config/CmdLine.h"
+#include "Renderer.h"
 
 namespace Ryu::Gfx
 {
@@ -36,4 +37,17 @@ namespace Ryu::Gfx
 	bool IsTearingAllowed() { return cv_allowTearing.Get(); }
 	i32 GetSyncInterval() { return cv_syncInterval.Get(); }
 	bool ShouldUseWARPDevice() { return cv_useWarp.Get(); }
+
+	Renderer::Renderer(HWND window)
+		: m_device(window)
+	{
+	}
+	
+	void Renderer::Render()
+	{
+	}
+	
+	void Renderer::OnResize(u32 w, u32 h)
+	{
+	}
 }

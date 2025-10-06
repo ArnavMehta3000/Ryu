@@ -1,8 +1,10 @@
 #pragma once
 #include "Graphics/Core/GfxFence.h"
 #include "Graphics/Core/GfxSwapChain.h"
+#include "Graphics/Core/GfxCommandList.h"
 #include "Graphics/Core/GfxCommandQueue.h"
 #include "Graphics/Core/GfxDescriptorAllocator.h"
+#include <queue>
 
 namespace Ryu::Gfx
 {
@@ -33,6 +35,14 @@ namespace Ryu::Gfx
 		//inline void SetCopyFenceValue(u64 value) { m_copyFenceValue = value; }
 
 		void WaitForGPU();
+		void BeginFrame();
+		void EndFrame();
+
+		template <Releasable T>
+		void AddToReleaseQueue(T* ptr) 
+		{
+			m_releaseQueue.emplace(new ReleasableResource(ptr), m_releaseFenceValue);
+		}
 
 		GfxDescriptor AllocateDescriptorCPU(DescriptorHeapType type);
 		void FreeDescriptorCPU(GfxDescriptor descriptor, DescriptorHeapType type);
@@ -41,14 +51,15 @@ namespace Ryu::Gfx
 	
 	private:
 		//GfxDescriptor CreateTextureView(GfxTexture* texture, D3D12_RESOUR);
+		void ProcessReleaseQueue();
 
 	private:
 		HWND m_hWnd;
 		u32  m_width, m_height;
 		u32  m_frameIndex = 0;
 
-		ComPtr<DXGI::Factory> m_dxgiFactory;
 		ComPtr<DX12::Device>  m_device;
+		ComPtr<DXGI::Factory> m_dxgiFactory;
 		CD3DX12FeatureSupport m_capabilities;
 
 		std::unique_ptr<GfxSwapChain> m_swapChain;
@@ -59,8 +70,9 @@ namespace Ryu::Gfx
 
 		GfxFence        m_frameFence;
 		u64             m_frameFenceValue = 1;
-		FrameArray<u64> m_frameFenceValues;
+		FrameArray<u64> m_frameFenceValues{};
 
+		FrameArray<std::unique_ptr<GfxCommandList>> m_graphicsCmdLists;
 		GfxFence m_graphicsFence;
 		u64 m_graphicsFenceValue = 0;
 
@@ -78,5 +90,15 @@ namespace Ryu::Gfx
 
 		std::array<
 			std::unique_ptr<GfxDescriptorAllocator>, (u64)DescriptorHeapType::_COUNT> m_descriptorAllocatorsCPU;
+	
+		struct ReleasableItem
+		{
+			std::unique_ptr<ReleasableObject> Obj;
+			u64 FenceValue;
+
+			ReleasableItem(ReleasableObject* obj, u64 fenceValue) : Obj(obj), FenceValue(fenceValue) {}
+		};
+		std::queue<ReleasableItem>  m_releaseQueue;
+		bool m_isFirstFrame;
 	};
 }

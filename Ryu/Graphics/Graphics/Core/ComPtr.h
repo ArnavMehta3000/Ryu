@@ -2,6 +2,7 @@
 #include <wrl/client.h>
 #include <type_traits>
 #include <concepts>
+#include <memory>
 
 namespace Ryu::Gfx
 {
@@ -47,4 +48,53 @@ namespace Ryu::Gfx
 			ptr = nullptr;
 		}
 	}
+
+	template<typename T>
+	concept Releasable = requires (T t)
+	{
+		{ t.Release() };
+	};
+
+	struct ReleaseDeleter
+	{
+		template<Releasable T>
+		void operator()(T* allocation)
+		{
+			allocation->Release();
+		}
+	};
+
+	template<Releasable T>
+	using ReleasablePtr = std::unique_ptr<T, ReleaseDeleter>;
+
+	struct ReleasableObject
+	{
+		virtual ~ReleasableObject() = default;
+		virtual void Release() = 0;
+	};
+
+	template<Releasable T>
+	struct ReleasableResource : ReleasableObject
+	{
+		ReleasableResource(T* r)
+		{
+			resource = r;
+		}
+
+		virtual ~ReleasableResource()
+		{
+			Release();
+		}
+
+		virtual void Release() override
+		{
+			if (resource) 
+			{
+				resource->Release();
+				resource = nullptr;
+			}
+		}
+
+		T* resource;
+	};
 }

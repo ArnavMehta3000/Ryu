@@ -4,7 +4,7 @@
 #include "Utils/ServiceLocator.h"
 #include "Event/ListenerHandle.h"
 #include "Scripting/ScriptEngine.h"
-#include "Graphics/Core/GfxDevice.h"
+#include "Graphics/Renderer.h"
 #include <memory>
 
 namespace Ryu::Engine
@@ -34,10 +34,10 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		Utils::Timer                                  m_timer;
-		std::shared_ptr<App::App>                     m_app;
-		std::unique_ptr<Scripting::ScriptEngine>      m_scriptEngine;
-		std::unique_ptr<Gfx::GfxDevice>               m_gfxDevice;
+		Utils::Timer                             m_timer;
+		std::shared_ptr<App::App>                m_app;
+		std::unique_ptr<Scripting::ScriptEngine> m_scriptEngine;
+		std::unique_ptr<Gfx::Renderer>           m_renderer;
 
 		Event::ListenerHandle m_resizeListener;
 		Event::ListenerHandle m_closeListener;

@@ -18,18 +18,13 @@ namespace Ryu::Gfx
 {
 	template<typename T> class DeviceObject;
 
-	class Device;
-	class SwapChain;
-	class CommandList;
-	class CommandQueue;
-	class CommandAllocator;
-	class CommandContext;
-	class PipelineState;
-	class Fence;
-	class DescriptorHeap;
-	class DescriptorAllocator;
-	struct DescriptorHandle;
-	class Texture;
+	class GfxDevice;
+	class GfxSwapChain;
+	class GfxCommandList;
+	class GfxCommandQueue;
+	class GfxFence;
+	class GfxDescriptorAllocator;
+	class GfxTexture;
 
 	constexpr u32 TIMEOUT_DURATION        = 5000;
 	constexpr u32 FRAME_BUFFER_COUNT      = 2;
@@ -39,7 +34,4 @@ namespace Ryu::Gfx
 	// Array of frame resources
 	template <typename T>
 	using FrameArray = std::array<T, FRAME_BUFFER_COUNT>;
-
-	using DevicePtr = std::shared_ptr<Device>;
-	using DeviceWeakPtr = std::weak_ptr<Device>;
 }

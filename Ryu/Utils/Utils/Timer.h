@@ -16,7 +16,7 @@ namespace Ryu::Utils::Experimental
 	template <typename Clock = std::chrono::steady_clock, typename Duration = std::chrono::microseconds>
 	class Timer
 	{
-		using timePoint = typename Clock::time_point;
+		using TimePoint = typename Clock::time_point;
 
 	public:
 		Timer() : m_t0(Clock::now()) { m_t1 = m_t0; }
@@ -31,14 +31,14 @@ namespace Ryu::Utils::Experimental
 
 		typename Duration::rep Peek() const
 		{
-			tp t2 = Clock::now();
+			TimePoint t2 = Clock::now();
 			auto dt = std::chrono::duration_cast<Duration>(t2 - m_t1).count();
 			return dt;
 		}
 
 		typename Duration::rep Elapsed() const
 		{
-			tp t2 = Clock::now();
+			TimePoint t2 = Clock::now();
 			auto elapsed = std::chrono::duration_cast<Duration>(t2 - m_t0).count();
 			return elapsed;
 		}

@@ -10,6 +10,7 @@ namespace Ryu::Gfx
 
 	GfxDevice::GfxDevice(HWND window)
 		: m_hWnd(window)
+		, m_isFirstFrame(true)
 	{
 		g_vsync = GetSyncInterval();  // From graphics config
 
@@ -87,13 +88,43 @@ namespace Ryu::Gfx
 		m_graphicsQueue.Create(this, CommandListType::Direct, "Graphics Queue");
 		//m_computeQueue.Create(this, CommandListType::Compute, "Compute Queue");
 		//m_copyQueue.Create(this, CommandListType::Copy, "Copy Queue");
+
+		// Create command lists
+		for (auto& cmdList : m_graphicsCmdLists)
+		{
+			cmdList = std::make_unique<GfxCommandList>(this, CommandListType::Direct, "Graphics Command List");
+		}
+
+		// Create descriptor heaps
+		for (u32 i = 0; i < (u32)DescriptorHeapType::_COUNT; i++)
+		{
+			GfxDescriptorAllocator::Desc desc
+			{
+				.Type            = static_cast<DescriptorHeapType>(i),
+				.DescriptorCount = 1024,
+				.IsShaderVisible = false
+			};
+
+			m_descriptorAllocatorsCPU[i] = std::make_unique<GfxDescriptorAllocator>(this, desc);
+		}
 	}
 
 	GfxDevice::~GfxDevice()
 	{
+		RYU_LOG_TRACE("Destroying GfxDevice");
 
+		WaitForGPU();
+		ProcessReleaseQueue();
+		m_frameFence.Wait(m_frameFenceValues[m_swapChain->GetBackBufferIndex()]);
+
+#if defined(RYU_BUILD_DEBUG)
+		DebugLayer::SetupSeverityBreaks(m_device, false);
+		DebugLayer::SetStablePowerState(m_device, false);
+		//DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(m_device);
+		DebugLayer::Shutdown();
+#endif
 	}
-	
+
 	GfxCommandQueue& GfxDevice::GetCommandQueue(CommandListType type)
 	{
 		using enum Ryu::Gfx::CommandListType;
@@ -110,20 +141,32 @@ namespace Ryu::Gfx
 		}
 		}
 	}
-	
+
 	void GfxDevice::WaitForGPU()
 	{
 		m_graphicsQueue.Signal(m_waitFence, m_waitFenceValue);
 		m_waitFence.Wait(m_waitFenceValue);
 		m_waitFenceValue++;
 
-		//compute_queue.Signal(wait_fence, wait_fence_value);
-		//wait_fence.Wait(wait_fence_value);
-		//wait_fence_value++;
+		//m_computeQueue.Signal(m_waitFence, m_waitFenceValue);
+		//m_waitFence.Wait(m_waitFenceValue);
+		//m_waitFenceValue++;
 
-		//copy_queue.Signal(wait_fence, wait_fence_value);
-		//wait_fence.Wait(wait_fence_value);
-		//wait_fence_value++;
+		//copy_queue.Signal(m_waitFence, m_waitFenceValue);
+		//m_waitFence.Wait(m_waitFenceValue);
+		//m_waitFenceValue++;
+	}
+
+	void GfxDevice::BeginFrame()
+	{
+		u32 backBufferIndex = m_swapChain->GetBackBufferIndex();
+		m_frameFence.Wait(m_frameFenceValues[backBufferIndex]);
+
+		m_graphicsCmdLists[backBufferIndex]->Begin();
+	}
+
+	void GfxDevice::EndFrame()
+	{
 	}
 
 	GfxDescriptor GfxDevice::AllocateDescriptorCPU(DescriptorHeapType type)
@@ -140,4 +183,9 @@ namespace Ryu::Gfx
 	{
 		return std::make_unique<GfxTexture>(this, desc, backbuffer);
 	}
+	
+	void GfxDevice::ProcessReleaseQueue()
+	{
+	}
 }
+

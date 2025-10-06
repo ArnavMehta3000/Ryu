@@ -1,7 +1,6 @@
 #include "Engine/Engine.h"
 #include "Common/Assert.h"
 #include "Globals/Globals.h"
-#include "Graphics/Core/Core.h"
 #include "Memory/New.h"
 #include "Math/Math.h"
 #include "App/Utils/PathManager.h"
@@ -68,8 +67,7 @@ namespace Ryu::Engine
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		//Gfx::Core::Init(m_app->GetWindow()->GetHandle());
-		m_gfxDevice = std::make_unique<Gfx::GfxDevice>(m_app->GetWindow()->GetHandle());
+		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
@@ -90,7 +88,7 @@ namespace Ryu::Engine
 		{
 			logger->Flush();
 		}
-		
+
 		// Unsubscribe listeners
 		auto window = m_app->GetWindow();
 		window->Unsubscribe(m_resizeListener);
@@ -99,7 +97,7 @@ namespace Ryu::Engine
 		m_scriptEngine.reset();
 		m_app.reset();
 
-		//Gfx::Core::Shutdown();
+		m_renderer.reset();
 
 		Config::ConfigManager::Get().SaveAll();
 
@@ -126,9 +124,8 @@ namespace Ryu::Engine
 					m_app->ProcessWindowEvents();
 					m_app->OnTick(info);
 				});
-				
-				//Gfx::Core::Render();
 
+				m_renderer->Render();
 				m_app->GetWindow()->ProcessEventQueue();
 			}
 		}
@@ -179,7 +176,7 @@ namespace Ryu::Engine
 
 		m_closeListener = window->On<Window::CloseEvent>([this] (const Window::CloseEvent&)
 		{
-			Quit(); 
+			Quit();
 		});
 
 		// Main loop
@@ -233,12 +230,15 @@ namespace Ryu::Engine
 	{
 		RYU_LOG_TRACE("Engine::OnAppResize -  {}x{}", width, height);
 
+		// Flush the log here in case something fails while resizing the renderer
 		if (auto* logger = Logging::Internal::GetLoggerInstance())
 		{
-			// Flush the log here in case something fails
 			logger->Flush();
 		}
-		
-		Gfx::Core::Resize(width, height);
+
+		if (m_renderer)
+		{
+			m_renderer->OnResize(width, height);
+		}
 	}
 }

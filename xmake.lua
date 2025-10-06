@@ -76,5 +76,6 @@ set_runargs(
 	"--Wnd.Width=1280",
 	"--Wnd.Height=720",
 	"--Log.Level=0",  -- For trace logs
-	"--Log.ToFile=true"
+	"--Log.ToFile=true",
+	"--Gfx.SyncInterval=1" -- Enable VSync
 )

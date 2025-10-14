@@ -30,7 +30,7 @@ namespace Ryu::Gfx
 
 		bool operator==(const GfxDescriptor& other) const 
 		{
-			return m_cpu.ptr == other.m_cpu.ptr
+			return m_cpu.ptr == other.m_cpu.ptr 
 				&& m_index == other.m_index;
 		}
 

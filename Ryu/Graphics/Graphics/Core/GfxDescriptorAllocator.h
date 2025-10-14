@@ -4,6 +4,7 @@
 
 namespace Ryu::Gfx
 {
+	// Free list allocator for dynamic descriptor allocation
 	class GfxDescriptorAllocator : public GfxDescriptorAllocatorBase
 	{
 	public:

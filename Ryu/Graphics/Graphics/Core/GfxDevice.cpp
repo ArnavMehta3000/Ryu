@@ -131,7 +131,7 @@ namespace Ryu::Gfx
 #if defined(RYU_BUILD_DEBUG)
 		DebugLayer::SetupSeverityBreaks(m_device, false);
 		DebugLayer::SetStablePowerState(m_device, false);
-		//DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(m_device);
+		DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(m_device);
 		DebugLayer::Shutdown();
 #endif
 	}

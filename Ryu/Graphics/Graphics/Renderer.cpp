@@ -51,5 +51,7 @@ namespace Ryu::Gfx
 	
 	void Renderer::OnResize(u32 w, u32 h)
 	{
+		UNREFERENCED_PARAMETER(w);
+		UNREFERENCED_PARAMETER(h);
 	}
 }

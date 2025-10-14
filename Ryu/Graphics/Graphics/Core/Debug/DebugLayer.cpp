@@ -186,7 +186,7 @@ namespace Ryu::Gfx::DebugLayer
 		}
 	}
 
-	void SetStablePowerState(ComPtr<DX12::Device>& device, bool enable)
+	void SetStablePowerState(ComPtr<DX12::Device>& /*device*/, bool /*enable*/)
 	{
 		// Look in the Windows Registry to determine if Developer Mode is enabled
 		HKEY hKey;

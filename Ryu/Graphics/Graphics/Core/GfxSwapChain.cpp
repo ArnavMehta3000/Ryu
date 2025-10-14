@@ -53,12 +53,12 @@ namespace Ryu::Gfx
 		CreateBackBuffers();
 	}
 	
-	void GfxSwapChain::SetAsRenderTarget(GfxCommandList* cmdList)
+	void GfxSwapChain::SetAsRenderTarget(GfxCommandList* /*cmdList*/)
 	{
 		RYU_NOT_IMPLEMENTED();
 	}
 	
-	void GfxSwapChain::ClearBackBuffer(GfxCommandList* cmdList)
+	void GfxSwapChain::ClearBackBuffer(GfxCommandList* /*cmdList*/)
 	{
 		RYU_NOT_IMPLEMENTED();
 	}

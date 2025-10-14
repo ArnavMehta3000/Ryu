@@ -32,6 +32,7 @@ namespace Ryu::Gfx
 	void GfxCommandQueue::Signal(GfxFence& fence, u64 fenceValue)
 	{
 		RYU_ASSERT(m_cmdQueue, "Command queue must be created before signaling.");
+		RYU_ASSERT(fence, "Fence must not be null before signaling.");
 		DXCall(m_cmdQueue->Signal(fence, fenceValue));
 	}
 	
@@ -66,5 +67,21 @@ namespace Ryu::Gfx
 		{
 			cmdList->SignalAll();
 		}
+	}
+	
+	void GfxCommandQueue::ExecuteCommandList(GfxCommandList* cmdList)
+	{
+		if (!cmdList)
+		{
+			return;
+		}
+
+		cmdList->WaitAll();
+
+		ID3D12CommandList* const native[] = { cmdList->GetNative().Get() };
+
+		m_cmdQueue->ExecuteCommandLists(1, native);
+
+		cmdList->SignalAll();
 	}
 }

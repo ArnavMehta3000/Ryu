@@ -32,11 +32,11 @@ namespace Ryu::Gfx
 		"Use WARP graphics device (Default: false)");
 
 
-	bool IsDebugLayerEnabled() { return cv_debugLayerEnabled.Get(); }
-	bool IsGPUBasedValidationEnabled() { return cv_enableValidation.Get(); }
-	bool IsTearingAllowed() { return cv_allowTearing.Get(); }
-	i32 GetSyncInterval() { return cv_syncInterval.Get(); }
-	bool ShouldUseWARPDevice() { return cv_useWarp.Get(); }
+	bool IsDebugLayerEnabled()         { return cv_debugLayerEnabled.Get(); }
+	bool IsGPUBasedValidationEnabled() { return cv_enableValidation.Get();  }
+	bool IsTearingAllowed()            { return cv_allowTearing.Get();      }
+	i32 GetSyncInterval()              { return cv_syncInterval.Get();      }
+	bool ShouldUseWARPDevice()         { return cv_useWarp.Get();           }
 
 	Renderer::Renderer(HWND window)
 		: m_device(window)
@@ -45,6 +45,8 @@ namespace Ryu::Gfx
 	
 	void Renderer::Render()
 	{
+		m_device.BeginFrame();
+		m_device.EndFrame();
 	}
 	
 	void Renderer::OnResize(u32 w, u32 h)

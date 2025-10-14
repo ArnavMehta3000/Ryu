@@ -20,6 +20,7 @@ namespace Ryu::Gfx
 		void Wait(GfxFence& fence, u64 fenceValue);
 
 		void ExecuteCommandLists(std::span<GfxCommandList*> cmdLists);
+		void ExecuteCommandList(GfxCommandList* cmdList);
 
 
 		RYU_GFX_NATIVE(m_cmdQueue)

@@ -67,6 +67,13 @@ namespace Ryu::Gfx
 	template<Releasable T>
 	using ReleasablePtr = std::unique_ptr<T, ReleaseDeleter>;
 
+	// Make a unique_ptr of a ComPtr
+	template<Releasable T>
+	ReleasablePtr<T> MakeReleasablePtr(T* ptr)
+	{
+		return ReleasablePtr<T>(ptr);
+	}
+
 	struct ReleasableObject
 	{
 		virtual ~ReleasableObject() = default;

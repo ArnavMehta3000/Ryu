@@ -107,6 +107,17 @@ namespace Ryu::Gfx
 
 			m_descriptorAllocatorsCPU[i] = std::make_unique<GfxDescriptorAllocator>(this, desc);
 		}
+
+		GfxSwapChain::Desc scDesc { m_width, m_height, DXGI_FORMAT_R8G8B8A8_UNORM };
+		m_swapChain = std::make_unique<GfxSwapChain>(this, scDesc);
+
+		m_frameFence.Create(this, "Frame Fence");
+		m_waitFence.Create(this, "Wait Fence");
+		m_releaseFence.Create(this, "Release Fence");
+
+		m_graphicsFence.Create(this, "Graphics Fence");
+		//m_computeFence.Create(this, "Compute Fence");
+		//m_copyFence.Create(this, "Copy Fence");
 	}
 
 	GfxDevice::~GfxDevice()
@@ -167,6 +178,23 @@ namespace Ryu::Gfx
 
 	void GfxDevice::EndFrame()
 	{
+		if (m_isFirstFrame)
+		{
+			m_isFirstFrame = false;
+		}
+
+		u32 backBufferIndex = m_swapChain->GetBackBufferIndex();
+		
+		m_graphicsCmdLists[backBufferIndex]->End();
+		
+		ProcessReleaseQueue();
+		m_graphicsQueue.ExecuteCommandList(m_graphicsCmdLists[backBufferIndex].get());
+
+		m_graphicsQueue.Signal(m_frameFence, m_frameFenceValue);
+		m_frameFenceValues[backBufferIndex] = m_frameFenceValue;
+
+		m_swapChain->Present(g_vsync);
+		m_frameFenceValue++;
 	}
 
 	GfxDescriptor GfxDevice::AllocateDescriptorCPU(DescriptorHeapType type)

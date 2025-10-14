@@ -207,7 +207,7 @@ namespace Ryu::Gfx::DebugLayer
 
 		if (devModeEnabled)
 		{
-			device->SetStablePowerState(enable);
+			//device->SetStablePowerState(enable);
 		}
 		else
 		{

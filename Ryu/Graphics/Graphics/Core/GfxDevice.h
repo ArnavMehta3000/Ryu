@@ -73,8 +73,8 @@ namespace Ryu::Gfx
 		FrameArray<u64> m_frameFenceValues{};
 
 		FrameArray<std::unique_ptr<GfxCommandList>> m_graphicsCmdLists;
-		GfxFence m_graphicsFence;
-		u64 m_graphicsFenceValue = 0;
+		GfxFence                                    m_graphicsFence;
+		u64                                         m_graphicsFenceValue = 0;
 
 		//GfxFence m_computeFence;
 		//u64 m_computeFenceValue = 0;
@@ -98,7 +98,7 @@ namespace Ryu::Gfx
 
 			ReleasableItem(ReleasableObject* obj, u64 fenceValue) : Obj(obj), FenceValue(fenceValue) {}
 		};
-		std::queue<ReleasableItem>  m_releaseQueue;
-		bool m_isFirstFrame;
+		std::queue<ReleasableItem>    m_releaseQueue;
+		bool                          m_isFirstFrame;
 	};
 }

@@ -12,6 +12,9 @@
 
 namespace Ryu::Engine
 {
+	static constexpr f64 MAX_STALL_TIME = 1.5;  // Highest ever delta time allowed
+	static constexpr f64 FALLBACK_DELTA_TIME = 1.0 / 60.0;  // 60 FPS
+
 	void PrintMemoryStats()
 	{
 		if (Memory::IsMemoryTrackingEnabled())
@@ -119,10 +122,22 @@ namespace Ryu::Engine
 		{
 			while (m_app->IsRunning())
 			{
+				m_app->ProcessWindowEvents();
+				
 				m_timer.Tick([this](const Utils::TimeInfo& info)
 				{
-					m_app->ProcessWindowEvents();
-					m_app->OnTick(info);
+					if (info.DeltaTime > MAX_STALL_TIME)
+					{
+						RYU_LOG_WARN("Engine stall detected! Delta time was {}s", info.DeltaTime);
+
+						Utils::TimeInfo i = info;
+						i.DeltaTime = FALLBACK_DELTA_TIME;
+						m_app->OnTick(i);
+					}
+					else
+					{
+						m_app->OnTick(info);
+					}
 				});
 
 				m_renderer->Render();

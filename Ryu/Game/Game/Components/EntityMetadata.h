@@ -21,6 +21,8 @@ namespace Ryu::Game
 	// Every entity is going to have this as a component
 	struct EntityMetadata
 	{
+		RYU_EDITOR_NAME("Entity Metadata Component");
+
 		explicit EntityMetadata()
 			: m_uuidBytes(Utils::UUID::GenerateBytes())
 		{

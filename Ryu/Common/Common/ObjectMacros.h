@@ -65,6 +65,15 @@
 // Empty macro to make code blocks easier to read
 #define RYU_CODE_BLOCK(Name)
 
+#if RYU_WITH_EDITOR
+	// Helper macro to generate editor names
+	#define RYU_EDITOR_NAME(Name) \
+	public:                       \
+		static constexpr std::string_view EditorName = Name
+#else
+	#define RYU_EDITOR_NAME(Name)
+#endif
+
 namespace Ryu
 {
 	constexpr std::string_view ExtractFilename(std::string_view path) noexcept

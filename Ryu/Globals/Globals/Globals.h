@@ -23,4 +23,4 @@ namespace Ryu::Utils::Internal
 }
 
 #define RYU_REGISTER_STATIC_SERVICE(Type, Factory) \
-    inline static ::Ryu::Utils::Internal::StaticServiceRegistrar<Type> g_##Type##Registrar{ Factory }
+	inline static ::Ryu::Utils::Internal::StaticServiceRegistrar<Type> g_##Type##Registrar{ Factory }

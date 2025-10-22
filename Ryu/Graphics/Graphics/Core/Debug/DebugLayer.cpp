@@ -1,6 +1,6 @@
 #include "Graphics/Core/Debug/DebugLayer.h"
-#include "Graphics/GraphicsConfig.h"
 #include "Profiling/Profiling.h"
+#include "Globals/Globals.h"
 #include "Logging/Logger.h"
 #include <dxgidebug.h>
 
@@ -8,11 +8,18 @@ namespace Ryu::Gfx::DebugLayer
 {
 	DWORD g_callbackCookie = 0;
 
+	RYU_TODO("Centralize debug layer stuff. Currently duplicated in the renderer!")
+	const bool g_enableDebugLayer = Globals::g_isDebug;
+	const bool g_enableValidation = true;
+	const bool g_useWarpDevice = false;
+	const bool g_allowTearing = true;
+	const bool g_isVsync = true;
+
 	void Initialize()
 	{
 		RYU_PROFILE_SCOPE();
 
-		if (Gfx::IsDebugLayerEnabled())
+		if (g_enableDebugLayer)
 		{
 			ComPtr<ID3D12Debug6> d3dDebug;
 			if (SUCCEEDED(::D3D12GetDebugInterface(IID_PPV_ARGS(&d3dDebug))))
@@ -20,7 +27,7 @@ namespace Ryu::Gfx::DebugLayer
 				d3dDebug->EnableDebugLayer();
 				RYU_LOG_TRACE("DX12 Debug layer enabled");
 
-				if (Gfx::IsGPUBasedValidationEnabled())
+				if (g_enableValidation)
 				{
 					d3dDebug->SetEnableGPUBasedValidation(TRUE);
 					RYU_LOG_WARN("DX12 GPU based validation enabled");
@@ -68,10 +75,12 @@ namespace Ryu::Gfx::DebugLayer
 	{
 		RYU_PROFILE_SCOPE();
 
+		RYU_LOG_TRACE("Shutting down graphics debug layer");
+
 		ComPtr<IDXGIDebug1> dxgiDebug;
 		if (SUCCEEDED(::DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
 		{
-			DXCall(dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL)));
+			dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_IGNORE_INTERNAL | DXGI_DEBUG_RLO_DETAIL));
 		}
 	}
 
@@ -178,15 +187,19 @@ namespace Ryu::Gfx::DebugLayer
 
 	void ReportLiveDeviceObjectsAndReleaseDevice(ComPtr<DX12::Device>& device)
 	{
+		RYU_PROFILE_SCOPE();
+
+		RYU_LOG_TRACE("Reporting live device objects and releasing device");
+
 		ComPtr<ID3D12DebugDevice2> debugDevice;
 		if (SUCCEEDED(device.As(&debugDevice)))
 		{
 			ComRelease(device);  // Release the device so that when we report we have the lowest possible nummber of refs
-			DXCall(debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL));
+			debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
 		}
 	}
 
-	void SetStablePowerState(ComPtr<DX12::Device>& /*device*/, bool /*enable*/)
+	void SetStablePowerState(ComPtr<DX12::Device>& device, bool enable)
 	{
 		// Look in the Windows Registry to determine if Developer Mode is enabled
 		HKEY hKey;
@@ -207,7 +220,7 @@ namespace Ryu::Gfx::DebugLayer
 
 		if (devModeEnabled)
 		{
-			//device->SetStablePowerState(enable);
+			device->SetStablePowerState(enable);
 		}
 		else
 		{

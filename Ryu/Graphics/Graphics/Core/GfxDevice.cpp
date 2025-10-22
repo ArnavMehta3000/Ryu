@@ -1,5 +1,4 @@
 #include "Graphics/Core/GfxDevice.h"
-#include "Graphics/GraphicsConfig.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
 #include "Utils/StringConv.h"
 #include "Math/Math.h"
@@ -12,8 +11,6 @@ namespace Ryu::Gfx
 		: m_hWnd(window)
 		, m_isFirstFrame(true)
 	{
-		g_vsync = GetSyncInterval();  // From graphics config
-
 		// Get window size
 		[](HWND hWNd, u32& outWidth, u32& outHeight) -> void
 		{
@@ -27,7 +24,7 @@ namespace Ryu::Gfx
 
 #if defined(RYU_BUILD_DEBUG)
 		DebugLayer::Initialize();
-		if (Gfx::IsDebugLayerEnabled())
+		if (bool debugLayer = true)
 		{
 			RYU_LOG_TRACE("Creating DX12 device with debug layer enabled");
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;

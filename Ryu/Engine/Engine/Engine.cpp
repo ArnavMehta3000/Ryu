@@ -251,9 +251,9 @@ namespace Ryu::Engine
 			logger->Flush();
 		}
 
-		if (m_renderer)
-		{
-			m_renderer->OnResize(width, height);
-		}
+		 if (m_renderer)
+		 {
+		 	m_renderer->OnResize(width, height);
+		 }
 	}
 }

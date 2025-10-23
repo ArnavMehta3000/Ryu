@@ -9,6 +9,8 @@
 
 namespace Ryu::Gfx
 {
+	constexpr auto TIMEOUT_TIME = 5000;
+
 	const bool g_enableDebugLayer = Globals::g_isDebug;
 	const bool g_enableValidation = true;
 	const bool g_useWarpDevice = false;
@@ -110,7 +112,7 @@ namespace Ryu::Gfx
 		m_cmdList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 
 		// --- Record commands ---
-		m_cmdList->ClearRenderTargetView(rtvHandle, DirectX::Colors::CornflowerBlue, 0, nullptr);
+		m_cmdList->ClearRenderTargetView(rtvHandle, DirectX::Colors::DarkSlateGray, 0, nullptr);
 		m_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_cmdList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 		m_cmdList->DrawInstanced(3, 1, 0, 0);
@@ -137,13 +139,18 @@ namespace Ryu::Gfx
 	
 	void Renderer::OnResize(u32 w, u32 h)
 	{
+		if (w == 0 || h == 0)
+		{
+			return;
+		}
+
 		RYU_LOG_TRACE("Renderer begin resize");
 
 		m_width = w;
 		m_height = h;
 
 		WaitForGPU();
-		
+
 		// Release all references to swap chain buffers
 		for (auto& rt : m_renderTargets)
 		{
@@ -482,7 +489,10 @@ namespace Ryu::Gfx
 
 		// Wait until the fence for the next frame is updated
 		DXCall(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
-		::WaitForSingleObject(m_fenceEvent, INFINITE);
+		if (::WaitForSingleObjectEx(m_fenceEvent, TIMEOUT_TIME, FALSE) == WAIT_TIMEOUT)
+		{
+			RYU_LOG_WARN("Wait for GPU timed out!");
+		}
 
 		// Increment the fence value for the current frame
 		m_fenceValues[m_frameIndex]++;
@@ -499,7 +509,10 @@ namespace Ryu::Gfx
 		if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
 		{
 			DXCall(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
-			::WaitForSingleObject(m_fenceEvent, INFINITE);
+			if (::WaitForSingleObjectEx(m_fenceEvent, TIMEOUT_TIME, FALSE) == WAIT_TIMEOUT)
+			{
+				RYU_LOG_WARN("Move to next frame timed out!");
+			}
 		}
 
 		// Increment the fence value for the current frame

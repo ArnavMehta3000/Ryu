@@ -240,7 +240,7 @@ namespace Ryu::Gfx
 			return std::unexpected(getResult.error());
 		}
 
-		RYU_LOG_INFO("Shader [{}] compiled successfully", name);
+		RYU_LOG_INFO("Shader ({}) compiled successfully", name);
 
 		return ShaderCompileResult
 		{

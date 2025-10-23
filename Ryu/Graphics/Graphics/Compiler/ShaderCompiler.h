@@ -50,8 +50,8 @@ namespace Ryu::Gfx
 		std::string GetHash(const ComPtr<IDxcResult>& result);
 
 	private:
-		ComPtr<IDxcUtils> m_utils;
-		ComPtr<IDxcCompiler3> m_compiler;
+		ComPtr<IDxcUtils>          m_utils;
+		ComPtr<IDxcCompiler3>      m_compiler;
 		ComPtr<IDxcIncludeHandler> m_includeHandler;
 	};
 }

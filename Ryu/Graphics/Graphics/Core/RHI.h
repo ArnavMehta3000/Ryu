@@ -34,4 +34,7 @@ namespace Ryu::Gfx
 	// Array of frame resources
 	template <typename T>
 	using FrameArray = std::array<T, FRAME_BUFFER_COUNT>;
+
+	template <typename T>
+	using ComFrameArray = std::array<ComPtr<T>, FRAME_BUFFER_COUNT>;
 }

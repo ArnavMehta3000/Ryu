@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <concepts>
 #include <memory>
+#include <span>
 
 namespace Ryu::Gfx
 {

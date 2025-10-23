@@ -52,12 +52,12 @@ namespace Ryu::Gfx
 		CreateVertexBuffer();
 		CreateSynchronization();
 
-		WaitForPreviousFrame();
+		WaitForGPU();
 	}
 
 	Renderer::~Renderer()
 	{
-		WaitForPreviousFrame();
+		WaitForGPU();
 
 		if (m_fenceEvent)
 		{
@@ -72,13 +72,17 @@ namespace Ryu::Gfx
 			ComRelease(rt);
 		}
 
+		for (auto& cmdAlloc : m_cmdAllocators)
+		{
+			ComRelease(cmdAlloc);
+		}
+
 		ComRelease(m_vertexBuffer);
 		ComRelease(m_rootSig);
 		ComRelease(m_pipelineState);
 		ComRelease(m_rtvHeap);
 		ComRelease(m_cmdList);
 		ComRelease(m_cmdQueue);
-		ComRelease(m_cmdAllocator);
 		ComRelease(m_fence);
 
 		RYU_DEBUG_OP(DebugLayer::SetupSeverityBreaks(m_device, false));  // Stops hard crash when reporting live objects
@@ -89,8 +93,8 @@ namespace Ryu::Gfx
 	
 	void Renderer::Render()
 	{
-		DXCall(m_cmdAllocator->Reset());
-		DXCall(m_cmdList->Reset(m_cmdAllocator.Get(), m_pipelineState.Get()));
+		DXCall(m_cmdAllocators[m_frameIndex]->Reset());
+		DXCall(m_cmdList->Reset(m_cmdAllocators[m_frameIndex].Get(), m_pipelineState.Get()));
 
 		m_cmdList->SetGraphicsRootSignature(m_rootSig.Get());
 		m_cmdList->RSSetViewports(1, &m_viewport);
@@ -125,10 +129,10 @@ namespace Ryu::Gfx
 		ID3D12CommandList* cmdLists[] = { m_cmdList.Get() };
 		m_cmdQueue->ExecuteCommandLists(1, cmdLists);
 
-		// Not dowing tearing/VSYNC compatibility checks here
+		// Not doing tearing/VSYNC compatibility checks here
 		DXCall(m_swapChain->Present(g_isVsync ? 1 : 0, 0));
 
-		WaitForPreviousFrame();
+		MoveToNextFrame();
 	}
 	
 	void Renderer::OnResize(u32 w, u32 h)
@@ -138,7 +142,7 @@ namespace Ryu::Gfx
 		m_width = w;
 		m_height = h;
 
-		WaitForPreviousFrame();
+		WaitForGPU();
 		
 		// Release all references to swap chain buffers
 		for (auto& rt : m_renderTargets)
@@ -247,8 +251,16 @@ namespace Ryu::Gfx
 		DXCall(m_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_cmdQueue)));
 		DX12::SetObjectName(m_cmdQueue.Get(), "Graphics Command Queue");
 
-		// Create command allocator
-		DXCall(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_cmdAllocator)));
+		// Create command allocators
+		static constexpr std::array allocatorNames = { "Cmd Allocator 0", "Cmd Allocator 1", "Cmd Allocator 2", "Cmd Allocator 3" };
+		static_assert(FRAME_BUFFER_COUNT <= allocatorNames.size());  // We can have more names, but not less
+		
+		for (u32 i = 0; i < m_cmdAllocators.size(); i++)
+		{
+			DXCall(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_cmdAllocators[i])));
+			DX12::SetObjectName(m_cmdAllocators[i].Get(), allocatorNames[i]);
+		}
+
 	}
 	
 	void Renderer::CreateSwapChain()
@@ -327,18 +339,23 @@ namespace Ryu::Gfx
 	
 	void Renderer::CreateCmdList()
 	{
-		DXCall(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_cmdAllocator.Get(), m_pipelineState.Get(), IID_PPV_ARGS(&m_cmdList)));
+		DXCall(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_cmdAllocators[m_frameIndex].Get(), m_pipelineState.Get(), IID_PPV_ARGS(&m_cmdList)));
 		DX12::SetObjectName(m_cmdList.Get(), "Graphics Command List");
 		m_cmdList->Close();
 	}
 	
 	void Renderer::CreateSynchronization()
 	{
-		DXCall(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+		DXCall(m_device->CreateFence(m_fenceValues[m_frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 		DX12::SetObjectName(m_fence.Get(), "Frame Fence");
-		m_fenceValue = 1;
+
+		m_fenceValues[m_frameIndex]++;
 
 		m_fenceEvent = ::CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
+		if (!m_fenceEvent)
+		{
+			DXCall(::HRESULT_FROM_WIN32(::GetLastError()));
+		}
 	}
 
 	void Renderer::CreatePipelineState()
@@ -458,24 +475,34 @@ namespace Ryu::Gfx
 		m_vertexBufferView.SizeInBytes    = vertexBufferSize;
 	}
 	
-	void Renderer::WaitForPreviousFrame()
+	void Renderer::WaitForGPU()
 	{
-		// WAITING FOR THE FRAME TO COMPLETE BEFORE CONTINUING IS NOT BEST PRACTICE.
-		// This is code implemented as such for simplicity.
+		// Schedule a Signal cmd in the queue
+		DXCall(m_cmdQueue->Signal(m_fence.Get(), m_fenceValues[m_frameIndex]));
 
-		// Signal and increment fence value
-		const u64 fence = m_fenceValue;
-		DXCall(m_cmdQueue->Signal(m_fence.Get(), fence));
-		m_fenceValue++;
+		// Wait until the fence for the next frame is updated
+		DXCall(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
+		::WaitForSingleObject(m_fenceEvent, INFINITE);
 
-		// Wait until the previous frame is finished
-		if (m_fence->GetCompletedValue() < fence)
+		// Increment the fence value for the current frame
+		m_fenceValues[m_frameIndex]++;
+	}
+	
+	void Renderer::MoveToNextFrame()
+	{
+		const u64 currentFenceValue = m_fenceValues[m_frameIndex];
+		DXCall(m_cmdQueue->Signal(m_fence.Get(), currentFenceValue));
+
+		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+		// Wait until next frame is ready
+		if (m_fence->GetCompletedValue() < m_fenceValues[m_frameIndex])
 		{
-			DXCall(m_fence->SetEventOnCompletion(fence, m_fenceEvent));
+			DXCall(m_fence->SetEventOnCompletion(m_fenceValues[m_frameIndex], m_fenceEvent));
 			::WaitForSingleObject(m_fenceEvent, INFINITE);
 		}
 
-		// Increment the frame index
-		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+		// Increment the fence value for the current frame
+		m_fenceValues[m_frameIndex] = currentFenceValue + 1;
 	}
 }

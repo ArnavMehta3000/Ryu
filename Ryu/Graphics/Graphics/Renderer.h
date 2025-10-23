@@ -20,6 +20,8 @@ namespace Ryu::Gfx
 		void CreateFrameResources();
 		void CreateCmdList();
 		void CreateSynchronization();
+		void CreatePipelineState();
+		void CreateVertexBuffer();
 		void WaitForPreviousFrame();
 
 	private:
@@ -36,12 +38,17 @@ namespace Ryu::Gfx
 		ComPtr<DX12::GraphicsCommandList>  m_cmdList;
 		ComPtr<DX12::CommandQueue>         m_cmdQueue;
 		ComPtr<DX12::CommandAllocator>     m_cmdAllocator;
+		ComPtr<DX12::RootSignature>        m_rootSig;
+		ComPtr<DX12::PipelineState>        m_pipelineState;
 		u32                                m_descriptorSize = 0;
 
 		u32                                m_frameIndex = 0;
 		HANDLE                             m_fenceEvent = nullptr;
 		ComPtr<DX12::Fence>                m_fence;
 		u64                                m_fenceValue = 0;
+
+		ComPtr<DX12::Resource>             m_vertexBuffer;
+		D3D12_VERTEX_BUFFER_VIEW           m_vertexBufferView;
 
 		CD3DX12_VIEWPORT                   m_viewport;
 		CD3DX12_RECT                       m_scissorRect;

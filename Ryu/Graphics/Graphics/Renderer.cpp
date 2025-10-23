@@ -3,6 +3,7 @@
 #include "Globals/Globals.h"
 #include "Utils/StringConv.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
+#include "Graphics/Compiler/ShaderCompiler.h"
 #include "Math/Math.h"
 #include <DirectXColors.h>
 
@@ -46,7 +47,9 @@ namespace Ryu::Gfx
 		CreateSwapChain();
 		CreateDescriptorHeaps();
 		CreateFrameResources();
+		CreatePipelineState();
 		CreateCmdList();
+		CreateVertexBuffer();
 		CreateSynchronization();
 
 		WaitForPreviousFrame();
@@ -69,6 +72,9 @@ namespace Ryu::Gfx
 			ComRelease(rt);
 		}
 
+		ComRelease(m_vertexBuffer);
+		ComRelease(m_rootSig);
+		ComRelease(m_pipelineState);
 		ComRelease(m_rtvHeap);
 		ComRelease(m_cmdList);
 		ComRelease(m_cmdQueue);
@@ -84,8 +90,9 @@ namespace Ryu::Gfx
 	void Renderer::Render()
 	{
 		DXCall(m_cmdAllocator->Reset());
-		DXCall(m_cmdList->Reset(m_cmdAllocator.Get(), nullptr));
+		DXCall(m_cmdList->Reset(m_cmdAllocator.Get(), m_pipelineState.Get()));
 
+		m_cmdList->SetGraphicsRootSignature(m_rootSig.Get());
 		m_cmdList->RSSetViewports(1, &m_viewport);
 		m_cmdList->RSSetScissorRects(1, &m_scissorRect);
 
@@ -98,7 +105,12 @@ namespace Ryu::Gfx
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_descriptorSize);
 		m_cmdList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 
+		// --- Record commands ---
 		m_cmdList->ClearRenderTargetView(rtvHandle, DirectX::Colors::CornflowerBlue, 0, nullptr);
+		m_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_cmdList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+		m_cmdList->DrawInstanced(3, 1, 0, 0);
+
 
 		barrier = CD3DX12_RESOURCE_BARRIER::Transition(
 			m_renderTargets[m_frameIndex].Get(),
@@ -315,8 +327,7 @@ namespace Ryu::Gfx
 	
 	void Renderer::CreateCmdList()
 	{
-		// PSO not created yet
-		DXCall(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_cmdAllocator.Get(), nullptr, IID_PPV_ARGS(&m_cmdList)));
+		DXCall(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_cmdAllocator.Get(), m_pipelineState.Get(), IID_PPV_ARGS(&m_cmdList)));
 		DX12::SetObjectName(m_cmdList.Get(), "Graphics Command List");
 		m_cmdList->Close();
 	}
@@ -328,6 +339,123 @@ namespace Ryu::Gfx
 		m_fenceValue = 1;
 
 		m_fenceEvent = ::CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
+	}
+
+	void Renderer::CreatePipelineState()
+	{
+		// Create root signature
+		CD3DX12_ROOT_SIGNATURE_DESC desc{};
+		desc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		
+		ComPtr<ID3DBlob> signature;
+		ComPtr<ID3DBlob> error;
+		DXCall(::D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
+		DXCall(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSig)));
+		
+		DX12::SetObjectName(m_rootSig.Get(), "Root Signature");
+		
+		// Compile shaders
+		static std::string_view shaderFile = R"(Shaders\Engine\Triangle.hlsl)";
+
+		ShaderCompiler compiler;
+		ShaderCompileInfo info
+		{
+			.FilePath = shaderFile,
+			.Type     = ShaderType::VertexShader,
+			.Name     = "TriangleVS"
+		};
+
+		ComPtr<IDxcBlob> vsBlob;
+		ComPtr<IDxcBlob> psBlob;
+
+		// Compile VS
+		if (auto vsResult = compiler.Compile(info))
+		{
+			ShaderCompileResult& result = vsResult.value();
+			vsBlob = result.ShaderBlob;
+		}
+
+		// Compile PS
+		info.Name = "TrianglePS";
+		info.Type = ShaderType::PixelShader;
+		if (auto psResult = compiler.Compile(info))
+		{
+			ShaderCompileResult& result = psResult.value();
+			psBlob = result.ShaderBlob;
+		}
+		
+		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		};
+
+		// Describe and create the graphics pipeline state object (PSO).
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+		psoDesc.InputLayout                        = { inputElementDescs, _countof(inputElementDescs) };
+		psoDesc.pRootSignature                     = m_rootSig.Get();
+		psoDesc.VS                                 = { reinterpret_cast<byte*>(vsBlob->GetBufferPointer()), vsBlob->GetBufferSize() };
+		psoDesc.PS                                 = { reinterpret_cast<byte*>(psBlob->GetBufferPointer()), psBlob->GetBufferSize() };
+		psoDesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		psoDesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoDesc.DepthStencilState.DepthEnable      = FALSE;
+		psoDesc.DepthStencilState.StencilEnable    = FALSE;
+		psoDesc.SampleMask                         = UINT_MAX;
+		psoDesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		psoDesc.NumRenderTargets                   = 1;
+		psoDesc.RTVFormats[0]                      = DXGI_FORMAT_R8G8B8A8_UNORM;
+		psoDesc.SampleDesc.Count                   = 1;
+
+		DXCall(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)));
+
+		DX12::SetObjectName(m_pipelineState.Get(), "Graphics Pipeline State");
+	}
+
+	void Renderer::CreateVertexBuffer()
+	{
+		struct Vertex
+		{
+			Math::Vector3 Position;
+			Math::Vector4 Color;
+		};
+
+		Vertex triangleVertices[] =
+		{
+			{ { 0.0f, 0.25f, 0.0f    }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+			{ { 0.25f, -0.25f, 0.0f  }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+			{ { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+		};
+
+		const u32 vertexBufferSize = sizeof(triangleVertices);
+
+		// Note: using upload heaps to transfer static data like vert buffers is not 
+		// recommended. Every time the GPU needs it, the upload heap will be marshalled over.
+
+		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+		auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+
+		DXCall(m_device->CreateCommittedResource(
+			&heapProps,
+			D3D12_HEAP_FLAG_NONE,
+			&bufferDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr, // Clear value
+			IID_PPV_ARGS(&m_vertexBuffer)
+		));
+
+		DX12::SetObjectName(m_vertexBuffer.Get(), "Vertex Buffer");
+
+		byte* vertexDataBegin;
+		CD3DX12_RANGE readRange(0, 0);  // We are not reading this resource from the GPU
+
+		DXCall(m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&vertexDataBegin)));
+		std::memcpy(vertexDataBegin, triangleVertices, sizeof(triangleVertices));
+		m_vertexBuffer->Unmap(0, nullptr);
+
+		// Set up vertex buffer view
+		m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
+		m_vertexBufferView.StrideInBytes  = sizeof(Vertex);
+		m_vertexBufferView.SizeInBytes    = vertexBufferSize;
 	}
 	
 	void Renderer::WaitForPreviousFrame()

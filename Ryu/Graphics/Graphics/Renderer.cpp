@@ -139,7 +139,7 @@ namespace Ryu::Gfx
 	
 	void Renderer::OnResize(u32 w, u32 h)
 	{
-		if (w == 0 || h == 0)
+		if (w == 0 || h == 0 || (w == m_width && h == m_height))
 		{
 			return;
 		}
@@ -152,9 +152,10 @@ namespace Ryu::Gfx
 		WaitForGPU();
 
 		// Release all references to swap chain buffers
-		for (auto& rt : m_renderTargets)
+		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
-			ComRelease(rt);
+			ComRelease(m_renderTargets[i]);
+			m_fenceValues[i] = m_fenceValues[m_frameIndex];
 		}
 
 		DXGI_SWAP_CHAIN_DESC1 desc;

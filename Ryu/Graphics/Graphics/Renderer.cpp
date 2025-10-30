@@ -1,6 +1,6 @@
-#include "Renderer.h"
+#include "Graphics/Renderer.h"
 #include "Common/Assert.h"
-#include "Globals/Globals.h"
+#include "Graphics/GraphicsConfig.h"
 #include "Utils/StringConv.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
@@ -10,13 +10,7 @@
 namespace Ryu::Gfx
 {
 	constexpr auto TIMEOUT_TIME = 5000;
-
-	const bool g_enableDebugLayer = Globals::g_isDebug;
-	const bool g_enableValidation = true;
-	const bool g_useWarpDevice = false;
-	const bool g_allowTearing = true;
-	const bool g_isVsync = true;
-	const DXGI_FORMAT g_backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	constexpr DXGI_FORMAT g_backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	Renderer::Renderer(HWND window)
 		: m_hWnd(window)
@@ -30,12 +24,15 @@ namespace Ryu::Gfx
 			outHeight = static_cast<u32>(rc.bottom - rc.top);
 		}(m_hWnd, m_width, m_height);
 
+		const bool enableDebugLayer = Config::IsDebugLayerEnabled();
+		const bool enableValidation = Config::IsValidationLayerEnabled();
+
 		// Create DXGI factory
 		u32 dxgiFactoryFlags = 0;
 
 #if defined(RYU_BUILD_DEBUG)
-		DebugLayer::Initialize();
-		if (g_enableDebugLayer)
+		DebugLayer::Initialize(enableDebugLayer, enableValidation);
+		if (enableDebugLayer)
 		{
 			RYU_LOG_TRACE("Creating DX12 device with debug layer enabled");
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
@@ -132,7 +129,7 @@ namespace Ryu::Gfx
 		m_cmdQueue->ExecuteCommandLists(1, cmdLists);
 
 		// Not doing tearing/VSYNC compatibility checks here
-		DXCall(m_swapChain->Present(g_isVsync ? 1 : 0, 0));
+		DXCall(m_swapChain->Present(Config::ShouldUseVsync() ? 1 : 0, 0));
 
 		MoveToNextFrame();
 	}
@@ -181,7 +178,7 @@ namespace Ryu::Gfx
 	
 	void Renderer::CreateDevice()
 	{
-		if (g_useWarpDevice)
+		if (Config::ShouldUseWarpDevice())
 		{
 			ComPtr<IDXGIAdapter> warpAdapter;
 			DXCall(m_factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));

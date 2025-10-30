@@ -71,11 +71,9 @@ includes("**/xmake.lua")
 -- Command line arguments
 set_runargs(
 	--"--ConfigFile="RyuConfig.toml",
-	"--Gfx.EnableDebugLayer=true",
-	"--Gfx.EnableValidation=true",
 	"--Wnd.Width=1280",
 	"--Wnd.Height=720",
 	"--Log.Level=0",  -- For trace logs
 	"--Log.ToFile=true",
-	"--Gfx.SyncInterval=1" -- Enable VSync
+	"--Gfx.Vsync=true" -- Enable VSync
 )

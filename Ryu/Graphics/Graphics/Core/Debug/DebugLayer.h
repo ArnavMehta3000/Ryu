@@ -3,7 +3,7 @@
 
 namespace Ryu::Gfx::DebugLayer
 {
-	void Initialize();
+	void Initialize(bool isDebugLayerEnabled, bool isValidationEnabled);
 	void Shutdown();
 
 	void SetupSeverityBreaks(ComPtr<DX12::Device>& device, bool enable);

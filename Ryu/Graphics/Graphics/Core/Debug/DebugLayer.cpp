@@ -1,6 +1,5 @@
 #include "Graphics/Core/Debug/DebugLayer.h"
 #include "Profiling/Profiling.h"
-#include "Globals/Globals.h"
 #include "Logging/Logger.h"
 #include <dxgidebug.h>
 
@@ -8,18 +7,11 @@ namespace Ryu::Gfx::DebugLayer
 {
 	DWORD g_callbackCookie = 0;
 
-	RYU_TODO("Centralize debug layer stuff. Currently duplicated in the renderer!")
-	const bool g_enableDebugLayer = Globals::g_isDebug;
-	const bool g_enableValidation = true;
-	const bool g_useWarpDevice = false;
-	const bool g_allowTearing = true;
-	const bool g_isVsync = true;
-
-	void Initialize()
+	void Initialize(bool isDebugLayerEnabled, bool isValidationEnabled)
 	{
 		RYU_PROFILE_SCOPE();
 
-		if (g_enableDebugLayer)
+		if (isDebugLayerEnabled)
 		{
 			ComPtr<ID3D12Debug6> d3dDebug;
 			if (SUCCEEDED(::D3D12GetDebugInterface(IID_PPV_ARGS(&d3dDebug))))
@@ -27,7 +19,7 @@ namespace Ryu::Gfx::DebugLayer
 				d3dDebug->EnableDebugLayer();
 				RYU_LOG_TRACE("DX12 Debug layer enabled");
 
-				if (g_enableValidation)
+				if (isValidationEnabled)
 				{
 					d3dDebug->SetEnableGPUBasedValidation(TRUE);
 					RYU_LOG_WARN("DX12 GPU based validation enabled");

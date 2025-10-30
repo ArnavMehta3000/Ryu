@@ -13,11 +13,17 @@ TestbenchApp::TestbenchApp(std::shared_ptr<Ryu::Window::Window> window)
 	, m_world("TestbenchWorld")
 	, m_keyListener(window->GetDispatcher(), [this](const KeyEvent& e)
 	{
-		if (e.KeyCode == KeyCode::Escape)
+		if (e.KeyCode == KeyCode::Escape && e.State == KeyState::Released)
 		{
 #if defined(RYU_BUILD_DEBUG) && !defined(RYU_WITH_EDITOR)
 			Quit();  // Only close window from here when we are in debug and not in editor
 #endif
+		}
+
+		if (e.KeyCode == KeyCode::F && e.State == KeyState::Released)
+		{
+			RYU_LOG_INFO("DT: {} | FPS: {} | Total: {:3f} | Frame: {}",
+				m_timeInfo.DeltaTime, m_timeInfo.FPS, m_timeInfo.TotalTime, m_timeInfo.FrameCount);
 		}
 	})
 {
@@ -50,10 +56,12 @@ void TestbenchApp::OnShutdown()
 	m_gameInput.Shutdown();
 }
 
-void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo&)
+void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo& t)
 {
 	m_gameInput.PollKeyboard();
 	m_gameInput.PollMouse();
+	
+	m_timeInfo = t;
 }
 
 void TestbenchApp::TestSerialization()

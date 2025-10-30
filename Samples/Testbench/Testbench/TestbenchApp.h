@@ -6,6 +6,7 @@
 
 class TestbenchApp : public Ryu::App::App
 {
+	using ScopedKeyEventListener = Ryu::Event::ScopedListener<Ryu::Window::KeyEvent>;
 public:
 	explicit TestbenchApp(std::shared_ptr<Ryu::Window::Window> window);
 
@@ -18,7 +19,8 @@ private:
 	void TestDeserialization();
 
 private:
-	Ryu::Game::World m_world;
-	GInput m_gameInput;
-	Ryu::Event::ScopedListener<Ryu::Window::KeyEvent> m_keyListener;
+	Ryu::Game::World       m_world;
+	GInput                 m_gameInput;
+	ScopedKeyEventListener m_keyListener;
+	Ryu::Utils::TimeInfo   m_timeInfo;
 };

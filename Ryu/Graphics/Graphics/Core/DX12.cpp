@@ -8,7 +8,7 @@ namespace Ryu::Gfx
 {
 	void DX12::SetObjectName(DX12::Object* object, const char* name)
 	{
-		if (object)
+		if (object && name)
 		{
 			DXCall(object->SetPrivateData(WKPDID_D3DDebugObjectName, (u32)strlen(name) + 1, name));
 			RYU_LOG_TRACE("Set D3D12 object name: {}", name);

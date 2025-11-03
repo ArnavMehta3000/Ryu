@@ -26,9 +26,9 @@ namespace Ryu::Gfx
 		void MoveToNextFrame();
 
 	private:
-		HWND m_hWnd = nullptr;
-		u32 m_width = 0;
-		u32 m_height = 0;
+		HWND                                  m_hWnd = nullptr;
+		u32                                   m_width = 0;
+		u32                                   m_height = 0;
 
 		ComPtr<DX12::Device>                  m_device;
 		ComPtr<DXGI::Factory>                 m_factory;

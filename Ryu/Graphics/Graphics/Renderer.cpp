@@ -1,5 +1,6 @@
 #include "Graphics/Renderer.h"
 #include "Common/Assert.h"
+#include "Common/Casts.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Utils/StringConv.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
@@ -10,7 +11,6 @@
 namespace Ryu::Gfx
 {
 	constexpr auto TIMEOUT_TIME = 5000;
-	constexpr DXGI_FORMAT g_backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	Renderer::Renderer(HWND window)
 		: m_hWnd(window)
@@ -20,8 +20,8 @@ namespace Ryu::Gfx
 		{
 			RECT rc{};
 			::GetClientRect(hWNd, &rc);
-			outWidth = static_cast<u32>(rc.right - rc.left);
-			outHeight = static_cast<u32>(rc.bottom - rc.top);
+			outWidth = SCast<u32>(rc.right - rc.left);
+			outHeight = SCast<u32>(rc.bottom - rc.top);
 		}(m_hWnd, m_width, m_height);
 
 		const bool enableDebugLayer = Config::IsDebugLayerEnabled();
@@ -274,7 +274,7 @@ namespace Ryu::Gfx
 		scDesc.AlphaMode          = DXGI_ALPHA_MODE_IGNORE;
 		scDesc.BufferCount        = FRAME_BUFFER_COUNT;
 		scDesc.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scDesc.Format             = g_backBufferFormat;
+		scDesc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
 		scDesc.Width              = m_width;
 		scDesc.Height             = m_height;
 		scDesc.Scaling            = DXGI_SCALING_NONE;
@@ -321,7 +321,7 @@ namespace Ryu::Gfx
 		DXCall(m_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_rtvHeap)));
 		DX12::SetObjectName(m_rtvHeap.Get(), "RTV Heap");
 
-		m_descriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		m_descriptorSize = m_device->GetDescriptorHandleIncrementSize(desc.Type);
 	}
 
 	void Renderer::CreateFrameResources()

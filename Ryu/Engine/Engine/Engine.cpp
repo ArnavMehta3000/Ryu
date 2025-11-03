@@ -70,7 +70,7 @@ namespace Ryu::Engine
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
+		m_renderer = std::make_unique<Gfx::RendererNew>(m_app->GetWindow()->GetHandle());
 
 		RYU_PROFILE_BOOKMARK("Initialize script engine");
 		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((

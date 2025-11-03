@@ -32,7 +32,10 @@ namespace Ryu::Gfx
 	template<Internal::ComPtrType T>
 	inline void ComRelease(T& ptr)
 	{
-		ptr.Reset();
+		if (ptr)
+		{
+			ptr.Reset();
+		}
 	}
 
 

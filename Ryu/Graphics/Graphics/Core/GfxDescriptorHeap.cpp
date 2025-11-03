@@ -1,0 +1,84 @@
+#include "Graphics/Core/GfxDescriptorHeap.h"
+#include "Graphics/Core/GfxDevice.h"
+
+namespace Ryu::Gfx
+{
+	GfxDescriptorHeap::GfxDescriptorHeap(
+		GfxDevice* parent, D3D12_DESCRIPTOR_HEAP_TYPE type, 
+		u32 numDescriptors, bool isShaderVisible, std::string_view name)
+		: GfxDeviceChild(parent)
+		, m_type(type)
+		, m_numDescriptors(numDescriptors)
+		, m_isShaderVisible(isShaderVisible)
+		, m_nextIndex(0)
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC desc{};
+		desc.Type           = type;
+		desc.NumDescriptors = numDescriptors;
+		desc.Flags          = isShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+		DX12::Device* device = GetDevice()->GetNativeDevice();
+
+		DXCall(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_heap)));
+		DX12::SetObjectName(m_heap.Get(), name.data());
+
+		m_descriptorSize = device->GetDescriptorHandleIncrementSize(type);
+		m_cpuStart = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_heap->GetCPUDescriptorHandleForHeapStart());
+
+		if (isShaderVisible)
+		{
+			m_gpuStart = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_heap->GetGPUDescriptorHandleForHeapStart());
+		}
+	}
+	
+	GfxDescriptorHandle GfxDescriptorHeap::Allocate()
+	{
+		u32 index{};
+
+		if (!m_freeIndices.empty())
+		{
+			index = m_freeIndices.front();
+			m_freeIndices.pop();
+		}
+		else if (m_nextIndex < m_numDescriptors)
+		{
+			index = m_nextIndex++;
+		}
+		else
+		{
+			// Heap is full
+			RYU_LOG_ERROR("Descriptor heap is full!");
+			return GfxDescriptorHandle{};
+		}
+
+		return GetHandle(index);
+	}
+	
+	void GfxDescriptorHeap::Free(const GfxDescriptorHandle& handle)
+	{
+		if (handle.IsValid())
+		{
+			m_freeIndices.push(handle.Index);
+		}
+	}
+	
+	void GfxDescriptorHeap::Reset()
+	{
+		m_nextIndex = 0;
+		m_freeIndices = std::queue<u32>();
+	}
+	
+	GfxDescriptorHandle GfxDescriptorHeap::GetHandle(u32 index) const
+	{
+		GfxDescriptorHandle handle;
+		handle.Index = index;
+		handle.CPU   = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_cpuStart, index, m_descriptorSize);
+
+		if (m_isShaderVisible)
+		{
+			handle.GPU = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_gpuStart, index, m_descriptorSize);
+		}
+
+		return handle;
+	}
+}

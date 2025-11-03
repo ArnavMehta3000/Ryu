@@ -4,7 +4,6 @@
 #include "Logging/Logger.h"
 #include <directx/d3dx12.h>
 #include <dxgi1_6.h>
-#include <vector>
 
 namespace Ryu::Gfx
 {
@@ -65,7 +64,7 @@ namespace Ryu::Gfx
 
 // Useful for wrapping D3D12 objects (assuming VarName is a ComPtr)
 #define RYU_GFX_NATIVE(VarName)                                                                 \
-	[[nodiscard]] inline auto& GetNative() const noexcept { return VarName; }                   \
+	[[nodiscard]] inline auto GetNative() const noexcept { return VarName.Get(); }              \
 	inline void SetName(const char* name) const { DX12::SetObjectName(VarName.Get(), name); }   \
 	operator auto* () const noexcept { return VarName.Get(); }                                  \
 	operator bool () const noexcept { return VarName.Get() != nullptr; }

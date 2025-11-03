@@ -124,28 +124,9 @@ namespace Ryu::Gfx
 	{
 		m_cmdList->Begin(m_frameIndex);
 		m_cmdList->SetViewports(
-			std::span<const CD3DX12_VIEWPORT>(&m_viewport, 1), 
+			std::span<const CD3DX12_VIEWPORT>(&m_viewport, 1),
 			std::span<const CD3DX12_RECT>(&m_scissorRect, 1)
 		);
-
-		m_cmdList->ResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(
-			m_renderTargets[m_frameIndex].Get(),
-			D3D12_RESOURCE_STATE_PRESENT,
-			D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-		const GfxDescriptorHandle rtvHandle = m_rtvHeap->GetHandle(m_frameIndex);
-		m_cmdList->SetRenderTarget(rtvHandle, {});
-
-		DX12::GraphicsCommandList* nativeList = m_cmdList->GetNative();
-
-		nativeList->ClearRenderTargetView(rtvHandle.CPU, DirectX::Colors::DarkSlateGray, 0, nullptr);
-		nativeList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		m_cmdList->ResourceBarrier(
-			CD3DX12_RESOURCE_BARRIER::Transition(
-				m_renderTargets[m_frameIndex].Get(),
-				D3D12_RESOURCE_STATE_RENDER_TARGET,
-				D3D12_RESOURCE_STATE_PRESENT));
 	}
 
 	void GfxDevice::EndFrame()
@@ -153,8 +134,11 @@ namespace Ryu::Gfx
 		m_cmdList->End();
 		m_cmdQueue->ExecuteCommandList(*m_cmdList);
 
-		DXCall(m_swapChain->Present(Config::ShouldUseVsync() ? 1 : 0, 0));
+	}
 
+	void GfxDevice::Present()
+	{
+		DXCall(m_swapChain->Present(Config::ShouldUseVsync() ? 1 : 0, 0));
 		MoveToNextFrame();
 	}
 	
@@ -214,6 +198,18 @@ namespace Ryu::Gfx
 		CreateFrameResources(true);
 
 		RYU_LOG_DEBUG("Frame buffers resized {}x{}", w, h);
+	}
+
+	void GfxDevice::SetBackBufferRenderTarget(bool shouldClear)
+	{
+		// Assuming we have already transitioned the resource
+		const GfxDescriptorHandle rtvHandle = m_rtvHeap->GetHandle(m_frameIndex);
+		m_cmdList->SetRenderTarget(rtvHandle, {});
+
+		if (shouldClear)
+		{
+			m_cmdList->GetNative()->ClearRenderTargetView(rtvHandle.CPU, DirectX::Colors::DarkSlateGray, 0, nullptr);
+		}
 	}
 
 	void GfxDevice::CreateDevice()

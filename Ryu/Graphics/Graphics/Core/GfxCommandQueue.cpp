@@ -48,6 +48,6 @@ namespace Ryu::Gfx
 		{
 			nativeCmdLists[i] = cmdLists[i].GetNative();
 		}
-		m_cmdQueue->ExecuteCommandLists(cmdLists.size(), nativeCmdLists.data());
+		m_cmdQueue->ExecuteCommandLists(u32(cmdLists.size()), nativeCmdLists.data());
 	}
 }

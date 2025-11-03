@@ -1,6 +1,5 @@
 #include "Graphics/Core/GfxDevice.h"
 #include "Graphics/Core/GfxDeviceChild.h"
-#include "Common/Casts.h"
 #include "Common/Assert.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
@@ -20,9 +19,13 @@ namespace Ryu::Gfx
 
 	GfxDeviceChild::~GfxDeviceChild()
 	{
-		m_device->RemoveDeviceChild(this);
+		if (m_isRegistered && m_device)
+		{
+			m_device->RemoveDeviceChild(this);
+		}
 	}
 
+	// ---------------------------------------------------------------------
 
 	GfxDevice::GfxDevice(HWND window)
 		: m_window(window)
@@ -63,11 +66,15 @@ namespace Ryu::Gfx
 			ComRelease(rt);
 		}
 
-		// Release children
 		for (GfxDeviceChild* deviceChild : m_deviceChildren)
 		{
-			deviceChild->ReleaseObject();
+			if (deviceChild)
+			{
+				deviceChild->ReleaseObject();
+				deviceChild->DisconnectFromDevice();  // Prevent them from trying to unregister
+			}
 		}
+		m_deviceChildren.clear();
 
 		RYU_DEBUG_OP(DebugLayer::SetupSeverityBreaks(m_device, false));  // Stops hard crash when reporting live objects
 		RYU_DEBUG_OP(DebugLayer::Shutdown());  // Reports DXGI
@@ -92,8 +99,8 @@ namespace Ryu::Gfx
 		RECT rc{};
 
 		::GetClientRect(m_window, &rc);
-		u32 width  = NCast<u32>(rc.right - rc.left);
-		u32 height = NCast<u32>(rc.bottom - rc.top);
+		u32 width  = u32(rc.right - rc.left);
+		u32 height = u32(rc.bottom - rc.top);
 
 		return std::make_pair(width, height);
 	}
@@ -107,9 +114,9 @@ namespace Ryu::Gfx
 	{
 		if (deviceChild)
 		{
-			/*m_deviceChildren.erase(
+			m_deviceChildren.erase(
 				std::remove(m_deviceChildren.begin(), m_deviceChildren.end(), deviceChild),
-				m_deviceChildren.end());*/
+				m_deviceChildren.end());
 		}
 	}
 
@@ -264,7 +271,7 @@ namespace Ryu::Gfx
 
 			D3D12_FEATURE_DATA_FEATURE_LEVELS caps{};
 			caps.pFeatureLevelsRequested = featureLevels.data();
-			caps.NumFeatureLevels = NCast<u32>(featureLevels.size());
+			caps.NumFeatureLevels = u32(featureLevels.size());
 
 			DXCall(m_device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &caps, sizeof(caps)));
 			DXCall(::D3D12CreateDevice(adapter.Get(), caps.MaxSupportedFeatureLevel, IID_PPV_ARGS(&m_device)));

@@ -4,7 +4,7 @@
 
 namespace Ryu::Gfx
 {
-	class GfxDescriptorHandle;
+	struct GfxDescriptorHandle;
 
 	class GfxCommandList : public GfxDeviceChild
 	{

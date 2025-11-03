@@ -7,12 +7,8 @@ namespace Ryu::Gfx
 
 	class GfxDeviceChild
 	{
+		friend class GfxDevice;
 	public:
-		GfxDeviceChild()
-			: m_device(nullptr)
-		{
-		}
-
 		explicit GfxDeviceChild(GfxDevice* device);  // Defined in GfxDevice.cpp
 		virtual ~GfxDeviceChild();  // Defined in GfxDevice.cpp
 
@@ -20,6 +16,10 @@ namespace Ryu::Gfx
 		[[nodiscard]] inline GfxDevice* GetDevice() const noexcept { return m_device; }
 
 	private:
-		GfxDevice* m_device;
+		inline void DisconnectFromDevice() { m_isRegistered = false; }
+
+	private:
+		GfxDevice* m_device = nullptr;
+		bool m_isRegistered = false;
 	};
 }

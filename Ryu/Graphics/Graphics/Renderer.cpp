@@ -1,6 +1,5 @@
 #include "Graphics/Renderer.h"
 #include "Common/Assert.h"
-#include "Common/Casts.h"
 #include "Graphics/GraphicsConfig.h"
 #include "Utils/StringConv.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
@@ -20,8 +19,8 @@ namespace Ryu::Gfx
 		{
 			RECT rc{};
 			::GetClientRect(hWNd, &rc);
-			outWidth = SCast<u32>(rc.right - rc.left);
-			outHeight = SCast<u32>(rc.bottom - rc.top);
+			outWidth = u32(rc.right - rc.left);
+			outHeight = u32(rc.bottom - rc.top);
 		}(m_hWnd, m_width, m_height);
 
 		const bool enableDebugLayer = Config::IsDebugLayerEnabled();

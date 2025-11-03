@@ -48,8 +48,8 @@ namespace Ryu::Gfx
 	
 	void GfxCommandList::SetViewports(std::span<const CD3DX12_VIEWPORT> viewports, std::span<const CD3DX12_RECT> scissors)
 	{
-		m_cmdList->RSSetViewports(viewports.size(), viewports.data());
-		m_cmdList->RSSetScissorRects(scissors.size(), scissors.data());
+		m_cmdList->RSSetViewports(u32(viewports.size()), viewports.data());
+		m_cmdList->RSSetScissorRects(u32(scissors.size()), scissors.data());
 	}
 
 	void GfxCommandList::ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier)
@@ -59,7 +59,7 @@ namespace Ryu::Gfx
 	
 	void GfxCommandList::ResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers)
 	{
-		m_cmdList->ResourceBarrier(barriers.size(), barriers.data());
+		m_cmdList->ResourceBarrier(u32(barriers.size()), barriers.data());
 	}
 
 	void GfxCommandList::SetRenderTarget(const GfxDescriptorHandle& rtv, const GfxDescriptorHandle& dsv)

@@ -1,6 +1,7 @@
 #include "Graphics/RendererNew.h"
 #include "Graphics/Core/GfxTexture.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
+#include "Graphics/Primitives/Triangle.h"
 
 namespace Ryu::Gfx
 {
@@ -15,9 +16,9 @@ namespace Ryu::Gfx
 	void RendererNew::CreateResources()
 	{
 		// Create root signature
-		CD3DX12_ROOT_SIGNATURE_DESC desc{};
-		desc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-		m_rootSignature = std::make_unique<RootSignature>(m_device.get(), desc, "Root Signature");
+		CD3DX12_ROOT_SIGNATURE_DESC rsdesc{};
+		rsdesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		m_rootSignature = std::make_unique<RootSignature>(m_device.get(), rsdesc, "Root Signature");
 
 		// Compile shaders
 		static std::string_view shaderFile = R"(Shaders\Engine\Triangle.hlsl)";
@@ -63,6 +64,18 @@ namespace Ryu::Gfx
 		psoDesc.SampleDesc.Count                = 1;
 
 		m_pipelineState = std::make_unique<PipelineState>(m_device.get(), psoDesc, "Graphics Pipeline State");
+	
+		// Create vertex buffer
+		Buffer::Desc desc
+		{
+			.SizeInBytes   = Primitives::TriangleVertexBufferSize,
+			.StrideInBytes = sizeof(Primitives::TriangleVertexPosCol),
+			.Usage         = Buffer::Usage::Default,  // GPU only memory
+			.Type          = Buffer::Type::Vertex,
+			.Name          = "Triangle Vertex Buffer"
+		};
+
+		m_vertexBuffer = std::make_unique<Buffer>(m_device.get(), desc, Primitives::TriangleVerticesPosCol.data());
 	}
 	
 	void RendererNew::Render()
@@ -72,10 +85,15 @@ namespace Ryu::Gfx
 
 		m_device->BeginFrame(m_pipelineState.get());
 
+		cmdList->GetNative()->SetGraphicsRootSignature(*m_rootSignature);
+
 		cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		m_device->SetBackBufferRenderTarget(true);
 
+		m_vertexBuffer->FinishUpload(*cmdList);
 		cmdList->SetTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		cmdList->GetNative()->DrawInstanced(3, 1, 0, 0);
+
 		cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 		m_device->EndFrame();

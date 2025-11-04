@@ -3,10 +3,10 @@
 
 namespace Ryu::Gfx
 {
-	GfxDescriptorHeap::GfxDescriptorHeap(
-		GfxDevice* parent, D3D12_DESCRIPTOR_HEAP_TYPE type, 
+	DescriptorHeap::DescriptorHeap(
+		Device* parent, D3D12_DESCRIPTOR_HEAP_TYPE type, 
 		u32 numDescriptors, bool isShaderVisible, std::string_view name)
-		: GfxDeviceChild(parent)
+		: DeviceChild(parent)
 		, m_type(type)
 		, m_numDescriptors(numDescriptors)
 		, m_isShaderVisible(isShaderVisible)
@@ -31,7 +31,7 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	GfxDescriptorHandle GfxDescriptorHeap::Allocate()
+	DescriptorHandle DescriptorHeap::Allocate()
 	{
 		u32 index{};
 
@@ -48,13 +48,13 @@ namespace Ryu::Gfx
 		{
 			// Heap is full
 			RYU_LOG_ERROR("Descriptor heap is full!");
-			return GfxDescriptorHandle{};
+			return DescriptorHandle{};
 		}
 
 		return GetHandle(index);
 	}
 	
-	void GfxDescriptorHeap::Free(const GfxDescriptorHandle& handle)
+	void DescriptorHeap::Free(const DescriptorHandle& handle)
 	{
 		if (handle.IsValid())
 		{
@@ -62,15 +62,15 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void GfxDescriptorHeap::Reset()
+	void DescriptorHeap::Reset()
 	{
 		m_nextIndex = 0;
 		m_freeIndices = std::queue<u32>();
 	}
 	
-	GfxDescriptorHandle GfxDescriptorHeap::GetHandle(u32 index) const
+	DescriptorHandle DescriptorHeap::GetHandle(u32 index) const
 	{
-		GfxDescriptorHandle handle;
+		DescriptorHandle handle;
 		handle.Index = index;
 		handle.CPU   = CD3DX12_CPU_DESCRIPTOR_HANDLE(m_cpuStart, index, m_descriptorSize);
 

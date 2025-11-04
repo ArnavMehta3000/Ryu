@@ -16,16 +16,6 @@
 
 namespace Ryu::Gfx
 {
-	template<typename T> class DeviceObject;
-
-	class GfxDevice;
-	class GfxSwapChain;
-	class GfxCommandList;
-	class GfxCommandQueue;
-	class GfxFence;
-	class GfxDescriptorAllocator;
-	class GfxTexture;
-
 	constexpr u32 TIMEOUT_DURATION        = 5000;
 	constexpr u32 FRAME_BUFFER_COUNT      = 2;
 	constexpr Format BACK_BUFFER_FORMAT   = Format::RGBA8_UNORM;

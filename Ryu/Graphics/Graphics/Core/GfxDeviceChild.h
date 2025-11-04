@@ -3,23 +3,23 @@
 
 namespace Ryu::Gfx
 {
-	class GfxDevice;
+	class Device;
 
-	class GfxDeviceChild
+	class DeviceChild
 	{
-		friend class GfxDevice;
+		friend class Device;
 	public:
-		explicit GfxDeviceChild(GfxDevice* device);  // Defined in GfxDevice.cpp
-		virtual ~GfxDeviceChild();  // Defined in GfxDevice.cpp
+		explicit DeviceChild(Device* device);  // Defined in Device.cpp
+		virtual ~DeviceChild();  // Defined in Device.cpp
 
 		virtual void ReleaseObject() { /* Can be overridden if needed */ }
-		[[nodiscard]] inline GfxDevice* GetDevice() const noexcept { return m_device; }
+		[[nodiscard]] inline Device* GetDevice() const noexcept { return m_device; }
 
 	private:
 		inline void DisconnectFromDevice() { m_isRegistered = false; }
 
 	private:
-		GfxDevice* m_device = nullptr;
+		Device* m_device = nullptr;
 		bool m_isRegistered : 1 = false;
 	};
 }

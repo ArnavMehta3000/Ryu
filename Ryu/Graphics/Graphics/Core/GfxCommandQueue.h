@@ -4,23 +4,23 @@
 
 namespace Ryu::Gfx
 {
-	class GfxFence;
-	class GfxCommandList;
+	class Fence;
+	class CommandList;
 
-	class GfxCommandQueue : public GfxDeviceChild
+	class CommandQueue : public DeviceChild
 	{
 	public:
-		GfxCommandQueue(GfxDevice* parent, D3D12_COMMAND_LIST_TYPE type, std::string_view name);
-		virtual ~GfxCommandQueue() override = default;
+		CommandQueue(Device* parent, D3D12_COMMAND_LIST_TYPE type, std::string_view name);
+		virtual ~CommandQueue() override = default;
 
 		virtual inline void ReleaseObject() override { ComRelease(m_cmdQueue); }
 
 		RYU_GFX_NATIVE(m_cmdQueue)
 
-		void Signal(const GfxFence& fence, u64 value);
+		void Signal(const Fence& fence, u64 value);
 
-		void ExecuteCommandList(const GfxCommandList& cmdList);
-		void ExecuteCommandLists(std::span<const GfxCommandList> cmdLists);
+		void ExecuteCommandList(const CommandList& cmdList);
+		void ExecuteCommandLists(std::span<const CommandList> cmdLists);
 
 	private:
 		ComPtr<DX12::CommandQueue> m_cmdQueue;

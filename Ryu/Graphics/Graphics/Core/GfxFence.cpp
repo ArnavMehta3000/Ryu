@@ -3,8 +3,8 @@
 
 namespace Ryu::Gfx
 {
-	GfxFence::GfxFence(GfxDevice* parent, u64 initialValue, std::string_view name)
-		: GfxDeviceChild(parent)
+	Fence::Fence(Device* parent, u64 initialValue, std::string_view name)
+		: DeviceChild(parent)
 		, m_event(nullptr)
 	{
 		DX12::Device* device = GetDevice()->GetNativeDevice();
@@ -19,7 +19,7 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	GfxFence::~GfxFence()
+	Fence::~Fence()
 	{
 		if (m_event)
 		{
@@ -27,7 +27,7 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void GfxFence::Wait(u64 value)
+	void Fence::Wait(u64 value)
 	{
 		if (!IsCompleted(value))
 		{
@@ -39,18 +39,18 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void GfxFence::Signal(u64 value)
+	void Fence::Signal(u64 value)
 	{
 		// Sets the fence to a specific value (CPU-side
 		DXCall(m_fence->Signal(value));
 	}
 	
-	bool GfxFence::IsCompleted(u64 value) const
+	bool Fence::IsCompleted(u64 value) const
 	{
 		return GetCompletedValue() >= value;
 	}
 	
-	u64 GfxFence::GetCompletedValue() const
+	u64 Fence::GetCompletedValue() const
 	{
 		return m_fence->GetCompletedValue();
 	}

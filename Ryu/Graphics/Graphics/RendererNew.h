@@ -13,6 +13,6 @@ namespace Ryu::Gfx
 		void OnResize(u32 w, u32 h);
 
 	private:
-		std::unique_ptr<GfxDevice> m_device;
+		std::unique_ptr<Device> m_device;
 	};
 }

@@ -4,8 +4,8 @@
 
 namespace Ryu::Gfx
 {
-	GfxCommandList::GfxCommandList(GfxDevice* parent, D3D12_COMMAND_LIST_TYPE type, std::string_view name)
-		: GfxDeviceChild(parent)
+	CommandList::CommandList(Device* parent, D3D12_COMMAND_LIST_TYPE type, std::string_view name)
+		: DeviceChild(parent)
 		, m_type(type)
 	{
 		DX12::Device* device = GetDevice()->GetNativeDevice();
@@ -25,7 +25,7 @@ namespace Ryu::Gfx
 		m_cmdList->Close();
 	}
 
-	void GfxCommandList::ReleaseObject()
+	void CommandList::ReleaseObject()
 	{
 		ComRelease(m_cmdList);
 
@@ -35,45 +35,45 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void GfxCommandList::Begin(u32 frameIndex)
+	void CommandList::Begin(u32 frameIndex)
 	{
 		DXCall(m_cmdAllocators[frameIndex]->Reset());
 		DXCall(m_cmdList->Reset(m_cmdAllocators[frameIndex].Get(), nullptr));
 	}
 
-	void GfxCommandList::End()
+	void CommandList::End()
 	{
 		DXCall(m_cmdList->Close());
 	}
 	
-	void GfxCommandList::SetViewports(std::span<const CD3DX12_VIEWPORT> viewports, std::span<const CD3DX12_RECT> scissors)
+	void CommandList::SetViewports(std::span<const CD3DX12_VIEWPORT> viewports, std::span<const CD3DX12_RECT> scissors)
 	{
 		m_cmdList->RSSetViewports(u32(viewports.size()), viewports.data());
 		m_cmdList->RSSetScissorRects(u32(scissors.size()), scissors.data());
 	}
 
-	void GfxCommandList::ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier)
+	void CommandList::ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier)
 	{
 		m_cmdList->ResourceBarrier(1, &barrier);
 	}
 	
-	void GfxCommandList::ResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers)
+	void CommandList::ResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers)
 	{
 		m_cmdList->ResourceBarrier(u32(barriers.size()), barriers.data());
 	}
 
-	void GfxCommandList::TransitionResource(DX12::Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
+	void CommandList::TransitionResource(DX12::Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
 	{
 		CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, before, after);
 		ResourceBarrier(barrier);
 	}
 
-	void GfxCommandList::SetRenderTarget(const GfxDescriptorHandle& rtv, const GfxDescriptorHandle& dsv)
+	void CommandList::SetRenderTarget(const DescriptorHandle& rtv, const DescriptorHandle& dsv)
 	{
 		m_cmdList->OMSetRenderTargets(1, &rtv.CPU, FALSE, dsv.IsValid() ? &dsv.CPU : nullptr);
 	}
 	
-	void GfxCommandList::SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology)
+	void CommandList::SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology)
 	{
 		m_cmdList->IASetPrimitiveTopology(topology);
 	}

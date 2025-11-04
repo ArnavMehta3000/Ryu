@@ -5,14 +5,14 @@ namespace Ryu::Gfx
 {
 	RendererNew::RendererNew(HWND window)
 	{
-		m_device = std::make_unique<GfxDevice>(window);
+		m_device = std::make_unique<Device>(window);
 		m_device->Initialize();
 	}
 	
 	void RendererNew::Render()
 	{
-		GfxCommandList* cmdList  = m_device->GetGraphicsCommandList();
-		GfxTexture* renderTarget = m_device->GetCurrentBackBuffer();
+		CommandList* cmdList  = m_device->GetGraphicsCommandList();
+		Texture* renderTarget = m_device->GetCurrentBackBuffer();
 
 		m_device->BeginFrame();
 

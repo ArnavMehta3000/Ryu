@@ -8,11 +8,11 @@
 
 namespace Ryu::Gfx
 {
-	class GfxDevice
+	class Device
 	{
 	public:
-		GfxDevice(HWND window);
-		~GfxDevice();
+		Device(HWND window);
+		~Device();
 
 		void Initialize();
 
@@ -23,14 +23,14 @@ namespace Ryu::Gfx
 		[[nodiscard]] inline u32 GetFrameIndex() const noexcept { return m_frameIndex; }
 		[[nodiscard]] inline DX12::Device* GetNativeDevice() const noexcept { return m_device.Get(); }
 		[[nodiscard]] inline DXGI::Factory* GetFactory() const noexcept { return m_factory.Get(); }
-		[[nodiscard]] inline GfxCommandList* GetGraphicsCommandList() const noexcept { return m_cmdList.get(); }
-		[[nodiscard]] inline GfxCommandQueue* GetCommandQueue() const noexcept { return m_cmdQueue.get(); }
-		[[nodiscard]] inline GfxTexture* GetCurrentBackBuffer() const noexcept { return m_renderTargets[m_frameIndex].get(); }
+		[[nodiscard]] inline CommandList* GetGraphicsCommandList() const noexcept { return m_cmdList.get(); }
+		[[nodiscard]] inline CommandQueue* GetCommandQueue() const noexcept { return m_cmdQueue.get(); }
+		[[nodiscard]] inline Texture* GetCurrentBackBuffer() const noexcept { return m_renderTargets[m_frameIndex].get(); }
 
 		[[nodiscard]] std::pair<u32, u32> GetClientSize() const;
 
-		void AddDeviceChild(GfxDeviceChild* deviceChild);
-		void RemoveDeviceChild(GfxDeviceChild* deviceChild);
+		void AddDeviceChild(DeviceChild* deviceChild);
+		void RemoveDeviceChild(DeviceChild* deviceChild);
 
 		void BeginFrame();
 		void EndFrame();
@@ -61,17 +61,19 @@ namespace Ryu::Gfx
 		ComPtr<DXGI::Factory>                   m_factory;
 		ComPtr<DXGI::SwapChain>                 m_swapChain;
 
-		std::unique_ptr<GfxDescriptorHeap>      m_rtvHeap;
-		std::unique_ptr<GfxCommandQueue>        m_cmdQueue;
-		std::unique_ptr<GfxCommandList>         m_cmdList;
-		std::unique_ptr<GfxFence>               m_fence;
+		std::unique_ptr<DescriptorHeap>      m_rtvHeap;
+		std::unique_ptr<DescriptorHeap>      m_dsvHeap;
+		std::unique_ptr<CommandQueue>        m_cmdQueue;
+		std::unique_ptr<CommandList>         m_cmdList;
+		std::unique_ptr<Fence>               m_fence;
 
 		u32                                     m_frameIndex = 0;
 		FrameArray<u64>                         m_fenceValues{};
 
-		FrameArray<std::unique_ptr<GfxTexture>> m_renderTargets;
+		std::unique_ptr<Texture>             m_depthBuffer;
+		FrameArray<std::unique_ptr<Texture>> m_renderTargets;
 
-		std::vector<GfxDeviceChild*>            m_deviceChildren;
+		std::vector<DeviceChild*>            m_deviceChildren;
 		CD3DX12_VIEWPORT                        m_viewport;
 		CD3DX12_RECT                            m_scissorRect;
 	};

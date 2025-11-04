@@ -4,13 +4,13 @@
 
 namespace Ryu::Gfx
 {
-	struct GfxDescriptorHandle;
+	struct DescriptorHandle;
 
-	class GfxCommandList : public GfxDeviceChild
+	class CommandList : public DeviceChild
 	{
 	public:
-		GfxCommandList(GfxDevice* parent, D3D12_COMMAND_LIST_TYPE type, std::string_view name);
-		virtual ~GfxCommandList() override = default;
+		CommandList(Device* parent, D3D12_COMMAND_LIST_TYPE type, std::string_view name);
+		virtual ~CommandList() override = default;
 
 		virtual void ReleaseObject() override;
 
@@ -23,7 +23,7 @@ namespace Ryu::Gfx
 		void ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier);
 		void ResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers);
 		void TransitionResource(DX12::Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
-		void SetRenderTarget(const GfxDescriptorHandle& rtv, const GfxDescriptorHandle& dsv);
+		void SetRenderTarget(const DescriptorHandle& rtv, const DescriptorHandle& dsv);
 		void SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
 
 	private:

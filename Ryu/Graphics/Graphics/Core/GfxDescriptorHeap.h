@@ -4,7 +4,7 @@
 
 namespace Ryu::Gfx
 {
-	struct GfxDescriptorHandle
+	struct DescriptorHandle
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE CPU = CD3DX12_DEFAULT{};
 		CD3DX12_GPU_DESCRIPTOR_HANDLE GPU = CD3DX12_DEFAULT{};
@@ -14,23 +14,23 @@ namespace Ryu::Gfx
 		[[nodiscard]] inline bool IsShaderVisible() const { return GPU.ptr != 0; }
 	};
 
-	class GfxDescriptorHeap : public GfxDeviceChild
+	class DescriptorHeap : public DeviceChild
 	{
 	public:
-		GfxDescriptorHeap(GfxDevice* parent, D3D12_DESCRIPTOR_HEAP_TYPE type,
+		DescriptorHeap(Device* parent, D3D12_DESCRIPTOR_HEAP_TYPE type,
 			u32 numDescriptors, bool isShaderVisible, std::string_view name);
-		~GfxDescriptorHeap() override = default;
+		~DescriptorHeap() override = default;
 
 		inline virtual void ReleaseObject() override { ComRelease(m_heap); }
 		
-		RYU_DISABLE_COPY(GfxDescriptorHeap)
+		RYU_DISABLE_COPY(DescriptorHeap)
 		RYU_GFX_NATIVE(m_heap)
 
-		[[nodiscard]] GfxDescriptorHandle Allocate();
-		void Free(const GfxDescriptorHandle& handle);
+		[[nodiscard]] DescriptorHandle Allocate();
+		void Free(const DescriptorHandle& handle);
 		void Reset();  // Free all descriptors
 
-		[[nodiscard]] GfxDescriptorHandle GetHandle(u32 index) const;
+		[[nodiscard]] DescriptorHandle GetHandle(u32 index) const;
 		[[nodiscard]] inline u32 GetDescriptorSize() const { return m_descriptorSize; }
 
 	private:

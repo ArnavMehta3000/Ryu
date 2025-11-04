@@ -3,17 +3,18 @@
 
 namespace Ryu::Gfx
 {
-	class GfxTexture : public GfxDeviceChild
+	class Texture : public DeviceChild
 	{
 	public:
-		GfxTexture(GfxDevice* parent, DX12::Resource* resource, std::string_view name);  // Used when creating swapchain textures
+		Texture(Device* parent);
+		Texture(Device* parent, DX12::Resource* resource, std::string_view name);  // Used when creating swapchain textures
 
 		virtual inline void ReleaseObject() override { ComRelease(m_resource); }
 
 		RYU_GFX_NATIVE(m_resource)
 
 		void UpdateTextureResource(DX12::Resource* resource, std::string_view name); // Used when resizing swapchain textures
-		void CreateRenderTarget(D3D12_RENDER_TARGET_VIEW_DESC* desc, GfxDescriptorHandle rtvHeapHandle);
+		void CreateRenderTarget(D3D12_RENDER_TARGET_VIEW_DESC* desc, DescriptorHandle rtvHeapHandle);
 	
 	private:
 		ComPtr<DX12::Resource> m_resource;

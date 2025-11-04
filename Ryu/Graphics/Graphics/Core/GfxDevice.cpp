@@ -11,14 +11,14 @@ namespace Ryu::Gfx
 {
 	constexpr DXGI_FORMAT g_backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	GfxDeviceChild::GfxDeviceChild(GfxDevice* device)
+	DeviceChild::DeviceChild(Device* device)
 		: m_device(device)
 	{
 		m_device->AddDeviceChild(this);
 		m_isRegistered = true;
 	}
 
-	GfxDeviceChild::~GfxDeviceChild()
+	DeviceChild::~DeviceChild()
 	{
 		if (m_isRegistered && m_device)
 		{
@@ -29,7 +29,7 @@ namespace Ryu::Gfx
 
 	// ---------------------------------------------------------------------
 
-	GfxDevice::GfxDevice(HWND window)
+	Device::Device(HWND window)
 		: m_window(window)
 		, m_isDebugLayerEnabled(Config::IsDebugLayerEnabled())
 		, m_isValidationEnabled(Config::IsValidationLayerEnabled())
@@ -58,12 +58,12 @@ namespace Ryu::Gfx
 		CreateDevice();
 	}
 
-	GfxDevice::~GfxDevice()
+	Device::~Device()
 	{
 		ComRelease(m_factory);
 		ComRelease(m_swapChain);
 
-		for (GfxDeviceChild* deviceChild : m_deviceChildren)
+		for (DeviceChild* deviceChild : m_deviceChildren)
 		{
 			if (deviceChild)
 			{
@@ -78,12 +78,13 @@ namespace Ryu::Gfx
 		RYU_DEBUG_OP(DebugLayer::ReportLiveDeviceObjectsAndReleaseDevice(m_device));
 	}
 
-	void GfxDevice::Initialize()
+	void Device::Initialize()
 	{
-		m_cmdQueue = std::make_unique<GfxCommandQueue>(this, D3D12_COMMAND_LIST_TYPE_DIRECT, "Graphics Command Queue");
-		m_cmdList  = std::make_unique<GfxCommandList>(this, D3D12_COMMAND_LIST_TYPE_DIRECT, "Graphics Command List");
-		m_rtvHeap  = std::make_unique<GfxDescriptorHeap>(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, FRAME_BUFFER_COUNT, false, "Frame RTV Heap");
-		m_fence    = std::make_unique<GfxFence>(this, m_fenceValues[m_frameIndex], "Graphics Fence");
+		m_cmdQueue = std::make_unique<CommandQueue>(this, D3D12_COMMAND_LIST_TYPE_DIRECT, "Graphics Command Queue");
+		m_cmdList  = std::make_unique<CommandList>(this, D3D12_COMMAND_LIST_TYPE_DIRECT, "Graphics Command List");
+		m_rtvHeap  = std::make_unique<DescriptorHeap>(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, FRAME_BUFFER_COUNT, false, "Frame RTV Heap");
+		m_dsvHeap  = std::make_unique<DescriptorHeap>(this, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false, "Frame DSV Heap");
+		m_fence    = std::make_unique<Fence>(this, m_fenceValues[m_frameIndex], "Graphics Fence");
 
 		m_fenceValues[m_frameIndex]++;
 
@@ -91,7 +92,7 @@ namespace Ryu::Gfx
 		CreateFrameResources(false);
 	}
 	
-	std::pair<u32, u32> GfxDevice::GetClientSize() const
+	std::pair<u32, u32> Device::GetClientSize() const
 	{
 		RECT rc{};
 
@@ -102,12 +103,12 @@ namespace Ryu::Gfx
 		return std::make_pair(width, height);
 	}
 
-	void GfxDevice::AddDeviceChild(GfxDeviceChild* deviceChild)
+	void Device::AddDeviceChild(DeviceChild* deviceChild)
 	{
 		m_deviceChildren.push_back(deviceChild);
 	}
 
-	void GfxDevice::RemoveDeviceChild(GfxDeviceChild* deviceChild)
+	void Device::RemoveDeviceChild(DeviceChild* deviceChild)
 	{
 		if (deviceChild)
 		{
@@ -117,7 +118,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void GfxDevice::BeginFrame()
+	void Device::BeginFrame()
 	{
 		m_cmdList->Begin(m_frameIndex);
 		m_cmdList->SetViewports(
@@ -126,27 +127,27 @@ namespace Ryu::Gfx
 		);
 	}
 
-	void GfxDevice::EndFrame()
+	void Device::EndFrame()
 	{
 		m_cmdList->End();
 		m_cmdQueue->ExecuteCommandList(*m_cmdList);
 
 	}
 
-	void GfxDevice::Present()
+	void Device::Present()
 	{
 		DXCall(m_swapChain->Present(Config::ShouldUseVsync() ? 1 : 0, 0));
 		MoveToNextFrame();
 	}
 	
-	void GfxDevice::WaitForGPU()
+	void Device::WaitForGPU()
 	{
 		m_cmdQueue->Signal(*m_fence, m_fenceValues[m_frameIndex]);
 		m_fence->Wait(m_fenceValues[m_frameIndex]);
 		m_fenceValues[m_frameIndex]++;
 	}
 
-	void GfxDevice::MoveToNextFrame()
+	void Device::MoveToNextFrame()
 	{
 		const u64 currentFenceValue = m_fenceValues[m_frameIndex];
 		
@@ -157,7 +158,7 @@ namespace Ryu::Gfx
 		m_fenceValues[m_frameIndex] = currentFenceValue + 1;
 	}
 
-	void GfxDevice::ResizeBuffers(u32 w, u32 h)
+	void Device::ResizeBuffers(u32 w, u32 h)
 	{
 		if (w == 0 || h == 0 || (w == m_width && h == m_height))
 		{
@@ -197,10 +198,10 @@ namespace Ryu::Gfx
 		RYU_LOG_DEBUG("Frame buffers resized {}x{}", w, h);
 	}
 
-	void GfxDevice::SetBackBufferRenderTarget(bool shouldClear)
+	void Device::SetBackBufferRenderTarget(bool shouldClear)
 	{
 		// Assuming we have already transitioned the resource
-		const GfxDescriptorHandle rtvHandle = m_rtvHeap->GetHandle(m_frameIndex);
+		const DescriptorHandle rtvHandle = m_rtvHeap->GetHandle(m_frameIndex);
 		m_cmdList->SetRenderTarget(rtvHandle, {});
 
 		if (shouldClear)
@@ -209,7 +210,7 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void GfxDevice::CreateDevice()
+	void Device::CreateDevice()
 	{
 		if (m_isWarpDevice)
 		{
@@ -276,7 +277,7 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void GfxDevice::CreateSwapChain()
+	void Device::CreateSwapChain()
 	{
 		DXGI_SWAP_CHAIN_DESC1 scDesc{};
 		scDesc.AlphaMode          = DXGI_ALPHA_MODE_IGNORE;
@@ -316,7 +317,7 @@ namespace Ryu::Gfx
 		m_scissorRect = CD3DX12_RECT(0, 0, m_width, m_height);
 	}
 	
-	void GfxDevice::CreateFrameResources(bool isResizing)
+	void Device::CreateFrameResources(bool isResizing)
 	{
 		static constexpr std::array objectNames = { "Backbuffer 0", "Backbuffer 1", "Backbuffer 2", "Backbuffer 3" };
 		static_assert(FRAME_BUFFER_COUNT <= objectNames.size());  // We can have more names, but not less
@@ -325,18 +326,18 @@ namespace Ryu::Gfx
 		{
 			// Get existing handle if we are resizing, otherwise allocate
 			DX12::Resource* resource = nullptr;
-			const GfxDescriptorHandle rtvHandle = isResizing ? m_rtvHeap->GetHandle(i) : m_rtvHeap->Allocate();
+			const DescriptorHandle rtvHandle = isResizing ? m_rtvHeap->GetHandle(i) : m_rtvHeap->Allocate();
 			
 			DXCall(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&resource)));
 			
 			if (isResizing)
 			{
-				// Reuse existing GfxTexture, just update its resource
+				// Reuse existing Texture, just update its resource
 				m_renderTargets[i]->UpdateTextureResource(resource, objectNames[i]);
 			}
 			else
 			{
-				m_renderTargets[i] = std::make_unique<GfxTexture>(this, resource, objectNames[i]);
+				m_renderTargets[i] = std::make_unique<Texture>(this, resource, objectNames[i]);
 			}
 
 			m_renderTargets[i]->CreateRenderTarget(nullptr, rtvHandle);

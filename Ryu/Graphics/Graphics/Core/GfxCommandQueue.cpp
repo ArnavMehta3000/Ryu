@@ -6,8 +6,8 @@
 
 namespace Ryu::Gfx
 {
-	GfxCommandQueue::GfxCommandQueue(GfxDevice* parent, D3D12_COMMAND_LIST_TYPE type, std::string_view name)
-		: GfxDeviceChild(parent)
+	CommandQueue::CommandQueue(Device* parent, D3D12_COMMAND_LIST_TYPE type, std::string_view name)
+		: DeviceChild(parent)
 		, m_timestampFrequency(0)
 		, m_type(type)
 	{
@@ -30,18 +30,18 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void GfxCommandQueue::Signal(const GfxFence& fence, u64 value)
+	void CommandQueue::Signal(const Fence& fence, u64 value)
 	{
 		m_cmdQueue->Signal(fence, value);
 	}
 	
-	void GfxCommandQueue::ExecuteCommandList(const GfxCommandList& cmdList)
+	void CommandQueue::ExecuteCommandList(const CommandList& cmdList)
 	{
 		ID3D12CommandList* cmdLists[] = { cmdList.GetNative() };
 		m_cmdQueue->ExecuteCommandLists(1, cmdLists);
 	}
 	
-	void GfxCommandQueue::ExecuteCommandLists(std::span<const GfxCommandList> cmdLists)
+	void CommandQueue::ExecuteCommandLists(std::span<const CommandList> cmdLists)
 	{
 		std::vector<ID3D12CommandList*> nativeCmdLists(cmdLists.size(), nullptr);
 		for (u32 i = 0; i < cmdLists.size(); i++)

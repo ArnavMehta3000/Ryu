@@ -4,8 +4,10 @@
 
 namespace Ryu::Gfx
 {
-	GfxTexture::GfxTexture(GfxDevice* parent, DX12::Resource* resource, std::string_view name)
-		: GfxDeviceChild(parent)
+	Texture::Texture(Device* parent) : DeviceChild(parent) { }
+
+	Texture::Texture(Device* parent, DX12::Resource* resource, std::string_view name)
+		: DeviceChild(parent)
 		, m_isBackBuffer(true)
 	{
 		RYU_ASSERT(resource, "Resource is null!");
@@ -14,7 +16,7 @@ namespace Ryu::Gfx
 		DX12::SetObjectName(m_resource.Get(), name.data());
 	}
 	
-	void GfxTexture::UpdateTextureResource(DX12::Resource* resource, std::string_view name)
+	void Texture::UpdateTextureResource(DX12::Resource* resource, std::string_view name)
 	{
 		RYU_ASSERT(resource, "Resource is null!");
 
@@ -26,7 +28,7 @@ namespace Ryu::Gfx
 		DX12::SetObjectName(m_resource.Get(), name.data());
 	}
 
-	void GfxTexture::CreateRenderTarget(D3D12_RENDER_TARGET_VIEW_DESC* desc, GfxDescriptorHandle rtvHeapHandle)
+	void Texture::CreateRenderTarget(D3D12_RENDER_TARGET_VIEW_DESC* desc, DescriptorHandle rtvHeapHandle)
 	{
 		DX12::Device* device = GetDevice()->GetNativeDevice();
 

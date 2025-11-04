@@ -62,8 +62,19 @@ namespace Ryu::Gfx
 		m_cmdList->ResourceBarrier(u32(barriers.size()), barriers.data());
 	}
 
+	void GfxCommandList::TransitionResource(DX12::Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
+	{
+		CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, before, after);
+		ResourceBarrier(barrier);
+	}
+
 	void GfxCommandList::SetRenderTarget(const GfxDescriptorHandle& rtv, const GfxDescriptorHandle& dsv)
 	{
 		m_cmdList->OMSetRenderTargets(1, &rtv.CPU, FALSE, dsv.IsValid() ? &dsv.CPU : nullptr);
+	}
+	
+	void GfxCommandList::SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology)
+	{
+		m_cmdList->IASetPrimitiveTopology(topology);
 	}
 }

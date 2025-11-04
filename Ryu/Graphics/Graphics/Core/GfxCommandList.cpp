@@ -1,6 +1,7 @@
 #include "Graphics/Core/GfxCommandList.h"
 #include "Graphics/Core/GfxDevice.h"
 #include "Graphics/Core/GfxDescriptorHeap.h"
+#include "Graphics/Core/GfxPipelineState.h"
 
 namespace Ryu::Gfx
 {
@@ -35,10 +36,10 @@ namespace Ryu::Gfx
 		}
 	}
 	
-	void CommandList::Begin(u32 frameIndex)
+	void CommandList::Begin(u32 frameIndex, PipelineState* pipelineState)
 	{
 		DXCall(m_cmdAllocators[frameIndex]->Reset());
-		DXCall(m_cmdList->Reset(m_cmdAllocators[frameIndex].Get(), nullptr));
+		DXCall(m_cmdList->Reset(m_cmdAllocators[frameIndex].Get(), pipelineState ? *pipelineState : nullptr));
 	}
 
 	void CommandList::End()

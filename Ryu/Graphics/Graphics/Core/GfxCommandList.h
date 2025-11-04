@@ -5,6 +5,7 @@
 namespace Ryu::Gfx
 {
 	struct DescriptorHandle;
+	class PipelineState;
 
 	class CommandList : public DeviceChild
 	{
@@ -16,7 +17,7 @@ namespace Ryu::Gfx
 
 		RYU_GFX_NATIVE(m_cmdList)
 
-		void Begin(u32 frameIndex);
+		void Begin(u32 frameIndex, PipelineState* pipelineState);
 		void End();
 
 		void SetViewports(std::span<const CD3DX12_VIEWPORT> viewports, std::span<const CD3DX12_RECT> scissors);

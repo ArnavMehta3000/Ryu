@@ -8,6 +8,7 @@ namespace Ryu::Gfx
 	public:
 		Texture(Device* parent);
 		Texture(Device* parent, DX12::Resource* resource, std::string_view name);  // Used when creating swapchain textures
+		virtual ~Texture() = default;
 
 		virtual inline void ReleaseObject() override { ComRelease(m_resource); }
 

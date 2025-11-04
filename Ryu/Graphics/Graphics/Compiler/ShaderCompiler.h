@@ -1,6 +1,6 @@
 #pragma once
 #include "Graphics/Core/DX12.h"
-#include "Graphics/Shader/ShaderType.h"
+#include "Graphics/ShaderType.h"
 #include <dxcapi.h>
 #include <filesystem>
 
@@ -34,7 +34,7 @@ namespace Ryu::Gfx
 	public:
 		ShaderCompiler();
 		~ShaderCompiler() = default;
-		
+
 		static std::wstring GetCSOOutputPath(const ShaderCompileInfo& info);
 		static std::wstring GetPDBOutputPath(const ShaderCompileInfo& info);
 

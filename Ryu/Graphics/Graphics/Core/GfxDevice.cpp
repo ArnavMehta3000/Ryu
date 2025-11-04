@@ -118,9 +118,9 @@ namespace Ryu::Gfx
 		}
 	}
 
-	void Device::BeginFrame()
+	void Device::BeginFrame(PipelineState* pipelineState)
 	{
-		m_cmdList->Begin(m_frameIndex);
+		m_cmdList->Begin(m_frameIndex, pipelineState);
 		m_cmdList->SetViewports(
 			std::span<const CD3DX12_VIEWPORT>(&m_viewport, 1),
 			std::span<const CD3DX12_RECT>(&m_scissorRect, 1)

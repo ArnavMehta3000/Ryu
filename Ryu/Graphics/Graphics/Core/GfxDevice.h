@@ -32,7 +32,7 @@ namespace Ryu::Gfx
 		void AddDeviceChild(DeviceChild* deviceChild);
 		void RemoveDeviceChild(DeviceChild* deviceChild);
 
-		void BeginFrame();
+		void BeginFrame(PipelineState* pipelineState = nullptr);
 		void EndFrame();
 		void Present();
 

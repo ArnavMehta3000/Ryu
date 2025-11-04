@@ -15,12 +15,14 @@ namespace Ryu::Gfx
 		: m_device(device)
 	{
 		m_device->AddDeviceChild(this);
+		m_isRegistered = true;
 	}
 
 	GfxDeviceChild::~GfxDeviceChild()
 	{
 		if (m_isRegistered && m_device)
 		{
+			ReleaseObject();
 			m_device->RemoveDeviceChild(this);
 		}
 	}
@@ -60,11 +62,6 @@ namespace Ryu::Gfx
 	{
 		ComRelease(m_factory);
 		ComRelease(m_swapChain);
-
-		for (auto& rt : m_renderTargets)
-		{
-			ComRelease(rt);
-		}
 
 		for (GfxDeviceChild* deviceChild : m_deviceChildren)
 		{
@@ -175,7 +172,7 @@ namespace Ryu::Gfx
 		// Release all references to swap chain buffers
 		for (u32 i = 0; i < FRAME_BUFFER_COUNT; i++)
 		{
-			ComRelease(m_renderTargets[i]);
+			m_renderTargets[i]->ReleaseObject();
 			m_fenceValues[i] = m_fenceValues[m_frameIndex];
 		}
 
@@ -327,11 +324,22 @@ namespace Ryu::Gfx
 		for (u32 i = 0; i < m_renderTargets.size(); i++)
 		{
 			// Get existing handle if we are resizing, otherwise allocate
+			DX12::Resource* resource = nullptr;
 			const GfxDescriptorHandle rtvHandle = isResizing ? m_rtvHeap->GetHandle(i) : m_rtvHeap->Allocate();
-			DXCall(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_renderTargets[i])));
+			
+			DXCall(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&resource)));
+			
+			if (isResizing)
+			{
+				// Reuse existing GfxTexture, just update its resource
+				m_renderTargets[i]->UpdateTextureResource(resource, objectNames[i]);
+			}
+			else
+			{
+				m_renderTargets[i] = std::make_unique<GfxTexture>(this, resource, objectNames[i]);
+			}
 
-			m_device->CreateRenderTargetView(m_renderTargets[i].Get(), nullptr, rtvHandle.CPU);
-			DX12::SetObjectName(m_renderTargets[i].Get(), objectNames[i]);
+			m_renderTargets[i]->CreateRenderTarget(nullptr, rtvHandle);
 		}
 	}
 }

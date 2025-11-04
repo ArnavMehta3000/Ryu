@@ -1,4 +1,5 @@
 #include "Graphics/RendererNew.h"
+#include "Graphics/Core/GfxTexture.h"
 
 namespace Ryu::Gfx
 {
@@ -11,12 +12,12 @@ namespace Ryu::Gfx
 	void RendererNew::Render()
 	{
 		GfxCommandList* cmdList      = m_device->GetGraphicsCommandList();
-		DX12::Resource* renderTarget = m_device->GetCurrentBackBuffer();
+		GfxTexture* renderTarget = m_device->GetCurrentBackBuffer();
 
 		m_device->BeginFrame();
 
 		cmdList->ResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(
-			renderTarget,
+			*renderTarget,
 			D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -25,7 +26,7 @@ namespace Ryu::Gfx
 		cmdList->GetNative()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		cmdList->ResourceBarrier(CD3DX12_RESOURCE_BARRIER::Transition(
-			renderTarget,
+			*renderTarget,
 			D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_PRESENT));
 

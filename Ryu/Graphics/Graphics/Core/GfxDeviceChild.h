@@ -20,6 +20,6 @@ namespace Ryu::Gfx
 
 	private:
 		GfxDevice* m_device = nullptr;
-		bool m_isRegistered = false;
+		bool m_isRegistered : 1 = false;
 	};
 }

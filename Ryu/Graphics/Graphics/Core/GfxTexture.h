@@ -3,6 +3,8 @@
 
 namespace Ryu::Gfx
 {
+	struct DescriptorHandle;
+
 	class Texture : public DeviceChild
 	{
 	public:

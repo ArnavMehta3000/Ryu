@@ -1,5 +1,5 @@
 #pragma once
-#include <Math/Math.h>
+#include "Math/Math.h"
 #include <array>
 
 namespace Ryu::Gfx::Primitives
@@ -10,7 +10,7 @@ namespace Ryu::Gfx::Primitives
 		Math::Vector4 Color;
 	};
 
-	constexpr std::array<TriangleVertexPosCol, 3> TriangleVerticesPosCol =
+	static constexpr std::array<TriangleVertexPosCol, 3> TriangleVerticesPosCol =
 	{
 		TriangleVertexPosCol
 		{ { 0.0f, 0.25f, 0.0f    }, { 1.0f, 0.0f, 0.0f, 1.0f } },
@@ -18,5 +18,5 @@ namespace Ryu::Gfx::Primitives
 		{ { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
 	};
 
-	constexpr auto TriangleVertexBufferSize = sizeof(TriangleVerticesPosCol);
+	static constexpr auto TriangleVertexBufferSize = sizeof(TriangleVerticesPosCol);
 }

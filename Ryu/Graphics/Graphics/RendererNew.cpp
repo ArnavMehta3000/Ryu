@@ -75,7 +75,7 @@ namespace Ryu::Gfx
 			.Name          = "Triangle Vertex Buffer"
 		};
 
-		m_vertexBuffer = std::make_unique<Buffer>(m_device.get(), desc, Primitives::TriangleVerticesPosCol.data());
+		m_vertexBuffer = std::make_unique<Buffer>(m_device.get(), desc);
 	}
 	
 	void RendererNew::Render()
@@ -85,14 +85,20 @@ namespace Ryu::Gfx
 
 		m_device->BeginFrame(m_pipelineState.get());
 
-		cmdList->GetNative()->SetGraphicsRootSignature(*m_rootSignature);
+		cmdList->SetGraphicsRootSignature(*m_rootSignature);
 
 		cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		m_device->SetBackBufferRenderTarget(true);
 
-		m_vertexBuffer->FinishUpload(*cmdList);
+		if (m_vertexBuffer->NeedsUpload())
+		{
+			m_vertexBuffer->UploadData(*cmdList, Primitives::TriangleVerticesPosCol.data());
+		}
+
+		cmdList->SetVertexBuffer(0, *m_vertexBuffer);
+		
 		cmdList->SetTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		cmdList->GetNative()->DrawInstanced(3, 1, 0, 0);
+		cmdList->DrawInstanced(3, 1, 0, 0);
 
 		cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

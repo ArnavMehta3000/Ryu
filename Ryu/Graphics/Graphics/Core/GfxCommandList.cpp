@@ -2,6 +2,8 @@
 #include "Graphics/Core/GfxDevice.h"
 #include "Graphics/Core/GfxDescriptorHeap.h"
 #include "Graphics/Core/GfxPipelineState.h"
+#include "Graphics/Core/GfxBuffer.h"
+#include "Graphics/Core/GfxRootSignature.h"
 
 namespace Ryu::Gfx
 {
@@ -47,35 +49,51 @@ namespace Ryu::Gfx
 		DXCall(m_cmdList->Close());
 	}
 	
-	void CommandList::SetViewports(std::span<const CD3DX12_VIEWPORT> viewports, std::span<const CD3DX12_RECT> scissors)
+	void CommandList::SetViewports(std::span<const CD3DX12_VIEWPORT> viewports, std::span<const CD3DX12_RECT> scissors) const
 	{
 		m_cmdList->RSSetViewports(u32(viewports.size()), viewports.data());
 		m_cmdList->RSSetScissorRects(u32(scissors.size()), scissors.data());
 	}
 
-	void CommandList::ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier)
+	void CommandList::SetRenderTarget(const DescriptorHandle& rtv, const DescriptorHandle& dsv) const
+	{
+		m_cmdList->OMSetRenderTargets(1, &rtv.CPU, FALSE, dsv.IsValid() ? &dsv.CPU : nullptr);
+	}
+
+	void CommandList::SetVertexBuffer(u32 slot, const Buffer& buffer) const
+	{
+		const auto view = buffer.GetVertexBufferView();
+		m_cmdList->IASetVertexBuffers(slot, 1, &view);
+	}
+
+	void CommandList::SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology) const
+	{
+		m_cmdList->IASetPrimitiveTopology(topology);
+	}
+
+	void CommandList::SetGraphicsRootSignature(const RootSignature& rootSignature) const
+	{
+		m_cmdList->SetGraphicsRootSignature(rootSignature);
+	}
+
+	void CommandList::ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier) const
 	{
 		m_cmdList->ResourceBarrier(1, &barrier);
 	}
 	
-	void CommandList::ResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers)
+	void CommandList::ResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers) const
 	{
 		m_cmdList->ResourceBarrier(u32(barriers.size()), barriers.data());
 	}
 
-	void CommandList::TransitionResource(DX12::Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
+	void CommandList::TransitionResource(DX12::Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const
 	{
 		CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, before, after);
 		ResourceBarrier(barrier);
 	}
 
-	void CommandList::SetRenderTarget(const DescriptorHandle& rtv, const DescriptorHandle& dsv)
+	void CommandList::DrawInstanced(u32 vertexCountPerInstance, u32 instanceCount, u32 startVertexLocation, u32 startInstanceLocation) const
 	{
-		m_cmdList->OMSetRenderTargets(1, &rtv.CPU, FALSE, dsv.IsValid() ? &dsv.CPU : nullptr);
-	}
-	
-	void CommandList::SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology)
-	{
-		m_cmdList->IASetPrimitiveTopology(topology);
+		m_cmdList->DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
 	}
 }

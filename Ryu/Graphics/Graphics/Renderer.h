@@ -1,57 +1,30 @@
 #pragma once
-#include "Graphics/Core/DX12.h"
+#include "Graphics/Core/GfxDevice.h"
+#include "Graphics/Core/GfxRootSignature.h"
+#include "Graphics/Core/GfxPipelineState.h"
+#include "Graphics/Core/GfxShader.h"
+#include "Graphics/Core/GfxBuffer.h"
 
 namespace Ryu::Gfx
 {
-	class Renderer
+	class RendererNew
 	{
 	public:
-		Renderer(HWND window);
-		~Renderer();
+		RendererNew(HWND window);
+		~RendererNew() {}
 
 		void Render();
 		void OnResize(u32 w, u32 h);
 
 	private:
-		void CreateDevice();
-		void CreateCommandQueue();
-		void CreateSwapChain();
-		void CreateDescriptorHeaps();
-		void CreateFrameResources();
-		void CreateCmdList();
-		void CreateSynchronization();
-		void CreatePipelineState();
-		void CreateVertexBuffer();
-		void WaitForGPU();
-		void MoveToNextFrame();
+		void CreateResources();
 
 	private:
-		HWND                                  m_hWnd = nullptr;
-		u32                                   m_width = 0;
-		u32                                   m_height = 0;
-
-		ComPtr<DX12::Device>                  m_device;
-		ComPtr<DXGI::Factory>                 m_factory;
-		ComPtr<DXGI::SwapChain>               m_swapChain;
-		
-		ComFrameArray<DX12::Resource>         m_renderTargets;
-		ComPtr<DX12::DescriptorHeap>          m_rtvHeap;
-		ComPtr<DX12::GraphicsCommandList>     m_cmdList;
-		ComPtr<DX12::CommandQueue>            m_cmdQueue;
-		ComFrameArray<DX12::CommandAllocator> m_cmdAllocators;
-		ComPtr<DX12::RootSignature>           m_rootSig;
-		ComPtr<DX12::PipelineState>           m_pipelineState;
-		u32                                   m_descriptorSize = 0;
-
-		u32                                   m_frameIndex = 0;
-		HANDLE                                m_fenceEvent = nullptr;
-		ComPtr<DX12::Fence>                   m_fence;
-		FrameArray<u64>                       m_fenceValues{};
-
-		ComPtr<DX12::Resource>                m_vertexBuffer;
-		D3D12_VERTEX_BUFFER_VIEW              m_vertexBufferView;
-
-		CD3DX12_VIEWPORT                      m_viewport;
-		CD3DX12_RECT                          m_scissorRect;
+		std::unique_ptr<Device> m_device;
+		std::unique_ptr<RootSignature> m_rootSignature;
+		std::unique_ptr<PipelineState> m_pipelineState;
+		std::unique_ptr<Buffer> m_vertexBuffer;
+		Shader m_vs;
+		Shader m_ps;
 	};
 }

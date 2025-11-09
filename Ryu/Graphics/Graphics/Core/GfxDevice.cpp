@@ -123,15 +123,13 @@ namespace Ryu::Gfx
 		m_cmdList->Begin(m_frameIndex, pipelineState);
 		m_cmdList->SetViewports(
 			std::span<const CD3DX12_VIEWPORT>(&m_viewport, 1),
-			std::span<const CD3DX12_RECT>(&m_scissorRect, 1)
-		);
+			std::span<const CD3DX12_RECT>(&m_scissorRect, 1));
 	}
 
 	void Device::EndFrame()
 	{
 		m_cmdList->End();
 		m_cmdQueue->ExecuteCommandList(*m_cmdList);
-
 	}
 
 	void Device::Present()

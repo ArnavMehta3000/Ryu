@@ -4,8 +4,7 @@
 #include "Utils/ServiceLocator.h"
 #include "Event/ListenerHandle.h"
 #include "Scripting/ScriptEngine.h"
-#include "Graphics/RendererNew.h"
-#include <memory>
+#include "Graphics/Renderer.h"
 
 namespace Ryu::Engine
 {

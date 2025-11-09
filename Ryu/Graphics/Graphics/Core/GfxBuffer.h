@@ -1,11 +1,11 @@
 #pragma once
-#include "Graphics/Core/GfxDeviceChild.h"
+#include "Graphics/Core/GfxResource.h"
 
 namespace Ryu::Gfx
 {
 	class CommandList;
 
-	class Buffer : public DeviceChild
+	class Buffer : public Resource
 	{
 	public:
 		enum class Usage : u8
@@ -34,41 +34,30 @@ namespace Ryu::Gfx
 		};
 
 	public:
-		Buffer(Device* parent, const Buffer::Desc& desc, const void* initialData);  // For static buffers
-		Buffer(Device* parent, const Buffer::Desc& desc);  // For dynamic buffers
+		Buffer(Device* parent, const Buffer::Desc& desc);  // For static buffers
 		virtual ~Buffer() = default;
 
-		virtual inline void ReleaseObject() override;
-
-		RYU_GFX_NATIVE(m_resource)
+		virtual void ReleaseObject() override;
 
 		[[nodiscard]] D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const;
 		[[nodiscard]] D3D12_INDEX_BUFFER_VIEW GetIndexBufferView(DXGI_FORMAT format = DXGI_FORMAT_R32_UINT) const;
 		[[nodiscard]] D3D12_CONSTANT_BUFFER_VIEW_DESC GetConstantBufferViewDesc() const;
 		[[nodiscard]] inline D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const noexcept { return m_gpuAddress; }
-		[[nodiscard]] inline u64 GetSize() const noexcept { return m_desc.SizeInBytes; }
-		[[nodiscard]] inline u64 GetStride() const noexcept { return m_desc.StrideInBytes; }
-		[[nodiscard]] inline Buffer::Usage GetUsage() const noexcept { return m_desc.Usage; }
-		[[nodiscard]] inline Buffer::Type GetType() const noexcept { return m_desc.Type; }
+		[[nodiscard]] inline const Buffer::Desc& GetDesc() const noexcept { return m_desc; }
 
-		void* Map();
-		void Unmap();
+		inline bool NeedsUpload() const { return m_needsUpload; }
+		inline void MarkForUpload() { m_needsUpload = true; }
 
-		void UpdateData(const void* data, u64 sizeInBytes, u64 offset = 0);  // For Upload heap buffers
-		void UpdateDataDeferred(CommandList& cmdList, const void* data, u64 sizeInBytes, u64 offset = 0);  // For Default heap buffers
-		void FinishUpload(CommandList& cmdList);
+		void UploadData(const CommandList& cmdList, const void* data);
 
 	private:
-		void CreateBuffer(const void* initialData);
-		void UploadInitialData(const void* initialData);
+		void CreateBuffer();
+		void CreateUploadBuffer();
 
 	private:
 		Buffer::Desc              m_desc;
-		ComPtr<DX12::Resource>    m_resource;
 		ComPtr<DX12::Resource>    m_uploadBuffer;
 		D3D12_GPU_VIRTUAL_ADDRESS m_gpuAddress = 0;
-
-		void*                     m_mappedData = nullptr;
-		bool                      m_needsUpload = false;
+		bool                      m_needsUpload = true;
 	};
 }

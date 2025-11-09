@@ -4,10 +4,10 @@
 
 namespace Ryu::Gfx
 {
-	Texture::Texture(Device* parent) : DeviceChild(parent) { }
+	Texture::Texture(Device* parent) : Resource(parent) { }
 
 	Texture::Texture(Device* parent, DX12::Resource* resource, std::string_view name)
-		: DeviceChild(parent)
+		: Resource(parent)
 		, m_isBackBuffer(true)
 	{
 		RYU_ASSERT(resource, "Resource is null!");

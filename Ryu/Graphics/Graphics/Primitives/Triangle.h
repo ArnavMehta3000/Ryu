@@ -1,20 +1,14 @@
 #pragma once
-#include "Math/Math.h"
+#include "Graphics/Primitives/VertexTypes.h"
 #include <array>
 
 namespace Ryu::Gfx::Primitives
 {
-	struct TriangleVertexPosCol
+	static constexpr std::array<VertexPosCol, 3> TriangleVerticesPosCol =
 	{
-		Math::Vector3 Position;
-		Math::Vector4 Color;
-	};
-
-	static constexpr std::array<TriangleVertexPosCol, 3> TriangleVerticesPosCol =
-	{
-		TriangleVertexPosCol
-		{ { 0.0f, 0.25f, 0.0f    }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-		{ { 0.25f, -0.25f, 0.0f  }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+		VertexPosCol
+		{ {  0.0f,   0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+		{ {  0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
 		{ { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
 	};
 

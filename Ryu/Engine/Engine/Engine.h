@@ -36,7 +36,7 @@ namespace Ryu::Engine
 		Utils::Timer                             m_timer;
 		std::shared_ptr<App::App>                m_app;
 		std::unique_ptr<Scripting::ScriptEngine> m_scriptEngine;
-		std::unique_ptr<Gfx::RendererNew>        m_renderer;
+		std::unique_ptr<Gfx::Renderer>        m_renderer;
 
 		Event::ListenerHandle m_resizeListener;
 		Event::ListenerHandle m_closeListener;

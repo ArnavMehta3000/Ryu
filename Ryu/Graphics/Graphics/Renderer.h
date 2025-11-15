@@ -7,11 +7,11 @@
 
 namespace Ryu::Gfx
 {
-	class RendererNew
+	class Renderer
 	{
 	public:
-		RendererNew(HWND window);
-		~RendererNew() {}
+		Renderer(HWND window);
+		~Renderer() {}
 
 		void Render();
 		void OnResize(u32 w, u32 h);
@@ -24,6 +24,7 @@ namespace Ryu::Gfx
 		std::unique_ptr<RootSignature> m_rootSignature;
 		std::unique_ptr<PipelineState> m_pipelineState;
 		std::unique_ptr<Buffer> m_vertexBuffer;
+
 		Shader m_vs;
 		Shader m_ps;
 	};

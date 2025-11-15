@@ -5,7 +5,7 @@
 
 namespace Ryu::Gfx
 {
-	RendererNew::RendererNew(HWND window)
+	Renderer::Renderer(HWND window)
 	{
 		m_device = std::make_unique<Device>(window);
 		m_device->Initialize();
@@ -13,7 +13,7 @@ namespace Ryu::Gfx
 		CreateResources();
 	}
 
-	void RendererNew::CreateResources()
+	void Renderer::CreateResources()
 	{
 		// Create root signature
 		CD3DX12_ROOT_SIGNATURE_DESC rsdesc{};
@@ -78,7 +78,7 @@ namespace Ryu::Gfx
 		m_vertexBuffer = std::make_unique<Buffer>(m_device.get(), desc);
 	}
 	
-	void RendererNew::Render()
+	void Renderer::Render()
 	{
 		CommandList* cmdList  = m_device->GetGraphicsCommandList();
 		Texture* renderTarget = m_device->GetCurrentBackBuffer();
@@ -106,7 +106,7 @@ namespace Ryu::Gfx
 		m_device->Present();
 	}
 	
-	void RendererNew::OnResize(u32 w, u32 h)
+	void Renderer::OnResize(u32 w, u32 h)
 	{
 		m_device->ResizeBuffers(w, h);
 	}

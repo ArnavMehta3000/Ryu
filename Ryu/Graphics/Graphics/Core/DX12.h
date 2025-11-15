@@ -25,13 +25,6 @@ namespace Ryu::Gfx
 
 		void SetObjectName(DX12::Object* object, const char* name);
 		std::string GetObjectName(DX12::Object* object);
-
-		D3D12_COMMAND_LIST_TYPE ToNative(CommandListType type);
-		D3D12_COMMAND_QUEUE_PRIORITY ToNative(CommandQueuePriority priority);
-		D3D12_DESCRIPTOR_HEAP_TYPE ToNative(DescriptorHeapType type);
-		D3D12_FENCE_FLAGS ToNative(FenceFlag flag);
-		D3D12_DESCRIPTOR_HEAP_FLAGS ToNative(DescriptorHeapFlags flags);
-		D3D12_HEAP_TYPE ToNative(HeapType type);
 	}
 
 	namespace DXGI
@@ -40,7 +33,6 @@ namespace Ryu::Gfx
 		using SwapChain = IDXGISwapChain4;
 		using Adapter   = IDXGIAdapter4;
 
-		DXGI_FORMAT ToNative(Format format);
 		DXGI_FORMAT GetFormatSRGB(DXGI_FORMAT format);
 		DXGI_FORMAT GetFormatNonSRGB(DXGI_FORMAT format);
 	}

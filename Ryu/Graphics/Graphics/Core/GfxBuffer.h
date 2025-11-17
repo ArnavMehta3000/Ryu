@@ -26,18 +26,20 @@ namespace Ryu::Gfx
 
 		struct Desc
 		{
-			u64 SizeInBytes     = 0;
-			u64 StrideInBytes   = 0;  // For structured buffers, index buffers, vertex buffers
+			u32 SizeInBytes     = 0;
+			u32 StrideInBytes   = 0;  // For structured buffers, index buffers, vertex buffers
 			Buffer::Usage Usage = Buffer::Usage::Default;
 			Buffer::Type Type   = Buffer::Type::Vertex;
 			std::string Name;
 		};
 
 	public:
-		Buffer(Device* parent, const Buffer::Desc& desc);  // For static buffers
+		Buffer(Device* parent, const Buffer::Desc& desc, DX12::Resource* uploadBuffer = nullptr);  // For static buffers
 		virtual ~Buffer() = default;
 
 		virtual void ReleaseObject() override;
+
+		static constexpr u32 CalculateConstantBufferSize(u32 byteSize);
 
 		[[nodiscard]] D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const;
 		[[nodiscard]] D3D12_INDEX_BUFFER_VIEW GetIndexBufferView(DXGI_FORMAT format = DXGI_FORMAT_R32_UINT) const;
@@ -50,6 +52,12 @@ namespace Ryu::Gfx
 
 		void UploadData(const CommandList& cmdList, const void* data);
 
+		void* Map(const CD3DX12_RANGE& range = CD3DX12_RANGE(0,0));
+		void Unmap();
+
+		template <typename T>
+		T* Map() { return reinterpret_cast<T*>(Map()); }
+
 	private:
 		void CreateBuffer();
 		void CreateUploadBuffer();
@@ -59,5 +67,6 @@ namespace Ryu::Gfx
 		ComPtr<DX12::Resource>    m_uploadBuffer;
 		D3D12_GPU_VIRTUAL_ADDRESS m_gpuAddress = 0;
 		bool                      m_needsUpload = true;
+		void*                     m_mappedData  = nullptr;
 	};
 }

@@ -5,27 +5,34 @@
 
 namespace Ryu::Gfx
 {
-	Buffer::Buffer(Device* parent, const Buffer::Desc& desc)
+	Buffer::Buffer(Device* parent, const Buffer::Desc& desc, DX12::Resource* uploadBuffer)
 		: Resource(parent)
 		, m_desc(desc)
 	{
 		RYU_ASSERT(desc.SizeInBytes > 0, "Buffer size must be greater than 0");
+
+		m_uploadBuffer.Attach(uploadBuffer);
+
 		CreateBuffer();
 		CreateUploadBuffer();
 	}
 
-
 	void Buffer::ReleaseObject()
 	{
-		//if (m_mappedData)
-		{
-			//Unmap();
-		}
+		Unmap();
 
 		ComRelease(m_uploadBuffer);  // Ensure that this is called after copy has been executed
 		m_gpuAddress = 0;
 
 		Resource::ReleaseObject();
+	}
+
+	constexpr u32 Buffer::CalculateConstantBufferSize(u32 byteSize)
+	{
+		// Round up to the nearest multiple of 256.
+		// Do this by adding 255 and then masking off the lower 2 bits.
+		// Ref: https://github.com/d3dcoder/d3d12book/blob/4cfd00afa59210a272f62caf0660478d18b9ffed/Common/d3dUtil.h#L99
+		return (byteSize + 255) & ~255;
 	}
 
 	[[nodiscard]] D3D12_VERTEX_BUFFER_VIEW Buffer::GetVertexBufferView() const
@@ -60,7 +67,7 @@ namespace Ryu::Gfx
 		return D3D12_CONSTANT_BUFFER_VIEW_DESC
 		{
 			.BufferLocation = m_gpuAddress,
-			.SizeInBytes    = static_cast<u32>((m_desc.SizeInBytes + 255) & ~255)  // Must be 256-byte aligned
+			.SizeInBytes    = m_desc.SizeInBytes
 		};
 	}
 	
@@ -89,12 +96,40 @@ namespace Ryu::Gfx
 		m_needsUpload = false;
 	}
 
+	void* Buffer::Map(const CD3DX12_RANGE& range)
+	{
+		RYU_ASSERT(m_desc.Usage != Buffer::Usage::Default, "Cannot map a Default heap buffer");
+
+		if (!m_mappedData)
+		{
+			DXCall(m_resource->Map(0, &range, &m_mappedData));
+		}
+
+		return m_mappedData;
+	}
+
+	void Buffer::Unmap()
+	{
+		if (m_mappedData)
+		{
+			m_resource->Unmap(0, nullptr);
+			m_mappedData = nullptr;
+		}
+	}
+
 	void Buffer::CreateBuffer()
 	{
 		DX12::Device* device = GetDevice()->GetNativeDevice();
 
-		const CD3DX12_HEAP_PROPERTIES heapProps(static_cast<D3D12_HEAP_TYPE>(m_desc.Type));
-		const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_desc.SizeInBytes);
+		const CD3DX12_HEAP_PROPERTIES heapProps(static_cast<D3D12_HEAP_TYPE>(m_desc.Usage));
+		
+		// Align to 256 bytes for constant buffers
+		if (m_desc.Type == Buffer::Type::Constant)
+		{
+			m_desc.SizeInBytes = CalculateConstantBufferSize(m_desc.SizeInBytes);
+		}
+
+		const CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(m_desc.SizeInBytes);
 
 		DXCall(device->CreateCommittedResource(
 			&heapProps,
@@ -110,6 +145,11 @@ namespace Ryu::Gfx
 	
 	void Buffer::CreateUploadBuffer()
 	{
+		if (m_uploadBuffer)
+		{
+			return;  // We already have an upload buffer
+		}
+
 		DX12::Device* device = GetDevice()->GetNativeDevice();
 
 		const CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
@@ -123,5 +163,13 @@ namespace Ryu::Gfx
 			nullptr,
 			IID_PPV_ARGS(&m_uploadBuffer)
 		));
+
+		const std::string name = m_desc.Name + " Upload Buffer";
+		DX12::SetObjectName(m_uploadBuffer.Get(), name.c_str());
+
+		if (m_desc.Usage == Buffer::Usage::Upload)
+		{
+			DXCall(m_resource->Map(0, nullptr, reinterpret_cast<void**>(&m_mappedData)));
+		}
 	}
 }

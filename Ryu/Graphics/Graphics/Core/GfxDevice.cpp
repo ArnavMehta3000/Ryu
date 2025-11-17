@@ -83,7 +83,6 @@ namespace Ryu::Gfx
 		m_cmdQueue = std::make_unique<CommandQueue>(this, D3D12_COMMAND_LIST_TYPE_DIRECT, "Graphics Command Queue");
 		m_cmdList  = std::make_unique<CommandList>(this, D3D12_COMMAND_LIST_TYPE_DIRECT, "Graphics Command List");
 		m_rtvHeap  = std::make_unique<DescriptorHeap>(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, FRAME_BUFFER_COUNT, false, "Frame RTV Heap");
-		m_dsvHeap  = std::make_unique<DescriptorHeap>(this, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false, "Frame DSV Heap");
 		m_fence    = std::make_unique<Fence>(this, m_fenceValues[m_frameIndex], "Graphics Fence");
 
 		m_fenceValues[m_frameIndex]++;

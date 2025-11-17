@@ -12,10 +12,12 @@ namespace Ryu::Gfx
 		, m_isShaderVisible(isShaderVisible)
 		, m_nextIndex(0)
 	{
-		D3D12_DESCRIPTOR_HEAP_DESC desc{};
-		desc.Type           = type;
-		desc.NumDescriptors = numDescriptors;
-		desc.Flags          = isShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		D3D12_DESCRIPTOR_HEAP_DESC desc
+		{
+			.Type           = type,
+			.NumDescriptors = numDescriptors,
+			.Flags          = isShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE
+		};
 
 		DX12::Device* device = GetDevice()->GetNativeDevice();
 

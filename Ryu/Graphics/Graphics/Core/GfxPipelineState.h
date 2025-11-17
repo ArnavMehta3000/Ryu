@@ -6,7 +6,7 @@ namespace Ryu::Gfx
 	class PipelineState : public DeviceChild
 	{
 	public:
-		PipelineState(Device* parent, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc, std::string_view name);
+		PipelineState(Device* parent, const D3D12_PIPELINE_STATE_STREAM_DESC& desc, std::string_view name);
 		virtual ~PipelineState() = default;
 
 		virtual inline void ReleaseObject() override { ComRelease(m_pipelineState); }

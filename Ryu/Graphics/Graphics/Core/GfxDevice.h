@@ -49,32 +49,31 @@ namespace Ryu::Gfx
 		void CreateFrameResources(bool isResizing);
 
 	private:
-		bool                                    m_isDebugLayerEnabled;
-		bool                                    m_isValidationEnabled;
-		bool                                    m_isWarpDevice;
+		bool                                 m_isDebugLayerEnabled;
+		bool                                 m_isValidationEnabled;
+		bool                                 m_isWarpDevice;
 
-		HWND                                    m_window;
-		u32                                     m_width = 0;
-		u32                                     m_height = 0;
+		HWND                                 m_window;
+		u32                                  m_width = 0;
+		u32                                  m_height = 0;
 
-		ComPtr<DX12::Device>                    m_device;
-		ComPtr<DXGI::Factory>                   m_factory;
-		ComPtr<DXGI::SwapChain>                 m_swapChain;
+		ComPtr<DX12::Device>                 m_device;
+		ComPtr<DXGI::Factory>                m_factory;
+		ComPtr<DXGI::SwapChain>              m_swapChain;
 
 		std::unique_ptr<DescriptorHeap>      m_rtvHeap;
-		std::unique_ptr<DescriptorHeap>      m_dsvHeap;
 		std::unique_ptr<CommandQueue>        m_cmdQueue;
 		std::unique_ptr<CommandList>         m_cmdList;
 		std::unique_ptr<Fence>               m_fence;
 
-		u32                                     m_frameIndex = 0;
-		FrameArray<u64>                         m_fenceValues{};
+		u32                                  m_frameIndex = 0;
+		FrameArray<u64>                      m_fenceValues{};
 
 		std::unique_ptr<Texture>             m_depthBuffer;
 		FrameArray<std::unique_ptr<Texture>> m_renderTargets;
 
 		std::vector<DeviceChild*>            m_deviceChildren;
-		CD3DX12_VIEWPORT                        m_viewport;
-		CD3DX12_RECT                            m_scissorRect;
+		CD3DX12_VIEWPORT                     m_viewport;
+		CD3DX12_RECT                         m_scissorRect;
 	};
 }

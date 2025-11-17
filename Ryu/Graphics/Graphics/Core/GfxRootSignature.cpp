@@ -16,8 +16,9 @@ namespace Ryu::Gfx
 			RYU_LOG_ERROR("Failed to serialize root signature!");
 			if (error)
 			{
-				std::string errorMsg(reinterpret_cast<char*>(error->GetBufferPointer(), error->GetBufferSize()));
-				RYU_LOG_ERROR("{}", errorMsg);
+				const u64 size = error->GetBufferSize();
+				std::string_view errorMsg(reinterpret_cast<const char*>(error->GetBufferPointer()), size);
+				RYU_LOG_ERROR("{}", errorMsg.data());
 			}
 			return;
 		}

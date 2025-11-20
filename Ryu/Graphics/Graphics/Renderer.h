@@ -37,9 +37,8 @@ namespace Ryu::Gfx
 		std::unique_ptr<Buffer>         m_constantBuffer;
 		std::unique_ptr<DescriptorHeap> m_cbvHeap;
 
-		ConstantBuffer m_cbData{};
-
-		Shader m_vs;
-		Shader m_ps;
+		ConstantBuffer                  m_cbData{};
+		Shader                          m_vs;
+		Shader                          m_ps;
 	};
 }

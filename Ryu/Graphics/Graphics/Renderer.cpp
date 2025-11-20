@@ -128,6 +128,7 @@ namespace Ryu::Gfx
 	void Renderer::CreateConstantBuffer()
 	{
 		m_cbvHeap = std::make_unique<DescriptorHeap>(m_device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1, true, "Frame CBV Heap");
+		DescriptorHandle handle = m_cbvHeap->Allocate();
 		
 		Buffer::Desc cbDesc
 		{
@@ -136,29 +137,23 @@ namespace Ryu::Gfx
 			.Type          = Buffer::Type::Constant,
 			.Name          = "Triangle Constant Buffer"
 		};
-		m_constantBuffer = std::make_unique<Buffer>(m_device.get(), cbDesc);
 
-		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = m_constantBuffer->GetConstantBufferViewDesc();
-		DescriptorHandle handle = m_cbvHeap->Allocate();
-
-		m_device->GetNativeDevice()->CreateConstantBufferView(&cbvDesc, handle.CPU);
+		// Since we are passing the allocated heap handle, it will also create the constant buffer view
+		m_constantBuffer = std::make_unique<Buffer>(m_device.get(), cbDesc, handle);
 	}
 
 	static f32 t = 0;
 
 	void Renderer::Render()
 	{
-		CommandList* cmdList  = m_device->GetGraphicsCommandList();
-		Texture* renderTarget = m_device->GetCurrentBackBuffer();
+		const CommandList* cmdList  = m_device->GetGraphicsCommandList();
+		const Texture* renderTarget = m_device->GetCurrentBackBuffer();
 
 		m_device->BeginFrame(m_pipelineState.get());
 
 		cmdList->SetGraphicsRootSignature(*m_rootSignature);
-
-		const std::array<DX12::DescriptorHeap*, 1> heaps = { *m_cbvHeap };
-		cmdList->GetNative()->SetDescriptorHeaps(1, heaps.data());
-
-		cmdList->GetNative()->SetGraphicsRootDescriptorTable(0, m_cbvHeap->GetHandle(0).GPU);
+		cmdList->SetDescriptorHeap(*m_cbvHeap);
+		cmdList->SetGraphicsRootDescriptorTable(0, m_constantBuffer->GetDescriptorHandle());
 
 		cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		m_device->SetBackBufferRenderTarget(true);
@@ -177,8 +172,7 @@ namespace Ryu::Gfx
 			std::memcpy(mappedData, &m_cbData, sizeof(ConstantBuffer));
 		}
 
-		cmdList->SetVertexBuffer(0, *m_vertexBuffer);
-		
+		cmdList->SetVertexBuffer(0, *m_vertexBuffer);		
 		cmdList->SetTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		cmdList->DrawInstanced(3, 1, 0, 0);
 

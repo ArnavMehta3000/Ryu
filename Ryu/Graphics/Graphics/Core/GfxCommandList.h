@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/Core/GfxDeviceChild.h"
+#include "Graphics/Core/GfxDescriptorHeap.h"
 #include <span>
 
 namespace Ryu::Gfx
@@ -24,9 +24,13 @@ namespace Ryu::Gfx
 
 		void SetViewports(std::span<const CD3DX12_VIEWPORT> viewports, std::span<const CD3DX12_RECT> scissors) const;
 		void SetRenderTarget(const DescriptorHandle& rtv, const DescriptorHandle& dsv) const;
+		void SetRenderTargets(std::span<const DescriptorHandle> rtv, const DescriptorHandle& dsv) const;
 		void SetVertexBuffer(u32 slot, const Buffer& buffer) const;
 		void SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology) const;
 		void SetGraphicsRootSignature(const RootSignature& rootSignature) const;
+		void SetDescriptorHeap(const DescriptorHeap& heap) const;
+		void SetDescriptorHeaps(std::span<const DescriptorHeap> heaps) const;
+		void SetGraphicsRootDescriptorTable(u32 rootParameterIndex, const DescriptorHandle& heapHandle) const;
 		
 		void ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier) const;
 		void ResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers) const;

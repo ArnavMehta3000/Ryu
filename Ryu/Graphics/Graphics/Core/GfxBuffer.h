@@ -1,5 +1,6 @@
 #pragma once
 #include "Graphics/Core/GfxResource.h"
+#include "Graphics/Core/GfxDescriptorHeap.h"
 
 namespace Ryu::Gfx
 {
@@ -35,6 +36,7 @@ namespace Ryu::Gfx
 
 	public:
 		Buffer(Device* parent, const Buffer::Desc& desc, DX12::Resource* uploadBuffer = nullptr);  // For static buffers
+		Buffer(Device* parent, const Buffer::Desc& desc, const DescriptorHandle& destHandle, DX12::Resource* uploadBuffer = nullptr);
 		virtual ~Buffer() = default;
 
 		virtual void ReleaseObject() override;
@@ -46,6 +48,7 @@ namespace Ryu::Gfx
 		[[nodiscard]] D3D12_CONSTANT_BUFFER_VIEW_DESC GetConstantBufferViewDesc() const;
 		[[nodiscard]] inline D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddress() const noexcept { return m_gpuAddress; }
 		[[nodiscard]] inline const Buffer::Desc& GetDesc() const noexcept { return m_desc; }
+		[[nodiscard]] inline const DescriptorHandle& GetDescriptorHandle() const noexcept { return m_destHandle; }
 
 		inline bool NeedsUpload() const { return m_needsUpload; }
 		inline void MarkForUpload() { m_needsUpload = true; }
@@ -68,5 +71,6 @@ namespace Ryu::Gfx
 		D3D12_GPU_VIRTUAL_ADDRESS m_gpuAddress = 0;
 		bool                      m_needsUpload = true;
 		void*                     m_mappedData  = nullptr;
+		DescriptorHandle          m_destHandle;
 	};
 }

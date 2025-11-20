@@ -1,9 +1,9 @@
 #include "Graphics/Core/GfxCommandList.h"
 #include "Graphics/Core/GfxDevice.h"
-#include "Graphics/Core/GfxDescriptorHeap.h"
 #include "Graphics/Core/GfxPipelineState.h"
 #include "Graphics/Core/GfxBuffer.h"
 #include "Graphics/Core/GfxRootSignature.h"
+#include <ranges>
 
 namespace Ryu::Gfx
 {
@@ -60,6 +60,14 @@ namespace Ryu::Gfx
 		m_cmdList->OMSetRenderTargets(1, &rtv.CPU, FALSE, dsv.IsValid() ? &dsv.CPU : nullptr);
 	}
 
+	void CommandList::SetRenderTargets(std::span<const DescriptorHandle> rtv, const DescriptorHandle& dsv) const
+	{
+		std::array<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT> handles{};
+		std::ranges::transform(rtv, handles.begin(), [](const DescriptorHandle& handle) { return handle.CPU; });
+
+		m_cmdList->OMSetRenderTargets(u32(rtv.size()), handles.data(), FALSE, dsv.IsValid() ? &dsv.CPU : nullptr);
+	}
+
 	void CommandList::SetVertexBuffer(u32 slot, const Buffer& buffer) const
 	{
 		const auto view = buffer.GetVertexBufferView();
@@ -74,6 +82,28 @@ namespace Ryu::Gfx
 	void CommandList::SetGraphicsRootSignature(const RootSignature& rootSignature) const
 	{
 		m_cmdList->SetGraphicsRootSignature(rootSignature);
+	}
+
+	void CommandList::SetDescriptorHeap(const DescriptorHeap& heap) const
+	{
+		const std::array<DX12::DescriptorHeap*, 1> heaps = { heap };
+		m_cmdList->SetDescriptorHeaps(u32(heaps.size()), heaps.data());
+	}
+
+	void CommandList::SetDescriptorHeaps(std::span<const DescriptorHeap> heaps) const
+	{
+		static constexpr u32 MAX_HEAP_COUNT = u32(D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES);
+		RYU_ASSERT(heaps.size() <= MAX_HEAP_COUNT, "Trying to set too many heaps!");
+
+		std::array<DX12::DescriptorHeap*, MAX_HEAP_COUNT> rawHeaps{ nullptr };
+		std::ranges::transform(heaps, rawHeaps.begin(), &DescriptorHeap::GetNative);
+
+		m_cmdList->SetDescriptorHeaps(u32(rawHeaps.size()), rawHeaps.data());
+	}
+
+	void CommandList::SetGraphicsRootDescriptorTable(u32 rootParameterIndex, const DescriptorHandle& heapHandle) const
+	{
+		m_cmdList->SetGraphicsRootDescriptorTable(rootParameterIndex, heapHandle.GPU);
 	}
 
 	void CommandList::ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier) const

@@ -1,5 +1,6 @@
 #include "Graphics/Core/GfxBuffer.h"
 #include "Graphics/Core/GfxDevice.h"
+
 #include "Graphics/Core/GfxCommandList.h"
 #include "Common/Assert.h"
 
@@ -8,13 +9,26 @@ namespace Ryu::Gfx
 	Buffer::Buffer(Device* parent, const Buffer::Desc& desc, DX12::Resource* uploadBuffer)
 		: Resource(parent)
 		, m_desc(desc)
+		, m_destHandle()
 	{
 		RYU_ASSERT(desc.SizeInBytes > 0, "Buffer size must be greater than 0");
 
-		m_uploadBuffer.Attach(uploadBuffer);
+		if (uploadBuffer)
+		{
+			m_uploadBuffer.Attach(uploadBuffer);
+		}
 
 		CreateBuffer();
 		CreateUploadBuffer();
+	}
+
+	Buffer::Buffer(Device* parent, const Buffer::Desc& desc, const DescriptorHandle& destHandle, DX12::Resource* uploadBuffer)
+		: Buffer(parent, desc, uploadBuffer)
+	{
+		const D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = GetConstantBufferViewDesc();
+		parent->GetNativeDevice()->CreateConstantBufferView(&cbvDesc, destHandle.CPU);
+		
+		m_destHandle = destHandle;
 	}
 
 	void Buffer::ReleaseObject()

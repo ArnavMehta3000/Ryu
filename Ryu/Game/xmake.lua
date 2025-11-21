@@ -3,7 +3,10 @@ target("RyuGame")
 	set_kind("static")
 	add_includedirs(".", { public = true })
 	add_headerfiles("**.h", "**.inl")
-	add_files("**.cpp", { unity_group = "Game" })
+
+	add_files("Game/World/**.cpp", { unity_group = "GameWorld" })
+	add_files("Game/Components/**.cpp", { unity_group = "GameComponents" })
+
 	add_packages("entt", "toml++", { public = true })
 
 	add_deps(

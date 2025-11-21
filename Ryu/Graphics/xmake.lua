@@ -36,7 +36,11 @@ target("RyuGraphics")
 	add_rules("HLSLShader", { root = "Engine" })
 
 	add_includedirs(".", { public = true })
-	add_files("**.cpp", { unity_group = "Graphics" })
+
+	add_files("Graphics/*.cpp", { unity_group = "Graphics" })
+	add_files("Graphics/Core/**.cpp", { unity_group = "GraphicsCore" })
+	add_files("Graphics/Compiler/*.cpp", { unity_group = "GraphicsCompiler" })
+
 	add_headerfiles("**.h")
 	add_packages("directx-headers", "directxshadercompiler", { public = true })
 

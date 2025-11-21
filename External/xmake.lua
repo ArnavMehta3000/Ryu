@@ -21,24 +21,3 @@ target("RyuExternals")
 
 	add_deps("SimpleMath", { public = true })
 target_end()
-
-target("AngelScript")
-	set_group("Ryu/External")
-	set_kind("static")
-	add_defines("ANGELSCRIPT_EXPORT", "_CRT_SECURE_NO_WARNINGS")
-	
-	add_includedirs("./External/AngelScript/angelscript", { public = true})
-	add_includedirs("./External/AngelScript/add_on", { public = true})
-	add_includedirs("./External/AngelScript/angelscript/include", { public = true })
-
-	add_headerfiles("./External/AngelScript/angelscript/include/angelscript.h", { public = true })
-	add_headerfiles("./External/AngelScript/add_on/**.h", { public = true})
-	
-	add_files("External/AngelScript/angelscript/source/**.cpp")
-	add_files("External/AngelScript/add_on/**.cpp")
-	add_files("External/AngelScript/angelscript/source/as_callfunc_x64_msvc_asm.asm")
-
-	remove_files("External/AngelScript/angelscript/source/*_arm.cpp")
-	remove_files("External/AngelScript/angelscript/source/*_gcc.cpp")
-	remove_files("External/AngelScript/angelscript/source/*_mingw.cpp")
-target_end()

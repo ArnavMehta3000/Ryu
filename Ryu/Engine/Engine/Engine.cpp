@@ -72,10 +72,6 @@ namespace Ryu::Engine
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
 
-		RYU_PROFILE_BOOKMARK("Initialize script engine");
-		m_scriptEngine = std::make_unique<Scripting::ScriptEngine>((
-			pathManager.GetProjectDir() / "Scripts").string());
-
 		RYU_LOG_TRACE("Engine initialization completed");
 		return true;
 	}
@@ -97,9 +93,7 @@ namespace Ryu::Engine
 		window->Unsubscribe(m_resizeListener);
 		window->Unsubscribe(m_closeListener);
 
-		m_scriptEngine.reset();
 		m_app.reset();
-
 		m_renderer.reset();
 
 		Config::ConfigManager::Get().SaveAll();
@@ -123,7 +117,7 @@ namespace Ryu::Engine
 			while (m_app->IsRunning())
 			{
 				m_app->ProcessWindowEvents();
-				
+
 				m_timer.Tick([this](const Utils::TimeInfo& info)
 				{
 					if (info.DeltaTime > MAX_STALL_TIME)

@@ -19,7 +19,6 @@ target("RyuEngine")
 		"RyuGraphics",
 		"RyuMath",
 		"RyuProfiling",
-		"RyuScripting",
 		"RyuExternals", { public = true })
 
 	if has_config("ryu-unity-build") then

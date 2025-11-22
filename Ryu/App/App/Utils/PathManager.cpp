@@ -4,7 +4,7 @@
 
 namespace Ryu::App
 {
-	static Config::CVar<std::string> s_projectRootDir(
+	static Config::CVar<std::string> cv_projectDir(
 		"App.ProjectRootDir",
 		std::filesystem::current_path().string(),
 		"Project root directory",
@@ -13,7 +13,7 @@ namespace Ryu::App
 
 	PathManager::PathManager()
 	{
-		m_projectDir = s_projectRootDir.Get();
+		m_projectDir = cv_projectDir.Get();
 		m_configDir = m_projectDir / "Config";
 	}
 }

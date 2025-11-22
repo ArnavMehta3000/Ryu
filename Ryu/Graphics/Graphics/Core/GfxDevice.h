@@ -17,8 +17,6 @@ namespace Ryu::Gfx
 		void Initialize();
 
 		[[nodiscard]] inline HWND GetWindow() const noexcept { return m_window; }
-		[[nodiscard]] inline bool IsDebugLayerEnabled() const noexcept { return m_isDebugLayerEnabled; }
-		[[nodiscard]] inline bool IsValidationEnabled() const noexcept { return m_isValidationEnabled; }
 		
 		[[nodiscard]] inline u32 GetFrameIndex() const noexcept { return m_frameIndex; }
 		[[nodiscard]] inline DX12::Device* GetNativeDevice() const noexcept { return m_device.Get(); }
@@ -49,9 +47,8 @@ namespace Ryu::Gfx
 		void CreateFrameResources(bool isResizing);
 
 	private:
-		bool                                 m_isDebugLayerEnabled;
-		bool                                 m_isValidationEnabled;
-		bool                                 m_isWarpDevice;
+		bool                                 m_isWarpDevice = false;
+		bool                                 m_supportsTearing = false;
 
 		HWND                                 m_window;
 		u32                                  m_width = 0;

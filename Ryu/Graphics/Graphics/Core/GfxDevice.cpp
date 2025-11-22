@@ -1,7 +1,7 @@
 #include "Graphics/Core/GfxDevice.h"
 #include "Graphics/Core/GfxDeviceChild.h"
 #include "Common/Assert.h"
-#include "Graphics/GraphicsConfig.h"
+#include "Graphics/GraphicsSettings.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
 #include "Utils/StringConv.h"
 #include "Math/Math.h"
@@ -31,9 +31,6 @@ namespace Ryu::Gfx
 
 	Device::Device(HWND window)
 		: m_window(window)
-		, m_isDebugLayerEnabled(Config::IsDebugLayerEnabled())
-		, m_isValidationEnabled(Config::IsValidationLayerEnabled())
-		, m_isWarpDevice(Config::ShouldUseWarpDevice())
 	{
 		{
 			auto [w, h] = GetClientSize();
@@ -45,8 +42,13 @@ namespace Ryu::Gfx
 		u32 dxgiFactoryFlags = 0;
 
 #if defined(RYU_BUILD_DEBUG)
-		DebugLayer::Initialize(m_isDebugLayerEnabled, m_isValidationEnabled);
-		if (m_isDebugLayerEnabled)
+		const Settings& settings = Settings::Get();
+
+		const bool isDebugLayerEnabled = settings.EnableDebugLayer;
+		const bool isValidationEnabled = settings.EnableValidation;
+
+		DebugLayer::Initialize(isDebugLayerEnabled, isValidationEnabled);
+		if (isDebugLayerEnabled)
 		{
 			RYU_LOG_TRACE("Creating DX12 device with debug layer enabled");
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
@@ -133,7 +135,17 @@ namespace Ryu::Gfx
 
 	void Device::Present()
 	{
-		DXCall(m_swapChain->Present(Config::ShouldUseVsync() ? 1 : 0, 0));
+		auto& settings = Settings::Get();
+
+		u32 syncInterval = settings.EnableVSync ? 1 : 0;
+		u32 presentFlags = 0;
+
+		if (m_supportsTearing && settings.AllowTearing && syncInterval == 0)
+		{
+			presentFlags = DXGI_PRESENT_ALLOW_TEARING;
+		}
+
+		DXCall(m_swapChain->Present(syncInterval, presentFlags));
 		MoveToNextFrame();
 	}
 	
@@ -272,6 +284,10 @@ namespace Ryu::Gfx
 
 			DX12::SetObjectName(m_device.Get(), "Main Device");
 		}
+
+		BOOL allowTearing = FALSE;
+		m_factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
+		m_supportsTearing = allowTearing == TRUE;
 	}
 	
 	void Device::CreateSwapChain()

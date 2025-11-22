@@ -1,0 +1,7 @@
+[Debug]
+EnableDebugLayer = true
+EnableDebugValidation = true
+
+[Rendering]
+AllowTearing = true
+EnableVsync = true

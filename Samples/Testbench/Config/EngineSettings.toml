@@ -1,0 +1,7 @@
+[Logging]
+CustomLogPatttern = ""
+EnableAsyncLogging = false
+LogLevel = 1
+LogThreadID = false
+LogToConsole = true
+LogToFile = false

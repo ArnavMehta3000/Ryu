@@ -5,7 +5,7 @@
 namespace Ryu::App
 {
 	static Config::CVar<std::string> cv_projectDir(
-		"App.ProjectRootDir",
+		"App.ProjectDir",
 		std::filesystem::current_path().string(),
 		"Project root directory",
 		Config::CVarFlags::ReadOnly);

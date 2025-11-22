@@ -1,7 +1,6 @@
 #include "Testbench/TestbenchApp.h"
 #include "Engine/Engine.h"
 #include "Profiling/Profiling.h"
-#include "App/AppConfig.h"
 #include "Game/World/Entity.h"
 #include "Game/Components/Transform.h"
 

@@ -6,7 +6,7 @@ namespace Ryu::App
 {
 	class Settings : Config::ConfigBase
 	{
-		RYU_CONFIG_DECLARE(AppConfig, "AppConfig.toml");
+		RYU_CONFIG_DECLARE(Settings, "AppSettings.toml");
 
 	public:
 		Config::ConfigValue<std::string> WindowTitle          { this, "Window", "WindowTitle", "Ryu Window"                           };

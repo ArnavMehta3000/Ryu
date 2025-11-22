@@ -69,7 +69,6 @@ includes("**/xmake.lua")
 
 -- Command line arguments
 set_runargs(
-	"--Log.Level=0",  -- For trace logs
 	"--Log.ToFile=true",
 	"--Gfx.Vsync=true" -- Enable VSync
 )

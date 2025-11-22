@@ -26,5 +26,3 @@
 				);                                                                                      \
 			}                                                                                           \
 	} s_registrar {}
-
-#define RYU_CONFIG_DECLARE_SECTION(Name) static constexpr::Ryu::Config::ConfigSection RYU_CONCAT(Name, Section) = #Name

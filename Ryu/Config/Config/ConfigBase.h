@@ -779,6 +779,4 @@ namespace Ryu::Config
 		ValueType          m_value;
 		ValidationCallback m_validator;
 	};
-
-	using ConfigSection = std::string_view;
 }

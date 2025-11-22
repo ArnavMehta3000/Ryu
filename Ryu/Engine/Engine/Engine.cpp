@@ -4,7 +4,7 @@
 #include "Memory/New.h"
 #include "Math/Math.h"
 #include "App/Utils/PathManager.h"
-#include "App/AppConfig.h"
+#include "App/AppSettings.h"
 #include "Logging/Logger.h"
 #include "Profiling/Profiling.h"
 #include <DirectXMath.h>

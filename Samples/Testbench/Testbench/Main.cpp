@@ -1,5 +1,6 @@
 #include "Engine/Setup/Setup.h"
 #include "Engine/Setup/EngineMain.h"
+#include "App/AppSettings.h"
 #include "Testbench/TestbenchApp.h"
 
 using namespace Ryu;
@@ -17,12 +18,18 @@ RYU_MAIN()
 			return -1;
 		}
 
+		App::Settings& settings = App::Settings::Get();
+
 		// Create application window
 		Window::Window::Config windowConfig
 		{
-			.Title = "Testbench App",
-			.CanBorderlessDrag = true,
-			.Type  = Window::WindowType::Borderless
+			.WindowSize          = { settings.WindowSize.Get()[0], settings.WindowSize.Get()[1] },
+			.WindowMinSize       = { settings.WindowMinSize.Get()[0], settings.WindowMinSize.Get()[1] },
+			.WindowPos           = { settings.WindowPos.Get()[0], settings.WindowPos.Get()[1] },
+			.Title               = settings.WindowTitle,
+			.CanBorderlessResize = settings.CanBorderlessResize,
+			.CanBorderlessDrag   = settings.CanBorderlessDrag,
+			.Type                = Window::WindowType::Borderless
 		};
 
 		auto window = std::make_shared<Window::Window>(windowConfig);

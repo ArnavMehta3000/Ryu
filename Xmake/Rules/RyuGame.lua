@@ -28,7 +28,7 @@ rule("RyuGame")
 				-- Append the working directory to the run arguments of the editor
 				local game_root_dir = target:scriptdir()
 				local runargs = editor:get("runargs")
-				table.insert(runargs, "--App.ProjectRootDir="..game_root_dir)
+				table.insert(runargs, "--App.ProjectDir="..game_root_dir)
 
 				editor:set("runargs", runargs)
 			end

@@ -3,6 +3,11 @@
 
 namespace Ryu::Utils
 {
+	/*
+	* Use this class by deriving from it and declaring the child as a friend of this class
+	* Use the macro RYU_SINGLETON_DECLARE(ChildClassName) to declare the friend
+	*/
+
 	template <typename T>
 	class Singleton
 	{
@@ -23,4 +28,5 @@ namespace Ryu::Utils
 		Singleton& operator=(Singleton&&) = delete;
 	};
 }
-#define RYU_SINGLETON_DECLARE(ClassName) friend class ::Ryu::Utils::Singleton<ClassName>
+
+#define RYU_SINGLETON_DECLARE(ChildClassName) friend class ::Ryu::Utils::Singleton<ChildClassName>

@@ -1,24 +1,24 @@
 #pragma  once
+#include "Utils/Singleton.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;
 
 namespace Ryu::App
 {
-	class PathManager
+	class PathManager : public Utils::Singleton<PathManager>
 	{
+		RYU_SINGLETON_DECLARE(PathManager);
+
 	public:
+		[[nodiscard]]  inline const fs::path& GetProjectDir() const { return m_projectDir; }
+		[[nodiscard]]  inline const fs::path& GetConfigDir() const { return m_configDir; }
+
+	private:
 		PathManager();
 
-		inline [[nodiscard]] const fs::path& GetRootDir() const { return m_rootDir; }
-		inline [[nodiscard]] const fs::path& GetProjectDir() const { return m_projectDir; }
-
 	private:
-		fs::path FindRootDirectory();
-		void LoadConfig();
-
-	private:
-		fs::path    m_rootDir;
-		fs::path    m_projectDir;
+		fs::path m_projectDir;
+		fs::path m_configDir;
 	};
 }

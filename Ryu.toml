@@ -1,4 +1,0 @@
-# Ryu Engine Configuration
-[Paths]
-# Project directory (relative to engine root)
-ProjectDir = "Samples/Testbench"

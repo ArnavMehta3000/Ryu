@@ -1,31 +1,19 @@
 #include "App/Utils/PathManager.h"
+#include "Config/CVar.h"
 #include <toml++/toml.hpp>
 
 namespace Ryu::App
 {
+	static Config::CVar<std::string> s_projectRootDir(
+		"App.ProjectRootDir",
+		std::filesystem::current_path().string(),
+		"Project root directory",
+		Config::CVarFlags::ReadOnly);
+
+
 	PathManager::PathManager()
 	{
-		m_rootDir = FindRootDirectory();
-		LoadConfig();
-	}
-
-	fs::path PathManager::FindRootDirectory()
-	{
-		// Start from current path and look for Ryu.toml marker file that identifies root Ryu directory
-		fs::path currentPath = fs::current_path();
-		while (!fs::exists(currentPath / "Ryu.toml")
-			&& currentPath.has_parent_path())
-		{
-			currentPath = currentPath.parent_path();
-		}
-		return currentPath;
-	}
-
-	void PathManager::LoadConfig()
-	{
-		auto config = toml::parse_file((m_rootDir / "Ryu.toml").string());
-		auto projectDir = config["Paths"]["ProjectDir"].value_or(std::string());
-
-		m_projectDir  = m_rootDir / projectDir;
+		m_projectDir = s_projectRootDir.Get();
+		m_configDir = m_projectDir / "Config";
 	}
 }

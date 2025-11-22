@@ -51,9 +51,7 @@ namespace Ryu::Engine
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Engine Initialize");
 
-		// Setup path manager
-		const App::PathManager& pathManager = m_app->GetPathManager();
-		Config::ConfigManager::Get().Initialize((pathManager.GetProjectDir() / "Config").string());
+		Config::ConfigManager::Get().Initialize(App::PathManager::Get().GetConfigDir());
 
 		RYU_LOG_DEBUG("Initializing Engine");
 

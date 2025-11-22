@@ -12,7 +12,8 @@ target("RyuGame")
 	add_deps(
 		"RyuUtils",
 		"RyuMath",
-	 	"RyuLogging"
+	 	"RyuLogging",
+		"RyuEvent"
 	)
 
 	if has_config("ryu-unity-build") then

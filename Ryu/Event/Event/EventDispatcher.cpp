@@ -29,11 +29,14 @@ namespace Ryu::Event
 
 	void EventDispatcher::ProcessQueue()
 	{
-		for (auto& event : m_eventQueue)
+		if (m_eventQueue.size() > 0)
 		{
-			DispatchPolymorphic(*event);
+			for (auto& event : m_eventQueue)
+			{
+				DispatchPolymorphic(*event);
+			}
+			m_eventQueue.clear();
 		}
-		m_eventQueue.clear();
 	}
 
 	void EventDispatcher::DispatchPolymorphic(const Event& event)

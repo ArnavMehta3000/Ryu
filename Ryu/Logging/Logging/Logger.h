@@ -88,7 +88,7 @@ namespace Ryu::Logging
 #define RYU_LOG_TRACE(...)                                                                                                           \
     do                                                                                                                               \
 	{                                                                                                                                \
-        if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Trace) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
+        if constexpr (static_cast<Ryu::i32>(::Ryu::Logging::LogLevel::Trace) >= static_cast<Ryu::i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
 		{                                                                                                                            \
             if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                        \
 			{                                                                                                                        \
@@ -100,7 +100,7 @@ namespace Ryu::Logging
 #define RYU_LOG_DEBUG(...)                                                                                                           \
     do                                                                                                                               \
 	{                                                                                                                                \
-        if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Debug) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
+        if constexpr (static_cast<Ryu::i32>(::Ryu::Logging::LogLevel::Debug) >= static_cast<Ryu::i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
 		{                                                                                                                            \
             if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                        \
 			{                                                                                                                        \
@@ -112,7 +112,7 @@ namespace Ryu::Logging
 #define RYU_LOG_INFO(...)                                                                                                           \
     do                                                                                                                              \
 	{                                                                                                                               \
-        if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Info) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
+        if constexpr (static_cast<Ryu::i32>(::Ryu::Logging::LogLevel::Info) >= static_cast<Ryu::i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
 		{                                                                                                                           \
             if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                       \
 			{                                                                                                                       \
@@ -124,7 +124,7 @@ namespace Ryu::Logging
 #define RYU_LOG_WARN(...)                                                                                                           \
     do                                                                                                                              \
 	{                                                                                                                               \
-        if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Warn) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
+        if constexpr (static_cast<Ryu::i32>(::Ryu::Logging::LogLevel::Warn) >= static_cast<Ryu::i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL)) \
 		{                                                                                                                           \
             if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                       \
 			{                                                                                                                       \

@@ -1,6 +1,6 @@
 #pragma once
 #include "App/Application.h"
-#include "Game/World/World.h"
+#include "Game/World/WorldManager.h"
 #include "Event/ScopedListener.h"
 #include "Testbench/Input/GameInput.h"
 
@@ -19,8 +19,8 @@ private:
 	void TestDeserialization();
 
 private:
-	Ryu::Game::World       m_world;
-	GInput                 m_gameInput;
-	ScopedKeyEventListener m_keyListener;
-	Ryu::Utils::TimeInfo   m_timeInfo;
+	Ryu::Game::WorldManager m_worldManager;
+	GInput                  m_gameInput;
+	ScopedKeyEventListener  m_keyListener;
+	Ryu::Utils::TimeInfo    m_timeInfo;
 };

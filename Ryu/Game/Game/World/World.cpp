@@ -93,4 +93,12 @@ namespace Ryu::Game
 	{
 		return m_pendingDestructions.size();
 	}
+	
+	void World::OnCreate()
+	{
+	}
+	
+	void World::OnDestroy()
+	{
+	}
 }

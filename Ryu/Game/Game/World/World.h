@@ -1,22 +1,25 @@
 #pragma once
+#include "Game/World/WorldEvents.h"
 #include "Common/Common.h"
 #include "Utils/Serializer.h"
+#include "Event/EventEmitter.h"
 #include <entt/entity/registry.hpp>
 #include <vector>
 
 namespace Ryu::Game
 {
 	class Entity;
+	class WorldManager;
 	
 	using Registry         = entt::registry;
 	using EntityHandle     = entt::entity;
 	using EntityHandleType = entt::id_type;
 
-	class World
+	class World : public Event::EventEmitter
 	{
 		friend class Entity;
+		friend class WorldManager;
 	public:
-		explicit World(const std::string& name) : m_name(name) {}
 		~World() = default;
 
 		Entity CreateEntity(const std::string& name = "");
@@ -34,14 +37,26 @@ namespace Ryu::Game
 		template <Utils::Deserializable T> void DeserializeIntoExistingComponent(EntityHandle handle, const toml::table& table);
 
 		[[nodiscard]] inline auto GetAllEntities() const { return m_registry.view<entt::entity>(); }
-		inline Registry& GetRegistry() { return m_registry; }
-		inline const Registry& GetRegistry() const { return m_registry; }
+		[[nodiscard]] inline Registry& GetRegistry() { return m_registry; }
+		[[nodiscard]] inline const Registry& GetRegistry() const { return m_registry; }
+		[[nodiscard]] inline WorldManager* GetWorldManager() const { return m_worldManager; }
+		[[nodiscard]] inline const std::string& GetName() const { return m_name; }
+	
+	protected:
+		explicit World(const std::string& name) : m_name(name) {}
+
+		virtual void OnCreate();
+		virtual void OnDestroy();
 
 	private:
-		std::string m_name;
-		Registry m_registry;
+		WorldManager*             m_worldManager = nullptr;
+		std::string               m_name;
+		Registry                  m_registry;
 		std::vector<EntityHandle> m_pendingDestructions;
 	};
+
+	template <typename T>
+	concept IsWorld = std::is_base_of_v<World, T>;
 }
 
 #include "Game/World/World.inl"

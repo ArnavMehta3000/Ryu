@@ -26,19 +26,26 @@ void CALLBACK OnDeviceEnumerated(
 			const GameInputDeviceInfo* info = nullptr;
 			if (SUCCEEDED((device->GetDeviceInfo(&info))))
 			{
+				// This entire thing (class) is just for testing and will most likely be removed
+				static bool kbDone = false;
+				static bool mouseDone = false;
+				static bool padDone = false;
 
-				if (info->supportedInput & GameInputKindGamepad)
+				if (info->supportedInput & GameInputKindGamepad && !padDone)
 				{
+					padDone = true;
 					RYU_LOG_INFO("Gamepad connected");
 				}
 
-				if (info->supportedInput == GameInputKindKeyboard)
+				if (info->supportedInput == GameInputKindKeyboard && !kbDone)
 				{
+					kbDone = true;
 					RYU_LOG_INFO("Keyboard connected");
 				}
 
-				if (info->supportedInput == GameInputKindMouse)
+				if (info->supportedInput == GameInputKindMouse && !mouseDone)
 				{
+					mouseDone = true;
 					RYU_LOG_INFO("Mouse connected");
 				}
 			}

@@ -1,28 +1,33 @@
 #pragma once
+#include "Graphics/IRendererHook.h"
+#include "Graphics/Core/GfxDescriptorHeap.h"
 #include "App/Application.h"
 
 namespace Ryu::Editor
 {
 	// Abstraction around the user application loaded via the game module
-	class EditorApp : public App::App
+	class EditorApp 
+		: public App::App
+		, public Gfx::IRendererHook
 	{
 	public:
 		EditorApp(std::shared_ptr<Window::Window> window);
 
 	private:
-		static LRESULT CALLBACK EditorWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 		bool OnInit() override final;
 		void OnShutdown() override final;
 		void OnTick(const Utils::TimeInfo& timeInfo);
 
-		bool RouteWndProc() const;
-
 		bool LoadGameModule();
+
+		void OnImGuiSetup(Gfx::Device* device) override;
+		void OnImGuiFrameBegin() override;
+		void OnImGuiFrameEnd(Gfx::CommandList* cmdList) override;
+		void OnImGuiRender() override;
+		void OnImGuiShutdown() override;
 
 	private:
 		std::shared_ptr<App> m_userApp;
-		//Gfx::DescriptorHeap m_imguiHeap;
-		//Gfx::DescriptorHandle m_imguiHeapHandle;
+		std::unique_ptr<Gfx::DescriptorHeap> m_imguiHeap;
 	};
 }

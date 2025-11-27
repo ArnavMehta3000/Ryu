@@ -8,10 +8,22 @@
 
  // Ref: https://github.com/melak47/BorderlessWindow
 
+#if defined(RYU_WITH_EDITOR)
+#include <External/ImGui/backends/imgui_impl_win32.h>
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
+
 namespace Ryu::Window
 {
 	LRESULT Window::WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+#if defined(RYU_WITH_EDITOR)
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
+		{
+			return true;
+		}
+#endif
+
 		switch (msg)
 		{
 		case WM_CLOSE:

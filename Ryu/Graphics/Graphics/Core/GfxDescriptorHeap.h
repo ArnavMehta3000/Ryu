@@ -31,6 +31,7 @@ namespace Ryu::Gfx
 		void Reset();  // Free all descriptors
 
 		[[nodiscard]] DescriptorHandle GetHandle(u32 index) const;
+		[[nodiscard]] u32 FindIndex(D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const;
 		[[nodiscard]] inline u32 GetDescriptorSize() const { return m_descriptorSize; }
 
 	private:

@@ -8,6 +8,11 @@ target("RyuWindow")
 	add_deps("RyuConfig", "RyuProfiling", "RyuEvent")
 	add_links("Dwmapi")
 
+	if has_config("ryu-build-with-editor") then
+		add_defines("RYU_WITH_EDITOR")
+		add_deps("ImGui")
+	end
+
 	if has_config("ryu-unity-build") then
 		add_rules("c++.unity_build")
 	end

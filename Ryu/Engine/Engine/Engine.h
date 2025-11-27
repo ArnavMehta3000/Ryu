@@ -20,13 +20,13 @@ namespace Ryu::Engine
 		RYU_API f64 GetEngineUpTime();
 		RYU_API void Quit() const noexcept;
 
-		void RYU_API RunApp(std::shared_ptr<App::App> app);
+		void RYU_API RunApp(std::shared_ptr<App::App> app, Gfx::IRendererHook* rendererHook = nullptr);
 
 	protected:
 		Engine() {}
 
 	private:
-		bool Init();
+		bool Init(Gfx::IRendererHook* rendererHook);
 		void Shutdown();
 		void MainLoop();
 		void OnAppResize(u32 width, u32 height) const noexcept;

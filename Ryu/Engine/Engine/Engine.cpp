@@ -46,7 +46,7 @@ namespace Ryu::Engine
 		}
 	}
 
-	bool Engine::Init()
+	bool Engine::Init(Gfx::IRendererHook* rendererHook)
 	{
 		RYU_PROFILE_SCOPE();
 		RYU_PROFILE_BOOKMARK("Engine Initialize");
@@ -68,7 +68,7 @@ namespace Ryu::Engine
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle());
+		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle(), rendererHook);
 
 		RYU_LOG_TRACE("Engine initialization completed");
 		return true;
@@ -156,7 +156,7 @@ namespace Ryu::Engine
 		}
 	}
 
-	void Engine::RunApp(std::shared_ptr<App::App> app)
+	void Engine::RunApp(std::shared_ptr<App::App> app, Gfx::IRendererHook* rendererHook)
 	{
 		using namespace Ryu::Logging;
 		using namespace Microsoft::WRL::Wrappers;
@@ -167,7 +167,7 @@ namespace Ryu::Engine
 		m_app = app;
 
 		// Init engine
-		if (!Init())
+		if (!Init(rendererHook))
 		{
 			RYU_LOG_FATAL("Failed to initialize Engine! Exiting.");
 			return;

@@ -133,7 +133,7 @@ RYU_MAIN()
 
 		// Create editor application
 		auto editorApp = std::make_shared<Editor::EditorApp>(editorWindow);
-		Engine::Engine::Get().RunApp(editorApp);
+		Engine::Engine::Get().RunApp(editorApp, editorApp.get());
 
 		Engine::Shutdown();
 	}

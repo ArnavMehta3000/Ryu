@@ -1,16 +1,35 @@
 ﻿#include "Graphics/Renderer.h"
+#include "Graphics/IRendererHook.h"
 #include "Graphics/Core/GfxTexture.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Graphics/Primitives/Triangle.h"
 
 namespace Ryu::Gfx
 {
-	Renderer::Renderer(HWND window)
+	Renderer::Renderer(HWND window, IRendererHook* hook)
+		: m_hook(hook)
 	{
 		m_device = std::make_unique<Device>(window);
 		m_device->Initialize();
 
 		CreateResources();
+
+#if defined(RYU_WITH_EDITOR)
+		if (m_hook)
+		{
+			m_hook->OnImGuiSetup(m_device.get());
+		}
+#endif
+	}
+
+	Renderer::~Renderer()
+	{
+#if defined(RYU_WITH_EDITOR)
+		if (m_hook)
+		{
+			m_hook->OnImGuiShutdown();
+		}
+#endif
 	}
 
 	void Renderer::CreateResources()
@@ -146,7 +165,7 @@ namespace Ryu::Gfx
 
 	void Renderer::Render()
 	{
-		const CommandList* cmdList  = m_device->GetGraphicsCommandList();
+		CommandList* cmdList  = m_device->GetGraphicsCommandList();
 		const Texture* renderTarget = m_device->GetCurrentBackBuffer();
 
 		m_device->BeginFrame(m_pipelineState.get());
@@ -165,9 +184,9 @@ namespace Ryu::Gfx
 
 		if (ConstantBuffer* mappedData = m_constantBuffer->Map<ConstantBuffer>())
 		{
-			t += 0.05f;
-			m_cbData.OffsetX = std::sinf(t);
-			m_cbData.OffsetY = std::cosf(t);
+			t += 0.01f; 
+			m_cbData.OffsetX = std::clamp(std::sinf(t), -0.5f, 0.5f);
+			m_cbData.OffsetY = std::clamp(std::cosf(t), -0.5f, 0.5f);
 
 			std::memcpy(mappedData, &m_cbData, sizeof(ConstantBuffer));
 		}
@@ -175,6 +194,15 @@ namespace Ryu::Gfx
 		cmdList->SetVertexBuffer(0, *m_vertexBuffer);		
 		cmdList->SetTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		cmdList->DrawInstanced(3, 1, 0, 0);
+
+#if defined(RYU_WITH_EDITOR)
+		if (m_hook)
+		{
+			m_hook->OnImGuiFrameBegin();
+			m_hook->OnImGuiRender();
+			m_hook->OnImGuiFrameEnd(cmdList);
+		}
+#endif
 
 		cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 

@@ -18,7 +18,7 @@ target("RyuGraphics")
 
 	if has_config("ryu-build-with-editor") then
 		add_defines("RYU_WITH_EDITOR")
-		add_packages("imgui", { public = true })
+		add_deps("ImGui", { public = true })
 	end
 
 	add_rules("EnumToHeader",

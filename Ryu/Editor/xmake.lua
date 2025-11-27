@@ -13,7 +13,6 @@ target("RyuEditor")
 	add_files("**.cpp", { unity_group = "Editor" })
 	add_headerfiles("**.h")
 
-	add_packages("imgui")
 	add_deps("RyuEngine")
 
 	if has_config("ryu-unity-build") then

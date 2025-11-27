@@ -1,5 +1,6 @@
 #include "Graphics/Core/GfxDescriptorHeap.h"
 #include "Graphics/Core/GfxDevice.h"
+#include "Common/Assert.h"
 
 namespace Ryu::Gfx
 {
@@ -12,6 +13,10 @@ namespace Ryu::Gfx
 		, m_isShaderVisible(isShaderVisible)
 		, m_nextIndex(0)
 	{
+		RYU_ASSERT(isShaderVisible
+			? numDescriptors <= D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2
+			: numDescriptors <= D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE, "Descriptor heap is too large!");
+
 		D3D12_DESCRIPTOR_HEAP_DESC desc
 		{
 			.Type           = type,
@@ -68,6 +73,12 @@ namespace Ryu::Gfx
 	{
 		m_nextIndex = 0;
 		m_freeIndices = std::queue<u32>();
+	}
+
+	u32 DescriptorHeap::FindIndex(D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle) const
+	{
+		u64 offset = cpuHandle.ptr - GetHandle(0).CPU.ptr;
+		return u32(offset / m_descriptorSize);
 	}
 	
 	DescriptorHandle DescriptorHeap::GetHandle(u32 index) const

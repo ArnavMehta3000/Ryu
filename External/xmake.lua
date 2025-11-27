@@ -24,6 +24,7 @@ target("ImGui")
 		"External/ImGui/*.cpp",
 		"External/ImGui/backends/*.cpp")
 
+	add_includedirs(".", { public = true })
 	add_includedirs("External/ImGui", { public = true })
 target_end()
 

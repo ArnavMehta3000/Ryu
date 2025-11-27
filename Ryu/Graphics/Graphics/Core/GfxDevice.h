@@ -66,7 +66,6 @@ namespace Ryu::Gfx
 		u32                                  m_frameIndex = 0;
 		FrameArray<u64>                      m_fenceValues{};
 
-		std::unique_ptr<Texture>             m_depthBuffer;
 		FrameArray<std::unique_ptr<Texture>> m_renderTargets;
 
 		std::vector<DeviceChild*>            m_deviceChildren;

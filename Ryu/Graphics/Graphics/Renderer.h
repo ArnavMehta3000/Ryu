@@ -7,6 +7,8 @@
 
 namespace Ryu::Gfx
 {
+	class IRendererHook;
+
 	struct ConstantBuffer
 	{
 		f32 OffsetX;
@@ -16,8 +18,8 @@ namespace Ryu::Gfx
 	class Renderer
 	{
 	public:
-		Renderer(HWND window);
-		~Renderer() {}
+		Renderer(HWND window, IRendererHook* hook = nullptr);
+		~Renderer();
 
 		void Render();
 		void OnResize(u32 w, u32 h);
@@ -30,6 +32,7 @@ namespace Ryu::Gfx
 		void CreateConstantBuffer();
 
 	private:
+		IRendererHook*                  m_hook;
 		std::unique_ptr<Device>         m_device;
 		std::unique_ptr<RootSignature>  m_rootSignature;
 		std::unique_ptr<PipelineState>  m_pipelineState;

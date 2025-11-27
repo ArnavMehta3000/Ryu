@@ -13,6 +13,20 @@ target("GameInput")
 	add_links(path.translate("$(scriptdir)/External/External/GameInput/GameInput.lib"), { public = true })
 target_end()
 
+target("ImGui")
+	set_group("Ryu/External")
+	set_kind("static")
+	add_headerfiles(
+		"External/ImGui/*.h",
+		"External/ImGui/backends/*.h")
+
+	add_files(
+		"External/ImGui/*.cpp",
+		"External/ImGui/backends/*.cpp")
+
+	add_includedirs("External/ImGui", { public = true })
+target_end()
+
 -- A phony target to include all external source files
 target("RyuExternals")
 	set_group("Ryu/External")

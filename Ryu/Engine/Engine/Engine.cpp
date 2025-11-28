@@ -134,6 +134,8 @@ namespace Ryu::Engine
 
 				m_renderer->Render();
 				m_app->GetWindow()->ProcessEventQueue();
+
+				RYU_PROFILE_MARK_FRAME();
 			}
 		}
 		else

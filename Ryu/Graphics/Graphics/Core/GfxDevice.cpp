@@ -5,6 +5,7 @@
 #include "Graphics/Core/Debug/DebugLayer.h"
 #include "Utils/StringConv.h"
 #include "Math/Math.h"
+#include "Profiling/Profiling.h"
 #include <DirectXColors.h>
 
 namespace Ryu::Gfx
@@ -32,6 +33,8 @@ namespace Ryu::Gfx
 	Device::Device(HWND window)
 		: m_window(window)
 	{
+		RYU_PROFILE_SCOPE();
+
 		{
 			auto [w, h] = GetClientSize();
 			m_width = w;
@@ -62,6 +65,8 @@ namespace Ryu::Gfx
 
 	Device::~Device()
 	{
+		RYU_PROFILE_SCOPE();
+
 		ComRelease(m_factory);
 		ComRelease(m_swapChain);
 
@@ -82,6 +87,8 @@ namespace Ryu::Gfx
 
 	void Device::Initialize()
 	{
+		RYU_PROFILE_SCOPE();
+
 		m_cmdQueue = std::make_unique<CommandQueue>(this, D3D12_COMMAND_LIST_TYPE_DIRECT, "Graphics Command Queue");
 		m_cmdList  = std::make_unique<CommandList>(this, D3D12_COMMAND_LIST_TYPE_DIRECT, "Graphics Command List");
 		m_rtvHeap  = std::make_unique<DescriptorHeap>(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, FRAME_BUFFER_COUNT, false, "Frame RTV Heap");
@@ -135,6 +142,7 @@ namespace Ryu::Gfx
 
 	void Device::Present()
 	{
+		RYU_PROFILE_BOOKMARK("Present");
 		auto& settings = Settings::Get();
 
 		u32 syncInterval = settings.EnableVSync ? 1 : 0;
@@ -151,6 +159,8 @@ namespace Ryu::Gfx
 	
 	void Device::WaitForGPU()
 	{
+		RYU_PROFILE_SCOPE();
+
 		m_cmdQueue->Signal(*m_fence, m_fenceValues[m_frameIndex]);
 		m_fence->Wait(m_fenceValues[m_frameIndex]);
 		m_fenceValues[m_frameIndex]++;
@@ -158,6 +168,8 @@ namespace Ryu::Gfx
 
 	void Device::MoveToNextFrame()
 	{
+		RYU_PROFILE_SCOPE();
+
 		const u64 currentFenceValue = m_fenceValues[m_frameIndex];
 		
 		m_cmdQueue->Signal(*m_fence, currentFenceValue);
@@ -173,6 +185,8 @@ namespace Ryu::Gfx
 		{
 			return;
 		}
+
+		RYU_PROFILE_SCOPE();
 
 		m_width  = w;
 		m_height = h;
@@ -209,6 +223,8 @@ namespace Ryu::Gfx
 
 	void Device::SetBackBufferRenderTarget(bool shouldClear)
 	{
+		RYU_PROFILE_SCOPE();
+
 		// Assuming we have already transitioned the resource
 		const DescriptorHandle rtvHandle = m_rtvHeap->GetHandle(m_frameIndex);
 		m_cmdList->SetRenderTarget(rtvHandle, {});
@@ -221,6 +237,8 @@ namespace Ryu::Gfx
 
 	void Device::CreateDevice()
 	{
+		RYU_PROFILE_SCOPE();
+
 		if (m_isWarpDevice)
 		{
 			ComPtr<IDXGIAdapter> warpAdapter;
@@ -292,6 +310,8 @@ namespace Ryu::Gfx
 	
 	void Device::CreateSwapChain()
 	{
+		RYU_PROFILE_SCOPE();
+
 		DXGI_SWAP_CHAIN_DESC1 scDesc{};
 		scDesc.AlphaMode          = DXGI_ALPHA_MODE_IGNORE;
 		scDesc.BufferCount        = FRAME_BUFFER_COUNT;
@@ -332,6 +352,8 @@ namespace Ryu::Gfx
 	
 	void Device::CreateFrameResources(bool isResizing)
 	{
+		RYU_PROFILE_SCOPE();
+
 		static constexpr std::array objectNames = { "Backbuffer 0", "Backbuffer 1", "Backbuffer 2", "Backbuffer 3" };
 		static_assert(FRAME_BUFFER_COUNT <= objectNames.size());  // We can have more names, but not less
 

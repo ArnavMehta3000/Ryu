@@ -17,7 +17,6 @@ target("RyuGraphics")
 	)
 
 	if has_config("ryu-build-with-editor") then
-		add_defines("RYU_WITH_EDITOR")
 		add_deps("ImGui", { public = true })
 	end
 

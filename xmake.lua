@@ -48,15 +48,15 @@ else
 	set_runtimes("MD")
 end
 
+-- Add editor defines
+if has_config("ryu-build-with-editor") then
+	add_defines("RYU_WITH_EDITOR")
+end
+
 -- Add common window definitions
 add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "WIN32_LEAN_AND_MEAN")
 add_links("user32.lib")
 add_cxxflags("/utf-8", { public = true })
-
--- Bring standard types namespace to global namespace
-if has_config("use-std-types-globally") then
-	add_defines("RYU_USING_STD_TYPES_GLOBALLY")
-end
 
 -- Add compilation success to all targets
 add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })

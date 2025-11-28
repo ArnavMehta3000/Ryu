@@ -1,0 +1,155 @@
+if has_config("ryu-unity-build") then
+    add_rules("c++.unity_build")
+end
+
+target("RyuCore")
+	set_group("Ryu/Objects")
+	set_kind("object")
+
+	add_includedirs("Core", { public = true })
+	add_files("Core/Config/**.cpp", { unity_group = "Config" })
+	add_files("Core/Globals/**.cpp", { unity_group = "Globals" })
+	add_files("Core/Logging/**.cpp", { unity_group = "Logging" })
+	add_files("Core/Utils/**.cpp", { unity_group = "Utilities" })
+	add_headerfiles("Core/**.h")
+
+	add_packages(
+		"spdlog", "uuid_v4", "Elos",
+	 	"toml++", "cli11", { public = true })
+
+    add_options("ryu-log-level", "ryu-enable-tracy-profiling", { public = true })
+
+    add_rules("EnumToHeader", {
+		root = path.join(os.projectdir(), "Ryu", "Enums"),
+		files = { "ServiceErrorType.json" },
+		force = false
+	})
+
+	if get_config("ryu-enable-tracy-profiling") then
+		add_packages("tracy", { public = true })
+	end
+target_end()
+
+
+target("RyuApplication")
+	set_group("Ryu/Objects")
+	set_kind("object")
+
+	add_includedirs("Core", { public = true })
+	add_includedirs("Application", { public = true })
+	add_files("Application/App/**.cpp", { unity_group = "App" })
+	add_files("Application/Event/**.cpp", { unity_group = "Event" })
+	add_files("Application/Window/**.cpp", { unity_group = "Window" })
+	add_headerfiles("Application/**.h")
+
+	add_deps("RyuCore", "ImGui")
+
+    add_options("ryu-log-level")
+    add_options("ryu-enable-tracy-profiling", { public = true })
+
+    add_links("Dwmapi")
+
+target_end()
+
+target("RyuMath")
+	set_kind('object')
+	set_group("Ryu/Objects")
+
+	add_includedirs(".", { public = true })
+	add_files("Math/**.cpp", { unity_group = "Math" })
+	add_headerfiles("Math/**.h")
+
+	add_deps("RyuCore", "SimpleMath")
+target_end()
+
+target("RyuThreading")
+	set_kind('object')
+	set_group("Ryu/Objects")
+
+	add_includedirs(".", { public = true })
+	add_files("Threading/**.cpp", { unity_group = "Threading" })
+	add_headerfiles("Threading/**.h")
+
+	add_deps("RyuCore")
+target_end()
+
+target("RyuMemory")
+	set_kind('object')
+	set_group("Ryu/Objects")
+
+	add_includedirs(".", { public = true })
+	add_files("Memory/**.cpp|Tests/**cpp", { unity_group = "Memory" })  -- Ignore tests
+	add_headerfiles("Memory/**.h")
+
+	add_deps("RyuCore")
+
+	-- Tests
+	for _, testfile in ipairs(os.files("Memory/Tests/*.cpp")) do
+		 add_tests(path.basename(testfile),
+		 {
+			 kind           = "binary",
+			 group          = "memory",
+			 files          = testfile,
+			 languages      = "cxx23",
+			 packages       = "doctest",
+		 })
+	end
+target_end()
+
+target("RyuGraphics")
+	set_kind('object')
+	set_group("Ryu/Objects")
+
+	add_includedirs(".", { public = true })
+	add_files("Graphics/*.cpp", { unity_group = "Graphics" })
+	add_files("Graphics/Core/**.cpp", { unity_group = "GraphicsCore" })
+	add_files("Graphics/Compiler/*.cpp", { unity_group = "GraphicsCompiler" })
+	add_headerfiles("Graphics/**.h")
+
+	add_files("Graphics/Shaders/**.hlsl")
+	add_rules("HLSLShader", { root = "Engine" })
+
+	add_deps("RyuCore", "RyuMath", "ImGui")
+	add_packages("directx-headers", "directxshadercompiler", { public = true })
+
+	add_rules("EnumToHeader", {
+		root = path.join(os.projectdir(), "Ryu", "Enums"),
+		files = { "ShaderType.json" },
+		force = false
+	})
+target_end()
+
+target("RyuGame")
+	set_kind('object')
+	set_group("Ryu/Objects")
+
+	add_includedirs(".", { public = true })
+	add_files("Game/World/**.cpp", { unity_group = "GameWorld" })
+	add_files("Game/Components/**.cpp", { unity_group = "GameComponents" })
+	add_headerfiles("Game/**.h")
+
+	add_deps("RyuCore", "RyuApplication", "RyuMath")
+	add_packages('entt', { public = true })
+target_end()
+
+target("RyuEngine")
+	set_kind("static")
+	set_group("Ryu")
+
+	add_includedirs(".", { public = true })
+	add_files("Engine/**.cpp", { unity_group = "Engine" })
+	add_headerfiles("Engine/**.h", { public = true })
+
+	add_deps(
+		"RyuCore",
+		"RyuApplication",
+		"RyuMath",
+		"RyuGame",
+		"RyuThreading",
+		"RyuMemory",
+		"RyuGraphics",
+		{ public = true }
+	)
+
+	add_links("Dwmapi", "d3d12", "dxgi", "dxguid", "d3dcompiler", "Advapi32", "runtimeobject")
+target_end()

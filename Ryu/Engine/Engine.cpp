@@ -1,10 +1,10 @@
 #include "Engine/Engine.h"
 #include "Common/Assert.h"
+#include "Config/ConfigManager.h"
 #include "Globals/Globals.h"
 #include "Memory/New.h"
 #include "Math/Math.h"
 #include "App/Utils/PathManager.h"
-#include "App/AppSettings.h"
 #include "Logging/Logger.h"
 #include "Profiling/Profiling.h"
 #include <DirectXMath.h>

@@ -1,9 +1,0 @@
-[Window]
-WindowMinSize = [ 800, 600 ]
-WindowPos = [ -2147483648, -2147483648 ]
-WindowSize = [ -1, -1 ]
-WindowTitle = "Ryu Testbench Window"
-
-["Window Borderless"]
-EnableBorderlessDrag = false
-EnableBorderlessResizing = true

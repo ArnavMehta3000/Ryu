@@ -75,10 +75,6 @@ namespace Ryu::Editor
 			return false;
 		}
 
-		//Gfx::Renderer* renderer = Engine::Engine::Get().GetRenderer();
-		//renderer->ImGuiCallback = [this](Gfx::Renderer* renderer) { OnImGui(renderer); };
-
-		// Init user application
 		RYU_LOG_TRACE("Initializing user application");
 		m_userApp->m_isRunning = m_userApp->OnInit();
 		return m_userApp->m_isRunning;
@@ -101,11 +97,6 @@ namespace Ryu::Editor
 	{
 		RYU_PROFILE_SCOPE();
 
-		// Display FPS stats in debug mode
-#if defined(RYU_BUILD_DEBUG)
-		GetWindow()->SetTitle(fmt::format("Ryu Editor | DT: {:.5f}ms | FPS: {}", timeInfo.DeltaTime, timeInfo.FPS));
-#endif
-
 		m_userApp->OnTick(timeInfo);
 	}
 
@@ -126,6 +117,9 @@ namespace Ryu::Editor
 
 	void EditorApp::OnImGuiSetup(Gfx::Device* device)
 	{
+		RYU_PROFILE_SCOPE();
+
+		RYU_LOG_TRACE("Initializing ImGui");
 		m_imguiHeap = std::make_unique<Gfx::DescriptorHeap>(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 64, true, "ImGui SRV Heap");
 
 		const HWND hWnd = GetWindow()->GetHandle();
@@ -163,6 +157,8 @@ namespace Ryu::Editor
 
 	void EditorApp::OnImGuiFrameBegin()
 	{
+		RYU_PROFILE_SCOPE();
+
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
@@ -170,6 +166,8 @@ namespace Ryu::Editor
 
 	void EditorApp::OnImGuiFrameEnd(Gfx::CommandList* cmdList)
 	{
+		RYU_PROFILE_SCOPE();
+
 		cmdList->SetDescriptorHeap(*m_imguiHeap);
 
 		ImGui::Render();
@@ -184,11 +182,14 @@ namespace Ryu::Editor
 
 	void EditorApp::OnImGuiRender()
 	{
+		RYU_PROFILE_SCOPE();
+
 		ImGui::ShowDemoWindow();
 	}
 
 	void EditorApp::OnImGuiShutdown()
 	{
+		RYU_PROFILE_SCOPE();
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();

@@ -5,7 +5,7 @@ target("RyuTestbench")
 	set_group("Ryu/Testing")
 	add_includedirs(".")
 	add_files("Testbench/**.cpp", { unity_group = "Testbench" })
-	add_extrafiles("Scripts/**.as")
+	add_extrafiles("Config/**.toml")
 	add_headerfiles("Testbench/**.h")
 
 	add_deps(

@@ -3,12 +3,15 @@
 #include "Graphics/Core/GfxTexture.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Graphics/Primitives/Triangle.h"
+#include "Profiling/Profiling.h"
 
 namespace Ryu::Gfx
 {
 	Renderer::Renderer(HWND window, IRendererHook* hook)
 		: m_hook(hook)
 	{
+		RYU_PROFILE_SCOPE();
+
 		m_device = std::make_unique<Device>(window);
 		m_device->Initialize();
 
@@ -34,6 +37,8 @@ namespace Ryu::Gfx
 
 	void Renderer::CreateResources()
 	{
+		RYU_PROFILE_SCOPE();
+
 		CreateRootSignature();
 		CreateConstantBuffer();
 		CompileShaders();
@@ -54,6 +59,8 @@ namespace Ryu::Gfx
 	
 	void Renderer::CreateRootSignature()
 	{
+		RYU_PROFILE_SCOPE();
+
 		// Create a single descriptor table of CBV's
 		CD3DX12_DESCRIPTOR_RANGE cbvTable{};
 		cbvTable.Init(
@@ -80,6 +87,8 @@ namespace Ryu::Gfx
 
 	void Renderer::CompileShaders()
 	{
+		RYU_PROFILE_SCOPE();
+
 		static std::string_view shaderFile = R"(Shaders\Engine\Triangle.hlsl)";
 		ShaderCompileInfo info
 		{
@@ -100,6 +109,8 @@ namespace Ryu::Gfx
 
 	void Renderer::CreatePipelineState()
 	{
+		RYU_PROFILE_SCOPE();
+
 		const D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -146,6 +157,8 @@ namespace Ryu::Gfx
 
 	void Renderer::CreateConstantBuffer()
 	{
+		RYU_PROFILE_SCOPE();
+
 		m_cbvHeap = std::make_unique<DescriptorHeap>(m_device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1, true, "Frame CBV Heap");
 		DescriptorHandle handle = m_cbvHeap->Allocate();
 		
@@ -165,6 +178,8 @@ namespace Ryu::Gfx
 
 	void Renderer::Render()
 	{
+		RYU_PROFILE_SCOPE();
+
 		CommandList* cmdList  = m_device->GetGraphicsCommandList();
 		const Texture* renderTarget = m_device->GetCurrentBackBuffer();
 
@@ -212,6 +227,7 @@ namespace Ryu::Gfx
 	
 	void Renderer::OnResize(u32 w, u32 h)
 	{
+		RYU_PROFILE_SCOPE();
 		m_device->ResizeBuffers(w, h);
 	}
 }

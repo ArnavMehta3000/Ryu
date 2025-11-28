@@ -8,6 +8,24 @@ namespace Ryu::Game
 		ShutdownWorld();
 	}
 
+	void WorldManager::OnTick(const Utils::TimeInfo& timeInfo)
+	{
+		if (m_activeWorld)
+		{
+			m_activeWorld->OnTick(timeInfo);
+		}
+	}
+
+#if defined(RYU_WITH_EDITOR)
+	void WorldManager::OnImGuiRender()
+	{
+		if (m_activeWorld)
+		{
+			m_activeWorld->OnImGuiRender();
+		}
+	}
+#endif
+
 	void WorldManager::InitWorld()
 	{
 		if (m_activeWorld)

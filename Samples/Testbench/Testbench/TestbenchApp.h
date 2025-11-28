@@ -8,11 +8,13 @@ class TestbenchApp : public Ryu::App::App
 {
 	using ScopedKeyEventListener = Ryu::Event::ScopedListener<Ryu::Window::KeyEvent>;
 public:
-	explicit TestbenchApp(std::shared_ptr<Ryu::Window::Window> window);
+	explicit TestbenchApp(const std::shared_ptr<Ryu::Window::Window>& window);
 
 	bool OnInit() override;
 	void OnShutdown() override;
 	void OnTick(const Ryu::Utils::TimeInfo& timeInfo) override;
+
+	[[nodiscard]] inline Game::WorldManager* GetWorldManager() noexcept override { return &m_worldManager; }
 
 private:
 	void TestSerialization();

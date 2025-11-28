@@ -153,7 +153,7 @@ namespace Ryu::Engine
 
 	void Shutdown()
 	{
-		Config::CmdLine::Get().SaveFileConfig(fs::current_path() / "RyuConfig.toml");
+		//Config::CmdLine::Get().SaveFileConfig(fs::current_path() / "RyuConfig.toml");
 
 		if (auto* logger = Logging::Internal::GetLoggerInstance())
 		{

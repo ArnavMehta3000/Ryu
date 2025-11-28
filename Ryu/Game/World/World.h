@@ -2,6 +2,7 @@
 #include "Game/World/WorldEvents.h"
 #include "Common/Common.h"
 #include "Utils/Serializer.h"
+#include "Utils/Timer.h"
 #include "Event/EventEmitter.h"
 #include <entt/entity/registry.hpp>
 #include <vector>
@@ -20,7 +21,7 @@ namespace Ryu::Game
 		friend class Entity;
 		friend class WorldManager;
 	public:
-		~World() = default;
+		virtual ~World() = default;
 
 		Entity CreateEntity(const std::string& name = "");
 		void DestroyEntity(Entity& entity);
@@ -47,6 +48,11 @@ namespace Ryu::Game
 
 		virtual void OnCreate();
 		virtual void OnDestroy();
+		virtual void OnTick(const Utils::TimeInfo& timeInfo);
+
+#if defined(RYU_WITH_EDITOR)
+		virtual void OnImGuiRender();  // Should be invoked by WorldManager
+#endif
 
 	private:
 		WorldManager*             m_worldManager = nullptr;

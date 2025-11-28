@@ -1,5 +1,6 @@
 #include "EditorApp.h"
 #include "Game/IGameModule.h"
+#include "Game/World/WorldManager.h"
 #include "Logging/Logger.h"
 #include "Profiling/Profiling.h"
 #include "Graphics/Core/GfxDevice.h"
@@ -60,8 +61,7 @@ namespace Ryu::Editor
 
 	EditorApp::EditorApp(std::shared_ptr<Window::Window> window)
 		: App::App(window)
-	{
-	}
+		, m_worldManager(nullptr) { }
 
 	bool EditorApp::OnInit()
 	{
@@ -115,6 +115,7 @@ namespace Ryu::Editor
 		return false;
 	}
 
+#if defined(RYU_WITH_EDITOR)
 	void EditorApp::OnImGuiSetup(Gfx::Device* device)
 	{
 		RYU_PROFILE_SCOPE();
@@ -185,6 +186,11 @@ namespace Ryu::Editor
 		RYU_PROFILE_SCOPE();
 
 		ImGui::ShowDemoWindow();
+
+		if (Game::WorldManager* manager = m_userApp->GetWorldManager())
+		{
+			manager->OnImGuiRender();
+		}
 	}
 
 	void EditorApp::OnImGuiShutdown()
@@ -194,5 +200,6 @@ namespace Ryu::Editor
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
 	}
+#endif
 
 }

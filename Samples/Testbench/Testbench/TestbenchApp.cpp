@@ -8,7 +8,7 @@
 using namespace Ryu;
 using namespace Ryu::Window;
 
-TestbenchApp::TestbenchApp(std::shared_ptr<Ryu::Window::Window> window)
+TestbenchApp::TestbenchApp(const std::shared_ptr<Ryu::Window::Window>& window)
 	: App::App(window)
 	, m_keyListener(window->GetDispatcher(), [this](const KeyEvent& e)
 	{
@@ -63,6 +63,8 @@ void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo& t)
 	m_gameInput.PollMouse();
 	
 	m_timeInfo = t;
+
+	m_worldManager.OnTick(t);
 }
 
 void TestbenchApp::TestSerialization()

@@ -20,14 +20,16 @@ namespace Ryu::Editor
 
 		bool LoadGameModule();
 
+#if defined(RYU_WITH_EDITOR)
 		void OnImGuiSetup(Gfx::Device* device) override;
 		void OnImGuiFrameBegin() override;
 		void OnImGuiFrameEnd(Gfx::CommandList* cmdList) override;
 		void OnImGuiRender() override;
 		void OnImGuiShutdown() override;
-
+#endif
 	private:
-		std::shared_ptr<App> m_userApp;
+		Game::WorldManager*                  m_worldManager;
+		std::shared_ptr<App>                 m_userApp;
 		std::unique_ptr<Gfx::DescriptorHeap> m_imguiHeap;
 	};
 }

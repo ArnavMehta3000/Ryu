@@ -1,6 +1,7 @@
 #pragma once
 #include "Game/World/World.h"
 #include "Event/ListenerHandle.h"
+#include "Utils/Timer.h"
 
 namespace Ryu::Game
 {
@@ -19,6 +20,12 @@ namespace Ryu::Game
 			m_activeWorld = std::make_unique<T>(std::forward<Args>(args)...);
 			InitWorld();
 		}
+
+		void OnTick(const Utils::TimeInfo& timeInfo);
+
+#if defined(RYU_WITH_EDITOR)
+		void OnImGuiRender();  // Should be called by the editor
+#endif
 
 	private:
 		void InitWorld();

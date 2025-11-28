@@ -7,6 +7,7 @@
 
 namespace Ryu::Engine { class Engine; }
 namespace Ryu::Editor { class EditorApp; }
+namespace Ryu::Game   { class World; class WorldManager; }
 
 namespace Ryu::App
 {
@@ -23,8 +24,9 @@ namespace Ryu::App
 
 		void Quit();
 
-		inline [[nodiscard]] std::shared_ptr<Window::Window> GetWindow() const noexcept{ return m_window; }
-		inline [[nodiscard]] bool IsRunning() const noexcept { return m_isRunning; }
+		[[nodiscard]] inline std::shared_ptr<Window::Window> GetWindow() const noexcept { return m_window; }
+		[[nodiscard]] inline bool IsRunning() const noexcept { return m_isRunning; }
+		[[nodiscard]] inline virtual Game::WorldManager* GetWorldManager() noexcept { return nullptr; }
 
 	protected:
 		virtual bool OnInit() = 0;

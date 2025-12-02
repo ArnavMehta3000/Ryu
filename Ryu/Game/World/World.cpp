@@ -100,5 +100,7 @@ namespace Ryu::Game
 
 	void World::OnTick(const Utils::TimeInfo&) { }
 	
+#if defined(RYU_WITH_EDITOR)
 	void World::OnImGuiRender() { }
+#endif
 }

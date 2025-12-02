@@ -27,5 +27,3 @@ RYU_REFLECTED_CLASS(
 	RYU_CLASS_ATTRIB(::Ryu::Game::Transform, Rotation),
 	RYU_CLASS_ATTRIB(::Ryu::Game::Transform, Scale)
 )
-
-//#include "Game/Components/Transform.inl"

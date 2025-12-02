@@ -18,7 +18,6 @@ public:
 
 private:
 	void TestSerialization();
-	void TestDeserialization();
 
 private:
 	Ryu::Game::WorldManager m_worldManager;

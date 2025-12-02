@@ -73,6 +73,7 @@ void TestbenchApp::TestSerialization()
 
 	toml::table root;
 	toml::array entitiesArray;
+
 	world->GetAllEntities().each(
 	[&](Game::EntityHandle handle)
 	{
@@ -87,8 +88,8 @@ void TestbenchApp::TestSerialization()
 
 		entitiesArray.push_back(std::move(entityTable));
 	});
-
 	root.insert("entities", std::move(entitiesArray));
+
 	auto outDir = Ryu::App::PathManager::Get().GetProjectDir() / "saved.toml";
 	std::ofstream out(outDir.string());
 	out << root;

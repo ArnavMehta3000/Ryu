@@ -13,6 +13,10 @@
 
 #include <ServiceErrorType.Generated.h>
 
+namespace Ryu::Utils { class ServiceLocator; }
+
+namespace Ryu::Globals { extern Utils::ServiceLocator & GetServiceLocator(); }
+
 namespace Ryu::Utils
 {
 	// Base interface for services
@@ -152,5 +156,18 @@ namespace Ryu::Utils
 		std::unordered_map<std::type_index, ServiceInfo> m_services;
 	};
 
-	// NOTE: "Refer to Globals/Globals.h for static service registration"
+	namespace Internal
+	{
+		template <typename T>
+		struct StaticServiceRegistrar
+		{
+			StaticServiceRegistrar(auto&& factory)
+			{
+				std::ignore = Globals::GetServiceLocator().RegisterService<T>(std::forward<decltype(factory)>(factory));
+			}
+		};
+	}
 }
+
+#define RYU_REGISTER_STATIC_SERVICE(Type, Factory) \
+	inline static ::Ryu::Utils::Internal::StaticServiceRegistrar<Type> g_##Type##Registrar{ Factory }

@@ -39,8 +39,8 @@ void TestbenchWorld::OnImGuiRender()
 			ImVec2 workPos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
 			ImVec2 workSize = viewport->WorkSize;
 
-			windowPos.x = (location & 1) ? (workPos.x + workSize.x - PAD) : (workPos.x + PAD);
-			windowPos.y = (location & 2) ? (workPos.y + workSize.y - PAD) : (workPos.y + PAD);
+			windowPos.x      = (location & 1) ? (workPos.x + workSize.x - PAD) : (workPos.x + PAD);
+			windowPos.y      = (location & 2) ? (workPos.y + workSize.y - PAD) : (workPos.y + PAD);
 			windowPosPivot.x = (location & 1) ? 1.0f : 0.0f;
 			windowPosPivot.y = (location & 2) ? 1.0f : 0.0f;
 
@@ -61,7 +61,7 @@ void TestbenchWorld::OnImGuiRender()
 		{
 			ImGui::Text("World Info");
 			ImGui::Separator();
-			ImGui::Text("Delta Time: %.6f", m_timeInfo.DeltaTime);
+			ImGui::Text("Delta Time: %.3fms", m_timeInfo.DeltaTime * 1000.0f);
 			ImGui::Text("FPS: %u", m_timeInfo.FPS);
 			ImGui::Text("Total Time: %.2f", m_timeInfo.TotalTime);
 			ImGui::Text("Frame Count: %u", m_timeInfo.FrameCount);

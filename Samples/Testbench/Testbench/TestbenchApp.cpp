@@ -4,6 +4,8 @@
 #include "Profiling/Profiling.h"
 #include "Game/World/Entity.h"
 #include "Game/Components/Transform.h"
+#include "Utils/ReflectionSerializer.h"
+#include "App/Utils/PathManager.h"
 
 using namespace Ryu;
 using namespace Ryu::Window;
@@ -40,9 +42,7 @@ bool TestbenchApp::OnInit()
 
 	m_worldManager.CreateWorld<TestbenchWorld>();
 
-	// m_world.CreateEntity("Player1").GetComponent<Game::Transform>().Position.z = 15.7;
-	// m_world.CreateEntity("Player2").GetComponent<Game::Transform>().Position.x = 100.2;
-	// TestSerialization();
+	TestSerialization();
 
 	// TestDeserialization();
 
@@ -69,30 +69,31 @@ void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo& t)
 
 void TestbenchApp::TestSerialization()
 {
-	//toml::table root;
-	//toml::array entitiesArray;
+	Game::World* world = m_worldManager.GetActiveWorld();
+	world->CreateEntity("Player1").GetComponent<Game::Transform>().Position.z = 15.7f;
+	world->CreateEntity("Player2").GetComponent<Game::Transform>().Position.x = 100.2f;
 
-	//m_world.GetAllEntities().each(
-	//[&](Game::EntityHandle handle)
-	//{
-	//	auto [metadataTable, transformTable] = m_world.SerializeComponents<Game::EntityMetadata, Game::Transform>(handle);
+	toml::table root;
+	toml::array entitiesArray;
+	world->GetAllEntities().each(
+	[&](Game::EntityHandle handle)
+	{
+		auto [metadataTable, transformTable] = world->SerializeComponents<Game::EntityMetadata, Game::Transform>(handle);
 
-	//	// Add components to table
-	//	toml::table componentsTable;
-	//	componentsTable.insert("metadata", std::move(metadataTable));
-	//	componentsTable.insert("transform", std::move(transformTable));
+		toml::table componentsTable;
+		componentsTable.insert("metadata", std::move(metadataTable));
+		componentsTable.insert("transform", std::move(transformTable));
 
-	//	// Add components to entity
-	//	toml::table entityTable;
-	//	entityTable.insert("components", std::move(componentsTable));
+		toml::table entityTable;
+		entityTable.insert("components", std::move(componentsTable));
 
-	//	entitiesArray.push_back(std::move(entityTable));
-	//});
+		entitiesArray.push_back(std::move(entityTable));
+	});
 
-	//root.insert("entities", std::move(entitiesArray));
-
-	//std::ofstream out("test.toml");
-	//out << root;
+	root.insert("entities", std::move(entitiesArray));
+	auto outDir = Ryu::App::PathManager::Get().GetProjectDir() / "saved.toml";
+	std::ofstream out(outDir.string());
+	out << root;
 }
 
 void TestbenchApp::TestDeserialization()

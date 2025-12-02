@@ -47,5 +47,4 @@ namespace Ryu::Utils
 	{
 		Deserializer<T>::Deserialize(obj, table);
 	}
-
 }

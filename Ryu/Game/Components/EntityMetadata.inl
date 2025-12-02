@@ -28,7 +28,7 @@ namespace Ryu::Utils
 	{
 		static void Serialize(const Game::EntityFlags& flags, toml::table& table)
 		{
-			table.insert("flags", flags.to_ulong());
+			table.insert("Flags", flags.to_ulong());
 		}
 	};
 
@@ -38,7 +38,7 @@ namespace Ryu::Utils
 	{
 		static Game::EntityFlags Deserialize(const toml::table& table)
 		{
-			return Game::EntityFlags(table["flags"].value_or<unsigned long>(0u));
+			return Game::EntityFlags(table["Flags"].value_or<unsigned long>(0u));
 		}
 	};
 
@@ -48,9 +48,9 @@ namespace Ryu::Utils
 	{
 		static void Serialize(const Game::EntityMetadata& metadata, toml::table& table)
 		{
-			table.insert("name", metadata.Name);
-			table.insert("uuid", metadata.GetUUIDPretty());
-			table.insert("flags", metadata.Flags.to_ulong());
+			table.insert("Name", metadata.Name);
+			table.insert("UUID", metadata.GetUUIDPretty());
+			table.insert("Flags", metadata.Flags.to_ulong());
 		}
 	};
 
@@ -68,10 +68,10 @@ namespace Ryu::Utils
 		static void Deserialize(Game::EntityMetadata& metadata, const toml::table& table)
 		{
 			// Either provide the cached uuid or generate a new one
-			metadata = Game::EntityMetadata(table["uuid"].value_or(std::string{}));
+			metadata = Game::EntityMetadata(table["UUID"].value_or(std::string{}));
 
-			metadata.Name = table["name"].value_or(std::string{});
-			metadata.Flags = Game::EntityFlags(table["flags"].value_or<unsigned long>(0u));
+			metadata.Name = table["Name"].value_or(std::string{});
+			metadata.Flags = Game::EntityFlags(table["Flags"].value_or<unsigned long>(0u));
 		}
 	};
 }

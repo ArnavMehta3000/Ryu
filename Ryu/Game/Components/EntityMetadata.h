@@ -1,6 +1,7 @@
 #pragma once
 #include "Common/Enum.h"
 #include "Utils/UUID.h"
+#include "Utils/Reflection.h"
 #include <string>
 #include <bitset>
 
@@ -21,7 +22,7 @@ namespace Ryu::Game
 	// Every entity is going to have this as a component
 	struct EntityMetadata
 	{
-		RYU_EDITOR_NAME("Entity Metadata Component");
+		RYU_ENABLE_REFLECTION(EntityMetadata);
 
 		explicit EntityMetadata()
 			: m_uuidBytes(Utils::UUID::GenerateBytes())
@@ -45,5 +46,12 @@ namespace Ryu::Game
 		std::string m_uuidBytes;
 	};
 }
+
+RYU_REFLECTED_CLASS(
+	Ryu::Game::EntityMetadata,
+	"EntityMetadata",
+	RYU_CLASS_ATTRIB(Ryu::Game::EntityMetadata, Name),
+	RYU_CLASS_ATTRIB(Ryu::Game::EntityMetadata, Flags),
+	RYU_CLASS_ATTRIB(Ryu::Game::EntityMetadata, m_uuidBytes))
 
 #include "EntityMetadata.inl"

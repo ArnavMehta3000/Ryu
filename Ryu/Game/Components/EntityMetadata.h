@@ -9,9 +9,9 @@ namespace Ryu::Game
 {
 	enum class EntityFlag : u32
 	{
-		None = 0,
+		None             = 0,
 		MarkedForDestroy = RYU_ENUM_BIT(0),
-		Disabled = RYU_ENUM_BIT(1),
+		Disabled         = RYU_ENUM_BIT(1),
 
 		MAX_FLAGS = 32
 	};

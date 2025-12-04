@@ -8,26 +8,26 @@ namespace Ryu::Utils
 	// Helper to check if a type is a native TOML value type
 	template<typename T>
 	concept TomlInsertable =
-		std::same_as<T, std::string> ||
-		std::same_as<T, int64_t> ||
-		std::same_as<T, double> ||
-		std::same_as<T, bool> ||
-		std::same_as<T, toml::date> ||
-		std::same_as<T, toml::time> ||
-		std::same_as<T, toml::date_time> ||
-		std::integral<T> ||
-		std::floating_point<T>;
+		std::same_as<T, std::string>
+		|| std::same_as<T, int64_t>
+		|| std::same_as<T, double>
+		|| std::same_as<T, bool>
+		|| std::same_as<T, toml::date>
+		|| std::same_as<T, toml::time>
+		|| std::same_as<T, toml::date_time>
+		|| std::integral<T>
+		|| std::floating_point<T>;
 
 	// Check if type serializes to array
 	template<typename T>
-	concept SerializesToArray = requires(const T & t, toml::array & arr)
+	concept SerializesToArray = requires(const T& t, toml::array& arr)
 	{
 		Serializer<T>::Serialize(t, arr);
 	};
 
 	// Check if type deserializes from array
 	template<typename T>
-	concept DeserializesFromArray = requires(T & t, const toml::array & arr)
+	concept DeserializesFromArray = requires(T& t, const toml::array& arr)
 	{
 		Deserializer<T>::Deserialize(t, arr);
 	};

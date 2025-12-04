@@ -128,6 +128,7 @@ RYU_MAIN()
 			.CanBorderlessDrag = true,
 			.Type              = Window::WindowType::Windowed,
 		};
+		
 		auto editorWindow = std::make_shared<Window::Window>(windowConfig);
 		App::App::InitWindow(*editorWindow);
 

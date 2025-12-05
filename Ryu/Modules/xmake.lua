@@ -6,4 +6,5 @@ target("RyuModuleCore")
 
 	add_includedirs("Core", { public = true })
 	add_files("Core/Common/**.ixx")
+	add_headerfiles("Core/**.h")
 target_end()

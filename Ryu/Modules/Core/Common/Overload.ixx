@@ -1,6 +1,6 @@
 module;
 
-export module Ryu.Core.Common:Overload;
+export module Ryu.Common:Overload;
 
 export namespace Ryu::Common
 {

@@ -2,7 +2,7 @@ module;
 #include <type_traits>
 #include <concepts>
 
-export module Ryu.Core.Common:Concepts;
+export module Ryu.Common:Concepts;
 
 export namespace Ryu
 {

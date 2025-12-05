@@ -1,4 +1,4 @@
-export module Ryu.Core.Common;
+export module Ryu.Common;
 
 export import :Concepts;
 export import :Enum;

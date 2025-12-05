@@ -1,7 +1,7 @@
 module;
 #include "Common/ObjectMacros.h"
 
-export module Ryu.Core.Common:ObjectMacros;
+export module Ryu.Common:ObjectMacros;
 
 export namespace Ryu
 {

@@ -1,7 +1,7 @@
 module;
 #include <cstdint>
 
-export module Ryu.Core.Common:Types;
+export module Ryu.Common:Types;
 
 /**
 	* @brief Signed 8-bit integer

@@ -2,7 +2,7 @@ module;
 #include <expected>
 #include <string>
 
-export module Ryu.Core.Common:Result;
+export module Ryu.Common:Result;
 
 export namespace Ryu
 {

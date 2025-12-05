@@ -5,7 +5,7 @@ module;
 #include <algorithm>
 #include "Common/API.h"
 
-export module Ryu.Core.Common:Enum;
+export module Ryu.Common:Enum;
 import :Concepts;
 
 namespace Ryu

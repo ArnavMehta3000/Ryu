@@ -40,6 +40,7 @@ set_policy("run.autobuild", true)
 set_policy("build.intermediate_directory", true)
 set_policy("package.requires_lock", false)
 set_policy("build.always_update_configfiles", false)
+set_config("ryu-unity-build", false)
 
 if is_mode("debug", "releasedbg") then
 	add_defines("RYU_BUILD_DEBUG", "_DEBUG")

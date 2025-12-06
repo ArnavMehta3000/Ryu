@@ -1,6 +1,8 @@
 export module Ryu.Core.Utils;
 
-export import :Random;
 export import :Timer;
+export import :Singleton;
 export import :StringConv;
-export import :Reflection;
+export import :Deferred;
+export import :Random;
+export import :UUID;

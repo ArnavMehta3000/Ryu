@@ -3,7 +3,6 @@ module;
 #include <chrono>
 
 export module Ryu.Core.Utils:Timer;
-import module Ryu.Core.Common;
 
 export namespace Ryu::Utils
 {

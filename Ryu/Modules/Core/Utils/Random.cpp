@@ -1,5 +1,10 @@
+module;
 #include <cassert>
 #include <numbers>
+#include <random>
+
+module Ryu.Core.Utils;
+import :Random;
 
 namespace Ryu::Utils
 {

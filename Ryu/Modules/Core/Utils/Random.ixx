@@ -1,17 +1,16 @@
 module;
-#include "Common/API.h"
 #include <random>
 #include <limits>
 
 export module Ryu.Core.Utils:Random;
 import Ryu.Core.Common;
 
-export namespace Ryu::Utils
+namespace Ryu::Utils
 {
-    /**
+	/**
 	 * @brief Static class for random number generation
 	 */
-	class Random
+	export class Random
 	{
 	public:
 		using Generator = std::mersenne_twister_engine<std::uint_fast64_t, 64, 312, 156, 31,

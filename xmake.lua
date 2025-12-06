@@ -19,7 +19,7 @@ includes("Xmake/Rules/EnumToHeader.lua")
 includes("Xmake/Rules/HLSLShader.lua")
 
 -- Update compile commands
-add_rules("plugin.compile_commands.autoupdate", { outputdir = ".", lsp = "clangd" })
+--add_rules("plugin.compile_commands.autoupdate", { outputdir = ".", lsp = "clangd" })
 
 -- Build debug mode by default
 set_defaultmode("debug")

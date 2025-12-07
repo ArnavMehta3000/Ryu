@@ -24,7 +24,7 @@ TestbenchApp::TestbenchApp(const std::shared_ptr<Ryu::Window::Window>& window)
 		if (e.KeyCode == KeyCode::F && e.State == KeyState::Released)
 		{
 			RYU_LOG_INFO("DT: {} | FPS: {} | Total: {:3f} | Frame: {}",
-				m_timeInfo.DeltaTime, m_timeInfo.FPS, m_timeInfo.TotalTime, m_timeInfo.FrameCount);
+				m_timer.DeltaTimeF(), m_timer.FPS(), m_timer.TimeSinceStart<std::chrono::seconds>(), m_timer.FrameCount());
 		}
 	})
 {
@@ -55,14 +55,14 @@ void TestbenchApp::OnShutdown()
 	m_gameInput.Shutdown();
 }
 
-void TestbenchApp::OnTick(const Ryu::Utils::TimeInfo& t)
+void TestbenchApp::OnTick(const Ryu::Utils::FrameTimer& timer)
 {
 	m_gameInput.PollKeyboard();
 	m_gameInput.PollMouse();
 	
-	m_timeInfo = t;
+	m_timer = timer;
 
-	m_worldManager.OnTick(t);
+	m_worldManager.OnTick(timer);
 }
 
 void TestbenchApp::TestSerialization()

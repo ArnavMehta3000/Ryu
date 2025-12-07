@@ -12,7 +12,7 @@ public:
 
 	bool OnInit() override;
 	void OnShutdown() override;
-	void OnTick(const Ryu::Utils::TimeInfo& timeInfo) override;
+	void OnTick(const Ryu::Utils::FrameTimer& timer) override;
 
 	[[nodiscard]] inline Game::WorldManager* GetWorldManager() noexcept override { return &m_worldManager; }
 
@@ -23,5 +23,5 @@ private:
 	Ryu::Game::WorldManager m_worldManager;
 	GInput                  m_gameInput;
 	ScopedKeyEventListener  m_keyListener;
-	Ryu::Utils::TimeInfo    m_timeInfo;
+	Ryu::Utils::FrameTimer  m_timer;
 };

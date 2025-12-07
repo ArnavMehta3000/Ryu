@@ -1,7 +1,7 @@
 #pragma once
 #include "Game/World/World.h"
 #include "Event/ListenerHandle.h"
-#include "Utils/Timer.h"
+#include "Utils/Timing/FrameTimer.h"
 
 namespace Ryu::Game
 {
@@ -21,7 +21,7 @@ namespace Ryu::Game
 			InitWorld();
 		}
 
-		void OnTick(const Utils::TimeInfo& timeInfo);
+		void OnTick(const Utils::FrameTimer& timer);
 
 #if defined(RYU_WITH_EDITOR)
 		void OnImGuiRender();  // Should be called by the editor

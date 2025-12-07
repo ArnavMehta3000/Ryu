@@ -2,7 +2,7 @@
 #include "Game/World/WorldEvents.h"
 #include "Common/Common.h"
 #include "Utils/Serializer.h"
-#include "Utils/Timer.h"
+#include "Utils/Timing/FrameTimer.h"
 #include "Event/EventEmitter.h"
 #include <entt/entity/registry.hpp>
 #include <vector>
@@ -48,7 +48,7 @@ namespace Ryu::Game
 
 		virtual void OnCreate();
 		virtual void OnDestroy();
-		virtual void OnTick(const Utils::TimeInfo& timeInfo);
+		virtual void OnTick(const Utils::FrameTimer& timer);
 
 #if defined(RYU_WITH_EDITOR)
 		virtual void OnImGuiRender();  // Should be invoked by WorldManager

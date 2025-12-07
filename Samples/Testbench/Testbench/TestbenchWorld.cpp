@@ -12,9 +12,9 @@ void TestbenchWorld::OnDestroy()
 	RYU_LOG_DEBUG("Testbench World Destroyed");
 }
 
-void TestbenchWorld::OnTick(const Ryu::Utils::TimeInfo& timeInfo)
+void TestbenchWorld::OnTick(const Ryu::Utils::FrameTimer& timer)
 {
-	m_timeInfo = timeInfo;
+	m_timer = timer;
 }
 
 #if defined(RYU_WITH_EDITOR)
@@ -61,10 +61,10 @@ void TestbenchWorld::OnImGuiRender()
 		{
 			ImGui::Text("World Info");
 			ImGui::Separator();
-			ImGui::Text("Delta Time: %.3fms", m_timeInfo.DeltaTime * 1000.0f);
-			ImGui::Text("FPS: %u", m_timeInfo.FPS);
-			ImGui::Text("Total Time: %.2f", m_timeInfo.TotalTime);
-			ImGui::Text("Frame Count: %u", m_timeInfo.FrameCount);
+			ImGui::Text("Delta Time: %.3fms", m_timer.DeltaTimeF() * 1000.0f);
+			ImGui::Text("FPS: %.2f", m_timer.FPS());
+			ImGui::Text("Total Time: %.2f", m_timer.TimeSinceStart<std::chrono::seconds>());
+			ImGui::Text("Frame Count: %llu", m_timer.FrameCount());
 
 			if (ImGui::BeginPopupContextWindow())
 			{

@@ -1,6 +1,6 @@
 #pragma once
 #include "Common/Common.h"
-#include "Utils/Timer.h"
+#include "Utils/Timing/FrameTimer.h"
 #include "Window/Window.h"
 #include "Logging/Logger.h"
 #include <memory>
@@ -30,7 +30,7 @@ namespace Ryu::App
 
 	protected:
 		virtual bool OnInit() = 0;
-		virtual void OnTick(const Utils::TimeInfo&) = 0;
+		virtual void OnTick(const Utils::FrameTimer&) = 0;
 		virtual void OnShutdown() = 0;
 
 	private:

@@ -93,11 +93,11 @@ namespace Ryu::Editor
 		RYU_LOG_INFO("Editor application shutdown");
 	}
 
-	void EditorApp::OnTick(const Utils::TimeInfo& timeInfo)
+	void EditorApp::OnTick(const Utils::FrameTimer& timer)
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_userApp->OnTick(timeInfo);
+		m_userApp->OnTick(timer);
 	}
 
 	bool EditorApp::LoadGameModule()

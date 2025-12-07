@@ -5,6 +5,7 @@
 #include "Memory/New.h"
 #include "Math/Math.h"
 #include "App/Utils/PathManager.h"
+#include "Utils/Timing/Stopwatch.h"
 #include "Logging/Logger.h"
 #include "Profiling/Profiling.h"
 #include <DirectXMath.h>
@@ -12,8 +13,9 @@
 
 namespace Ryu::Engine
 {
+	Utils::Stopwatch m_stopwatch;
 	static constexpr f64 MAX_STALL_TIME = 1.5;  // Highest ever delta time allowed
-	static constexpr f64 FALLBACK_DELTA_TIME = 1.0 / 60.0;  // 60 FPS
+	static constexpr f64 FALLBACK_DELTA_TIME = 1.0 / 15.0;  // 15 FPS
 
 	void PrintMemoryStats()
 	{
@@ -110,29 +112,19 @@ namespace Ryu::Engine
 
 	void Engine::MainLoop()
 	{
+		Utils::FrameTimer frameTimer;
+		frameTimer.SetMaxDeltaTime(FALLBACK_DELTA_TIME);
+
 		if (m_app->IsRunning())
 		{
 			while (m_app->IsRunning())
 			{
+				frameTimer.Tick();
 				m_app->ProcessWindowEvents();
 
-				m_timer.Tick([this](const Utils::TimeInfo& info)
-				{
-					if (info.DeltaTime > MAX_STALL_TIME)
-					{
-						RYU_LOG_WARN("Engine stall detected! Delta time was {}s", info.DeltaTime);
-
-						Utils::TimeInfo i = info;
-						i.DeltaTime = FALLBACK_DELTA_TIME;
-						m_app->OnTick(i);
-					}
-					else
-					{
-						m_app->OnTick(info);
-					}
-				});
-
+				m_app->OnTick(frameTimer);
 				m_renderer->Render();
+
 				m_app->GetWindow()->ProcessEventQueue();
 
 				RYU_PROFILE_MARK_FRAME();
@@ -144,9 +136,9 @@ namespace Ryu::Engine
 		}
 	}
 
-	f64 Engine::GetEngineUpTime()
+	f64 Engine::GetEngineUpTime() 
 	{
-		return m_timer.GetTotalTime();
+		return m_stopwatch.Elapsed();
 	}
 
 	void Engine::Quit() const noexcept
@@ -164,6 +156,8 @@ namespace Ryu::Engine
 		using namespace Microsoft::WRL::Wrappers;
 
 		RYU_ASSERT(app, "Application cannot be nullptr");
+
+		m_stopwatch.Start();
 
 		RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
 		m_app = app;

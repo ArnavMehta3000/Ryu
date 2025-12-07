@@ -8,11 +8,11 @@ namespace Ryu::Game
 		ShutdownWorld();
 	}
 
-	void WorldManager::OnTick(const Utils::TimeInfo& timeInfo)
+	void WorldManager::OnTick(const Utils::FrameTimer& timer)
 	{
 		if (m_activeWorld)
 		{
-			m_activeWorld->OnTick(timeInfo);
+			m_activeWorld->OnTick(timer);
 		}
 	}
 

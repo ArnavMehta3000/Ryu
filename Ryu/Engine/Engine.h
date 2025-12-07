@@ -15,9 +15,9 @@ namespace Ryu::Engine
 
 	public:
 		~Engine() = default;
-		inline RYU_API std::shared_ptr<App::App> GetApplication() const { return m_app; }
-		inline RYU_API const Utils::Timer& GetTimer() const { return m_timer; }
-		RYU_API f64 GetEngineUpTime();
+		static f64 GetEngineUpTime();
+		
+		inline std::shared_ptr<App::App> GetApplication() const { return m_app; }
 		RYU_API void Quit() const noexcept;
 
 		void RYU_API RunApp(std::shared_ptr<App::App> app, Gfx::IRendererHook* rendererHook = nullptr);
@@ -32,7 +32,6 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		Utils::Timer                   m_timer;
 		std::shared_ptr<App::App>      m_app;
 		std::unique_ptr<Gfx::Renderer> m_renderer;
 

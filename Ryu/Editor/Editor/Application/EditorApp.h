@@ -16,7 +16,7 @@ namespace Ryu::Editor
 	private:
 		bool OnInit() override final;
 		void OnShutdown() override final;
-		void OnTick(const Utils::TimeInfo& timeInfo);
+		void OnTick(const Utils::FrameTimer& timeInfo);
 
 		bool LoadGameModule();
 

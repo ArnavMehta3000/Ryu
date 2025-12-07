@@ -5,59 +5,77 @@
 
 namespace Ryu::Gfx
 {
-	class CameraBase
+	class Camera
 	{
 	public:
-		CameraBase() = default;
-		~CameraBase() = default;
+		enum class ProjectionMode { Perspective, Orthographic };
 
-		[[nodiscard]] inline f32 GetFOV() const noexcept { return m_fovY; }
-		[[nodiscard]] inline f32 GetNearZ() const noexcept { return m_nearZ; }
-		[[nodiscard]] inline f32 GetFarZ() const noexcept { return m_farZ; }
-		[[nodiscard]] inline f32 GetAspectRatio() const noexcept { return m_viewportWidth / m_viewportHeight; }
-		[[nodiscard]] inline f32 GetViewportWidth() const noexcept { return m_viewportWidth; }
-		[[nodiscard]] inline f32 GetViewportHeight() const noexcept { return m_viewportHeight; }
-		[[nodiscard]] inline const Math::Vector3& GetPosition() const noexcept { return m_position; }
-		[[nodiscard]] inline const Math::Quaternion& GetRotation() const noexcept { return m_rotation; }
-		[[nodiscard]] inline Math::Matrix GetViewProjectionMatrix() const noexcept { return m_viewMat * m_projectionMat; }
-		
-		[[nodiscard]] const Math::Matrix& GetViewMatrix() const noexcept;
-		[[nodiscard]] const Math::Matrix& GetProjectionMatrix() const noexcept;
-		
-		void SetViewport(f32 w, f32 h);
+	public:
+		Camera();
+		~Camera() = default;
 
-		void SetLens(f32 fovY, f32 w, f32 h, f32 nearZ, f32 farZ);
+		void Update(f32 dt);
+		void SetViewportSize(f32 width, f32 height);
 
-	protected:
-		virtual void UpdateProjectionMatrix() const = 0;
-		virtual void UpdateViewMatrix() const;
+		void SetPosition(const Math::Vector3& position);
+		void SetOrientation(const Math::Quaternion& orientation);
+		void Move(const Math::Vector3& direction, f32 speed);
+		void Rotate(f32 deltaPitch, f32 deltaYaw);
+		void RotateAroundAxis(const Math::Vector3& axis, f32 angle);
 
-	protected:
-		Math::Vector3        m_position;
-		Math::Quaternion     m_rotation;
+		void Zoom(f32 delta);
+		void SetFieldOfView(f32 fovDegrees);
+		void SetOrthographicSize(f32 size);
 
-		f32                  m_fovY            = 0.0f;
-		f32                  m_nearZ           = 0.1f;
-		f32                  m_farZ            = 1000.0f;
-		f32                  m_viewportWidth   = 1920.0f;
-		f32                  m_viewportHeight  = 1080.0f;
+		void SetProjectionMode(ProjectionMode mode, bool interpolate = false);
+		void SetInterpolationSpeed(f32 speed) { m_interpolationSpeed = speed; }
+		void SetNearPlane(f32 nearPlane) { m_nearPlane = nearPlane; UpdateProjectionMatrix(); }
+		void SetFarPlane(f32 farPlane) { m_farPlane = farPlane; UpdateProjectionMatrix(); }
 
-		mutable Math::Matrix m_viewMat;
-		mutable Math::Matrix m_projectionMat;
-		mutable bool         m_viewDirty       = true;
-		mutable bool         m_projectionDirty = true;
-	};
+		[[nodiscard]] Math::Matrix GetViewMatrix() const { return m_viewMatrix; }
+		[[nodiscard]] Math::Matrix GetProjectionMatrix() const;
+		[[nodiscard]] Math::Matrix GetViewProjectionMatrix() const;
 
+		[[nodiscard]] inline Math::Vector3 GetPosition() const { return m_position; }
+		[[nodiscard]] inline Math::Quaternion GetOrientation() const { return m_orientation; }
+		[[nodiscard]] inline Math::Vector3 GetForward() const { return m_forward; }
+		[[nodiscard]] inline Math::Vector3 GetRight() const { return m_right; }
+		[[nodiscard]] inline Math::Vector3 GetUp() const { return m_up; }
+		[[nodiscard]] inline f32 GetFieldOfView() const { return m_fov; }
+		[[nodiscard]] inline f32 GetOrthographicSize() const { return m_orthoSize; }
+		[[nodiscard]] inline ProjectionMode GetProjectionMode() const { return m_targetMode; }
+		[[nodiscard]] inline f32 GetNearPlane() const { return m_nearPlane; }
+		[[nodiscard]] inline f32 GetFarPlane() const { return m_farPlane; }
 
-	class PerspectiveCamera : public CameraBase
-	{
-	protected:
-		void UpdateProjectionMatrix() const override;
-	};
+	private:
+		void UpdateViewMatrix();
+		void UpdateProjectionMatrix();
+		void UpdateVectors();
+		Math::Matrix LerpProjectionMatrix(const Math::Matrix& from, const Math::Matrix& to, f32 t) const;
 
-	class OrthoGraphicCamera : public CameraBase
-	{
-	protected:
-		void UpdateProjectionMatrix() const override;
+	private:
+		Math::Vector3    m_position;
+		Math::Quaternion m_orientation;
+		Math::Vector3    m_forward;
+		Math::Vector3    m_right;
+		Math::Vector3    m_up;
+
+		f32              m_fov                   = 60.0f;        // In degrees
+		f32              m_orthoSize             = 5.0f;         // Half height of ortho projection
+		f32              m_aspectRatio           = 16.0f / 9.0f;
+		f32              m_nearPlane             = 0.1f;
+		f32              m_farPlane              = 1000.0f;
+		f32              m_viewportWidth;
+		f32              m_viewportHeight;
+
+		ProjectionMode   m_currentMode           = ProjectionMode::Perspective;
+		ProjectionMode   m_targetMode            = ProjectionMode::Perspective;
+		bool             m_isInterpolating       = false;
+		f32              m_interpolationProgress = 0.0f;
+		f32              m_interpolationSpeed    = 2.0f;
+
+		Math::Matrix     m_viewMatrix;
+		Math::Matrix     m_perspectiveMatrix;
+		Math::Matrix     m_orthographicMatrix;
 	};
 }

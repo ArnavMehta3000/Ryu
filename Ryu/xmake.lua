@@ -1,7 +1,9 @@
+-- Check if we want to do a unity build for all targets
 if has_config("ryu-unity-build") then
     add_rules("c++.unity_build")
 end
 
+-- Core Module
 target("RyuCore")
 	set_group("Ryu/Objects")
 	set_kind("object")
@@ -30,7 +32,7 @@ target("RyuCore")
 	end
 target_end()
 
-
+-- Application Module
 target("RyuApplication")
 	set_group("Ryu/Objects")
 	set_kind("object")
@@ -48,9 +50,9 @@ target("RyuApplication")
     add_options("ryu-enable-tracy-profiling", { public = true })
 
     add_links("Dwmapi")
-
 target_end()
 
+-- Math Module
 target("RyuMath")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -62,6 +64,7 @@ target("RyuMath")
 	add_deps("RyuCore", "SimpleMath")
 target_end()
 
+-- Threading Module
 target("RyuThreading")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -73,6 +76,7 @@ target("RyuThreading")
 	add_deps("RyuCore")
 target_end()
 
+-- Memory Module
 target("RyuMemory")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -96,6 +100,18 @@ target("RyuMemory")
 	end
 target_end()
 
+-- Asset module
+target("RyuAsset")
+	set_kind('object')
+	set_group("Ryu/Objects")
+
+	add_includedirs(".", { public = true })
+	add_headerfiles("Asset/**.h")
+
+	add_deps("RyuCore")
+target_end()
+
+-- Graphics Module
 target("RyuGraphics")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -119,6 +135,7 @@ target("RyuGraphics")
 	})
 target_end()
 
+-- Game Module
 target("RyuGame")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -128,10 +145,11 @@ target("RyuGame")
 	add_files("Game/Components/**.cpp", { unity_group = "GameComponents" })
 	add_headerfiles("Game/**.h")
 
-	add_deps("RyuCore", "RyuApplication", "RyuMath")
+	add_deps("RyuCore", "RyuApplication", "RyuMath", "RyuGraphics")
 	add_packages('entt', { public = true })
 target_end()
 
+-- Engine (also the module where the final linking step takes place)
 target("RyuEngine")
 	set_kind("static")
 	set_group("Ryu")

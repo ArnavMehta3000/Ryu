@@ -5,9 +5,10 @@ namespace Ryu::Asset
 {
     enum class AssetState
     {
-        Loading,
-        Ready,
-        Failed
+        Unloaded,  // Asset registered but not yet loaded
+        Loading,   // Asset is currently being loaded
+        Ready,     // Asset loaded and ready to use
+        Failed     // Asset failed to load
     };
 
     template<typename T>
@@ -19,6 +20,7 @@ namespace Ryu::Asset
         u32 Generation = 0;
 
         bool IsValid() const { return Id != INVALID_ID; }
+        operator bool() const { return IsValid(); }
         bool operator==(const AssetHandle&) const = default;
     };
 }

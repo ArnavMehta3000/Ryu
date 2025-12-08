@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <memory>
 #include <functional>
+#include <optional>
 
 namespace Ryu::Asset
 {
@@ -10,7 +11,7 @@ namespace Ryu::Asset
     template<typename T>
     struct AssetLoader
     {
-        using LoadFunc = std::unique_ptr<T>(*)(const fs::path&);
+        using LoadFunc = std::optional<std::unique_ptr<T>>(*)(const fs::path&);
         using UnloadFunc = void(*)(T*);
 
         LoadFunc Load     = nullptr;

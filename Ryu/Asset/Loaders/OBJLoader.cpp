@@ -36,11 +36,11 @@ namespace Ryu::Asset
 			{
 				Mesh::Material m;
 				m.Name                = mat.name;
-				std::copy(std::begin(mat.ambient), std::end(mat.ambient), m.Ambient);
-				std::copy(std::begin(mat.diffuse), std::end(mat.diffuse), m.Diffuse);
-				std::copy(std::begin(mat.specular), std::end(mat.specular), m.Specular);
-				std::copy(std::begin(mat.transmittance), std::end(mat.transmittance), m.Transmittance);
-				std::copy(std::begin(mat.emission), std::end(mat.emission), m.Emission);
+				m.Ambient             = { mat.ambient[0], mat.ambient[1], mat.ambient[2] };
+				m.Diffuse             = { mat.diffuse[0], mat.diffuse[1], mat.diffuse[2] };
+				m.Specular            = { mat.specular[0], mat.specular[1], mat.specular[2] };
+				m.Transmittance       = { mat.transmittance[0], mat.transmittance[1], mat.transmittance[2] };
+				m.Emission            = { mat.emission[0], mat.emission[1], mat.emission[2] };
 				m.Shininess           = mat.shininess;
 				m.Ior                 = mat.ior;
 				m.Dissolve            = mat.dissolve;
@@ -71,10 +71,8 @@ namespace Ryu::Asset
 
 			return mesh;
 		}
-		else
-		{
-			std::nullopt;
-		}
+
+		return std::nullopt;
 	}
 
 	void OBJLoader::Unload(Mesh* mesh)

@@ -106,9 +106,10 @@ target("RyuAsset")
 	set_group("Ryu/Objects")
 
 	add_includedirs(".", { public = true })
+	add_files("Asset/**.cpp", { unity_group = "Asset" })
 	add_headerfiles("Asset/**.h")
 
-	add_deps("RyuCore")
+	add_deps("RyuCore", "STB", { public = true })
 target_end()
 
 -- Graphics Module
@@ -125,7 +126,7 @@ target("RyuGraphics")
 	add_files("Graphics/Shaders/**.hlsl")
 	add_rules("HLSLShader", { root = "Engine" })
 
-	add_deps("RyuCore", "RyuMath", "ImGui")
+	add_deps("RyuCore", "RyuMath", "RyuAsset", "ImGui")
 	add_packages("directx-headers", "directxshadercompiler", { public = true })
 
 	add_rules("EnumToHeader", {
@@ -145,7 +146,7 @@ target("RyuGame")
 	add_files("Game/Components/**.cpp", { unity_group = "GameComponents" })
 	add_headerfiles("Game/**.h")
 
-	add_deps("RyuCore", "RyuApplication", "RyuMath", "RyuGraphics")
+	add_deps("RyuCore", "RyuApplication", "RyuMath", "RyuAsset", "RyuGraphics")
 	add_packages('entt', { public = true })
 target_end()
 
@@ -163,6 +164,7 @@ target("RyuEngine")
 		"RyuApplication",
 		"RyuMath",
 		"RyuGame",
+		"RyuAsset",
 		"RyuThreading",
 		"RyuMemory",
 		"RyuGraphics",

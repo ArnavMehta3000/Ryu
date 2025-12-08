@@ -3,6 +3,7 @@
 #include "Utils/Singleton.h"
 #include "Utils/ServiceLocator.h"
 #include "Event/ListenerHandle.h"
+#include "Asset/ResourceManager.h"
 #include "Graphics/Renderer.h"
 
 namespace Ryu::Engine
@@ -32,8 +33,9 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		std::shared_ptr<App::App>      m_app;
-		std::unique_ptr<Gfx::Renderer> m_renderer;
+		std::shared_ptr<App::App>               m_app;
+		std::unique_ptr<Gfx::Renderer>          m_renderer;
+		std::unique_ptr<Asset::ResourceManager> m_resourceManager;
 
 		Event::ListenerHandle m_resizeListener;
 		Event::ListenerHandle m_closeListener;

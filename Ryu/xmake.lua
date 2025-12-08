@@ -109,7 +109,7 @@ target("RyuAsset")
 	add_files("Asset/**.cpp", { unity_group = "Asset" })
 	add_headerfiles("Asset/**.h")
 
-	add_deps("RyuCore", "STB", { public = true })
+	add_deps("RyuCore", "STB", "TinyOBJ", { public = true })
 target_end()
 
 -- Graphics Module

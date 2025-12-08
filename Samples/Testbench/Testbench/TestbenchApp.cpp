@@ -90,7 +90,7 @@ void TestbenchApp::TestSerialization()
 	});
 	root.insert("entities", std::move(entitiesArray));
 
-	auto outDir = Ryu::App::PathManager::Get().GetProjectDir() / "saved.toml";
-	std::ofstream out(outDir.string());
-	out << root;
+	//auto outDir = Ryu::App::PathManager::Get().GetProjectDir() / "saved.toml";
+	//std::ofstream out(outDir.string());
+	//out << root;
 }

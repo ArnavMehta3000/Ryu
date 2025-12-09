@@ -8,6 +8,9 @@ set_version("0.0.3", {build = "%Y%m%d%H%M"})
 -- Set C/C++ language version
 set_languages("c17", "cxx23")
 
+-- Add my package repository
+add_repositories("Elos https://github.com/ArnavMehta3000/My-Packages.git")
+
 -- Include other xmake scripts
 add_moduledirs("Xmake/Modules")
 add_plugindirs("Xmake/Plugins")

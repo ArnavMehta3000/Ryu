@@ -15,6 +15,9 @@ namespace Ryu::Gfx
 		m_device = std::make_unique<Device>(window);
 		m_device->Initialize();
 
+		const auto [w, h] = m_device->GetClientSize();
+		m_camera.SetViewportSize((f32)w, (f32)h);
+
 		CreateResources();
 
 #if defined(RYU_WITH_EDITOR)
@@ -78,17 +81,17 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		static std::string_view shaderFile = R"(Shaders\Engine\Triangle.hlsl)";
+		static std::string_view shaderFile = R"(Shaders\Engine\Cube.hlsl)";
 		ShaderCompileInfo info
 		{
 			.FilePath = shaderFile,
 			.Type     = ShaderType::VertexShader,
-			.Name     = "TriangleVS"
+			.Name     = "CubeVS"
 		};
 
 		m_vs = Shader::Compile(info);
 
-		info.Name = "TrianglePS";
+		info.Name = "CubePS";
 		info.Type = ShaderType::PixelShader;
 		m_ps      = Shader::Compile(info);
 
@@ -194,6 +197,8 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
+		m_camera.Update(0.1f);  // Fake deltaTime
+
 		CommandList* cmdList  = m_device->GetGraphicsCommandList();
 		const Texture* renderTarget = m_device->GetCurrentBackBuffer();
 
@@ -218,10 +223,19 @@ namespace Ryu::Gfx
 
 		if (ConstantBuffer* mappedData = m_constantBuffer->Map<ConstantBuffer>())
 		{
-			t += 0.01f; 
-			m_cbData.OffsetX = std::clamp(std::sinf(t), -0.5f, 0.5f);
-			m_cbData.OffsetY = std::clamp(std::cosf(t), -0.5f, 0.5f);
+			t += 0.1f; 
+			const f32 rad = DirectX::XMConvertToRadians(t);
 
+			const Math::Matrix scale = Math::Matrix::CreateScale(1.0f, 1.0f, 1.0f);
+			
+			Math::Matrix rotation = Math::Matrix::CreateRotationX(rad)
+				* Math::Matrix::CreateRotationY(rad)
+				* Math::Matrix::CreateRotationZ(rad);
+
+			Math::Matrix translation = Math::Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
+			Math::Matrix world = scale * rotation * translation;
+
+			m_cbData.WVP = (world * m_camera.GetViewProjectionMatrix()).Transpose();
 			std::memcpy(mappedData, &m_cbData, sizeof(ConstantBuffer));
 		}
 
@@ -249,5 +263,6 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 		m_device->ResizeBuffers(w, h);
+		m_camera.SetViewportSize((f32)w, (f32)h);
 	}
 }

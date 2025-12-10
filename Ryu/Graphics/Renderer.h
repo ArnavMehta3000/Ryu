@@ -4,6 +4,7 @@
 #include "Graphics/Core/GfxPipelineState.h"
 #include "Graphics/Core/GfxShader.h"
 #include "Graphics/Core/GfxBuffer.h"
+#include "Graphics/Camera.h"
 
 namespace Ryu::Gfx
 {
@@ -11,8 +12,7 @@ namespace Ryu::Gfx
 
 	struct ConstantBuffer
 	{
-		f32 OffsetX;
-		f32 OffsetY;
+		Math::Matrix WVP;
 	};
 
 	class Renderer
@@ -42,6 +42,7 @@ namespace Ryu::Gfx
 		std::unique_ptr<Buffer>         m_constantBuffer;
 		std::unique_ptr<DescriptorHeap> m_cbvHeap;
 
+		Camera                          m_camera;
 		ConstantBuffer                  m_cbData{};
 		Shader                          m_vs;
 		Shader                          m_ps;

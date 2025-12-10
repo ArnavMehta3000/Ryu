@@ -74,6 +74,12 @@ namespace Ryu::Gfx
 		m_cmdList->IASetVertexBuffers(slot, 1, &view);
 	}
 
+	void CommandList::SetIndexBuffer(const Buffer& buffer) const
+	{
+		const auto view = buffer.GetIndexBufferView();
+		m_cmdList->IASetIndexBuffer(&view);
+	}
+
 	void CommandList::SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology) const
 	{
 		m_cmdList->IASetPrimitiveTopology(topology);

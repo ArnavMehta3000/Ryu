@@ -26,6 +26,7 @@ namespace Ryu::Gfx
 		void SetRenderTarget(const DescriptorHandle& rtv, const DescriptorHandle& dsv) const;
 		void SetRenderTargets(std::span<const DescriptorHandle> rtv, const DescriptorHandle& dsv) const;
 		void SetVertexBuffer(u32 slot, const Buffer& buffer) const;
+		void SetIndexBuffer(const Buffer& buffer) const;
 		void SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology) const;
 		void SetGraphicsRootSignature(const RootSignature& rootSignature) const;
 		void SetDescriptorHeap(const DescriptorHeap& heap) const;

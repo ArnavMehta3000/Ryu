@@ -31,6 +31,7 @@ namespace Ryu::Gfx
 			u32 StrideInBytes   = 0;  // For structured buffers, index buffers, vertex buffers
 			Buffer::Usage Usage = Buffer::Usage::Default;
 			Buffer::Type Type   = Buffer::Type::Vertex;
+			DXGI_FORMAT Format  = DXGI_FORMAT_UNKNOWN;  // For index buffers
 			std::string Name;
 		};
 

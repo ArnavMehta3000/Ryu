@@ -66,11 +66,14 @@ namespace Ryu::Gfx
 	{
 		RYU_ASSERT(m_desc.Type == Buffer::Type::Index, "Buffer is not an index buffer");
 
+		// Use stored format if available, otherwise fall back to parameter
+		DXGI_FORMAT finalFormat = (m_desc.Format != DXGI_FORMAT_UNKNOWN) ? m_desc.Format : format;
+
 		return D3D12_INDEX_BUFFER_VIEW
 		{
 			.BufferLocation = m_gpuAddress,
 			.SizeInBytes    = static_cast<u32>(m_desc.SizeInBytes),
-			.Format         = format
+			.Format         = finalFormat
 		};
 	}
 

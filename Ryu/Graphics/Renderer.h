@@ -30,6 +30,7 @@ namespace Ryu::Gfx
 		void CompileShaders();
 		void CreatePipelineState();
 		void CreateConstantBuffer();
+		void CreateMeshBuffers();
 
 	private:
 		IRendererHook*                  m_hook;
@@ -37,6 +38,7 @@ namespace Ryu::Gfx
 		std::unique_ptr<RootSignature>  m_rootSignature;
 		std::unique_ptr<PipelineState>  m_pipelineState;
 		std::unique_ptr<Buffer>         m_vertexBuffer;
+		std::unique_ptr<Buffer>         m_indexBuffer;
 		std::unique_ptr<Buffer>         m_constantBuffer;
 		std::unique_ptr<DescriptorHeap> m_cbvHeap;
 

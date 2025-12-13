@@ -15,7 +15,7 @@ rule("HLSLShader")
         local dest_file = path.join(shader_output_dir, relative_path)
 
         depend.on_changed(function ()
-        	progress.show(opt.progress, "${color.build.object}Copying shader %s", sourcefile)
+        	progress.show(opt.progress, "${color.build.target}Copying shader %s", sourcefile)
 	        os.cp(sourcefile, dest_file)
         end,
         {

@@ -112,6 +112,16 @@ target("RyuAsset")
 	add_deps("RyuCore", "STB", "TinyOBJ", { public = true })
 target_end()
 
+-- Shaders Module
+target("RyuShaders")
+	set_kind('object')
+	set_group("Ryu/Objects")
+	add_files("Shaders/Triangle.hlsl", { rule = "RyuOfflineShader", type = { "VS", "PS" }, refl = true })
+	add_files("Shaders/Cube.hlsl", { rule = "RyuOfflineShader", type = { "VS", "PS" }, refl = true })
+
+	add_deps("DXC", { public = true })
+target_end()
+
 -- Graphics Module
 target("RyuGraphics")
 	set_kind('object')
@@ -126,7 +136,7 @@ target("RyuGraphics")
 	add_files("Graphics/Shaders/**.hlsl")
 	add_rules("HLSLShader", { root = "Engine" })
 
-	add_deps("RyuCore", "RyuMath", "RyuAsset", "ImGui")
+	add_deps("RyuCore", "RyuShaders", "RyuMath", "RyuAsset", "ImGui")
 	add_packages("directx-headers", "directxshadercompiler", { public = true })
 
 	add_rules("EnumToHeader", {

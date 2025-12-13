@@ -20,6 +20,7 @@ includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/RyuGame.lua")
 includes("Xmake/Rules/EnumToHeader.lua")
 includes("Xmake/Rules/HLSLShader.lua")
+includes("Xmake/Rules/RyuShader.lua")
 
 -- Update compile commands
 add_rules("plugin.compile_commands.autoupdate", { outputdir = ".", lsp = "clangd" })
@@ -66,6 +67,9 @@ add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 
 -- Add rule to export shared library
 add_rules("ExportAPI")
+
+-- Build editor
+set_config("ryu-build-with-editor", true)
 
 -- Include xmake projects
 includes("**/xmake.lua")

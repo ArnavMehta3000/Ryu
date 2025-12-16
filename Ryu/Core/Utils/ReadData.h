@@ -5,10 +5,13 @@
 #include <fstream>
 #include <vector>
 #include <optional>
+#include <filesystem>
 
 namespace Ryu::Utils
 {
-    inline std::optional<std::vector<byte>> ReadData(const wchar_t* name)
+	namespace fs = std::filesystem;
+
+    inline std::optional<std::vector<byte>> ReadData(const fs::path& name)
     {
         std::ifstream inFile(name, std::ios::in | std::ios::binary | std::ios::ate);
 
@@ -32,7 +35,7 @@ namespace Ryu::Utils
         	return std::nullopt;
         }
 
-        inFile.read(reinterpret_cast<byte*>(blob.data()), len);
+        inFile.read(reinterpret_cast<char*>(blob.data()), len);
         if (!inFile)
         {
         	return std::nullopt;

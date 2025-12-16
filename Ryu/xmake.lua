@@ -3,7 +3,7 @@ if has_config("ryu-unity-build") then
     add_rules("c++.unity_build")
 end
 
--- Core Module
+-------------------- Core Module --------------------
 target("RyuCore")
 	set_group("Ryu/Objects")
 	set_kind("object")
@@ -17,7 +17,7 @@ target("RyuCore")
 
 	add_packages(
 		"spdlog", "uuid_v4", "Elos",
-	 	"toml++", "cli11", { public = true })
+	 	"toml++", "cli11", "efsw", { public = true })
 
     add_options("ryu-log-level", "ryu-enable-tracy-profiling", { public = true })
 
@@ -32,7 +32,7 @@ target("RyuCore")
 	end
 target_end()
 
--- Application Module
+-------------------- Application Module --------------------
 target("RyuApplication")
 	set_group("Ryu/Objects")
 	set_kind("object")
@@ -52,7 +52,7 @@ target("RyuApplication")
     add_links("Dwmapi")
 target_end()
 
--- Math Module
+-------------------- Math Module --------------------
 target("RyuMath")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -64,7 +64,7 @@ target("RyuMath")
 	add_deps("RyuCore", "SimpleMath")
 target_end()
 
--- Threading Module
+-------------------- Threading Module --------------------
 target("RyuThreading")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -76,7 +76,7 @@ target("RyuThreading")
 	add_deps("RyuCore")
 target_end()
 
--- Memory Module
+-------------------- Memory Module --------------------
 target("RyuMemory")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -100,7 +100,7 @@ target("RyuMemory")
 	end
 target_end()
 
--- Asset module
+-------------------- Asset module --------------------
 target("RyuAsset")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -112,7 +112,7 @@ target("RyuAsset")
 	add_deps("RyuCore", "STB", "TinyOBJ", { public = true })
 target_end()
 
--- Shaders Module
+-------------------- Shaders Module --------------------
 target("RyuShaders")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -122,7 +122,7 @@ target("RyuShaders")
 	add_deps("DXC", { public = true })
 target_end()
 
--- Graphics Module
+-------------------- Graphics Module --------------------
 target("RyuGraphics")
 	set_kind('object')
 	set_group("Ryu/Objects")
@@ -146,7 +146,7 @@ target("RyuGraphics")
 	})
 target_end()
 
--- Game Module
+-------------------- Game Module --------------------
 target("RyuGame")
 	set_kind('object')
 	set_group("Ryu/Objects")

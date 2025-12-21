@@ -44,13 +44,3 @@ target("TinyOBJ")
 	add_files("External/TinyOBJ/*.cpp")
 	add_includedirs(".", { public = true })
 target_end()
-
-target("DXC")
-	set_group("Ryu/External")
-	set_kind("headeronly")
-
-	add_linkdirs("External/DXC/lib", { public = true })
-	add_links("dxil", "dxcompiler", { public = true })
-	add_headerfiles("External/DXC/inc/**.h")
-	add_includedirs("External/DXC/inc/", { public = true })
-target_end()

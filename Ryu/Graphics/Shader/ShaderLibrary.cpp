@@ -50,7 +50,7 @@ namespace Ryu::Gfx
 						.Name           = basePath.stem().string()  // The name is the filename without the extension
 					};
 
-					RYU_LOG_TRACE("Found precompiled shader ({})", info.SourcePath.string());
+					RYU_LOG_TRACE("Found precompiled shader ({})", basePath.filename().string());
 					precompiledShaders.emplace_back(info);
 				}
 			}
@@ -81,8 +81,11 @@ namespace Ryu::Gfx
 			shader.m_reflectionBlob.Attach(result.ReflectionBlob.Detach());
 			
 			// Add to shader map
-			ShaderKey key{.Name = result.Name, .Type = shader.GetType() };
-			m_shaders[key] = std::move(shader);
+			if (m_shaders.contains(shader.m_name))
+			{
+				RYU_LOG_WARN("Shader with name {} already exists. Overwriting", info.Name);
+			}
+			m_shaders[shader.m_name] = std::move(shader);
 
 			return true;
 		}
@@ -94,10 +97,9 @@ namespace Ryu::Gfx
 		return false;
 	}
 
-	Shader* ShaderLibrary::GetShader(const std::string& name, ShaderType type)
+	Shader* ShaderLibrary::GetShader(const std::string& name)
 	{
-		ShaderKey key{.Name = name, .Type = type };
-		return m_shaders.contains(key) ? &m_shaders[key] : nullptr;		
+		return m_shaders.contains(name) ? &m_shaders[name] : nullptr;		
 	}
 	
 	void ShaderLibrary::StorePrecompiledShaders(std::span<PrecompiledShaderInfo> infos)
@@ -144,8 +146,11 @@ namespace Ryu::Gfx
 				}
 				
 				// Add to shader map
-				ShaderKey key{.Name = info.Name, .Type = shader.GetType() };
-				m_shaders[key] = std::move(shader);
+				if (m_shaders.contains(shader.m_name))
+				{
+					RYU_LOG_WARN("Shader with name {} already exists. Overwriting", info.Name);
+				}
+				m_shaders[shader.m_name] = std::move(shader);
 			}
 		}
 	}

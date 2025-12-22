@@ -12,28 +12,7 @@ namespace Ryu::Gfx
 	class ShaderLibrary
 	{
 	public:
-		// Maybe the key can only be the name since the type of the shader is embedded into the name?
-		struct ShaderKey
-		{
-			std::string Name;
-			ShaderType Type;
-
-			struct Hasher
-			{
-				std::size_t operator()(const ShaderKey& key) const
-				{
-					const std::size_t h1 = std::hash<std::string>{}(key.Name);
-					const std::size_t h2 = std::hash<std::underlying_type_t<Ryu::Gfx::ShaderType>>{}(
-						static_cast<std::underlying_type_t<Ryu::Gfx::ShaderType>>(key.Type));
-
-					return h1 ^ (h2 << 1);  // Combine the two hash values
-				}
-			};
-
-			auto operator <=> (const ShaderKey& other) const = default;
-		};
-
-		using ShaderMap = std::unordered_map<ShaderKey, Shader, ShaderKey::Hasher>;
+		using ShaderMap = std::unordered_map<std::string, Shader>;
 
 	public:
 		ShaderLibrary(const fs::path& precompiledPath);
@@ -41,7 +20,7 @@ namespace Ryu::Gfx
 		// Uses the shader compiler to compile at runtime
 		bool Compile(const ShaderCompileInfo& info);
 
-		Shader* GetShader(const std::string& name, ShaderType type);
+		Shader* GetShader(const std::string& name);
 
 		u64 GetShaderCount() const { return m_shaders.size(); }
 		auto begin() { return m_shaders.begin(); }

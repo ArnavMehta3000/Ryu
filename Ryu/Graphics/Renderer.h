@@ -4,11 +4,13 @@
 #include "Graphics/Core/GfxPipelineState.h"
 #include "Graphics/Core/GfxShader.h"
 #include "Graphics/Core/GfxBuffer.h"
+#include "Graphics/Shader/ShaderLibrary.h"
 #include "Graphics/Camera.h"
 
 namespace Ryu::Gfx
 {
 	class IRendererHook;
+	class ShaderLibrary;
 
 	struct ConstantBuffer
 	{
@@ -33,6 +35,7 @@ namespace Ryu::Gfx
 		void CreateMeshBuffers();
 
 	private:
+		ShaderLibrary                   m_shaderLibrary;
 		IRendererHook*                  m_hook;
 		std::unique_ptr<Device>         m_device;
 		std::unique_ptr<RootSignature>  m_rootSignature;

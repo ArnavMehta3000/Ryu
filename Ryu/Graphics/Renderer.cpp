@@ -4,14 +4,12 @@
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Graphics/Primitives/Cube.h"
 #include "Profiling/Profiling.h"
-#include "Graphics/Shader/ShaderLibrary.h"
 
 namespace Ryu::Gfx
 {
-	ShaderLibrary g_shaderLibrary("./Shaders/Compiled");
-
 	Renderer::Renderer(HWND window, IRendererHook* hook)
 		: m_hook(hook)
+		, m_shaderLibrary("./Shaders/Compiled")
 	{
 		RYU_PROFILE_SCOPE();
 
@@ -85,12 +83,12 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		if (Shader* vs = g_shaderLibrary.GetShader("CubeVS", ShaderType::VertexShader))
+		if (Shader* vs = m_shaderLibrary.GetShader("CubeVS"))
 		{
 			m_vs = vs;
 		}
 
-		if (Shader* ps = g_shaderLibrary.GetShader("CubePS", ShaderType::PixelShader))
+		if (Shader* ps = m_shaderLibrary.GetShader("CubePS"))
 		{
 			m_ps = ps;
 		}

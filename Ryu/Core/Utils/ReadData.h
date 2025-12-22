@@ -11,7 +11,9 @@ namespace Ryu::Utils
 {
 	namespace fs = std::filesystem;
 
-    inline std::optional<std::vector<byte>> ReadData(const fs::path& name)
+    using ReadDataResult = std::optional<std::vector<byte>>;
+
+    inline ReadDataResult ReadData(const fs::path& name)
     {
         std::ifstream inFile(name, std::ios::in | std::ios::binary | std::ios::ate);
 

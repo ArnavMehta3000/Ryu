@@ -44,7 +44,7 @@ namespace Ryu::Gfx
 
 		Camera                          m_camera;
 		ConstantBuffer                  m_cbData{};
-		Shader                          m_vs;
-		Shader                          m_ps;
+		Shader*                         m_vs;
+		Shader*                         m_ps;
 	};
 }

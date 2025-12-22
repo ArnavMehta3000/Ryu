@@ -1,35 +1,45 @@
 #pragma once
 #include "Graphics/Core/DX12.h"
-#include "Graphics/ShaderType.h"
+#include "Graphics/Shader/ShaderType.h"
 #include <memory>
+#include <filesystem>
 #include <dxcapi.h>
+
 
 namespace Ryu::Gfx
 {
+	namespace fs = std::filesystem;
 	struct ShaderCompileInfo;
+
+	extern ShaderType GetShaderTypeFromName(std::string_view name);
 
 	class Shader
 	{
+		friend class ShaderLibrary;
 	public:
 		using Blob = IDxcBlob;
+		enum class CompilationSource { Precompiled, RuntimeCompiled };
 
-		static Shader Compile(const ShaderCompileInfo& compileInfo);
+		Shader() = default;
+		~Shader() = default;
+		Shader(Shader&& other) noexcept;
+		Shader(const Shader& other);
 
 		[[nodiscard]] inline bool IsValid() const { return m_blob != nullptr; }
 
 		[[nodiscard]] inline ShaderType GetType() const { return m_type; }
 		[[nodiscard]] inline std::string_view GetName() const { return m_name; }
-		[[nodiscard]] inline std::string_view GetSourcePath() const { return m_sourcePath; }
-		[[nodiscard]] inline std::string_view GetCompiledPath() const { return m_compiledPath; }
 		[[nodiscard]] inline Blob* GetBlob() const { return m_blob.Get(); }
-		[[nodiscard]] inline Blob* GetReflection() const { return m_reflection.Get(); }
+		[[nodiscard]] inline Blob* GetReflection() const { return m_reflectionBlob.Get(); }
+
+		Shader& operator=(Shader&& other) noexcept;
+		Shader& operator=(const Shader& other);
 
 	private:
-		ShaderType m_type;
-		std::string m_name;
-		std::string m_sourcePath;
-		std::string m_compiledPath;
-		ComPtr<IDxcBlob> m_blob = nullptr;
-		ComPtr<IDxcBlob> m_reflection = nullptr;
+		std::string       m_name;
+		ShaderType        m_type = ShaderType::VertexShader;
+		CompilationSource m_source = CompilationSource::Precompiled;
+		ComPtr<IDxcBlob>  m_blob;
+		ComPtr<IDxcBlob>  m_reflectionBlob;
 	};
 }

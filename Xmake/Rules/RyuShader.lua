@@ -8,17 +8,11 @@ How to use options:
 rule("RyuOfflineShader")
 	set_extensions(".hlsl", ".hlsli")
 
-	on_load(function (target)
-		-- Add rule-level dependency on shader files
-		target:add("deps", "RyuOfflineShader")
-	end)
-
 	on_build_file(function (target, sourcefile, opt)
 		import("lib.detect.find_tool")
 		import("core.project.depend")
 
-		local dxcSearchPath = path.join(os.projectdir(), "External", "External", "DXC", "bin")
-		local dxc = find_tool("dxc", { check = "--help", paths = dxcSearchPath })
+		local dxc = find_tool("dxc", { check = "--help" })
 
 		if dxc == nil then
 			cprint("${bright red}[RyuShader] DXC not found. Failed to compile %s", sourcefile)
@@ -29,7 +23,9 @@ rule("RyuOfflineShader")
 		local types = config and config.type or {}
 
 		local basename = path.basename(sourcefile)
-		local outputdir = path.join(target:targetdir(), "Compiled")
+		
+		-- If this is changed, then ensure the path is changed on the on_clean function as well
+		local outputdir = path.join(target:targetdir(), "Shaders", "Compiled")  -- 
 
 		-- Map shader types to profiles
 		local shaderProfiles =
@@ -59,7 +55,6 @@ rule("RyuOfflineShader")
 
 			-- Create output directories if they don't exist
 			os.mkdir(outputdir)
-			os.mkdir(path.join(outputdir, "Logs"))
 
 			depend.on_changed(function()
 				cprint("${cyan}[RyuShader] Compiling %s (%s)...", basename, shaderType)
@@ -71,7 +66,7 @@ rule("RyuOfflineShader")
 					"-E", entryPoint,
 					"-Fo", outputFile,
 					"-WX",  -- Warnings as errors
-					"-Vd",  -- Disable validation
+					--"-Vd",  -- Disable validation
 					"-ftime-report", -- Time report
 					"-I", path.join(os.scriptdir(), "Shaders"),
 					sourcefile
@@ -104,43 +99,35 @@ rule("RyuOfflineShader")
 				end
 
 				-- Run DXC
-				finalArgs = args
-				local outfile = path.join(outputdir, "Logs", outFileName .. ".log")
-				local errfile = path.join(outputdir, "Logs", outFileName .. ".err")
+				local outdata, errdata = os.iorunv(dxc.program, args)
 
-				os.execv(dxc.program, args, { stdout = outfile, stderr = errfile })
-
-				if os.isfile(errfile) then
-					local errContent = io.readfile(errfile)
-					if errContent and #errContent > 0 then
-						cprint("${bright red}[RyuShader] Compilation failed: %s", sourcefile)
-						print(errContent)
-						os.raise("Shader compilation failed")
-					else
-						cprint("${green}[RyuShader] Success: %s", outFileName .. ".cso")
+				if errdata ~= nil and errdata ~= "" then
+					cprint("${bright yellow}[RyuShader] Compilation message: %s", sourcefile)
+					print(errdata)
+					
+					-- Fail if we have an error
+					if string.find(errdata, "error") then
+						os.raise()
 					end
-					else
-					cprint("${green}[RyuShader] Success: %s", outFileName .. ".cso")
 				end
-
 			 end, { dependfile = dependfile, files = dependFileList, values = { config, target:get("mode") }})
 		end
 	end)
 
 	on_clean(function (target)
-	    local outputdir = path.join(target:targetdir(), "Compiled")
+	    local outputdir = path.join(target:targetdir(), "Shaders", "Compiled")  -- Same file path as ShaderCompiler.cpp
 
 	    -- Remove compiled shader outputs
 	    if os.isdir(outputdir) then
 	        os.rm(outputdir)
-	        -- cprint("${yellow}[RyuShader] Cleaned compiled shaders")
+	        cprint("${yellow}[RyuShader] Cleaned compiled shaders")
 	    end
 
 	    -- Remove dependency cache files
-	    local buildCache = path.join(target:targetdir(), "BuildCache")
+	    local buildCache = path.join(target:dependdir(), "BuildCache")
 	    if os.isdir(buildCache) then
 	        os.rm(buildCache)
-	        -- cprint("${yellow}[RyuShader] Cleaned dependency cache")
+	        cprint("${yellow}[RyuShader] Cleaned dependency cache")
 	    end
 	end)
 rule_end()

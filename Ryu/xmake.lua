@@ -128,11 +128,13 @@ target("RyuGraphics")
 	add_includedirs(".", { public = true })
 	add_files("Graphics/*.cpp", { unity_group = "Graphics" })
 	add_files("Graphics/Core/**.cpp", { unity_group = "GraphicsCore" })
+	add_files("Graphics/Shader/*.cpp", { unity_group = "GraphicsShader" })
 	add_files("Graphics/Compiler/*.cpp", { unity_group = "GraphicsCompiler" })
 	add_headerfiles("Graphics/**.h")
 
-	add_files("Graphics/Shaders/**.hlsl")
-	add_rules("HLSLShader", { root = "Engine" })
+	-- Old HLSL shder rule
+	-- add_files("Graphics/Shaders/**.hlsl")
+	-- add_rules("HLSLShader", { root = "Engine" })
 
 	add_deps("RyuCore", "RyuShaders", "RyuMath", "RyuAsset", "ImGui")
 	add_packages("directx-headers", "directxshadercompiler", { public = true })

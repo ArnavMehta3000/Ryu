@@ -1,32 +1,54 @@
 #include "Graphics/Core/GfxShader.h"
-#include "Graphics/Compiler/ShaderCompiler.h"
 
 namespace Ryu::Gfx
 {
-	Shader Shader::Compile(const ShaderCompileInfo& compileInfo)
+	ShaderType GetShaderTypeFromName(std::string_view name)
 	{
-		static ShaderCompiler compiler;
+		//The last 2 letters of the name are the shader type
+		const std::string_view text = name.substr(name.size() - 2);
 
-		if (auto compileResult = compiler.Compile(compileInfo))
-		{
-			ShaderCompileResult& result = compileResult.value();
+		if (text == "VS") return ShaderType::VertexShader;
+		if (text == "HS") return ShaderType::HullShader;
+		if (text == "DS") return ShaderType::DomainShader;
+		if (text == "GS") return ShaderType::GeometryShader;
+		if (text == "PS") return ShaderType::PixelShader;
+		if (text == "CS") return ShaderType::ComputeShader;
 
-			Shader shader;
-			
-			shader.m_type         = compileInfo.Type;
-			shader.m_name         = compileInfo.Name;
-			shader.m_sourcePath   = compileInfo.FilePath.string();
-			shader.m_compiledPath = result.CSOPath.string();
-			shader.m_blob         = result.ShaderBlob;
-			shader.m_reflection   = result.ReflectionBlob;
+		RYU_LOG_ERROR("Trying to load precompiled shaders, unknown shader type ({}) extracted from name", text);
+		return ShaderType::VertexShader;
+	}
 
-			return shader;
-		}
-		else
-		{
-			RYU_LOG_ERROR("Failed to compile shader: {}", compileInfo.FilePath.string());
-		}
+	Shader::Shader(Shader&& other) noexcept
+		: m_type(other.m_type)
+		, m_name(other.m_name)
+	{
+		m_blob.Swap(other.m_blob);
+		m_reflectionBlob.Swap(other.m_reflectionBlob);
+	}
 
-		return Shader();
+	Shader::Shader(const Shader& other)
+		: m_type(other.m_type)
+		, m_name(other.m_name)
+		, m_blob(other.m_blob)
+		, m_reflectionBlob(other.m_reflectionBlob)
+	{
+	}
+
+	Shader& Shader::operator=(Shader&& other) noexcept
+	{
+		m_type = other.m_type;
+		m_name = other.m_name;
+		m_blob = other.m_blob.Detach();
+		m_reflectionBlob = other.m_reflectionBlob.Detach();
+		return *this;
+	}
+
+	Shader& Shader::operator=(const Shader& other)
+	{
+		m_type = other.m_type;
+		m_name = other.m_name;
+		m_blob = other.m_blob;
+		m_reflectionBlob = other.m_reflectionBlob;
+		return *this;
 	}
 }

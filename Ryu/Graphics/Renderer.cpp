@@ -4,9 +4,12 @@
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Graphics/Primitives/Cube.h"
 #include "Profiling/Profiling.h"
+#include "Graphics/Shader/ShaderLibrary.h"
 
 namespace Ryu::Gfx
 {
+	ShaderLibrary g_shaderLibrary("./Shaders/Compiled");
+
 	Renderer::Renderer(HWND window, IRendererHook* hook)
 		: m_hook(hook)
 	{
@@ -17,6 +20,7 @@ namespace Ryu::Gfx
 
 		const auto [w, h] = m_device->GetClientSize();
 		m_camera.SetViewportSize((f32)w, (f32)h);
+
 
 		CreateResources();
 
@@ -81,22 +85,18 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		static std::string_view shaderFile = R"(Shaders\Engine\Cube.hlsl)";
-		ShaderCompileInfo info
+		if (Shader* vs = g_shaderLibrary.GetShader("CubeVS", ShaderType::VertexShader))
 		{
-			.FilePath = shaderFile,
-			.Type     = ShaderType::VertexShader,
-			.Name     = "CubeVS"
-		};
+			m_vs = vs;
+		}
 
-		m_vs = Shader::Compile(info);
+		if (Shader* ps = g_shaderLibrary.GetShader("CubePS", ShaderType::PixelShader))
+		{
+			m_ps = ps;
+		}
 
-		info.Name = "CubePS";
-		info.Type = ShaderType::PixelShader;
-		m_ps      = Shader::Compile(info);
-
-		RYU_ASSERT(m_vs.IsValid(), "Failed to compile vertex shader!");
-		RYU_ASSERT(m_ps.IsValid(), "Failed to compile pixel shader!");
+		RYU_ASSERT(m_vs->IsValid(), "Failed to compile vertex shader!");
+		RYU_ASSERT(m_ps->IsValid(), "Failed to compile pixel shader!");
 	}
 
 	void Renderer::CreatePipelineState()
@@ -109,8 +109,8 @@ namespace Ryu::Gfx
 			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT , D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
 
-		Shader::Blob* const vsBlob = m_vs.GetBlob();
-		Shader::Blob* const psBlob = m_ps.GetBlob();
+		Shader::Blob* const vsBlob = m_vs->GetBlob();
+		Shader::Blob* const psBlob = m_ps->GetBlob();
 
 		struct PipelineStateStream
 		{

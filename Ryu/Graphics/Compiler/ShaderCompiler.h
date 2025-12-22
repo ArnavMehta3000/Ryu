@@ -1,8 +1,9 @@
 #pragma once
 #include "Graphics/Core/DX12.h"
-#include "Graphics/ShaderType.h"
-#include <dxcapi.h>
+#include "Graphics/Shader/ShaderType.h"
+#include "Utils/Singleton.h"
 #include <filesystem>
+#include <dxcapi.h>
 
 namespace Ryu::Gfx
 {
@@ -27,8 +28,9 @@ namespace Ryu::Gfx
 	};
 
 	RYU_TODO("Implement shader hot reloading");
-	class ShaderCompiler
+	class ShaderCompiler : public Utils::Singleton<ShaderCompiler>
 	{
+		RYU_SINGLETON_DECLARE(ShaderCompiler);
 		RYU_DISABLE_COPY_AND_MOVE(ShaderCompiler)
 
 	public:
@@ -40,6 +42,8 @@ namespace Ryu::Gfx
 
 		VoidResult CompileFromFile(const ShaderCompileInfo& info);
 		Result<ShaderCompileResult> Compile(const ShaderCompileInfo& info);
+
+		IDxcUtils* GetUtils() const { return m_utils.Get(); }
 
 	private:
 		ComPtr<IDxcCompilerArgs> MakeCompilerArgs(const ShaderCompileInfo& info);

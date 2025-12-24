@@ -28,7 +28,6 @@ namespace Ryu::Gfx
 
 	private:
 		void CreateResources();
-		void CreateRootSignature();
 		void CompileShaders();
 		void CreatePipelineState();
 		void CreateConstantBuffer();

@@ -46,10 +46,15 @@ namespace Ryu::Gfx
 					{
 						.SourcePath     = basePath,
 						.ReflectionPath = fs::path(basePath).replace_extension(reflectionExtension),
-						.RootSigPath    = fs::path(basePath).replace_extension(rootSignatureExtension),
 						.Name           = basePath.stem().string()  // The name is the filename without the extension
 					};
 
+					// The root signature file does not have the shader type appended to it
+					// Eg. CubeVS.cso will have Cube.rootsig
+
+					std::string nameIsolated = info.Name.substr(0, info.Name.length() - 2);  // Name without shader extensions (VS/PS, etc,)
+					info.RootSigPath = fs::path(basePath).replace_filename(nameIsolated).replace_extension(rootSignatureExtension);
+					
 					RYU_LOG_TRACE("Found precompiled shader ({})", basePath.filename().string());
 					precompiledShaders.emplace_back(info);
 				}
@@ -143,6 +148,18 @@ namespace Ryu::Gfx
 				else
 				{
 					RYU_LOG_DEBUG("No reflection data forund for shader ({})", info.Name);
+				}
+
+				// Check for root signature data
+				if (Utils::ReadDataResult rootSigReadResult = Utils::ReadData(info.RootSigPath))
+				{
+					const std::vector<byte>& rootSigData = rootSigReadResult.value();
+
+					ComPtr<IDxcBlobEncoding> rootSigBlob;
+					{
+						DXCall(utils->CreateBlob(rootSigData.data(), u32(rootSigData.size()), DXC_CP_ACP, &rootSigBlob));
+						shader.m_rootSignatureBlob.Swap(rootSigBlob);
+					}
 				}
 				
 				// Add to shader map

@@ -31,6 +31,7 @@ namespace Ryu::Gfx
 		[[nodiscard]] inline std::string_view GetName() const { return m_name; }
 		[[nodiscard]] inline Blob* GetBlob() const { return m_blob.Get(); }
 		[[nodiscard]] inline Blob* GetReflection() const { return m_reflectionBlob.Get(); }
+		[[nodiscard]] inline Blob* GetRootSignature() const { return m_rootSignatureBlob.Get(); }
 
 		Shader& operator=(Shader&& other) noexcept;
 		Shader& operator=(const Shader& other);
@@ -41,5 +42,6 @@ namespace Ryu::Gfx
 		CompilationSource m_source = CompilationSource::Precompiled;
 		ComPtr<IDxcBlob>  m_blob;
 		ComPtr<IDxcBlob>  m_reflectionBlob;
+		ComPtr<IDxcBlob>  m_rootSignatureBlob;
 	};
 }

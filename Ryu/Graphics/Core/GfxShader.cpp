@@ -24,6 +24,7 @@ namespace Ryu::Gfx
 	{
 		m_blob.Swap(other.m_blob);
 		m_reflectionBlob.Swap(other.m_reflectionBlob);
+		m_rootSignatureBlob.Swap(other.m_rootSignatureBlob);
 	}
 
 	Shader::Shader(const Shader& other)
@@ -31,6 +32,7 @@ namespace Ryu::Gfx
 		, m_name(other.m_name)
 		, m_blob(other.m_blob)
 		, m_reflectionBlob(other.m_reflectionBlob)
+		, m_rootSignatureBlob(other.m_rootSignatureBlob)
 	{
 	}
 
@@ -38,8 +40,9 @@ namespace Ryu::Gfx
 	{
 		m_type = other.m_type;
 		m_name = other.m_name;
-		m_blob = other.m_blob.Detach();
-		m_reflectionBlob = other.m_reflectionBlob.Detach();
+		m_blob.Swap(other.m_blob);
+		m_reflectionBlob.Swap(other.m_reflectionBlob);
+		m_rootSignatureBlob.Swap(other.m_rootSignatureBlob);
 		return *this;
 	}
 
@@ -49,6 +52,7 @@ namespace Ryu::Gfx
 		m_name = other.m_name;
 		m_blob = other.m_blob;
 		m_reflectionBlob = other.m_reflectionBlob;
+		m_rootSignatureBlob = other.m_rootSignatureBlob;
 		return *this;
 	}
 }

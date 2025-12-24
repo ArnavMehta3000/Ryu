@@ -23,9 +23,9 @@ rule("RyuOfflineShader")
 		local types = config and config.type or {}
 
 		local basename = path.basename(sourcefile)
-		
+
 		-- If this is changed, then ensure the path is changed on the on_clean function as well
-		local outputdir = path.join(target:targetdir(), "Shaders", "Compiled")  -- 
+		local outputdir = path.join(target:targetdir(), "Shaders", "Compiled")  --
 
 		-- Map shader types to profiles
 		local shaderProfiles =
@@ -37,6 +37,10 @@ rule("RyuOfflineShader")
 			PS = "ps_6_0",
 			CS = "cs_6_0"
 		}
+
+		-- Generate root signature once per file (not per shader type)
+		local rootSigGenerated = false
+
 		-- Loop through shader types
 		for _, shaderType in ipairs(types) do
 			local profile = shaderProfiles[shaderType]
@@ -66,7 +70,7 @@ rule("RyuOfflineShader")
 					"-E", entryPoint,
 					"-Fo", outputFile,
 					"-WX",  -- Warnings as errors
-					--"-Vd",  -- Disable validation
+					-- "-Vd",  -- Disable validation
 					"-ftime-report", -- Time report
 					"-I", path.join(os.scriptdir(), "Shaders"),
 					sourcefile
@@ -88,14 +92,16 @@ rule("RyuOfflineShader")
 					table.insert(dependFileList, path.join(outputdir, outFileName .. ".reflect"))
 				end
 
-				-- Generate root signature
-				if config and config.rootsig then
+				-- Generate root signature only once per file (use base filename without type suffix)
+				if config and config.rootsig and not rootSigGenerated then
 					table.insert(args, "-rootsig-define")
 					table.insert(args, config.rootsig)
 					table.insert(args, "-Frs")
-					table.insert(args, path.join(outputdir, outFileName .. ".rootsig"))
+					local rootSigFile = path.join(outputdir, basename .. ".rootsig")
+					table.insert(args, rootSigFile)
 
-					table.insert(dependFileList, path.join(outputdir, outFileName .. ".rootsig"))
+					table.insert(dependFileList, rootSigFile)
+					rootSigGenerated = true
 				end
 
 				-- Run DXC
@@ -104,7 +110,7 @@ rule("RyuOfflineShader")
 				if errdata ~= nil and errdata ~= "" then
 					cprint("${bright yellow}[RyuShader] Compilation message: %s", sourcefile)
 					print(errdata)
-					
+
 					-- Fail if we have an error
 					if string.find(errdata, "error") then
 						os.raise()

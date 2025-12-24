@@ -1,5 +1,6 @@
 #include "Graphics/Core/GfxRootSignature.h"
 #include "Graphics/Core/GfxDevice.h"
+#include <dxcapi.h>
 
 namespace Ryu::Gfx
 {
@@ -23,7 +24,20 @@ namespace Ryu::Gfx
 			return;
 		}
 
-		DXCall(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
+		CreateInternal(signature->GetBufferPointer(), signature->GetBufferSize(), name);
+	}
+	
+	RootSignature::RootSignature(Device* parent, IDxcBlob* blob, std::string_view name)
+		: DeviceChild(parent)
+	{
+		CreateInternal(blob->GetBufferPointer(), blob->GetBufferSize(), name);
+	}
+	
+	void RootSignature::CreateInternal(void* data, u64 size, std::string_view name)
+	{
+		DX12::Device* device = GetDevice()->GetNativeDevice();
+
+		DXCall(device->CreateRootSignature(0, data, size, IID_PPV_ARGS(&m_rootSignature)));
 		DX12::SetObjectName(m_rootSignature.Get(), name.data());
 	}
 }

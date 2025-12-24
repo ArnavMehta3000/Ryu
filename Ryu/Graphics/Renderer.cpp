@@ -44,41 +44,12 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		CreateRootSignature();
-		CreateConstantBuffer();
 		CompileShaders();
+		CreateConstantBuffer();
 		CreatePipelineState();
 		CreateMeshBuffers();
 	}
 	
-	void Renderer::CreateRootSignature()
-	{
-		RYU_PROFILE_SCOPE();
-
-		// Create a single descriptor table of CBV's
-		CD3DX12_DESCRIPTOR_RANGE cbvTable{};
-		cbvTable.Init(
-			D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
-			1,  // Number of descriptors in table
-			0   // Base shader register arguments are bound to for this root paramter
-		);
-
-		std::array<CD3DX12_ROOT_PARAMETER, 1> slotRootParameter{};
-
-		slotRootParameter[0].InitAsDescriptorTable(
-			1, // Number of ranges
-			&cbvTable);
-
-		CD3DX12_ROOT_SIGNATURE_DESC rsdesc{};
-		rsdesc.Init(
-			static_cast<u32>(slotRootParameter.size()),
-			slotRootParameter.data(),
-			0, nullptr,  // Samplers
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-		
-		m_rootSignature = std::make_unique<RootSignature>(m_device.get(), rsdesc, "Root Signature");
-	}
-
 	void Renderer::CompileShaders()
 	{
 		RYU_PROFILE_SCOPE();
@@ -95,6 +66,9 @@ namespace Ryu::Gfx
 
 		RYU_ASSERT(m_vs->IsValid(), "Failed to compile vertex shader!");
 		RYU_ASSERT(m_ps->IsValid(), "Failed to compile pixel shader!");
+
+		// Create the root signature
+		m_rootSignature = std::make_unique<RootSignature>(m_device.get(), m_vs->GetRootSignature(), "Root Signature");
 	}
 
 	void Renderer::CreatePipelineState()
@@ -204,7 +178,7 @@ namespace Ryu::Gfx
 
 		cmdList->SetGraphicsRootSignature(*m_rootSignature);
 		cmdList->SetDescriptorHeap(*m_cbvHeap);
-		cmdList->SetGraphicsRootDescriptorTable(0, m_constantBuffer->GetDescriptorHandle());
+		cmdList->GetNative()->SetGraphicsRootConstantBufferView(0, m_constantBuffer->GetGPUAddress());
 
 		cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		m_device->SetBackBufferRenderTarget(true);

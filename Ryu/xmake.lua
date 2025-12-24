@@ -116,8 +116,8 @@ target_end()
 target("RyuShaders")
 	set_kind('object')
 	set_group("Ryu/Objects")
-	add_files("Shaders/Triangle.hlsl", { rule = "RyuOfflineShader", type = { "VS", "PS" }, refl = true })
-	add_files("Shaders/Cube.hlsl", { rule = "RyuOfflineShader", type = { "VS", "PS" }, refl = true })
+	add_files("Shaders/Triangle.hlsl", { rule = "RyuOfflineShader", type = { "VS", "PS" }, refl = true, rootsig = "RootSig" })
+	add_files("Shaders/Cube.hlsl", { rule = "RyuOfflineShader", type = { "VS", "PS" }, refl = true, rootsig = "RootSig" })
 target_end()
 
 -------------------- Graphics Module --------------------
@@ -182,12 +182,12 @@ target("RyuEngine")
 	)
 
 	add_links(
-		"Dwmapi", 
-		"d3d12", 
-		"dxgi", 
-		"dxguid", 
-		"d3dcompiler", 
-		"Advapi32", 
+		"Dwmapi",
+		"d3d12",
+		"dxgi",
+		"dxguid",
+		"d3dcompiler",
+		"Advapi32",
 		"runtimeobject",
 		{ public = true }
 	)

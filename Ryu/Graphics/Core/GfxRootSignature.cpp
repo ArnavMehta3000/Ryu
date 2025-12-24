@@ -7,8 +7,6 @@ namespace Ryu::Gfx
 	RootSignature::RootSignature(Device* parent, const CD3DX12_ROOT_SIGNATURE_DESC& desc, std::string_view name)
 		: DeviceChild(parent)
 	{
-		DX12::Device* device = GetDevice()->GetNativeDevice();
-
 		ComPtr<ID3DBlob> signature;
 		ComPtr<ID3DBlob> error;
 
@@ -26,13 +24,13 @@ namespace Ryu::Gfx
 
 		CreateInternal(signature->GetBufferPointer(), signature->GetBufferSize(), name);
 	}
-	
+
 	RootSignature::RootSignature(Device* parent, IDxcBlob* blob, std::string_view name)
 		: DeviceChild(parent)
 	{
 		CreateInternal(blob->GetBufferPointer(), blob->GetBufferSize(), name);
 	}
-	
+
 	void RootSignature::CreateInternal(void* data, u64 size, std::string_view name)
 	{
 		DX12::Device* device = GetDevice()->GetNativeDevice();

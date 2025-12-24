@@ -32,6 +32,7 @@ namespace Ryu::Gfx
 		void SetDescriptorHeap(const DescriptorHeap& heap) const;
 		void SetDescriptorHeaps(std::span<const DescriptorHeap> heaps) const;
 		void SetGraphicsRootDescriptorTable(u32 rootParameterIndex, const DescriptorHandle& heapHandle) const;
+		void SetGraphicsConstantBuffer(u32 rootParamIndex, const Buffer& buffer) const;
 		
 		void ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier) const;
 		void ResourceBarriers(std::span<const CD3DX12_RESOURCE_BARRIER> barriers) const;

@@ -1,4 +1,5 @@
 ﻿#include "Graphics/Renderer.h"
+#include "Graphics/CommonStates.h"
 #include "Graphics/IRendererHook.h"
 #include "Graphics/Core/GfxTexture.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
@@ -178,7 +179,7 @@ namespace Ryu::Gfx
 
 		cmdList->SetGraphicsRootSignature(*m_rootSignature);
 		cmdList->SetDescriptorHeap(*m_cbvHeap);
-		cmdList->GetNative()->SetGraphicsRootConstantBufferView(0, m_constantBuffer->GetGPUAddress());
+		cmdList->SetGraphicsConstantBuffer(0, *m_constantBuffer);
 
 		cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		m_device->SetBackBufferRenderTarget(true);

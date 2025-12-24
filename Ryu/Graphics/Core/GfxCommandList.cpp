@@ -112,6 +112,11 @@ namespace Ryu::Gfx
 		m_cmdList->SetGraphicsRootDescriptorTable(rootParameterIndex, heapHandle.GPU);
 	}
 
+	void CommandList::SetGraphicsConstantBuffer(u32 rootParamIndex, const Buffer& buffer) const
+	{
+		m_cmdList->SetGraphicsRootConstantBufferView(rootParamIndex, buffer.GetGPUAddress());
+	}
+
 	void CommandList::ResourceBarrier(const CD3DX12_RESOURCE_BARRIER& barrier) const
 	{
 		m_cmdList->ResourceBarrier(1, &barrier);

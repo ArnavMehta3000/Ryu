@@ -1,4 +1,5 @@
 #include "EditorApp.h"
+#include "Config/CVar.h"
 #include "Game/IGameModule.h"
 #include "Game/World/WorldManager.h"
 #include "Logging/Logger.h"
@@ -12,6 +13,11 @@ namespace Ryu::Editor
 {
 	namespace
 	{
+		static Config::CVar<bool> cv_disableImGui(
+			"Editor.NoImGui", false,
+			"Disables ImGui from being initialized in Editor",
+			Config::CVarFlags::Debug | Config::CVarFlags::ReadOnly);
+
 		// Handle to the original application window procedure
 		WNDPROC g_originalWndProc{ nullptr };
 
@@ -118,6 +124,11 @@ namespace Ryu::Editor
 #if defined(RYU_WITH_EDITOR)
 	void EditorApp::OnImGuiSetup(Gfx::Device* device)
 	{
+		if (cv_disableImGui)
+		{
+			return;
+		}
+
 		RYU_PROFILE_SCOPE();
 
 		RYU_LOG_TRACE("Initializing ImGui");
@@ -158,6 +169,11 @@ namespace Ryu::Editor
 
 	void EditorApp::OnImGuiFrameBegin()
 	{
+		if (cv_disableImGui)
+		{
+			return;
+		}
+
 		RYU_PROFILE_SCOPE();
 
 		ImGui_ImplDX12_NewFrame();
@@ -167,6 +183,11 @@ namespace Ryu::Editor
 
 	void EditorApp::OnImGuiFrameEnd(Gfx::CommandList* cmdList)
 	{
+		if (cv_disableImGui)
+		{
+			return;
+		}
+
 		RYU_PROFILE_SCOPE();
 
 		cmdList->SetDescriptorHeap(*m_imguiHeap);
@@ -183,6 +204,11 @@ namespace Ryu::Editor
 
 	void EditorApp::OnImGuiRender()
 	{
+		if (cv_disableImGui)
+		{
+			return;
+		}
+
 		RYU_PROFILE_SCOPE();
 
 		ImGui::ShowDemoWindow();
@@ -195,7 +221,13 @@ namespace Ryu::Editor
 
 	void EditorApp::OnImGuiShutdown()
 	{
+		if (cv_disableImGui)
+		{
+			return;
+		}
+
 		RYU_PROFILE_SCOPE();
+
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();

@@ -5,9 +5,9 @@
 #include "Core/Logging/Logger.h"
 #include "Core/Profiling/Profiling.h"
 #include "Graphics/Core/GfxDevice.h"
-#include <External/ImGui/backends/imgui_impl_win32.h>
-#include <External/ImGui/backends/imgui_impl_dx12.h>
-#include <External/ImGui/imgui.h>
+#include <ImGui/backends/imgui_impl_win32.h>
+#include <ImGui/backends/imgui_impl_dx12.h>
+#include <ImGui/imgui.h>
 
 namespace Ryu::Editor
 {

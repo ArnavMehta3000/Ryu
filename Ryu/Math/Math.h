@@ -1,6 +1,6 @@
 #pragma once
 #include <Windows.h>
-#include <External/SimpleMath/SimpleMath.h>
+#include <SimpleMath/SimpleMath.h>
 #include "Core/Utils/Serializer.h"
 
 namespace SM = DirectX::SimpleMath;

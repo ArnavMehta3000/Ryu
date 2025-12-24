@@ -1,7 +1,7 @@
 #include "Asset/Loaders/OBJLoader.h"
 #include "Asset/Assets/MeshAsset.h"
 #include "Core/Logging/Logger.h"
-#include <External/TinyOBJ/tiny_obj_loader.h>
+#include <TinyOBJ/tiny_obj_loader.h>
 #include <fstream>
 
 namespace Ryu::Asset

@@ -1,6 +1,6 @@
 #include "Testbench/TestbenchWorld.h"
 #include "Core/Logging/Logger.h"
-#include <External/ImGui/imgui.h>
+#include <ImGui/imgui.h>
 
 void TestbenchWorld::OnCreate()
 {

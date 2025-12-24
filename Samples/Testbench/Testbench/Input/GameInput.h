@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Common/Common.h"
-#include "External/GameInput/GameInput.h"
+#include <GameInput/GameInput.h>
 #include <wrl/client.h>
 
 #ifndef GAMEINPUT_API_VERSION

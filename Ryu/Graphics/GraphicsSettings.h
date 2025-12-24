@@ -1,6 +1,6 @@
 #pragma once
-#include "Globals/Globals.h"
-#include "Config/Config.h"
+#include "Core/Globals/Globals.h"
+#include "Core/Config/Config.h"
 
 namespace Ryu::Gfx
 {

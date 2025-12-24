@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "Profiling/Profiling.h"
+#include "Core/Profiling/Profiling.h"
 
 namespace Ryu::App
 {

@@ -1,7 +1,7 @@
 #pragma once
-#include "App/Application.h"
+#include "Application/App/Application.h"
 #include "Game/World/WorldManager.h"
-#include "Event/ScopedListener.h"
+#include "Application/Event/ScopedListener.h"
 #include "Testbench/Input/GameInput.h"
 
 class TestbenchApp : public Ryu::App::App

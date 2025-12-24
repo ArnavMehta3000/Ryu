@@ -1,9 +1,9 @@
 #include "Engine/Setup/Setup.h"
 #include "Engine/EngineSettings.h"
-#include "Common/Assert.h"
-#include "Config/CmdLine.h"
-#include "Logging/Logger.h"
-#include "Utils/MessageBox.h"
+#include "Core/Common/Assert.h"
+#include "Core/Config/CmdLine.h"
+#include "Core/Logging/Logger.h"
+#include "Core/Utils/MessageBox.h"
 #include <filesystem>
 
 namespace Ryu::Engine

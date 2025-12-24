@@ -1,5 +1,4 @@
-#include "Common/Assert.h"
-#include "Entity.h"
+#include "Core/Common/Assert.h"
 
 #define WorldCheck() RYU_ASSERT(m_world, "Entity is not attached to a world!")
 #define DestroyCheck() RYU_ASSERT(!IsMarkedForDestroy(), "Entity is marked for destruction!")

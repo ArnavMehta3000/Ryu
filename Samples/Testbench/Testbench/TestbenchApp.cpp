@@ -1,11 +1,11 @@
 #include "Testbench/TestbenchApp.h"
-#include "Testbench/TestbenchWorld.h"
+#include "Application/App/Utils/PathManager.h"
+#include "Core/Profiling/Profiling.h"
+#include "Core/Utils/ReflectionSerializer.h"
 #include "Engine/Engine.h"
-#include "Profiling/Profiling.h"
-#include "Game/World/Entity.h"
 #include "Game/Components/Transform.h"
-#include "Utils/ReflectionSerializer.h"
-#include "App/Utils/PathManager.h"
+#include "Game/World/Entity.h"
+#include "Testbench/TestbenchWorld.h"
 
 using namespace Ryu;
 using namespace Ryu::Window;

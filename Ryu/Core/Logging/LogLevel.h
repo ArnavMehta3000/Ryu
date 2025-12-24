@@ -1,5 +1,5 @@
 #pragma once
-#include "Common/StandardTypes.h"
+#include "Core/Common/StandardTypes.h"
 #include <spdlog/spdlog.h>
 
 namespace Ryu::Logging

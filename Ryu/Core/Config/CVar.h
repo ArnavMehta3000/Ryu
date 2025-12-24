@@ -1,5 +1,5 @@
 #pragma once
-#include "Common/Common.h"
+#include "Core/Common/Common.h"
 #include <string>
 #include <string_view>
 #include <functional>
@@ -136,4 +136,4 @@ namespace Ryu::Config
 	using CVarVecString = CVar<std::vector<std::string>>;
 }
 
-#include "Config/CVar.inl"
+#include "Core/Config/CVar.inl"

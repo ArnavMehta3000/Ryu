@@ -1,6 +1,6 @@
 #pragma once
-#include "Common/Common.h"
-#include "Logging/Logger.h"
+#include "Core/Common/Common.h"
+#include "Core/Logging/Logger.h"
 #include <Elos/Event/Signal.h>
 #include <filesystem>
 #include <toml++/toml.hpp>

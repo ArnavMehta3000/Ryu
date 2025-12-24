@@ -1,5 +1,5 @@
 #pragma once
-#include "Common/Common.h"
+#include "Core/Common/Common.h"
 #include <array>
 
 namespace Ryu::Gfx

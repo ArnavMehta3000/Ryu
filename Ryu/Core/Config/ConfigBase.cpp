@@ -1,6 +1,6 @@
 #include "ConfigBase.h"
-#include "Profiling/Profiling.h"
-#include "Config/ConfigManager.h"
+#include "Core/Profiling/Profiling.h"
+#include "Core/Config/ConfigManager.h"
 
 namespace Ryu::Config
 {

@@ -1,7 +1,7 @@
 #include "Game/World/World.h"
 #include "Game/World/Entity.h"
 #include "Game/Components/Transform.h"
-#include "Logging/Logger.h"
+#include "Core/Logging/Logger.h"
 #include <entt/entity/registry.hpp>
 
 namespace Ryu::Game

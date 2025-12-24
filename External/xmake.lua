@@ -1,3 +1,4 @@
+-------------------- Simple Math --------------------
 target("SimpleMath")
 	set_group("Ryu/External")
 	set_kind("object")
@@ -6,6 +7,7 @@ target("SimpleMath")
 	add_includedirs(".", { public = true })
 target_end()
 
+-------------------- Game Input --------------------
 target("GameInput")
 	set_group("Ryu/External")
 	set_kind("headeronly")
@@ -14,6 +16,7 @@ target("GameInput")
 	add_links(path.translate("$(scriptdir)/External/External/GameInput/GameInput.lib"), { public = true })
 target_end()
 
+-------------------- ImGui --------------------
 target("ImGui")
 	set_group("Ryu/External")
 	set_kind("object")
@@ -29,6 +32,7 @@ target("ImGui")
 	add_includedirs("External/ImGui", { public = true })
 target_end()
 
+-------------------- STB --------------------
 target("STB")
 	set_group("Ryu/External")
 	set_kind("object")

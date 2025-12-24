@@ -1,6 +1,6 @@
 #pragma once
-#include "Common/API.h"
-#include "Common/Concepts.h"
+#include "Core/Common/API.h"
+#include "Core/Common/Concepts.h"
 #include <string_view>
 #include <string>
 #include <limits>

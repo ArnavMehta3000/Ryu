@@ -1,7 +1,7 @@
 #include "Graphics/Compiler/ShaderCompiler.h"
-#include "Common/Assert.h"
-#include "Logging/Logger.h"
-#include "Utils/StringConv.h"
+#include "Core/Common/Assert.h"
+#include "Core/Logging/Logger.h"
+#include "Core/Utils/StringConv.h"
 #include <fstream>
 
 namespace Ryu::Gfx

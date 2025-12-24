@@ -1,7 +1,7 @@
 #pragma once
-#include "Common/ObjectMacros.h"
-#include "Event/Event.h"
-#include "Event/EventDispatcher.h"
+#include "Core/Common/ObjectMacros.h"
+#include "Application/Event/Event.h"
+#include "Application/Event/EventDispatcher.h"
 #include <optional>
 
 namespace Ryu::Event

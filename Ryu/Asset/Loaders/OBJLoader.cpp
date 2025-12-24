@@ -1,6 +1,6 @@
 #include "Asset/Loaders/OBJLoader.h"
 #include "Asset/Assets/MeshAsset.h"
-#include "Logging/Logger.h"
+#include "Core/Logging/Logger.h"
 #include <External/TinyOBJ/tiny_obj_loader.h>
 #include <fstream>
 

@@ -1,7 +1,7 @@
-#include "Config/CmdLine.h"
+#include "Core/Config/CmdLine.h"
 
 #if defined (RYU_BUILD_DEBUG)
-	#include "Utils/StringConv.h"
+	#include "Core/Utils/StringConv.h"
 #endif
 
 #include <sstream>

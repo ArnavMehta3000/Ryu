@@ -1,5 +1,5 @@
 #pragma once
-#include "Utils/Timing/TimerBase.h"
+#include "Core/Utils/Timing/TimerBase.h"
 #include <optional>
 
 namespace Ryu::Utils

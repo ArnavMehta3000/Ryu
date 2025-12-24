@@ -1,6 +1,6 @@
 #include "Testbench/Input/GameInput.h"
-#include "Profiling/Profiling.h"
-#include "Logging/Logger.h"
+#include "Core/Profiling/Profiling.h"
+#include "Core/Logging/Logger.h"
 
 using namespace Ryu;
 

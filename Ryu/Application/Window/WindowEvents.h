@@ -1,6 +1,6 @@
 #pragma	once
-#include "Event/Event.h"
-#include "Window/Input/KeyCode.h"
+#include "Application/Event/Event.h"
+#include "Application/Window/Input/KeyCode.h"
 
 namespace Ryu::Window
 {

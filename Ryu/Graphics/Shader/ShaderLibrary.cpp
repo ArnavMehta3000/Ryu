@@ -1,7 +1,7 @@
 #include "Graphics/Shader/ShaderLibrary.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
-#include "Logging/Logger.h"
-#include "Utils/ReadData.h"
+#include "Core/Logging/Logger.h"
+#include "Core/Utils/ReadData.h"
 #include <dxcapi.h>
 
 namespace Ryu::Gfx

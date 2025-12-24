@@ -1,5 +1,5 @@
 #pragma  once
-#include "Utils/Singleton.h"
+#include "Core/Utils/Singleton.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;

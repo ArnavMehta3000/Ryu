@@ -1,7 +1,7 @@
 #pragma once
-#include "Common/ObjectMacros.h"
-#include "Config/ConfigBase.h"
-#include "Config/ConfigManager.h"
+#include "Core/Common/ObjectMacros.h"
+#include "Core/Config/ConfigBase.h"
+#include "Core/Config/ConfigManager.h"
 
 // Macro to help with declaring configs
 #define RYU_CONFIG_DECLARE(ThisType, FileName)                                                          \

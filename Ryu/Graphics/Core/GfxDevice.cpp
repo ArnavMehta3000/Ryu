@@ -1,11 +1,11 @@
 #include "Graphics/Core/GfxDevice.h"
 #include "Graphics/Core/GfxDeviceChild.h"
-#include "Common/Assert.h"
+#include "Core/Common/Assert.h"
 #include "Graphics/GraphicsSettings.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
-#include "Utils/StringConv.h"
+#include "Core/Utils/StringConv.h"
 #include "Math/Math.h"
-#include "Profiling/Profiling.h"
+#include "Core/Profiling/Profiling.h"
 #include <DirectXColors.h>
 
 namespace Ryu::Gfx

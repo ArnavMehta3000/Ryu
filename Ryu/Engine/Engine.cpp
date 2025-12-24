@@ -1,13 +1,13 @@
 #include "Engine/Engine.h"
-#include "Common/Assert.h"
-#include "Config/ConfigManager.h"
-#include "Globals/Globals.h"
+#include "Core/Common/Assert.h"
+#include "Core/Config/ConfigManager.h"
+#include "Core/Globals/Globals.h"
 #include "Memory/New.h"
 #include "Math/Math.h"
-#include "App/Utils/PathManager.h"
-#include "Utils/Timing/Stopwatch.h"
-#include "Logging/Logger.h"
-#include "Profiling/Profiling.h"
+#include "Application/App/Utils/PathManager.h"
+#include "Core/Utils/Timing/Stopwatch.h"
+#include "Core/Logging/Logger.h"
+#include "Core/Profiling/Profiling.h"
 #include <DirectXMath.h>
 #include <wrl/event.h>
 

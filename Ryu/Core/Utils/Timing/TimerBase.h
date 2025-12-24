@@ -1,6 +1,6 @@
 #pragma once
-#include "Common/StandardTypes.h"
-#include "Common/Concepts.h"
+#include "Core/Common/StandardTypes.h"
+#include "Core/Common/Concepts.h"
 #include <chrono>
 #include <optional>
 

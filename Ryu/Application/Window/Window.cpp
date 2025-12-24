@@ -1,8 +1,8 @@
-#include "Window/Window.h"
-#include "Common/Assert.h"
-#include "Utils/StringConv.h"
-#include "Config/CmdLine.h"
-#include "Profiling/Profiling.h"
+#include "Application/Window/Window.h"
+#include "Core/Common/Assert.h"
+#include "Core/Utils/StringConv.h"
+#include "Core/Config/CmdLine.h"
+#include "Core/Profiling/Profiling.h"
 #include <stdexcept>
 #include <system_error>
 #include <dwmapi.h>

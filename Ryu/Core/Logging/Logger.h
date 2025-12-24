@@ -1,7 +1,7 @@
 #pragma once
-#include "Common/API.h"
-#include "Common/ObjectMacros.h"
-#include "Logging/LoggingConfig.h"
+#include "Core/Common/API.h"
+#include "Core/Common/ObjectMacros.h"
+#include "Core/Logging/LoggingConfig.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
@@ -82,7 +82,7 @@ namespace Ryu::Logging
 	}
 }
 
-#include "Logging/Logger.inl"
+#include "Core/Logging/Logger.inl"
 
 
 #define RYU_LOG_TRACE(...)                                                                                                           \

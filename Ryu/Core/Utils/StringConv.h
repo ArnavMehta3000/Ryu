@@ -1,6 +1,6 @@
 #pragma once
-#include "Common/StandardTypes.h"
-#include "Common/API.h"
+#include "Core/Common/StandardTypes.h"
+#include "Core/Common/API.h"
 #include <string>
 #include <string_view>
 

@@ -1,7 +1,7 @@
 #include "Graphics/Core/DX12.h"
-#include "Common/Assert.h"
-#include "Common/StandardTypes.h"
-#include "Utils/StringConv.h"
+#include "Core/Common/Assert.h"
+#include "Core/Common/StandardTypes.h"
+#include "Core/Utils/StringConv.h"
 #include <numeric>
 
 namespace Ryu::Gfx

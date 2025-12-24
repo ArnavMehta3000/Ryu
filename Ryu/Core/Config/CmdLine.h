@@ -1,6 +1,6 @@
 #pragma once
-#include "Utils/Singleton.h"
-#include "Config/CVar.h"
+#include "Core/Utils/Singleton.h"
+#include "Core/Config/CVar.h"
 #include <CLI/CLI.hpp>
 #include <unordered_map>
 #include <memory>
@@ -42,4 +42,4 @@ namespace Ryu::Config
 	};
 }
 
-#include "Config/CmdLine.inl"
+#include "Core/Config/CmdLine.inl"

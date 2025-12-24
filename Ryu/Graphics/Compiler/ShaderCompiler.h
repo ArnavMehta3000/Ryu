@@ -1,7 +1,7 @@
 #pragma once
 #include "Graphics/Core/DX12.h"
 #include "Graphics/Shader/ShaderType.h"
-#include "Utils/Singleton.h"
+#include "Core/Utils/Singleton.h"
 #include <filesystem>
 #include <dxcapi.h>
 

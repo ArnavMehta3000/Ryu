@@ -3,7 +3,7 @@
 #include "Graphics/Core/GfxTexture.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Graphics/Primitives/Cube.h"
-#include "Profiling/Profiling.h"
+#include "Core/Profiling/Profiling.h"
 
 namespace Ryu::Gfx
 {
@@ -49,7 +49,7 @@ namespace Ryu::Gfx
 		CreatePipelineState();
 		CreateMeshBuffers();
 	}
-	
+
 	void Renderer::CompileShaders()
 	{
 		RYU_PROFILE_SCOPE();
@@ -125,7 +125,7 @@ namespace Ryu::Gfx
 
 		m_cbvHeap = std::make_unique<DescriptorHeap>(m_device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1, true, "Frame CBV Heap");
 		DescriptorHandle handle = m_cbvHeap->Allocate();
-		
+
 		Buffer::Desc cbDesc
 		{
 			.SizeInBytes   = sizeof(ConstantBuffer),
@@ -195,11 +195,11 @@ namespace Ryu::Gfx
 
 		if (ConstantBuffer* mappedData = m_constantBuffer->Map<ConstantBuffer>())
 		{
-			t += 0.1f; 
+			t += 0.1f;
 			const f32 rad = DirectX::XMConvertToRadians(t);
 
 			const Math::Matrix scale = Math::Matrix::CreateScale(1.0f, 1.0f, 1.0f);
-			
+
 			Math::Matrix rotation = Math::Matrix::CreateRotationX(rad)
 				* Math::Matrix::CreateRotationY(rad)
 				* Math::Matrix::CreateRotationZ(rad);
@@ -211,7 +211,7 @@ namespace Ryu::Gfx
 			std::memcpy(mappedData, &m_cbData, sizeof(ConstantBuffer));
 		}
 
-		cmdList->SetVertexBuffer(0, *m_vertexBuffer);		
+		cmdList->SetVertexBuffer(0, *m_vertexBuffer);
 		cmdList->SetIndexBuffer(*m_indexBuffer);
 		cmdList->SetTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		cmdList->GetNative()->DrawIndexedInstanced((u32)Primitives::CubeIndices.size(), 1, 0, 0, 0);
@@ -230,7 +230,7 @@ namespace Ryu::Gfx
 		m_device->EndFrame();
 		m_device->Present();
 	}
-	
+
 	void Renderer::OnResize(u32 w, u32 h)
 	{
 		RYU_PROFILE_SCOPE();

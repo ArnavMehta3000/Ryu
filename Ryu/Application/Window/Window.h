@@ -1,8 +1,8 @@
 #pragma once
-#include "Common/ObjectMacros.h"
-#include "Window/WindowEvents.h"
-#include "Window/Input/InputSystem.h"
-#include "Event/EventEmitter.h"
+#include "Core/Common/ObjectMacros.h"
+#include "Application/Window/WindowEvents.h"
+#include "Application/Window/Input/InputSystem.h"
+#include "Application/Event/EventEmitter.h"
 #include <unordered_map>
 #include <memory>
 

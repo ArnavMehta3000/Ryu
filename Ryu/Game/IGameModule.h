@@ -1,6 +1,6 @@
 #pragma once
-#include "Common/API.h"
-#include "Common/ObjectMacros.h"
+#include "Core/Common/API.h"
+#include "Core/Common/ObjectMacros.h"
 #include <memory>
 
 namespace Ryu::App { class App; }

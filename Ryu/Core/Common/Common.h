@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Common/Assert.h"
-#include "Common/Concepts.h"
-#include "Common/StandardTypes.h"
-#include "Common/ObjectMacros.h"
-#include "Common/Enum.h"
-#include "Common/API.h"
-#include "Common/Result.h"
+#include "Core/Common/Assert.h"
+#include "Core/Common/Concepts.h"
+#include "Core/Common/StandardTypes.h"
+#include "Core/Common/ObjectMacros.h"
+#include "Core/Common/Enum.h"
+#include "Core/Common/API.h"
+#include "Core/Common/Result.h"
 #include <iostream>

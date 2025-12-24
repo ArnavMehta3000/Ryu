@@ -1,4 +1,4 @@
-#include "Common/Assert.h"
+#include "Core/Common/Assert.h"
 #include "Engine/Setup/EngineMain.h"
 #include "Engine/Setup/Setup.h"
 #include "Editor/Application/EditorApp.h"

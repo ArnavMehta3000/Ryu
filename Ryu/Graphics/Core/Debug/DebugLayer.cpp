@@ -1,6 +1,6 @@
 #include "Graphics/Core/Debug/DebugLayer.h"
-#include "Profiling/Profiling.h"
-#include "Logging/Logger.h"
+#include "Core/Profiling/Profiling.h"
+#include "Core/Logging/Logger.h"
 #include <dxgidebug.h>
 
 namespace Ryu::Gfx::DebugLayer

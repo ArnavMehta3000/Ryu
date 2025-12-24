@@ -1,8 +1,8 @@
 #pragma once
-#include "Common/Common.h"
-#include "Utils/Timing/FrameTimer.h"
-#include "Window/Window.h"
-#include "Logging/Logger.h"
+#include "Core/Common/Common.h"
+#include "Core/Utils/Timing/FrameTimer.h"
+#include "Application/Window/Window.h"
+#include "Core/Logging/Logger.h"
 #include <memory>
 
 namespace Ryu::Engine { class Engine; }

@@ -1,5 +1,5 @@
 #pragma once
-#include "Logging/LogLevel.h"
+#include "Core/Logging/LogLevel.h"
 #include <string>
 
 namespace Ryu::Logging

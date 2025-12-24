@@ -1,7 +1,6 @@
 #pragma once
-#include "Event/Event.h"
-#include "ListenerHandle.h"
-#include "Common/StandardTypes.h"
+#include "Application/Event/Event.h"
+#include "Application/Event/ListenerHandle.h"
 #include <functional>
 #include <unordered_map>
 #include <vector>
@@ -51,4 +50,4 @@ namespace Ryu::Event
 	};
 }
 
-#include "Event/EventDispatcher.inl"
+#include "Application/Event/EventDispatcher.inl"

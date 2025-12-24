@@ -1,5 +1,5 @@
 #pragma once
-#include "Common/StandardTypes.h"
+#include "Core/Common/StandardTypes.h"
 #include "Graphics/Primitives/VertexTypes.h"
 #include <array>
 
@@ -8,14 +8,14 @@ namespace Ryu::Gfx::Primitives
 	static constexpr std::array<VertexPosCol, 8> CubeVerticesPosCol =
 	{
 		VertexPosCol
-        { { 0.25f, 0.25f, -0.25f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-        { {  -0.25f, 0.25f, -0.25f }, { 0.0f, 1.0f, 1.0f, 1.0f } },
-        { {  -0.25f,  0.25f, 0.25f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { 0.25f,  0.25f, 0.25f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { 0.25f, -0.25f,  -0.25f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-        { {  -0.25f, -0.25f,  -0.25f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
-        { {  -0.25f,  -0.25f,  0.25f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
-        { { 0.25f,  -0.25f,  0.25f }, { 1.0f, 1.0f, 0.0f, 1.0f } },
+        { {   1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+        { {  -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } },
+        { {  -1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+        { {   1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+        { {   1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+        { {  -1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f } },
+        { {  -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        { {   1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } },
 	};
 
 	static constexpr auto CubeVertexBufferSize = sizeof(CubeVerticesPosCol);

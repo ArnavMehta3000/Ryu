@@ -1,8 +1,8 @@
 #pragma once
-#include "App/Application.h"
-#include "Utils/Singleton.h"
-#include "Utils/ServiceLocator.h"
-#include "Event/ListenerHandle.h"
+#include "Application/App/Application.h"
+#include "Application/Event/ListenerHandle.h"
+#include "Core/Utils/Singleton.h"
+#include "Core/Utils/ServiceLocator.h"
 #include "Asset/ResourceManager.h"
 #include "Graphics/Renderer.h"
 

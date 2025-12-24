@@ -1,5 +1,5 @@
 #include "Game/World/WorldManager.h"
-#include "Logging/Logger.h"
+#include "Core/Logging/Logger.h"
 
 namespace Ryu::Game
 {

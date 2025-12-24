@@ -1,5 +1,5 @@
-#include "App/Utils/PathManager.h"
-#include "Config/CVar.h"
+#include "Application/App/Utils/PathManager.h"
+#include "Core/Config/CVar.h"
 #include <toml++/toml.hpp>
 
 namespace Ryu::App

@@ -1,7 +1,7 @@
 #pragma once
 #include "Graphics/IRendererHook.h"
 #include "Graphics/Core/GfxDescriptorHeap.h"
-#include "App/Application.h"
+#include "Application/App/Application.h"
 
 namespace Ryu::Editor
 {

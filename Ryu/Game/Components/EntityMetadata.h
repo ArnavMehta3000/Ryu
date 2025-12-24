@@ -1,7 +1,7 @@
 #pragma once
-#include "Common/Enum.h"
-#include "Utils/UUID.h"
-#include "Utils/Reflection.h"
+#include "Core/Common/Enum.h"
+#include "Core/Utils/UUID.h"
+#include "Core/Utils/Reflection.h"
 #include <string>
 #include <bitset>
 

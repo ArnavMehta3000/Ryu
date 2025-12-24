@@ -1,6 +1,6 @@
 #pragma once
-#include "Common/Result.h"
-#include "Utils/Singleton.h"
+#include "Core/Common/Result.h"
+#include "Core/Utils/Singleton.h"
 #include <unordered_map>
 #include <typeindex>
 #include <memory>

@@ -1,5 +1,5 @@
 #pragma once
-#include "Common/ObjectMacros.h"
+#include "Core/Common/ObjectMacros.h"
 
 namespace Ryu::Utils
 {

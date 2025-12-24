@@ -2,7 +2,7 @@
 #include "Graphics/Core/GfxDevice.h"
 
 #include "Graphics/Core/GfxCommandList.h"
-#include "Common/Assert.h"
+#include "Core/Common/Assert.h"
 
 namespace Ryu::Gfx
 {

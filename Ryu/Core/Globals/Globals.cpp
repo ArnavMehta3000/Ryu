@@ -1,5 +1,5 @@
-#include "Globals/Globals.h"
-#include "Utils/ServiceLocator.h"
+#include "Core/Globals/Globals.h"
+#include "Core/Utils/ServiceLocator.h"
 #include <Windows.h>
 
 namespace Ryu::Globals

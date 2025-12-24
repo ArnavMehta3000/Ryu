@@ -1,9 +1,9 @@
 #include "EditorApp.h"
-#include "Config/CVar.h"
+#include "Core/Config/CVar.h"
 #include "Game/IGameModule.h"
 #include "Game/World/WorldManager.h"
-#include "Logging/Logger.h"
-#include "Profiling/Profiling.h"
+#include "Core/Logging/Logger.h"
+#include "Core/Profiling/Profiling.h"
 #include "Graphics/Core/GfxDevice.h"
 #include <External/ImGui/backends/imgui_impl_win32.h>
 #include <External/ImGui/backends/imgui_impl_dx12.h>

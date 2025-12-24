@@ -1,7 +1,7 @@
 #pragma once
+#include "Core/Utils/Timing/FrameTimer.h"
+#include "Application/Event/ListenerHandle.h"
 #include "Game/World/World.h"
-#include "Event/ListenerHandle.h"
-#include "Utils/Timing/FrameTimer.h"
 
 namespace Ryu::Game
 {

@@ -1,6 +1,6 @@
 #include "Asset/Loaders/ImageLoader.h"
 #include "Asset/Assets/TextureAsset.h"
-#include "Logging/Logger.h"
+#include "Core/Logging/Logger.h"
 #include <External/STB/stb_image.h>
 
 namespace Ryu::Asset

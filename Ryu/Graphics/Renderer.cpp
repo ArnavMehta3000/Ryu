@@ -207,7 +207,7 @@ namespace Ryu::Gfx
 			Math::Matrix translation = Math::Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
 			Math::Matrix world = scale * rotation * translation;
 
-			m_cbData.WVP = (world * m_camera.GetViewProjectionMatrix()).Transpose();
+			m_cbData.WVP = (world * m_camera.GetViewProjectionMatrix());
 			std::memcpy(mappedData, &m_cbData, sizeof(ConstantBuffer));
 		}
 

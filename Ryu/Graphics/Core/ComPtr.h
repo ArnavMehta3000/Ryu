@@ -2,7 +2,6 @@
 #include <wrl/client.h>
 #include <type_traits>
 #include <concepts>
-#include <memory>
 #include <span>
 
 namespace Ryu::Gfx

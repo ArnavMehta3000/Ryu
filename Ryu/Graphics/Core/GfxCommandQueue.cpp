@@ -2,7 +2,6 @@
 #include "Graphics/Core/GfxDevice.h"
 #include "Graphics/Core/GfxFence.h"
 #include "Graphics/Core/GfxCommandList.h"
-#include <vector>
 
 namespace Ryu::Gfx
 {

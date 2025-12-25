@@ -1,7 +1,5 @@
 #pragma once
-#include "Core/Common/API.h"
 #include "Math/Math.h"
-#include <string>
 
 namespace Ryu::Math
 {

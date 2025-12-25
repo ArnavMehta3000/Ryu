@@ -1,7 +1,4 @@
 #pragma once
-#include "Core/Common/StandardTypes.h"
-#include "Core/Common/Enum.h"
-#include <unordered_map>
 #include <Windows.h>
 
 namespace Ryu::Window

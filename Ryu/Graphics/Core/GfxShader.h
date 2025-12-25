@@ -1,10 +1,8 @@
 #pragma once
 #include "Graphics/Core/DX12.h"
 #include "Graphics/Shader/ShaderType.h"
-#include <memory>
 #include <filesystem>
 #include <dxcapi.h>
-
 
 namespace Ryu::Gfx
 {

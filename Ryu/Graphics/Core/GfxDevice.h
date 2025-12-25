@@ -4,7 +4,6 @@
 #include "Graphics/Core/GfxDescriptorHeap.h"
 #include "Graphics/Core/GfxFence.h"
 #include "Graphics/Core/GfxTexture.h"
-#include <vector>
 
 namespace Ryu::Gfx
 {

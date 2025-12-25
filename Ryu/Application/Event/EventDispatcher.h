@@ -2,10 +2,8 @@
 #include "Application/Event/Event.h"
 #include "Application/Event/ListenerHandle.h"
 #include <functional>
-#include <unordered_map>
-#include <vector>
 #include <typeindex>
-#include <memory>
+
 
 namespace Ryu::Event
 {

@@ -1,5 +1,4 @@
 #include "Application/Window/Window.h"
-#include "Core/Common/Assert.h"
 #include "Core/Utils/StringConv.h"
 #include "Core/Config/CmdLine.h"
 #include "Core/Profiling/Profiling.h"

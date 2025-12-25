@@ -1,7 +1,4 @@
 #pragma once
-#include "Core/Common/API.h"
-#include "Core/Common/ObjectMacros.h"
-#include <memory>
 
 namespace Ryu::App { class App; }
 namespace Ryu::Window { class Window; }

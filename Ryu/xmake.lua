@@ -15,6 +15,10 @@ target("RyuCore")
 	add_files("Core/Utils/**.cpp", { unity_group = "Utilities" })
 	add_headerfiles("Core/**.h", { public = true })
 
+	-- Precompiled header
+	set_pcxxheader("Core/RyuPCH.h")
+	add_forceincludes("Core/RyuPCH.h", { public = true })
+
 	add_packages(
 		"spdlog", "uuid_v4", "Elos",
 	 	"toml++", "cli11", "efsw", { public = true })

@@ -1,6 +1,5 @@
 #include "Graphics/Core/GfxTexture.h"
 #include "Graphics/Core/GfxDevice.h"
-#include "Core/Common/Assert.h"
 
 namespace Ryu::Gfx
 {

@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/Common/StandardTypes.h"
 #include "Threading/Job.h"
 #include <queue>
 #include <future>

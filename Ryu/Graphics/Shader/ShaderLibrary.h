@@ -1,7 +1,5 @@
 #pragma once
 #include "Graphics/Core/GfxShader.h"
-#include <string>
-#include <unordered_map>
 #include <span>
 
 namespace Ryu::Gfx

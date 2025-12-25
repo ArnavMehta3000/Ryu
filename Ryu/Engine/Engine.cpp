@@ -1,5 +1,4 @@
 #include "Engine/Engine.h"
-#include "Core/Common/Assert.h"
 #include "Core/Config/ConfigManager.h"
 #include "Core/Globals/Globals.h"
 #include "Memory/New.h"

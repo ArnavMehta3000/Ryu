@@ -1,5 +1,4 @@
 #pragma once
-#include <string_view>
 #include <ShaderType.Generated.h>
 
 namespace Ryu::Gfx

@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/Common/StandardTypes.h"
 
 namespace Ryu::Asset
 {

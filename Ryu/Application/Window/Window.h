@@ -1,10 +1,7 @@
 #pragma once
-#include "Core/Common/ObjectMacros.h"
 #include "Application/Window/WindowEvents.h"
 #include "Application/Window/Input/InputSystem.h"
 #include "Application/Event/EventEmitter.h"
-#include <unordered_map>
-#include <memory>
 
 
 namespace Ryu::Window

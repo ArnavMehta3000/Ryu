@@ -1,16 +1,12 @@
 #pragma once
 #include "Core/Common/Common.h"
-#include <string>
-#include <string_view>
 #include <functional>
-#include <vector>
 #include <optional>
 
 namespace Ryu::Config
 {
 	namespace Internal
 	{
-
 		// Helper to get the element type from vector
 		template<typename T>
 		struct VectorElementType { using type = T; };

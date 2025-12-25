@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/Common/Common.h"
 #include <GameInput/GameInput.h>
 #include <wrl/client.h>
 

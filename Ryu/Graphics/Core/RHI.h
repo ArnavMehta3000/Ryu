@@ -1,7 +1,4 @@
 #pragma once
-#include "Core/Common/Common.h"
-#include <array>
-
 namespace Ryu::Gfx
 {
 	constexpr u32 TIMEOUT_DURATION        = 5000;

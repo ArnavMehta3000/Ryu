@@ -1,5 +1,4 @@
 #pragma once
-#include "Core/Common/ObjectMacros.h"
 #include "Application/Event/Event.h"
 #include "Application/Event/EventDispatcher.h"
 #include <optional>

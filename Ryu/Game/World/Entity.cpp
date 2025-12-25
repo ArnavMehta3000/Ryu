@@ -1,5 +1,4 @@
 #include "Game/World/Entity.h"
-#include "Core/Common/Assert.h"
 
 #define WorldCheck() RYU_ASSERT(m_world, "Entity is not attached to a world!")
 

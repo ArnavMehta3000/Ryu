@@ -1,8 +1,6 @@
 #pragma once
 #include "Asset/AssetHandle.h"
 #include "Asset/AssetLoader.h"
-#include <unordered_map>
-#include <vector>
 
 namespace Ryu::Asset
 {

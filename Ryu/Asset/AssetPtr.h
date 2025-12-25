@@ -1,7 +1,5 @@
 #pragma once
-#include "Core/Common/ObjectMacros.h"
 #include "Asset/AssetHandle.h"
-#include <memory>
 
 namespace Ryu::Asset
 {

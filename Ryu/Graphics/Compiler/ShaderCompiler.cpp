@@ -1,5 +1,4 @@
 #include "Graphics/Compiler/ShaderCompiler.h"
-#include "Core/Common/Assert.h"
 #include "Core/Logging/Logger.h"
 #include "Core/Utils/StringConv.h"
 #include <fstream>

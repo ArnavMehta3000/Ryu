@@ -10,7 +10,7 @@ namespace Ryu::Gfx
 {
 	Renderer::Renderer(HWND window, IRendererHook* hook)
 		: m_hook(hook)
-		, m_shaderLibrary("./Shaders/Compiled")
+		, m_shaderLibrary("./Shaders/Compiled"sv)
 	{
 		RYU_PROFILE_SCOPE();
 

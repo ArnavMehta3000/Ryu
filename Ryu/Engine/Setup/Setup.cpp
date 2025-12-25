@@ -1,6 +1,5 @@
 #include "Engine/Setup/Setup.h"
 #include "Engine/EngineSettings.h"
-#include "Core/Common/Assert.h"
 #include "Core/Config/CmdLine.h"
 #include "Core/Logging/Logger.h"
 #include "Core/Utils/MessageBox.h"

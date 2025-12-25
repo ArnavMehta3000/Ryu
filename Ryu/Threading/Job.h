@@ -1,8 +1,6 @@
 #pragma once
 #include "Threading/JobHandle.h"
 #include <functional>
-#include <memory>
-#include <vector>
 
 namespace Ryu::MT
 {

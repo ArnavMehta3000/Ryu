@@ -1,6 +1,5 @@
 #include "Graphics/Core/GfxDevice.h"
 #include "Graphics/Core/GfxDeviceChild.h"
-#include "Core/Common/Assert.h"
 #include "Graphics/GraphicsSettings.h"
 #include "Graphics/Core/Debug/DebugLayer.h"
 #include "Core/Utils/StringConv.h"

@@ -1,9 +1,7 @@
 #pragma once
-#include "Core/Common/Common.h"
 #include "Core/Utils/Timing/FrameTimer.h"
 #include "Application/Window/Window.h"
 #include "Core/Logging/Logger.h"
-#include <memory>
 
 namespace Ryu::Engine { class Engine; }
 namespace Ryu::Editor { class EditorApp; }

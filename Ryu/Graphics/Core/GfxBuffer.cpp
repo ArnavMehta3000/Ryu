@@ -1,8 +1,6 @@
 #include "Graphics/Core/GfxBuffer.h"
 #include "Graphics/Core/GfxDevice.h"
-
 #include "Graphics/Core/GfxCommandList.h"
-#include "Core/Common/Assert.h"
 
 namespace Ryu::Gfx
 {

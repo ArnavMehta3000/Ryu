@@ -1,8 +1,6 @@
 #pragma once
-#include "Core/Common/Enum.h"
 #include "Core/Utils/UUID.h"
 #include "Core/Utils/Reflection.h"
-#include <string>
 #include <bitset>
 
 namespace Ryu::Game

@@ -1,6 +1,4 @@
 #include "Graphics/Core/DX12.h"
-#include "Core/Common/Assert.h"
-#include "Core/Common/StandardTypes.h"
 #include "Core/Utils/StringConv.h"
 #include <numeric>
 

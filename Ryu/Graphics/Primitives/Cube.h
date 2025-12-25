@@ -1,7 +1,5 @@
 #pragma once
-#include "Core/Common/StandardTypes.h"
 #include "Graphics/Primitives/VertexTypes.h"
-#include <array>
 
 namespace Ryu::Gfx::Primitives
 {

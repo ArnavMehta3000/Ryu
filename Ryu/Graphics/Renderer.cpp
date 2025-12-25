@@ -3,6 +3,7 @@
 #include "Graphics/IRendererHook.h"
 #include "Graphics/Core/GfxTexture.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
+#include "Graphics/Primitives/Triangle.h"
 #include "Graphics/Primitives/Cube.h"
 #include "Core/Profiling/Profiling.h"
 
@@ -20,7 +21,7 @@ namespace Ryu::Gfx
 		const auto [w, h] = m_device->GetClientSize();
 		m_camera.SetViewportSize((f32)w, (f32)h);
 
-
+		CreatePrimitiveTypes();
 		CreateResources();
 
 #if defined(RYU_WITH_EDITOR)
@@ -41,6 +42,57 @@ namespace Ryu::Gfx
 #endif
 	}
 
+	void Renderer::CreatePrimitiveTypes()
+	{
+		// Create triangle
+		{
+			Buffer::Desc vbDesc
+			{
+				.SizeInBytes   = Primitives::TriangleVertexBufferSize,
+				.StrideInBytes = sizeof(VertexPosCol),
+				.Usage         = Buffer::Usage::Default,  // GPU only memory
+				.Type          = Buffer::Type::Vertex,
+				.Name          = "Triangle Vertex Buffer"
+			};
+
+			m_primitives[0] = Mesh(m_device.get(), vbDesc, nullptr);
+			m_primitives[0].SetDrawInfo(Mesh::DrawInfo
+			{
+				.VertexCountPerInstance = (u32)Primitives::TriangleVerticesPosCol.size(),
+				.InstanceCount = 1
+			});
+		}
+
+
+		// Create Cube
+		{
+			Buffer::Desc vbDesc
+			{
+				.SizeInBytes   = Primitives::CubeVertexBufferSize,
+				.StrideInBytes = sizeof(VertexPosCol),
+				.Usage         = Buffer::Usage::Default,  // GPU only memory
+				.Type          = Buffer::Type::Vertex,
+				.Name          = "Cube Vertex Buffer"
+			};
+
+			Buffer::Desc ibDesc
+			{
+				.SizeInBytes = Primitives::CubeIndexBufferSize,
+				.Usage       = Buffer::Usage::Default,  // GPU only memory
+				.Type        = Buffer::Type::Index,
+				.Format      = DXGI_FORMAT_R16_UINT,
+				.Name        = "Cube Index Buffer"
+			};
+
+			m_primitives[1] = Mesh(m_device.get(), vbDesc, &ibDesc);
+			m_primitives[1].SetDrawInfo(Mesh::DrawInfo
+				{
+					.IndexCountPerInstance = (u32)Primitives::CubeIndices.size(),
+					.InstanceCount = 1
+				});
+		}
+	}
+
 	void Renderer::CreateResources()
 	{
 		RYU_PROFILE_SCOPE();
@@ -48,7 +100,6 @@ namespace Ryu::Gfx
 		CompileShaders();
 		CreateConstantBuffer();
 		CreatePipelineState();
-		CreateMeshBuffers();
 	}
 
 	void Renderer::CompileShaders()
@@ -141,31 +192,6 @@ namespace Ryu::Gfx
 		m_constantBuffer = std::make_unique<Buffer>(m_device.get(), cbDesc, handle);
 	}
 
-	void Renderer::CreateMeshBuffers()
-	{
-		// Create vertex buffer
-		Buffer::Desc vbDesc
-		{
-			.SizeInBytes   = Primitives::CubeVertexBufferSize,
-			.StrideInBytes = sizeof(VertexPosCol),
-			.Usage         = Buffer::Usage::Default,  // GPU only memory
-			.Type          = Buffer::Type::Vertex,
-			.Name          = "Cube Vertex Buffer"
-		};
-		m_vertexBuffer = std::make_unique<Buffer>(m_device.get(), vbDesc);
-
-		// Create the index buffer
-		Buffer::Desc ibDesc
-		{
-			.SizeInBytes   = Primitives::CubeIndexBufferSize,
-			.Usage         = Buffer::Usage::Default,  // GPU only memory
-			.Type          = Buffer::Type::Index,
-			.Format        = DXGI_FORMAT_R16_UINT,
-			.Name          = "Cube Index Buffer"
-		};
-		m_indexBuffer = std::make_unique<Buffer>(m_device.get(), ibDesc);
-	}
-
 	static f32 t = 0;
 
 	void Renderer::Render()
@@ -186,17 +212,10 @@ namespace Ryu::Gfx
 		cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		m_device->SetBackBufferRenderTarget(true);
 
-		if (m_vertexBuffer->NeedsUpload())
-		{
-			m_vertexBuffer->UploadData(*cmdList, Primitives::CubeVerticesPosCol.data());
-		}
+		m_primitives[0].UploadBufferData(*cmdList, (void*)Primitives::TriangleVerticesPosCol.data(), nullptr);
+		m_primitives[1].UploadBufferData(*cmdList, (void*)Primitives::CubeVerticesPosCol.data(), (void*)Primitives::CubeIndices.data());
 
-		if (m_indexBuffer->NeedsUpload())
-		{
-			m_indexBuffer->UploadData(*cmdList, Primitives::CubeIndices.data());
-		}
-
-		if (ConstantBuffer* mappedData = m_constantBuffer->Map<ConstantBuffer>())
+		if (ConstantBuffer* mappedData = m_constantBuffer->Map<ConstantBuffer>())  // Spin the meshes
 		{
 			t += 0.1f;
 			const f32 rad = DirectX::XMConvertToRadians(t);
@@ -214,10 +233,13 @@ namespace Ryu::Gfx
 			std::memcpy(mappedData, &m_cbData, sizeof(ConstantBuffer));
 		}
 
-		cmdList->SetVertexBuffer(0, *m_vertexBuffer);
-		cmdList->SetIndexBuffer(*m_indexBuffer);
-		cmdList->SetTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		cmdList->GetNative()->DrawIndexedInstanced((u32)Primitives::CubeIndices.size(), 1, 0, 0, 0);
+		// Triangle
+		m_primitives[0].SetPipelineBuffers(*cmdList, 0);
+		cmdList->DrawMeshInstanced(m_primitives[0]);
+
+		// Cube
+		m_primitives[1].SetPipelineBuffers(*cmdList, 0);
+		cmdList->DrawMeshIndexedInstanced(m_primitives[1]);
 
 #if defined(RYU_WITH_EDITOR)
 		if (m_hook)

@@ -35,7 +35,7 @@ namespace Ryu::Game
 
 		template <Utils::Deserializable T> void DeserializeIntoExistingComponent(EntityHandle handle, const toml::table& table);
 
-		[[nodiscard]] inline auto GetAllEntities() const { return m_registry.view<entt::entity>(); }
+		[[nodiscard]] inline auto GetAllEntities() const { return m_registry.view<EntityHandle>(); }
 		[[nodiscard]] inline Registry& GetRegistry() { return m_registry; }
 		[[nodiscard]] inline const Registry& GetRegistry() const { return m_registry; }
 		[[nodiscard]] inline WorldManager* GetWorldManager() const { return m_worldManager; }

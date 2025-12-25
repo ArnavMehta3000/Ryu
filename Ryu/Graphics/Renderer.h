@@ -6,11 +6,11 @@
 #include "Graphics/Core/GfxBuffer.h"
 #include "Graphics/Shader/ShaderLibrary.h"
 #include "Graphics/Camera.h"
+#include "Graphics/Mesh.h"
 
 namespace Ryu::Gfx
 {
 	class IRendererHook;
-	class ShaderLibrary;
 
 	struct ConstantBuffer
 	{
@@ -27,11 +27,11 @@ namespace Ryu::Gfx
 		void OnResize(u32 w, u32 h);
 
 	private:
+		void CreatePrimitiveTypes();
 		void CreateResources();
 		void CompileShaders();
 		void CreatePipelineState();
 		void CreateConstantBuffer();
-		void CreateMeshBuffers();
 
 	private:
 		ShaderLibrary                   m_shaderLibrary;
@@ -39,11 +39,10 @@ namespace Ryu::Gfx
 		std::unique_ptr<Device>         m_device;
 		std::unique_ptr<RootSignature>  m_rootSignature;
 		std::unique_ptr<PipelineState>  m_pipelineState;
-		std::unique_ptr<Buffer>         m_vertexBuffer;
-		std::unique_ptr<Buffer>         m_indexBuffer;
 		std::unique_ptr<Buffer>         m_constantBuffer;
 		std::unique_ptr<DescriptorHeap> m_cbvHeap;
-
+		
+		std::array<Mesh, 2>             m_primitives;  // Triangle, cube
 		Camera                          m_camera;
 		ConstantBuffer                  m_cbData{};
 		Shader*                         m_vs;

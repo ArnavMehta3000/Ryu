@@ -8,6 +8,7 @@ namespace Ryu::Gfx
 	class PipelineState;
 	class RootSignature;
 	class Buffer;
+	class Mesh;
 
 	class CommandList : public DeviceChild
 	{
@@ -23,9 +24,9 @@ namespace Ryu::Gfx
 		void End();
 
 		void SetViewports(std::span<const CD3DX12_VIEWPORT> viewports, std::span<const CD3DX12_RECT> scissors) const;
-		void SetRenderTarget(const DescriptorHandle& rtv, const DescriptorHandle& dsv) const;
 		void SetRenderTargets(std::span<const DescriptorHandle> rtv, const DescriptorHandle& dsv) const;
 		void SetVertexBuffer(u32 slot, const Buffer& buffer) const;
+		void SetRenderTarget(const DescriptorHandle& rtv, const DescriptorHandle& dsv) const;
 		void SetIndexBuffer(const Buffer& buffer) const;
 		void SetTopology(D3D12_PRIMITIVE_TOPOLOGY topology) const;
 		void SetGraphicsRootSignature(const RootSignature& rootSignature) const;
@@ -39,6 +40,10 @@ namespace Ryu::Gfx
 		void TransitionResource(DX12::Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const;
 
 		void DrawInstanced(u32 vertexCountPerInstance, u32 instanceCount, u32 startVertexLocation, u32 startInstanceLocation) const;
+		void DrawIndexedInstanced(u32 indexCountPerInstance, u32 instanceCount, u32 startVertexLocation, i32 baseVertexLocation, u32 startInstanceLocation) const;
+		
+		void DrawMeshInstanced(const Mesh& mesh);
+		void DrawMeshIndexedInstanced(const Mesh& mesh) const;
 
 	private:
 		D3D12_COMMAND_LIST_TYPE               m_type;

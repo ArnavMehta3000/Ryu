@@ -80,6 +80,5 @@ void TestbenchWorld::OnImGuiRender()
 		}
 		ImGui::End();
 	}
-
 }
 #endif

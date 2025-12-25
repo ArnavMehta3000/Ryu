@@ -3,6 +3,7 @@
 #include "Graphics/Core/GfxPipelineState.h"
 #include "Graphics/Core/GfxBuffer.h"
 #include "Graphics/Core/GfxRootSignature.h"
+#include "Graphics/Mesh.h"
 #include <ranges>
 
 namespace Ryu::Gfx
@@ -136,5 +137,22 @@ namespace Ryu::Gfx
 	void CommandList::DrawInstanced(u32 vertexCountPerInstance, u32 instanceCount, u32 startVertexLocation, u32 startInstanceLocation) const
 	{
 		m_cmdList->DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
+	}
+
+	void CommandList::DrawIndexedInstanced(u32 indexCountPerInstance, u32 instanceCount, u32 startIndexLocation, i32 baseVertexLocation, u32 startInstanceLocation) const
+	{
+		m_cmdList->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+	}
+	
+	void CommandList::DrawMeshInstanced(const Mesh& mesh)
+	{
+		const Mesh::DrawInfo& drawInfo = mesh.GetDrawInfo();
+		DrawInstanced(drawInfo.VertexCountPerInstance, drawInfo.InstanceCount, drawInfo.StartVertexLocation, drawInfo.StartInstanceLocation);
+	}
+
+	void CommandList::DrawMeshIndexedInstanced(const Mesh& mesh) const
+	{
+		const Mesh::DrawInfo& drawInfo = mesh.GetDrawInfo();
+		DrawIndexedInstanced(drawInfo.IndexCountPerInstance, drawInfo.InstanceCount, drawInfo.StartIndexLocation, drawInfo.BaseVertexLocation, drawInfo.StartInstanceLocation);
 	}
 }

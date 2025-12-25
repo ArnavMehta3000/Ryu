@@ -95,6 +95,7 @@ namespace Ryu::Gfx
 			CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
 			CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER Rasterizer;
 			CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC BlendDesc;
+			//CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL DepthStencil;
 		};
 
 		PipelineStateStream psoStream{};
@@ -103,8 +104,9 @@ namespace Ryu::Gfx
 		psoStream.PrimitiveTopology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		psoStream.VS                = CD3DX12_SHADER_BYTECODE(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize());
 		psoStream.PS                = CD3DX12_SHADER_BYTECODE(psBlob->GetBufferPointer(), psBlob->GetBufferSize());
-		psoStream.Rasterizer        = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		psoStream.BlendDesc         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoStream.Rasterizer        = CommonStates::RSCullClockwise();
+		psoStream.BlendDesc         = CommonStates::BSOpaque();
+		//psoStream.DepthStencil      = CommonStates::DSDefault();
 		psoStream.RTVFormats        =
 		{
 			.RTFormats{ DXGI_FORMAT_R8G8B8A8_UNORM },

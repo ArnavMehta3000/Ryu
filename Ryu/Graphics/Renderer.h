@@ -7,6 +7,8 @@
 #include "Graphics/Shader/ShaderLibrary.h"
 #include "Graphics/Camera.h"
 #include "Graphics/Mesh.h"
+#include "Graphics/GpuResourceFactory.h"
+#include "Asset/AssetRegistry.h"
 
 namespace Ryu::Gfx
 {
@@ -41,8 +43,10 @@ namespace Ryu::Gfx
 		std::unique_ptr<PipelineState>  m_pipelineState;
 		std::unique_ptr<Buffer>         m_constantBuffer;
 		std::unique_ptr<DescriptorHeap> m_cbvHeap;
-		
-		std::array<Mesh, 2>             m_primitives;  // Triangle, cube
+
+		std::unique_ptr<GpuResourceFactory> m_gpuFactory;
+		std::unique_ptr<Asset::AssetRegistry> m_assets;
+
 		Camera                          m_camera;
 		ConstantBuffer                  m_cbData{};
 		Shader*                         m_vs;

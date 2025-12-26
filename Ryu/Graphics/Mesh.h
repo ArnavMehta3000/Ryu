@@ -24,11 +24,12 @@ namespace Ryu::Gfx
 		Mesh() = default;
 		Mesh(Device* device, const Buffer::Desc& vbDesc, const Buffer::Desc* ibDesc);
 
-		[[nodiscard]] inline Buffer* GetVertexBuffer() const     { return m_vertexBuffer.get(); }
-		[[nodiscard]] inline Buffer* GetIndexBuffer() const      { return m_indexBuffer.get();  }
-		[[nodiscard]] inline const DrawInfo& GetDrawInfo() const { return m_drawInfo;           }
-		[[nodiscard]] inline DrawInfo& GetDrawInfo()             { return m_drawInfo;           }
-		inline void SetDrawInfo(const DrawInfo& info)            { m_drawInfo = info;           }
+		[[nodiscard]] inline bool HasIndexBuffer() const         { return m_indexBuffer != nullptr; }
+		[[nodiscard]] inline Buffer* GetVertexBuffer() const     { return m_vertexBuffer.get();     }
+		[[nodiscard]] inline Buffer* GetIndexBuffer() const      { return m_indexBuffer.get();      }
+		[[nodiscard]] inline const DrawInfo& GetDrawInfo() const { return m_drawInfo;               }
+		[[nodiscard]] inline DrawInfo& GetDrawInfo()             { return m_drawInfo;               }
+		inline void SetDrawInfo(const DrawInfo& info)            { m_drawInfo = info;               }
 
 		void UploadBufferData(const CommandList& cmdList, void* vbData, void* ibData);
 		void SetPipelineBuffers(const CommandList& cmdList, u32 slot);

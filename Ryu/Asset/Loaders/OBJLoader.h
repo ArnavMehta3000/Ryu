@@ -3,12 +3,11 @@
 
 namespace Ryu::Asset
 {
-	struct Mesh;
+    struct MeshData;
 
-	class OBJLoader
-	{
-	public:
-		static std::optional<std::unique_ptr<Mesh>> Load(const fs::path& path);
-		static void Unload(Mesh* mesh);
-	};
+    class OBJLoader
+    {
+    public:
+        static std::optional<std::unique_ptr<MeshData>> Load(const fs::path& path);
+    };
 }

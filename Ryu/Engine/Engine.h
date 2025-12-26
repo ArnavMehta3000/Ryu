@@ -3,7 +3,6 @@
 #include "Application/Event/ListenerHandle.h"
 #include "Core/Utils/Singleton.h"
 #include "Core/Utils/ServiceLocator.h"
-#include "Asset/ResourceManager.h"
 #include "Graphics/Renderer.h"
 
 namespace Ryu::Engine
@@ -35,7 +34,6 @@ namespace Ryu::Engine
 	private:
 		std::shared_ptr<App::App>               m_app;
 		std::unique_ptr<Gfx::Renderer>          m_renderer;
-		std::unique_ptr<Asset::ResourceManager> m_resourceManager;
 
 		Event::ListenerHandle m_resizeListener;
 		Event::ListenerHandle m_closeListener;

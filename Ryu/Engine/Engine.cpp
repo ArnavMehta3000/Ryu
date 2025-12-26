@@ -69,7 +69,6 @@ namespace Ryu::Engine
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_resourceManager = std::make_unique<Asset::ResourceManager>();
 		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle(), rendererHook);
 
 		RYU_LOG_TRACE("Engine initialization completed");

@@ -103,9 +103,11 @@ target("RyuAsset")
 	set_group("Ryu/Objects")
 
 	add_files("Asset/**.cpp", { unity_group = "Asset" })
-	add_headerfiles("Asset/**.h")
+	add_headerfiles("Asset/**.h", "Asset/**.inl", { public = true })
 
 	add_deps("RyuCore", "STB", "TinyOBJ", { public = true })
+	add_packages("directx-headers", "directxshadercompiler", { public = true })
+
 target_end()
 
 -------------------- Shaders Module --------------------

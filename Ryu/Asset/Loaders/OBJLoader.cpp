@@ -1,90 +1,100 @@
 #include "Asset/Loaders/OBJLoader.h"
-#include "Asset/Assets/MeshAsset.h"
+#include "Asset/AssetData.h"
 #include "Core/Logging/Logger.h"
 #include <TinyOBJ/tiny_obj_loader.h>
 #include <fstream>
 
 namespace Ryu::Asset
 {
-	std::optional<std::unique_ptr<Mesh>> OBJLoader::Load(const fs::path& path)
-	{
-		std::ifstream ifs(path);
+    std::optional<std::unique_ptr<MeshData>> OBJLoader::Load(const fs::path& path)
+    {
+        std::ifstream ifs(path);
+        if (ifs.fail())
+            return std::nullopt;
 
-		if (ifs.fail())
-		{
-			return std::nullopt;
-		}
+        tinyobj::attrib_t attrib;
+        std::vector<tinyobj::shape_t> shapes;
+        std::vector<tinyobj::material_t> materials;
+        std::string err;
 
-		std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
-		std::string err;
+        tinyobj::MaterialFileReader mtlReader(path.parent_path().string());
 
-		tinyobj::MaterialFileReader mtlReader(path.parent_path().string());
+        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, &ifs, &mtlReader))
+        {
+            return std::nullopt;
+        }
 
-		tinyobj::attrib_t attrib;
-		std::vector<tinyobj::shape_t> shapes;
-		std::vector<tinyobj::material_t> materials;
+        auto mesh = std::make_unique<MeshData>();
 
-		// Taken from TinyOBJ README
-		if (tinyobj::LoadObj(&attrib, &shapes, &materials, &err, &ifs, &mtlReader))
-		{
-			mesh->Vertices = attrib.vertices;
-			mesh->Normals = attrib.normals;
-			mesh->TexCoords = attrib.texcoords;
+        // Convert materials
+        for (const auto& mat : materials)
+        {
+            MeshData::Material m
+            {
+                .Name              = mat.name,
+                .Albedo            = { mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], 1.0f },
+                .Metallic          = mat.metallic,
+                .Roughness         = 1.0f - (mat.shininess / 1000.0f), // Approximate conversion
+                .AlbedoTexturePath = mat.diffuse_texname,
+                .NormalTexturePath = mat.bump_texname
+            };
+            mesh->Materials.push_back(m);
+        }
 
-			// Convert materials
-			for (const auto& mat : materials)
-			{
-				Mesh::Material m;
-				m.Name                = mat.name;
-				m.Ambient             = { mat.ambient[0], mat.ambient[1], mat.ambient[2] };
-				m.Diffuse             = { mat.diffuse[0], mat.diffuse[1], mat.diffuse[2] };
-				m.Specular            = { mat.specular[0], mat.specular[1], mat.specular[2] };
-				m.Transmittance       = { mat.transmittance[0], mat.transmittance[1], mat.transmittance[2] };
-				m.Emission            = { mat.emission[0], mat.emission[1], mat.emission[2] };
-				m.Shininess           = mat.shininess;
-				m.Ior                 = mat.ior;
-				m.Dissolve            = mat.dissolve;
-				m.Illumination        = mat.illum;
-				m.AmbientTextureName  = mat.ambient_texname;
-				m.DiffuseTextureName  = mat.diffuse_texname;
-				m.SpecularTextureName = mat.specular_texname;
-				m.NormalTextureName   = mat.bump_texname;
+        // Build interleaved vertices (unindex the mesh for GPU)
+        //u32 indexOffset = 0;
+        for (const auto& shape : shapes)
+        {
+            MeshData::SubMesh submesh;
+            submesh.IndexOffset = static_cast<u32>(mesh->Indices.size());
 
-				mesh->Materials.push_back(m);
-			}
+            for (size_t f = 0; f < shape.mesh.indices.size(); ++f)
+            {
+                const auto& idx = shape.mesh.indices[f];
 
-			// Extract indices and material IDs
-			for (const auto& shape : shapes)
-			{
-				for (size_t f = 0; f < shape.mesh.indices.size() / 3; ++f)
-				{
-					for (int v = 0; v < 3; ++v)
-					{
-						const auto& index = shape.mesh.indices[3 * f + v];
-						mesh->VertexIndices.push_back(index.vertex_index);
-						mesh->NormalIndices.push_back(index.normal_index);
-						mesh->TexCoordIndices.push_back(index.texcoord_index);
-					}
-					mesh->MaterialIds.push_back(shape.mesh.material_ids[f]);
-				}
-			}
+                MeshData::Vertex vertex{};
 
-			return mesh;
-		}
+                // Position
+                vertex.Position =
+                {
+                    attrib.vertices[3 * idx.vertex_index + 0],
+                    attrib.vertices[3 * idx.vertex_index + 1],
+                    attrib.vertices[3 * idx.vertex_index + 2]
+                };
 
-		return std::nullopt;
-	}
+                // Normal
+                if (idx.normal_index >= 0)
+                {
+                    vertex.Normal =
+                    {
+                        attrib.normals[3 * idx.normal_index + 0],
+                        attrib.normals[3 * idx.normal_index + 1],
+                        attrib.normals[3 * idx.normal_index + 2]
+                    };
+                }
 
-	void OBJLoader::Unload(Mesh* mesh)
-	{
-		if (mesh)
-		{
-			mesh->Vertices.clear();
-			mesh->Normals.clear();
-			mesh->TexCoords.clear();
-			mesh->VertexIndices.clear();
-			mesh->NormalIndices.clear();
-			mesh->TexCoordIndices.clear();
-		}
-	}
+                // TexCoord
+                if (idx.texcoord_index >= 0)
+                {
+                    vertex.TexCoord =
+                    {
+                        attrib.texcoords[2 * idx.texcoord_index + 0],
+                        attrib.texcoords[2 * idx.texcoord_index + 1]
+                    };
+                }
+
+                vertex.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+                mesh->Vertices.push_back(vertex);
+                mesh->Indices.push_back(static_cast<u32>(mesh->Vertices.size() - 1));
+            }
+
+            submesh.IndexCount    = static_cast<u32>(mesh->Indices.size()) - submesh.IndexOffset;
+            submesh.MaterialIndex = shape.mesh.material_ids.empty() ? 0 : shape.mesh.material_ids[0];
+
+            mesh->SubMeshes.push_back(submesh);
+        }
+
+        return mesh;
+    }
 }

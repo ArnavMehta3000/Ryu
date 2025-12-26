@@ -9,6 +9,7 @@
 #include "Graphics/Mesh.h"
 #include "Graphics/GpuResourceFactory.h"
 #include "Asset/AssetRegistry.h"
+#include "Asset/Primitives.h"
 
 namespace Ryu::Gfx
 {
@@ -41,11 +42,12 @@ namespace Ryu::Gfx
 		std::unique_ptr<Device>         m_device;
 		std::unique_ptr<RootSignature>  m_rootSignature;
 		std::unique_ptr<PipelineState>  m_pipelineState;
-		std::unique_ptr<Buffer>         m_constantBuffer;
 		std::unique_ptr<DescriptorHeap> m_cbvHeap;
 
 		std::unique_ptr<GpuResourceFactory> m_gpuFactory;
 		std::unique_ptr<Asset::AssetRegistry> m_assets;
+
+		std::array<std::unique_ptr<Buffer>, static_cast<u64>(Asset::PrimitiveType::MAX_COUNT)> m_perObjectCBs;
 
 		Camera                          m_camera;
 		ConstantBuffer                  m_cbData{};

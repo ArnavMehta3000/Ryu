@@ -4,7 +4,6 @@
 #include "Graphics/Core/GfxTexture.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Asset/AssetRegistry.h"
-#include "Asset/Primitives.h"
 #include "Core/Profiling/Profiling.h"
 
 namespace Ryu::Gfx
@@ -23,7 +22,7 @@ namespace Ryu::Gfx
 
         const auto [w, h] = m_device->GetClientSize();
         m_camera.SetViewportSize((f32)w, (f32)h);
-        m_camera.SetPosition(Math::Vector3(0.0f, 0.0f, -25.0f));
+        m_camera.SetPosition(Math::Vector3(0.0f, 0.0f, -15.0f));
 
         CreateResources();
 
@@ -58,12 +57,12 @@ namespace Ryu::Gfx
     {
         RYU_PROFILE_SCOPE();
 
-        if (Shader* vs = m_shaderLibrary.GetShader("CubeVS"))
+        if (Shader* vs = m_shaderLibrary.GetShader("MeshVS"))
         {
             m_vs = vs;
         }
 
-        if (Shader* ps = m_shaderLibrary.GetShader("CubePS"))
+        if (Shader* ps = m_shaderLibrary.GetShader("MeshPS"))
         {
             m_ps = ps;
         }
@@ -129,18 +128,24 @@ namespace Ryu::Gfx
     {
         RYU_PROFILE_SCOPE();
 
-        m_cbvHeap = std::make_unique<DescriptorHeap>(m_device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1, true, "Frame CBV Heap");
-        DescriptorHandle handle = m_cbvHeap->Allocate();
+        m_cbvHeap = std::make_unique<DescriptorHeap>(
+            m_device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 
+            u32(Asset::PrimitiveType::MAX_COUNT), true, "Frame CBV Heap");
 
-        Buffer::Desc cbDesc
+        for (size_t i = 0; i < m_perObjectCBs.size(); ++i)
         {
-            .SizeInBytes = sizeof(ConstantBuffer),
-            .Usage       = Buffer::Usage::Upload,
-            .Type        = Buffer::Type::Constant,
-            .Name        = "Constant Buffer"
-        };
+            DescriptorHandle handle = m_cbvHeap->Allocate();
 
-        m_constantBuffer = std::make_unique<Buffer>(m_device.get(), cbDesc, handle);
+            const Buffer::Desc cbDesc
+            {
+                .SizeInBytes = sizeof(ConstantBuffer),
+                .Usage       = Buffer::Usage::Upload,
+                .Type        = Buffer::Type::Constant,
+                .Name        = "Object CB " + std::to_string(i)
+            };
+
+            m_perObjectCBs[i] = std::make_unique<Buffer>(m_device.get(), cbDesc, handle);
+        }
     }
 
     static f32 t = 0;
@@ -161,18 +166,15 @@ namespace Ryu::Gfx
 
         cmdList->SetGraphicsRootSignature(*m_rootSignature);
         cmdList->SetDescriptorHeap(*m_cbvHeap);
-        cmdList->SetGraphicsConstantBuffer(0, *m_constantBuffer);
 
         cmdList->TransitionResource(*renderTarget, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
         m_device->SetBackBufferRenderTarget(true);
 
-        t += 0.01f;
+        t += 0.1f;
         const f32 rad = DirectX::XMConvertToRadians(t);
         Math::Matrix rotation = Math::Matrix::CreateRotationX(rad)
             * Math::Matrix::CreateRotationY(rad)
             * Math::Matrix::CreateRotationZ(rad);
-
-        ConstantBuffer* mappedData = m_constantBuffer->Map<ConstantBuffer>();
 
         constexpr f32 spacing = 4.0f;
         const f32 startX = -spacing * (static_cast<f32>(Asset::PrimitiveType::MAX_COUNT) - 1) * 0.5f;
@@ -183,11 +185,15 @@ namespace Ryu::Gfx
 
             if (Mesh* mesh = m_assets->GetPrimitiveGpu(type))
             {
-                // Update transform
                 Math::Matrix translation = Math::Matrix::CreateTranslation(startX + i * spacing, 0.0f, 0.0f);
                 m_cbData.WVP = rotation * translation * m_camera.GetViewProjectionMatrix();
-                std::memcpy(mappedData, &m_cbData, sizeof(ConstantBuffer));
 
+                if (ConstantBuffer* mapped = m_perObjectCBs[i]->Map<ConstantBuffer>())
+                {
+                    std::memcpy(mapped, &m_cbData, sizeof(ConstantBuffer));
+                }
+
+                cmdList->SetGraphicsConstantBuffer(0, *m_perObjectCBs[i]);
                 mesh->SetPipelineBuffers(*cmdList, 0);
 
                 if (mesh->HasIndexBuffer())

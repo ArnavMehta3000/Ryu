@@ -114,8 +114,7 @@ target_end()
 target("RyuShaders")
 	set_kind('object')
 	set_group("Ryu/Objects")
-	add_files("Shaders/Triangle.hlsl", { rule = "RyuOfflineShader", type = { "VS", "PS" }, refl = true, rootsig = "RootSig" })
-	add_files("Shaders/Cube.hlsl", { rule = "RyuOfflineShader", type = { "VS", "PS" }, refl = true, rootsig = "RootSig" })
+	add_files("Shaders/**.hlsl", { rule = "RyuOfflineShader", type = { "VS", "PS" }, refl = true, rootsig = "RootSig" })
 target_end()
 
 -------------------- Graphics Module --------------------

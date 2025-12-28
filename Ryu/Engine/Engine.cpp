@@ -171,12 +171,12 @@ namespace Ryu::Engine
 		// Create window event listeners
 		auto window = m_app->GetWindow();
 
-		m_resizeListener = window->On<Window::ResizeEvent>([this] (const Window::ResizeEvent& e)
+		m_resizeListener = window->Subscribe<Window::ResizeEvent>([this] (const Window::ResizeEvent& e)
 		{
 			OnAppResize(e.Width, e.Height);
 		});
 
-		m_closeListener = window->On<Window::CloseEvent>([this] (const Window::CloseEvent&)
+		m_closeListener = window->Subscribe<Window::CloseEvent>([this] (const Window::CloseEvent&)
 		{
 			Quit();
 		});

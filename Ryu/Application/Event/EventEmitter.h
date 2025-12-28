@@ -9,7 +9,7 @@ namespace Ryu::Event
 	{
 	public:
 		template<typename EventType, typename CallbackType>
-		ListenerHandle On(CallbackType&& callback)
+		ListenerHandle Subscribe(CallbackType&& callback)
 		{
 			return m_dispatcher.Subscribe<EventType>(std::forward<CallbackType>(callback));
 		}

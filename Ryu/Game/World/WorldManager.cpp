@@ -54,10 +54,10 @@ namespace Ryu::Game
 	{
 		if (m_activeWorld)
 		{
-			m_onWorldCreationBeginEventHandle    = m_activeWorld->On<WorldCreationBeginEvent>([this](const WorldCreationBeginEvent&)       { OnWorldCreationBegin(*m_activeWorld);    });
-			m_onWorldCreationEndEventHandle      = m_activeWorld->On<WorldCreationEndEvent>([this](const WorldCreationEndEvent&)           { OnWorldCreationEnd(*m_activeWorld);      });
-			m_onWorldDestructionBeginEventHandle = m_activeWorld->On<WorldDestructionBeginEvent>([this](const WorldDestructionBeginEvent&) { OnWorldDestructionBegin(*m_activeWorld); });
-			m_onWorldDestructionEndEventHandle   = m_activeWorld->On<WorldDestructionEndEvent>([this](const WorldDestructionEndEvent&)     { OnWorldDestructionEnd(*m_activeWorld);   });
+			m_onWorldCreationBeginEventHandle    = m_activeWorld->Subscribe<WorldCreationBeginEvent>([this](const WorldCreationBeginEvent&)       { OnWorldCreationBegin(*m_activeWorld);    });
+			m_onWorldCreationEndEventHandle      = m_activeWorld->Subscribe<WorldCreationEndEvent>([this](const WorldCreationEndEvent&)           { OnWorldCreationEnd(*m_activeWorld);      });
+			m_onWorldDestructionBeginEventHandle = m_activeWorld->Subscribe<WorldDestructionBeginEvent>([this](const WorldDestructionBeginEvent&) { OnWorldDestructionBegin(*m_activeWorld); });
+			m_onWorldDestructionEndEventHandle   = m_activeWorld->Subscribe<WorldDestructionEndEvent>([this](const WorldDestructionEndEvent&)     { OnWorldDestructionEnd(*m_activeWorld);   });
 		}
 	}
 

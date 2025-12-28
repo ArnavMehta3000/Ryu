@@ -142,7 +142,7 @@ namespace Ryu::Gfx
 	void Device::Present()
 	{
 		RYU_PROFILE_BOOKMARK("Present");
-		auto& settings = Settings::Get();
+		static auto& settings = Settings::Get();
 
 		u32 syncInterval = settings.EnableVSync ? 1 : 0;
 		u32 presentFlags = 0;

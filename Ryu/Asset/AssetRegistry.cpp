@@ -1,6 +1,7 @@
 #include "Asset/AssetRegistry.h"
 #include "Asset/Loaders/ImageLoader.h"
 #include "Asset/Loaders/OBJLoader.h"
+#include "Core/Profiling/Profiling.h"
 
 namespace Ryu::Asset
 {
@@ -8,6 +9,7 @@ namespace Ryu::Asset
 		: m_meshCache(gpuFactory)
 		, m_textureCache(gpuFactory)
 	{
+		RYU_PROFILE_SCOPE();
 		RegisterDefaultLoaders();
 		RegisterPrimitives();
 	}
@@ -25,11 +27,13 @@ namespace Ryu::Asset
 
 	Gfx::Mesh* AssetRegistry::GetPrimitiveGpu(PrimitiveType type)
 	{
+		RYU_PROFILE_SCOPE();
 		return m_meshCache.GetGpu(GetPrimitive(type));
 	}
 
 	void AssetRegistry::LoadAll()
 	{
+		RYU_PROFILE_SCOPE();
 		m_meshCache.ForEach([this](MeshHandle handle, const MeshCache::Entry&)
 		{
 			std::ignore = m_meshCache.GetGpu(handle);
@@ -43,12 +47,14 @@ namespace Ryu::Asset
 
 	void AssetRegistry::InvalidateAll()
 	{
+		RYU_PROFILE_SCOPE();
 		m_meshCache.InvalidateAll();
 		m_textureCache.InvalidateAll();
 	}
 
 	void AssetRegistry::RegisterDefaultLoaders()
 	{
+		RYU_PROFILE_SCOPE();
 		m_meshCache.RegisterLoader(".obj", OBJLoader::Load);
 
 		m_textureCache.RegisterLoader(".png", ImageLoader::Load);
@@ -59,6 +65,7 @@ namespace Ryu::Asset
 
 	void AssetRegistry::RegisterPrimitives()
 	{
+		RYU_PROFILE_SCOPE();
 		// Register all built-in primitives
 		m_primitives[static_cast<u64>(PrimitiveType::Triangle)] = m_meshCache.Register("Primitive:Triangle", Primitives::CreateTriangle());
 		m_primitives[static_cast<u64>(PrimitiveType::Cube)]     = m_meshCache.Register("Primitive:Cube", Primitives::CreateCube());

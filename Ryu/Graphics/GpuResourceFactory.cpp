@@ -1,5 +1,5 @@
-#include "GpuResourceFactory.h"
 #include "Graphics/GpuResourceFactory.h"
+#include "Core/Profiling/Profiling.h"
 
 namespace Ryu::Gfx
 {
@@ -8,6 +8,7 @@ namespace Ryu::Gfx
 
     std::unique_ptr<Gfx::Mesh> GpuResourceFactory::CreateMesh(const Asset::MeshData& data, std::string_view name)
     {
+        RYU_PROFILE_SCOPE();
         if (data.Vertices.empty())
         {
             return nullptr;
@@ -60,6 +61,7 @@ namespace Ryu::Gfx
 
     std::unique_ptr<Gfx::Texture> GpuResourceFactory::CreateTexture(const Asset::TextureData& data, std::string_view name)
     {
+        RYU_PROFILE_SCOPE();
         if (data.Data.empty())
         {
             return nullptr;
@@ -81,6 +83,8 @@ namespace Ryu::Gfx
 
     void GpuResourceFactory::ProcessPendingUploads(Gfx::CommandList& cmdList)
     {
+        RYU_PROFILE_SCOPE();
+
         while (!m_pendingMeshUploads.empty())
         {
             PendingMeshUpload& upload = m_pendingMeshUploads.front();

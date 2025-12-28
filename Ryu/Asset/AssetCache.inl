@@ -1,11 +1,13 @@
 #include "AssetCache.h"
 #include "Core/Logging/Logger.h"
+#include "Core/Profiling/Profiling.h"
 
 namespace Ryu::Asset
 {
 	template<typename TAssetData, typename TGpuResource>
 	inline AssetHandle<TAssetData> AssetCache<TAssetData, TGpuResource>::Register(const fs::path& path)
 	{
+		RYU_PROFILE_SCOPE();
 		std::unique_lock lock(m_mutex);
 
 		// Check if already registered
@@ -39,6 +41,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
     inline AssetHandle<TAssetData> AssetCache<TAssetData, TGpuResource>::Register(AssetId id, std::unique_ptr<TAssetData> data, std::string_view name)
     {
+		RYU_PROFILE_SCOPE();
     	std::unique_lock lock(m_mutex);
 
 		// Check if already registered
@@ -63,6 +66,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline AssetHandle<TAssetData> AssetCache<TAssetData, TGpuResource>::Register(std::string_view name, std::unique_ptr<TAssetData> data)
 	{
+		RYU_PROFILE_SCOPE();
 		const AssetId id = std::hash<std::string_view>{}(name);
 		return Register(id, std::move(data), name);
 	}
@@ -70,6 +74,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline TGpuResource* AssetCache<TAssetData, TGpuResource>::GetGpu(AssetHandle<TAssetData> handle)
 	{
+		RYU_PROFILE_SCOPE();
 		if (!handle.IsValid())
 		{
 			RYU_LOG_WARN("Invalid asset handle");
@@ -122,6 +127,8 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline const TAssetData* AssetCache<TAssetData, TGpuResource>::GetCpu(AssetHandle<TAssetData> handle)
 	{
+		RYU_PROFILE_SCOPE();
+
 		if (!handle.IsValid())
 		{
 			return nullptr;
@@ -154,6 +161,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline AssetState AssetCache<TAssetData, TGpuResource>::GetState(AssetHandle<TAssetData> handle) const
 	{
+		RYU_PROFILE_SCOPE();
 		std::shared_lock lock(m_mutex);
 
 		if (const Entry* entry = FindEntry(handle.id))
@@ -167,6 +175,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline void AssetCache<TAssetData, TGpuResource>::AddRef(AssetHandle<TAssetData> handle)
 	{
+		RYU_PROFILE_SCOPE();
 		std::unique_lock lock(m_mutex);
 
 		if (Entry* entry = FindEntry(handle.id))
@@ -178,6 +187,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline void AssetCache<TAssetData, TGpuResource>::Release(AssetHandle<TAssetData> handle)
 	{
+		RYU_PROFILE_SCOPE();
 		std::unique_lock lock(m_mutex);
 
 		Entry* entry = FindEntry(handle.id);
@@ -192,6 +202,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline void AssetCache<TAssetData, TGpuResource>::Invalidate(AssetHandle<TAssetData> handle)
 	{
+		RYU_PROFILE_SCOPE();
 		std::unique_lock lock(m_mutex);
 
 		Entry* entry = FindEntry(handle.id);
@@ -209,6 +220,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline void AssetCache<TAssetData, TGpuResource>::InvalidateAll()
 	{
+		RYU_PROFILE_SCOPE();
 		std::unique_lock lock(m_mutex);
 
 		for (auto& [id, entry] : m_entries)
@@ -225,6 +237,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline void AssetCache<TAssetData, TGpuResource>::RegisterLoader(const std::string& extension, LoadFunc<TAssetData> loader)
 	{
+		RYU_PROFILE_SCOPE();
 		RYU_LOG_DEBUG("Registering loader for extension {}", extension);
 		m_loaderRegistry.Register(extension, std::move(loader));
 	}
@@ -232,6 +245,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline typename AssetCache<TAssetData, TGpuResource>::Entry* AssetCache<TAssetData, TGpuResource>::FindEntry(AssetId id)
 	{
+		RYU_PROFILE_SCOPE();
 		auto it = m_entries.find(id);
 		return it != m_entries.end() ? &it->second : nullptr;
 	}
@@ -239,6 +253,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	inline bool AssetCache<TAssetData, TGpuResource>::LoadCpuData(Entry& entry)
 	{
+		RYU_PROFILE_SCOPE();
 		if (entry.IsProcedural)
 		{
 			return entry.CpuData != nullptr;
@@ -261,6 +276,7 @@ namespace Ryu::Asset
 	template<typename TAssetData, typename TGpuResource>
 	bool AssetCache<TAssetData, TGpuResource>::CreateGpuResource(Entry& entry, std::string_view name)
 	{
+		RYU_PROFILE_SCOPE();
 		if (!m_gpuFactory || !entry.CpuData)
 		{
 			return false;

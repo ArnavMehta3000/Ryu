@@ -10,9 +10,6 @@ namespace Ryu::Gfx
 
 namespace Ryu::Asset
 {
-	using MeshHandle = AssetHandle<MeshData>;
-	using TextureHandle = AssetHandle<TextureData>;
-
 	using MeshCache = AssetCache<MeshData, Gfx::Mesh>;
 	using TextureCache = AssetCache<TextureData, Gfx::Texture>;
 

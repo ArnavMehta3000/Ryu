@@ -1,4 +1,5 @@
 #pragma once
+#include "Asset/AssetHandle.h"
 
 namespace Ryu::Asset
 {
@@ -89,4 +90,7 @@ namespace Ryu::Asset
             default:              return 4;
         }
     }
+
+	using MeshHandle = AssetHandle<MeshData>;
+	using TextureHandle = AssetHandle<TextureData>;
 }

@@ -55,8 +55,12 @@ namespace Ryu::Gfx
 #define DXCallEx(hr, dx12Device) ::Ryu::Gfx::Internal::LogHRESULT(hr, dx12Device, #hr, __FILE__, __FUNCTION__, __LINE__)
 
 // Useful for wrapping D3D12 objects (assuming VarName is a ComPtr)
-#define RYU_GFX_NATIVE(VarName)                                                                 \
-	[[nodiscard]] inline auto GetNative() const noexcept { return VarName.Get(); }              \
-	inline void SetName(const char* name) const { DX12::SetObjectName(VarName.Get(), name); }   \
-	operator auto* () const noexcept { return VarName.Get(); }                                  \
+#define RYU_GFX_NATIVE(VarName)                                                     \
+	inline void SetName(const char* name) const                                     \
+	{                                                                               \
+		DX12::SetObjectName(VarName.Get(), name);                                   \
+		RYU_DEBUG_OP(m_debugName = name);                                           \
+	}                                                                               \
+	[[nodiscard]] inline auto GetNative() const noexcept { return VarName.Get(); }  \
+	operator auto* () const noexcept { return VarName.Get(); }                      \
 	operator bool () const noexcept { return VarName.Get() != nullptr; }

@@ -13,6 +13,8 @@ namespace Ryu::Editor
 	public:
 		EditorApp(std::shared_ptr<Window::Window> window);
 
+		[[nodiscard]] inline Game::WorldManager* GetWorldManager() noexcept { return m_userApp ? m_userApp->GetWorldManager() : nullptr; }
+
 	private:
 		bool OnInit() override final;
 		void OnShutdown() override final;

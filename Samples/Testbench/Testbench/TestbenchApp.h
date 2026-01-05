@@ -14,7 +14,7 @@ public:
 	void OnShutdown() override;
 	void OnTick(const Ryu::Utils::FrameTimer& timer) override;
 
-	[[nodiscard]] inline Game::WorldManager* GetWorldManager() noexcept override { return &m_worldManager; }
+	[[nodiscard]] inline Ryu::Game::WorldManager* GetWorldManager() noexcept override { return &m_worldManager; }
 
 private:
 	void TestSerialization();

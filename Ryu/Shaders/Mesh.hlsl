@@ -1,10 +1,22 @@
 #define RootSig \
     "RootFlags(ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT), " \
-    "CBV(b0, space=0, visibility=SHADER_VISIBILITY_VERTEX)"
+    "CBV(b0, space=0, visibility=SHADER_VISIBILITY_ALL), " \
+    "CBV(b1, space=0, visibility=SHADER_VISIBILITY_VERTEX)"
 
-cbuffer cbPerObject : register(b0)
+cbuffer cbPerFrame : register(b0)
 {
+	float4x4 gView;
+	float4x4 gProjection;
+	float4x4 gViewProjection;
+	float4 gCameraPosition; // xyz = position, w = unused
+	float4 gTime; // x = deltaTime, y = totalTime, zw = unused
+}
+
+cbuffer cbPerObject : register(b1)
+{
+	float4x4 gWorld;
 	float4x4 gWorldViewProj;
+	//float4x4 gNormalMatrix; // Inverse transpose of world for lighting
 }
 
 struct VSInput
@@ -19,37 +31,41 @@ struct VSInput
 struct PSInput
 {
 	float4 position : SV_POSITION;
+	float3 worldPos : WORLDPOS;
+	float3 normal : NORMAL;
+	float2 texcoord : TEXCOORD;
 	float4 color : COLOR;
 };
-
-// Hash function for random color generation
-float3 HashToColor(uint seed)
-{
-	uint h = seed;
-	h ^= h >> 16;
-	h *= 0x85ebca6b;
-	h ^= h >> 13;
-	h *= 0xc2b2ae35;
-	h ^= h >> 16;
-    
-	float3 color;
-	color.r = ((h >> 0) & 0xFF) / 255.0;
-	color.g = ((h >> 8) & 0xFF) / 255.0;
-	color.b = ((h >> 16) & 0xFF) / 255.0;
-	return color;
-}
 
 [RootSignature(RootSig)]
 PSInput VSMain(VSInput input)
 {
 	PSInput result;
+    
+	float4 worldPos = mul(gWorld, float4(input.position, 1.0f));
 	result.position = mul(gWorldViewProj, float4(input.position, 1.0f));
-	result.color = float4(HashToColor(input.vertexID), 1.0f);
+	result.worldPos = worldPos.xyz;
+	result.normal = float3(1.0f, 1.0f, 1.0f);
+	//result.normal = mul((float3x3) gNormalMatrix, input.normal);
+	result.texcoord = input.texcoord;
+	result.color = input.color;
+    
 	return result;
 }
 
 [RootSignature(RootSig)]
 float4 PSMain(PSInput input) : SV_TARGET
 {
-	return input.color;
+    // Simple directional light for visualization
+	float3 lightDir = normalize(float3(1.0f, 1.0f, -1.0f));
+	float3 normal = normalize(input.normal);
+	float ndotl = saturate(dot(normal, lightDir));
+    
+	float3 ambient = 0.15f;
+	float3 diffuse = ndotl * 0.85f;
+    
+	//float3 baseColor = input.color.rgb;
+    float3 baseColor = float3(input.texcoord, 1.0f);
+    
+	return float4(baseColor * (ambient + diffuse), input.color.a);
 }

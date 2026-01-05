@@ -42,7 +42,13 @@ namespace Ryu::Gfx
 
 		virtual void ReleaseObject() override;
 
-		static constexpr u32 CalculateConstantBufferSize(u32 byteSize);
+		static inline constexpr u32 CalculateConstantBufferSize(u32 byteSize)
+		{
+			// Round up to the nearest multiple of 256.
+			// Do this by adding 255 and then masking off the lower 2 bits.
+			// Ref: https://github.com/d3dcoder/d3d12book/blob/4cfd00afa59210a272f62caf0660478d18b9ffed/Common/d3dUtil.h#L99
+			return (byteSize + 255) & ~255;
+		}
 
 		[[nodiscard]] D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const;
 		[[nodiscard]] D3D12_INDEX_BUFFER_VIEW GetIndexBufferView(DXGI_FORMAT format = DXGI_FORMAT_R32_UINT) const;

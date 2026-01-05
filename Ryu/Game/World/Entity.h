@@ -50,7 +50,7 @@ namespace Ryu::Game
 
 	private:
 		EntityHandle m_handle = InvalidEntityHandle;
-		World* m_world = nullptr;
+		World*       m_world = nullptr;
 	};
 }
 

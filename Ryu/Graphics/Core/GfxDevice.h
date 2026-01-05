@@ -18,6 +18,7 @@ namespace Ryu::Gfx
 		[[nodiscard]] inline HWND GetWindow() const noexcept { return m_window; }
 		
 		[[nodiscard]] inline u32 GetFrameIndex() const noexcept { return m_frameIndex; }
+		[[nodiscard]] inline const CD3DX12FeatureSupport& GetFeatureSupport() const noexcept { return m_featureSupport; }
 		[[nodiscard]] inline DX12::Device* GetNativeDevice() const noexcept { return m_device.Get(); }
 		[[nodiscard]] inline DXGI::Factory* GetFactory() const noexcept { return m_factory.Get(); }
 		[[nodiscard]] inline CommandList* GetGraphicsCommandList() const noexcept { return m_cmdList.get(); }
@@ -46,6 +47,7 @@ namespace Ryu::Gfx
 		void CreateFrameResources(bool isResizing);
 
 	private:
+		CD3DX12FeatureSupport                m_featureSupport;
 		bool                                 m_isWarpDevice = false;
 		bool                                 m_supportsTearing = false;
 

@@ -85,7 +85,6 @@ namespace Ryu::Gfx
 
         for (const auto& [entity, transform, renderer] :  view.each())
         {
-
             if (!renderer.IsVisible                                      // Skip invisible
                 || ((cullingMask & (1u << renderer.RenderLayer)) == 0))  // Layer culling
             {
@@ -106,7 +105,7 @@ namespace Ryu::Gfx
         auto& registry = world.GetRegistry();
         auto view = registry.view<Game::Transform, Game::Camera>();
 
-        RYU_TODO("Get actual screen size from somewhere (passed in or from device")
+        RYU_TODO("Remove these hard-coded numbers for testing and get actual screen size from somewhere")
         constexpr u32 screenWidth = 1280;
         constexpr u32 screenHeight = 720;
 

@@ -1,12 +1,15 @@
 #include "Engine/Engine.h"
+
+#include "Application/App/Utils/PathManager.h"
 #include "Core/Config/ConfigManager.h"
 #include "Core/Globals/Globals.h"
-#include "Memory/New.h"
-#include "Math/Math.h"
-#include "Application/App/Utils/PathManager.h"
-#include "Core/Utils/Timing/Stopwatch.h"
 #include "Core/Logging/Logger.h"
 #include "Core/Profiling/Profiling.h"
+#include "Core/Utils/Timing/Stopwatch.h"
+#include "Game/World/WorldManager.h"
+#include "Math/Math.h"
+#include "Memory/New.h"
+
 #include <DirectXMath.h>
 #include <wrl/event.h>
 
@@ -121,8 +124,17 @@ namespace Ryu::Engine
 				frameTimer.Tick();
 				m_app->ProcessWindowEvents();
 
+				// Update application
 				m_app->OnTick(frameTimer);
-				m_renderer->Render();
+
+				// Render world if present
+				if (Game::WorldManager* manager = m_app->GetWorldManager())
+				{
+					if (Game::World* world = manager->GetActiveWorld())
+					{
+						m_renderer->RenderWorld(*world, frameTimer);
+					}
+				}
 
 				m_app->GetWindow()->ProcessEventQueue();
 

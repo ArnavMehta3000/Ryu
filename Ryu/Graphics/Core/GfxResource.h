@@ -11,7 +11,7 @@ namespace Ryu::Gfx
 
 		virtual inline void ReleaseObject() override { ComRelease(m_resource); }
 
-		RYU_GFX_NATIVE(m_resource);
+		RYU_GFX_NATIVE(m_resource)
 	
 	protected:
 		ComPtr<DX12::Resource> m_resource;

@@ -1,10 +1,28 @@
 #include "Testbench/TestbenchWorld.h"
 #include "Core/Logging/Logger.h"
+#include "Asset/Primitives.h"
+#include "Engine/Engine.h"
+#include "Game/World/Entity.h"
+#include "Game/Components/TransformComponent.h"
+#include "Game/Components/CameraComponent.h"
+#include "Game/Components/MeshRenderer.h"
 #include <ImGui/imgui.h>
 
 void TestbenchWorld::OnCreate()
 {
 	RYU_LOG_DEBUG("Testbench World Created");
+	using namespace Ryu;
+	// Create dummy entities
+	Game::Entity camEntity = CreateEntity("Main Camera");
+	Game::Camera& camera = camEntity.AddComponent<Game::Camera>();
+	Game::Transform& camTransform = camEntity.GetComponent<Game::Transform>();
+	camTransform.Position = { 0.0f, 0.0f, -10.0f };
+
+	Game::Entity renderable = CreateEntity("Mesh");
+
+	Game::MeshRenderer& meshRenderer = renderable.AddComponent<Game::MeshRenderer>(
+		Engine::Engine::Get().GetRenderer()->GetAssetRegistry(),
+		Asset::PrimitiveType::Cube);
 }
 
 void TestbenchWorld::OnDestroy()
@@ -12,9 +30,21 @@ void TestbenchWorld::OnDestroy()
 	RYU_LOG_DEBUG("Testbench World Destroyed");
 }
 
+f32 t = 0.0f;
 void TestbenchWorld::OnTick(const Ryu::Utils::FrameTimer& timer)
 {
+	using namespace Ryu;
+
 	m_timer = timer;
+	auto view = GetRegistry().view<Game::Transform, Game::MeshRenderer>();
+
+	t += timer.DeltaTimeF() * 1.5f;
+
+	for (auto&& [entity, transform, renderer] : view.each())
+	{
+		// Create random rotation
+		transform.Rotation = Math::Quaternion::CreateFromYawPitchRoll(Math::Vector3(t, t, t));
+	}
 }
 
 #if defined(RYU_WITH_EDITOR)

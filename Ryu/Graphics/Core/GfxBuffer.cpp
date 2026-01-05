@@ -39,14 +39,6 @@ namespace Ryu::Gfx
 		Resource::ReleaseObject();
 	}
 
-	constexpr u32 Buffer::CalculateConstantBufferSize(u32 byteSize)
-	{
-		// Round up to the nearest multiple of 256.
-		// Do this by adding 255 and then masking off the lower 2 bits.
-		// Ref: https://github.com/d3dcoder/d3d12book/blob/4cfd00afa59210a272f62caf0660478d18b9ffed/Common/d3dUtil.h#L99
-		return (byteSize + 255) & ~255;
-	}
-
 	[[nodiscard]] D3D12_VERTEX_BUFFER_VIEW Buffer::GetVertexBufferView() const
 	{
 		RYU_ASSERT(m_desc.Type == Buffer::Type::Vertex, "Buffer is not a vertex buffer");

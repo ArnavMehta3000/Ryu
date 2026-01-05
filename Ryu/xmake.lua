@@ -126,14 +126,14 @@ target("RyuGraphics")
 	add_files("Graphics/Core/**.cpp", { unity_group = "GraphicsCore" })
 	add_files("Graphics/Shader/*.cpp", { unity_group = "GraphicsShader" })
 	add_files("Graphics/Compiler/*.cpp", { unity_group = "GraphicsCompiler" })
-	add_headerfiles("Graphics/**.h", { public = true })
+	add_headerfiles("Graphics/**.h", "Graphics/**.inl", { public = true })
 
 	-- Old HLSL shder rule
 	-- add_files("Graphics/Shaders/**.hlsl")
 	-- add_rules("HLSLShader", { root = "Engine" })
 
 	add_deps("RyuCore", "RyuMath", "RyuShaders", "ImGui")
-	add_packages("directx-headers", "directxshadercompiler", { public = true })
+	add_packages("entt", "directx-headers", "directxshadercompiler", { public = true })
 
 	add_rules("EnumToHeader", {
 		root = path.join(os.projectdir(), "Ryu", "Enums"),
@@ -152,7 +152,7 @@ target("RyuGame")
 	add_headerfiles("Game/**.h", "Game/**.inl", { public = true })
 
 	add_deps("RyuCore", "RyuMath")
-	add_packages('entt', { public = true })
+	add_packages("entt", "directx-headers", { public = true })
 target_end()
 
 -- Engine (also the module where the final linking step takes place)
@@ -176,6 +176,7 @@ target("RyuEngine")
 	)
 
 	add_links(
+		"user32",
 		"Dwmapi",
 		"d3d12",
 		"dxgi",

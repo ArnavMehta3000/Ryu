@@ -83,6 +83,7 @@ namespace Ryu::Editor
 
 		RYU_LOG_TRACE("Initializing user application");
 		m_userApp->m_isRunning = m_userApp->OnInit();
+		m_worldManager = GetWorldManager();
 		return m_userApp->m_isRunning;
 	}
 

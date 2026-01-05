@@ -97,6 +97,8 @@ namespace Ryu::Gfx
 
 		CreateSwapChain();
 		CreateFrameResources(false);
+
+		m_featureSupport.Init(m_device.Get());
 	}
 	
 	std::pair<u32, u32> Device::GetClientSize() const
@@ -128,9 +130,6 @@ namespace Ryu::Gfx
 	void Device::BeginFrame(PipelineState* pipelineState)
 	{
 		m_cmdList->Begin(m_frameIndex, pipelineState);
-		m_cmdList->SetViewports(
-			std::span<const CD3DX12_VIEWPORT>(&m_viewport, 1),
-			std::span<const CD3DX12_RECT>(&m_scissorRect, 1));
 	}
 
 	void Device::EndFrame()

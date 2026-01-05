@@ -1,26 +1,30 @@
 ﻿#include "Graphics/Renderer.h"
-#include "Graphics/CommonStates.h"
-#include "Graphics/IRendererHook.h"
-#include "Graphics/Core/GfxTexture.h"
-#include "Graphics/Compiler/ShaderCompiler.h"
-#include "Asset/AssetRegistry.h"
+
 #include "Core/Profiling/Profiling.h"
+#include "Core/Utils/Timing/FrameTimer.h"
+#include "Game/World/World.h"
+#include "Graphics/CommonStates.h"
+#include "Graphics/Compiler/ShaderCompiler.h"
+#include "Graphics/Core/GfxTexture.h"
+#include "Graphics/IRendererHook.h"
 
 namespace Ryu::Gfx
 {
     Renderer::Renderer(HWND window, IRendererHook* hook)
-        : m_hook(hook)
+        : m_device(std::make_unique<Device>(window))
+        , m_gpuFactory(std::make_unique<GpuResourceFactory>(m_device.get()))
+        , m_assets(std::make_unique<Asset::AssetRegistry>(m_gpuFactory.get()))
+        , m_renderWorld(m_assets.get())
         , m_shaderLibrary("./Shaders/Compiled"sv)
+        , m_sceneRenderer(m_device.get(), &m_shaderLibrary, m_assets.get())
+        , m_hook(hook)
     {
         RYU_PROFILE_SCOPE();
 
-        m_device = std::make_unique<Device>(window);
         m_device->Initialize();
 
-        m_gpuFactory = std::make_unique<GpuResourceFactory>(m_device.get());
-        m_assets = std::make_unique<Asset::AssetRegistry>(m_gpuFactory.get());
-
         const auto [w, h] = m_device->GetClientSize();
+        m_sceneRenderer.OnResize(w, h);  // Force a test resize
         m_camera.SetViewportSize((f32)w, (f32)h);
         m_camera.SetPosition(Math::Vector3(0.0f, 0.0f, -15.0f));
 
@@ -48,9 +52,9 @@ namespace Ryu::Gfx
     {
         RYU_PROFILE_SCOPE();
 
-        CompileShaders();
-        CreateConstantBuffer();
-        CreatePipelineState();
+        //CompileShaders();
+        //CreateConstantBuffer();
+        //CreatePipelineState();
     }
 
     void Renderer::CompileShaders()
@@ -77,7 +81,6 @@ namespace Ryu::Gfx
     {
         RYU_PROFILE_SCOPE();
 
-        // NOTE: Update input layout to match MeshData::Vertex
         const D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
         {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -107,7 +110,7 @@ namespace Ryu::Gfx
         psoStream.PrimitiveTopology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         psoStream.VS                = CD3DX12_SHADER_BYTECODE(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize());
         psoStream.PS                = CD3DX12_SHADER_BYTECODE(psBlob->GetBufferPointer(), psBlob->GetBufferSize());
-        psoStream.Rasterizer        = CommonStates::RSWireframe();
+        psoStream.Rasterizer        = CommonStates::RSCullCounterClockwise();
         psoStream.BlendDesc         = CommonStates::BSOpaque();
         psoStream.RTVFormats        =
         {
@@ -222,10 +225,24 @@ namespace Ryu::Gfx
         m_device->Present();
     }
 
+    void Renderer::RenderWorld(Game::World& world, const Utils::FrameTimer& frameTimer)
+    {
+        //m_gpuFactory->ProcessPendingUploads(*m_device->GetGraphicsCommandList());
+
+        const Gfx::RenderFrame frameData = m_renderWorld.ExtractRenderData(
+            world,
+            frameTimer.DeltaTimeF(),
+            static_cast<f32>(frameTimer.TimeSinceStart<std::chrono::seconds>()),
+            frameTimer.FrameCount());
+
+        m_sceneRenderer.RenderFrame(frameData, m_gpuFactory.get());
+    }
+
     void Renderer::OnResize(u32 w, u32 h)
     {
         RYU_PROFILE_SCOPE();
-        m_device->ResizeBuffers(w, h);
-        m_camera.SetViewportSize((f32)w, (f32)h);
+        //m_device->ResizeBuffers(w, h);
+        m_camera.SetViewportSize(static_cast<f32>(w), static_cast<f32>(h));
+        m_sceneRenderer.OnResize(w, h);  // This will resize the device;
     }
 }

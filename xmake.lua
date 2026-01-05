@@ -47,9 +47,6 @@ set_policy("build.always_update_configfiles", false)
 
 if is_mode("debug", "releasedbg") then
 	add_defines("RYU_BUILD_DEBUG", "_DEBUG")
-	set_runtimes("MDd")
-else
-	set_runtimes("MD")
 end
 
 -- Add editor defines
@@ -59,7 +56,6 @@ end
 
 -- Add common window definitions
 add_defines("UNICODE", "_UNICODE", "NOMINMAX", "NOMCX", "NOSERVICE", "NOHELP", "WIN32_LEAN_AND_MEAN")
-add_links("user32.lib")
 add_cxxflags("/utf-8", { public = true })
 
 -- Add compilation success to all targets
@@ -68,11 +64,14 @@ add_tests("CompileSuccess", { build_should_pass = true, group = "Compilation" })
 -- Add rule to export shared library
 add_rules("ExportAPI")
 
--- Build editor
-set_config("ryu-build-with-editor", true)
-
 -- Include xmake projects
 includes("**/xmake.lua")
+
+
+
+-- Build editor
+set_config("ryu-build-with-editor", true)
+-- set_config("ryu-unity-build", false)
 
 -- Command line arguments
 set_runargs(

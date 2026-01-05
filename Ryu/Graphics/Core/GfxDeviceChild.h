@@ -18,8 +18,14 @@ namespace Ryu::Gfx
 	private:
 		inline void DisconnectFromDevice() { m_isRegistered = false; }
 
+#if defined(RYU_BUILD_DEBUG)
+	protected:
+		mutable std::string m_debugName;
+#endif
+
 	private:
 		Device* m_device = nullptr;
 		bool m_isRegistered : 1 = false;
+
 	};
 }

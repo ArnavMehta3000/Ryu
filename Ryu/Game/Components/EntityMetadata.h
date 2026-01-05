@@ -21,7 +21,8 @@ namespace Ryu::Game
 	struct EntityMetadata
 	{
 		RYU_ENABLE_REFLECTION(EntityMetadata);
-
+	
+	public:
 		explicit EntityMetadata()
 			: m_uuidBytes(Utils::UUID::GenerateBytes())
 		{

@@ -2,7 +2,6 @@
 #include "Application/App/Application.h"
 #include "Application/Event/ListenerHandle.h"
 #include "Core/Utils/Singleton.h"
-#include "Core/Utils/ServiceLocator.h"
 #include "Graphics/Renderer.h"
 
 namespace Ryu::Engine
@@ -18,6 +17,7 @@ namespace Ryu::Engine
 		static f64 GetEngineUpTime();
 		
 		inline std::shared_ptr<App::App> GetApplication() const { return m_app; }
+		inline Gfx::Renderer* GetRenderer() const { return m_renderer.get(); }
 		RYU_API void Quit() const noexcept;
 
 		void RYU_API RunApp(std::shared_ptr<App::App> app, Gfx::IRendererHook* rendererHook = nullptr);
@@ -32,8 +32,8 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		std::shared_ptr<App::App>               m_app;
-		std::unique_ptr<Gfx::Renderer>          m_renderer;
+		std::shared_ptr<App::App>      m_app;
+		std::unique_ptr<Gfx::Renderer> m_renderer;
 
 		Event::ListenerHandle m_resizeListener;
 		Event::ListenerHandle m_closeListener;

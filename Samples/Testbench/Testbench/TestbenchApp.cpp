@@ -3,7 +3,7 @@
 #include "Core/Profiling/Profiling.h"
 #include "Core/Utils/ReflectionSerializer.h"
 #include "Engine/Engine.h"
-#include "Game/Components/Transform.h"
+#include "Game/Components/TransformComponent.h"
 #include "Game/World/Entity.h"
 #include "Testbench/TestbenchWorld.h"
 
@@ -51,7 +51,7 @@ void TestbenchApp::OnShutdown()
 {
 	RYU_PROFILE_SCOPE();
 	RYU_LOG_INFO("Shutting down Testbench App");
-	
+
 	m_gameInput.Shutdown();
 }
 
@@ -59,7 +59,7 @@ void TestbenchApp::OnTick(const Ryu::Utils::FrameTimer& timer)
 {
 	m_gameInput.PollKeyboard();
 	m_gameInput.PollMouse();
-	
+
 	m_timer = timer;
 
 	m_worldManager.OnTick(timer);

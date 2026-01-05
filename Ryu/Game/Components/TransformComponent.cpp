@@ -1,4 +1,4 @@
-#include "Game/Components/Transform.h"
+#include "Game/Components/TransformComponent.h"
 
 namespace Ryu::Game
 {

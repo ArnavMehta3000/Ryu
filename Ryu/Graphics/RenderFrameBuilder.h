@@ -12,10 +12,10 @@ namespace Ryu::Asset { class AssetRegistry; }
 
 namespace Ryu::Gfx
 {
-	class RenderWorld
+	class RenderFrameBuilder
 	{
 	public:
-		explicit RenderWorld(Asset::AssetRegistry* registry);
+		explicit RenderFrameBuilder(Asset::AssetRegistry* registry);
 
 		[[nodiscard]] RenderFrame ExtractRenderData(Game::World& world, f32 deltaTime, f32 TotalTime, u64 frameNumber);
 		[[nodiscard]] RenderView ExtractViewForCamera(Game::World& world, const CameraData& camera);

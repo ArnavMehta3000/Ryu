@@ -12,9 +12,9 @@ namespace Ryu::Gfx
 	class Device;
 	class ShaderLibrary;
 
-	class SceneRenderer
+	class WorldRenderer
 	{
-		RYU_DISABLE_COPY(SceneRenderer)
+		RYU_DISABLE_COPY(WorldRenderer)
 	public:
 		struct Config
 		{
@@ -24,9 +24,9 @@ namespace Ryu::Gfx
 		};
 
 	public:
-		SceneRenderer() = default;
-		SceneRenderer(Device* device, ShaderLibrary* shaderLib, Asset::AssetRegistry* registry, const Config& config = {});
-		~SceneRenderer() = default;
+		WorldRenderer() = default;
+		WorldRenderer(Device* device, ShaderLibrary* shaderLib, Asset::AssetRegistry* registry, const Config& config = {});
+		~WorldRenderer() = default;
 
 		[[nodiscard]] inline const CameraData& GetDefaultCamera() const { return m_defaultCamera; }
 

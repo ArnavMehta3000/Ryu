@@ -1,4 +1,4 @@
-#include "Graphics/SceneRenderer.h"
+#include "Graphics/WorldRenderer.h"
 #include "Asset/AssetRegistry.h"
 #include "Asset/IGpuResourceFactory.h"
 #include "Graphics/CommonStates.h"
@@ -29,7 +29,7 @@ namespace Ryu::Gfx
         };
     }
 
-    SceneRenderer::SceneRenderer(Device* device, ShaderLibrary* shaderLib, Asset::AssetRegistry* registry, const Config& config)
+    WorldRenderer::WorldRenderer(Device* device, ShaderLibrary* shaderLib, Asset::AssetRegistry* registry, const Config& config)
         : m_device(device)
         , m_shaderLib(shaderLib)
         , m_assetRegistry(registry)
@@ -52,7 +52,7 @@ namespace Ryu::Gfx
         m_defaultCamera.ViewportHeight = m_screenHeight;
     }
 
-    void SceneRenderer::RenderFrame(const Gfx::RenderFrame& frame, Asset::IGpuResourceFactory* gpuFactory)
+    void WorldRenderer::RenderFrame(const Gfx::RenderFrame& frame, Asset::IGpuResourceFactory* gpuFactory)
     {
         BeginFrame();
 
@@ -78,7 +78,7 @@ namespace Ryu::Gfx
         EndFrame();
     }
 
-    void SceneRenderer::RenderView(const Gfx::RenderView& view)
+    void WorldRenderer::RenderView(const Gfx::RenderView& view)
     {
         CommandList* cmdList = m_device->GetGraphicsCommandList();
 
@@ -106,12 +106,12 @@ namespace Ryu::Gfx
         RenderTransparentPass(view);
     }
 
-    void SceneRenderer::SetDefaultCamera(const CameraData& camera)
+    void WorldRenderer::SetDefaultCamera(const CameraData& camera)
     {
         m_defaultCamera = camera;
     }
 
-    void SceneRenderer::SetConfig(const Config& config)
+    void WorldRenderer::SetConfig(const Config& config)
     {
         // Add more conditions for pipeline recreation
         bool needsPipelineRecreation = (config.EnableWireframe != m_config.EnableWireframe);
@@ -123,7 +123,7 @@ namespace Ryu::Gfx
         }
     }
 
-    void SceneRenderer::CreateResources()
+    void WorldRenderer::CreateResources()
     {
         // Create CBV heap for per-object and per-frame constants
         u32 totalDescriptors = m_config.MaxConstantBuffers + 1; // +1 for frame CB
@@ -137,7 +137,7 @@ namespace Ryu::Gfx
         CreatePipelineState();
     }
 
-    void SceneRenderer::CreatePipelineState()
+    void WorldRenderer::CreatePipelineState()
     {
         RYU_TODO("Stop hard loading shaders and architect an alternative")
 
@@ -196,7 +196,7 @@ namespace Ryu::Gfx
         m_opaquePipeline = std::make_unique<PipelineState>(m_device, psoStreamDesc, "Opaque Pipeline State");
     }
 
-    void SceneRenderer::BeginFrame()
+    void WorldRenderer::BeginFrame()
     {
         m_cbPool.ResetFrame(m_currentFrame);
 
@@ -215,7 +215,7 @@ namespace Ryu::Gfx
         m_device->SetBackBufferRenderTarget(true);
     }
 
-    void SceneRenderer::EndFrame()
+    void WorldRenderer::EndFrame()
     {
         m_currentFrame++;
         m_cbPool.Reclaim(m_currentFrame);
@@ -231,7 +231,7 @@ namespace Ryu::Gfx
         m_device->Present();
     }
 
-    void SceneRenderer::RenderOpaquePass(const Gfx::RenderView& view)
+    void WorldRenderer::RenderOpaquePass(const Gfx::RenderView& view)
     {
         CommandList* cmdList = m_device->GetGraphicsCommandList();
         // Currently GfxDevice::Begin takes in a pipeline and passes it to the commandlist (to be set during reset)
@@ -246,7 +246,7 @@ namespace Ryu::Gfx
         }
     }
 
-    void SceneRenderer::RenderTransparentPass(const Gfx::RenderView& view)
+    void WorldRenderer::RenderTransparentPass(const Gfx::RenderView& view)
     {
         if (view.TransparentItems.empty())
         {
@@ -262,7 +262,7 @@ namespace Ryu::Gfx
         }
     }
 
-    void SceneRenderer::BindPerFrameData(const CameraData& camera, f32 deltaTime, f32 totalTime)
+    void WorldRenderer::BindPerFrameData(const CameraData& camera, f32 deltaTime, f32 totalTime)
     {
         Buffer* frameCB = m_cbPool.Acquire(sizeof(FrameConstants), m_currentFrame, "FrameCB");
 
@@ -281,7 +281,7 @@ namespace Ryu::Gfx
         cmdList->SetGraphicsConstantBuffer(0, *frameCB);
     }
 
-    void SceneRenderer::DrawRenderItem(const RenderItem& item, const CameraData& camera)
+    void WorldRenderer::DrawRenderItem(const RenderItem& item, const CameraData& camera)
     {
         Mesh* mesh = m_assetRegistry->Meshes().GetGpu(item.MeshHandle);
         if (!mesh)
@@ -315,7 +315,7 @@ namespace Ryu::Gfx
         }
     }
     
-    void SceneRenderer::OnResize(u32 width, u32 height)
+    void WorldRenderer::OnResize(u32 width, u32 height)
     {
         m_screenWidth = width;
         m_screenHeight = height;

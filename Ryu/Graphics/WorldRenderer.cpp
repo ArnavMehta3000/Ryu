@@ -1,4 +1,6 @@
 #include "Graphics/WorldRenderer.h"
+
+#include "Core/Profiling/Profiling.h"
 #include "Asset/AssetRegistry.h"
 #include "Asset/IGpuResourceFactory.h"
 #include "Graphics/CommonStates.h"
@@ -9,320 +11,372 @@
 
 namespace Ryu::Gfx
 {
-    namespace
-    {
-        // Per-object constant buffer layout
-        struct /* alignas(256) */ ObjectConstants
-        {
-            Math::Matrix World;
-            Math::Matrix WorldViewProjection;
-        };
+	namespace
+	{
+		// Per-object constant buffer layout
+		struct ObjectConstants
+		{
+			Math::Matrix World;
+			Math::Matrix WorldViewProjection;
+		};
 
-        // Per-frame constant buffer layout
-        struct /* alignas(256) */ FrameConstants
-        {
-            Math::Matrix View;
-            Math::Matrix Projection;
-            Math::Matrix ViewProjection;
-            Math::Vector4 CameraPosition;  // xyz = position, w = unused
-            Math::Vector4 Time;            // x = delta, y = total, zw = unused
-        };
-    }
+		// Per-frame constant buffer layout
+		struct FrameConstants
+		{
+			Math::Matrix View;
+			Math::Matrix Projection;
+			Math::Matrix ViewProjection;
+			Math::Vector4 CameraPosition;  // xyz = position, w = unused
+			Math::Vector4 Time;            // x = delta, y = total, zw = unused
+		};
+	}
 
-    WorldRenderer::WorldRenderer(Device* device, ShaderLibrary* shaderLib, Asset::AssetRegistry* registry, const Config& config)
-        : m_device(device)
-        , m_shaderLib(shaderLib)
-        , m_assetRegistry(registry)
-        , m_config(config)
-        , m_cbPool(device, FRAME_BUFFER_COUNT)
-    {
-        CreateResources();
+	WorldRenderer::WorldRenderer(Device* device, ShaderLibrary* shaderLib, Asset::AssetRegistry* registry, const Config& config)
+		: m_device(device)
+		, m_shaderLib(shaderLib)
+		, m_assetRegistry(registry)
+		, m_config(config)
+		, m_cbPool(device, FRAME_BUFFER_COUNT)
+	{
+		RYU_PROFILE_SCOPE();
 
-        m_defaultCamera.Position    = Math::Vector3(0.0f, 0.0f, -15.0f);
-        m_defaultCamera.Forward     = Math::Vector3(0.0f, 0.0f, 1.0f);
-        m_defaultCamera.NearPlane   = 0.1f;
-        m_defaultCamera.FarPlane    = 1000.0f;
-        m_defaultCamera.CullingMask = 0xFFFFFFFF;
-        m_defaultCamera.Priority    = 0;
+		CreateResources();
+		InitializeDefaultCamera();
+	}
 
-        // Will be set properly on first resize
-        m_defaultCamera.ViewportX      = 0;
-        m_defaultCamera.ViewportY      = 0;
-        m_defaultCamera.ViewportWidth  = m_screenWidth;
-        m_defaultCamera.ViewportHeight = m_screenHeight;
-    }
+	void WorldRenderer::InitializeDefaultCamera()
+	{
+		RYU_PROFILE_SCOPE();
 
-    void WorldRenderer::RenderFrame(const Gfx::RenderFrame& frame, Asset::IGpuResourceFactory* gpuFactory)
-    {
-        BeginFrame();
+		m_defaultCamera.Position       = Math::Vector3(0.0f, 0.0f, -15.0f);
+		m_defaultCamera.Forward        = Math::Vector3(0.0f, 0.0f, 1.0f);
+		m_defaultCamera.NearPlane      = 0.1f;
+		m_defaultCamera.FarPlane       = 1000.0f;
+		m_defaultCamera.CullingMask    = 0xFFFFFFFF;
+		m_defaultCamera.Priority       = 0;
+		m_defaultCamera.ViewportX      = 0;
+		m_defaultCamera.ViewportY      = 0;
+		m_defaultCamera.ViewportWidth  = m_screenWidth;
+		m_defaultCamera.ViewportHeight = m_screenHeight;
 
-        if (gpuFactory)
-        {
-            gpuFactory->ProcessPendingUploads(*m_device->GetGraphicsCommandList());
-        }
+		UpdateDefaultCameraProjection();
+	}
 
-        if (frame.Views.empty())
-        {
-            // No camera entities - use default camera
-            Gfx::RenderView defaultView{ .CameraData = m_defaultCamera };
-            RenderView(defaultView);  // Still need to collect renderables, but this should work for now
-        }
-        else
-        {
-            for (const auto& view : frame.Views)
-            {
-                RenderView(view);
-            }
-        }
+	void WorldRenderer::UpdateDefaultCameraProjection()
+	{
+		RYU_PROFILE_SCOPE();
 
-        EndFrame();
-    }
+		// Update view matrix
+		m_defaultCamera.ViewMatrix = Math::Matrix::CreateLookAt(
+			m_defaultCamera.Position,
+			m_defaultCamera.Position + m_defaultCamera.Forward,
+			Math::Vector3::Up);
 
-    void WorldRenderer::RenderView(const Gfx::RenderView& view)
-    {
-        CommandList* cmdList = m_device->GetGraphicsCommandList();
+		// Update projection matrix
+		const f32 aspect = m_screenHeight > 0
+			? static_cast<f32>(m_screenWidth) / static_cast<f32>(m_screenHeight)
+			: 1.0f;
 
-        // Set viewport and scissor based on camera
-        const CD3DX12_VIEWPORT viewport(
-            static_cast<f32>(view.CameraData.ViewportX),
-            static_cast<f32>(view.CameraData.ViewportY),
-            static_cast<f32>(view.CameraData.ViewportWidth),
-            static_cast<f32>(view.CameraData.ViewportHeight),
-            0.0f, 1.0f);
+		constexpr f32 defaultFov = 60.0f;
+		m_defaultCamera.ProjectionMatrix = Math::Matrix::CreatePerspectiveFieldOfView(
+			DirectX::XMConvertToRadians(defaultFov),
+			aspect,
+			m_defaultCamera.NearPlane,
+			m_defaultCamera.FarPlane);
 
-        const CD3DX12_RECT scissor(
-            view.CameraData.ViewportX,
-            view.CameraData.ViewportY,
-            view.CameraData.ViewportX + view.CameraData.ViewportWidth,
-            view.CameraData.ViewportY + view.CameraData.ViewportHeight);
+		m_defaultCamera.ViewProjectionMatrix =
+			m_defaultCamera.ViewMatrix * m_defaultCamera.ProjectionMatrix;
 
-        cmdList->SetViewports(
-            std::span<const CD3DX12_VIEWPORT>(&viewport, 1),
-            std::span<const CD3DX12_RECT>(&scissor, 1));
+		// Update viewport
+		m_defaultCamera.ViewportWidth = m_screenWidth;
+		m_defaultCamera.ViewportHeight = m_screenHeight;
+	}
 
-        RYU_TODO("Handle passing in timing info")
-        BindPerFrameData(view.CameraData, 0.0f, 0.0f);
-        RenderOpaquePass(view);
-        RenderTransparentPass(view);
-    }
+	void WorldRenderer::RenderFrame(const Gfx::RenderFrame& frame, Asset::IGpuResourceFactory* gpuFactory)
+	{
+		RYU_PROFILE_SCOPE();
 
-    void WorldRenderer::SetDefaultCamera(const CameraData& camera)
-    {
-        m_defaultCamera = camera;
-    }
+		BeginFrame();
 
-    void WorldRenderer::SetConfig(const Config& config)
-    {
-        // Add more conditions for pipeline recreation
-        bool needsPipelineRecreation = (config.EnableWireframe != m_config.EnableWireframe);
-        m_config = config;
+		if (gpuFactory)
+		{
+			gpuFactory->ProcessPendingUploads(*m_device->GetGraphicsCommandList());
+		}
 
-        if (needsPipelineRecreation)
-        {
-            CreatePipelineState();
-        }
-    }
+		if (frame.Views.empty())
+		{
+			// No camera entities - use default camera with empty render list
+			Gfx::RenderView defaultView{ .CameraData = m_defaultCamera };
+			RenderView(defaultView);
+		}
+		else
+		{
+			for (const auto& view : frame.Views)
+			{
+				RenderView(view);
+			}
+		}
 
-    void WorldRenderer::CreateResources()
-    {
-        // Create CBV heap for per-object and per-frame constants
-        u32 totalDescriptors = m_config.MaxConstantBuffers + 1; // +1 for frame CB
-        m_cbvHeap = std::make_unique<DescriptorHeap>(
-            m_device,
-            D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-            totalDescriptors,
-            true,
-            "Scene CBV Heap");
+		EndFrame();
+	}
 
-        CreatePipelineState();
-    }
+	void WorldRenderer::RenderView(const Gfx::RenderView& view)
+	{
+		RYU_PROFILE_SCOPE();
 
-    void WorldRenderer::CreatePipelineState()
-    {
-        RYU_TODO("Stop hard loading shaders and architect an alternative")
+		CommandList* cmdList = m_device->GetGraphicsCommandList();
 
-        // Compile shaders & create root signature
-        Shader* vs = m_shaderLib->GetShader("MeshVS");
-        Shader* ps = m_shaderLib->GetShader("MeshPS");
-        
-        RYU_ASSERT(vs->IsValid(), "Failed to compile vertex shader!");
-        RYU_ASSERT(ps->IsValid(), "Failed to compile pixel shader!");
+		// Set viewport and scissor based on camera
+		const CD3DX12_VIEWPORT viewport(
+			static_cast<f32>(view.CameraData.ViewportX),
+			static_cast<f32>(view.CameraData.ViewportY),
+			static_cast<f32>(view.CameraData.ViewportWidth),
+			static_cast<f32>(view.CameraData.ViewportHeight),
+			0.0f, 1.0f);
 
-        m_rootSignature = std::make_unique<RootSignature>(m_device, vs->GetRootSignature(), "Root Signature");
+		const CD3DX12_RECT scissor(
+			view.CameraData.ViewportX,
+			view.CameraData.ViewportY,
+			view.CameraData.ViewportX + view.CameraData.ViewportWidth,
+			view.CameraData.ViewportY + view.CameraData.ViewportHeight);
 
-        const D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
-        {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-        };
+		cmdList->SetViewports(
+			std::span<const CD3DX12_VIEWPORT>(&viewport, 1),
+			std::span<const CD3DX12_RECT>(&scissor, 1));
 
-        Shader::Blob* const vsBlob = vs->GetBlob();
-        Shader::Blob* const psBlob = ps->GetBlob();
+		// TODO: Pass timing info through RenderFrame
+		BindPerFrameData(view.CameraData, 0.0f, 0.0f);
+		RenderOpaquePass(view);
+		RenderTransparentPass(view);
+	}
 
-        struct PipelineStateStream
-        {
-            CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE RootSignature;
-            CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT InputLayout;
-            CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY PrimitiveTopology;
-            CD3DX12_PIPELINE_STATE_STREAM_VS VS;
-            CD3DX12_PIPELINE_STATE_STREAM_PS PS;
-            CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
-            CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER Rasterizer;
-            CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC BlendDesc;
-        };
+	void WorldRenderer::SetDefaultCamera(const CameraData& camera)
+	{
+		m_defaultCamera = camera;
+	}
 
-        PipelineStateStream psoStream{};
-        psoStream.RootSignature = m_rootSignature->GetNative();
-        psoStream.InputLayout = { inputElementDescs, static_cast<u32>(std::size(inputElementDescs)) };
-        psoStream.PrimitiveTopology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-        psoStream.VS = CD3DX12_SHADER_BYTECODE(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize());
-        psoStream.PS = CD3DX12_SHADER_BYTECODE(psBlob->GetBufferPointer(), psBlob->GetBufferSize());
-        psoStream.Rasterizer = CommonStates::RSCullCounterClockwise();
-        psoStream.BlendDesc = CommonStates::BSOpaque();
-        psoStream.RTVFormats =
-        {
-            .RTFormats{ DXGI_FORMAT_R8G8B8A8_UNORM },
-            .NumRenderTargets = 1
-        };
+	void WorldRenderer::SetConfig(const Config& config)
+	{
+		RYU_PROFILE_SCOPE();
 
-        const D3D12_PIPELINE_STATE_STREAM_DESC psoStreamDesc
-        {
-            .SizeInBytes = sizeof(PipelineStateStream),
-            .pPipelineStateSubobjectStream = &psoStream
-        };
+		bool needsPipelineRecreation = (config.EnableWireframe != m_config.EnableWireframe);
+		m_config = config;
 
-        m_opaquePipeline = std::make_unique<PipelineState>(m_device, psoStreamDesc, "Opaque Pipeline State");
-    }
+		if (needsPipelineRecreation)
+		{
+			CreatePipelineState();
+		}
+	}
 
-    void WorldRenderer::BeginFrame()
-    {
-        m_cbPool.ResetFrame(m_currentFrame);
+	void WorldRenderer::CreateResources()
+	{
+		RYU_PROFILE_SCOPE();
 
-        CommandList* cmdList = m_device->GetGraphicsCommandList();
-        const Texture* renderTarget = m_device->GetCurrentBackBuffer();
+		u32 totalDescriptors = m_config.MaxConstantBuffers + 1; // +1 for frame CB
+		m_cbvHeap = std::make_unique<DescriptorHeap>(
+			m_device,
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+			totalDescriptors,
+			true,
+			"Scene CBV Heap");
 
-        m_device->BeginFrame(m_opaquePipeline.get());
+		CreatePipelineState();
+	}
 
-        cmdList->SetGraphicsRootSignature(*m_rootSignature);
-        cmdList->SetDescriptorHeap(*m_cbvHeap);
+	void WorldRenderer::CreatePipelineState()
+	{
+		RYU_PROFILE_SCOPE();
 
-        cmdList->TransitionResource(*renderTarget,
-            D3D12_RESOURCE_STATE_PRESENT,
-            D3D12_RESOURCE_STATE_RENDER_TARGET);
+		// TODO: Load shaders from a configurable source instead of hardcoding
+		Shader* vs = m_shaderLib->GetShader("MeshVS");
+		Shader* ps = m_shaderLib->GetShader("MeshPS");
 
-        m_device->SetBackBufferRenderTarget(true);
-    }
+		RYU_ASSERT(vs && vs->IsValid(), "Failed to get valid vertex shader!");
+		RYU_ASSERT(ps && ps->IsValid(), "Failed to get valid pixel shader!");
 
-    void WorldRenderer::EndFrame()
-    {
-        m_currentFrame++;
-        m_cbPool.Reclaim(m_currentFrame);
+		m_rootSignature = std::make_unique<RootSignature>(m_device, vs->GetRootSignature(), "Root Signature");
 
-        CommandList* cmdList = m_device->GetGraphicsCommandList();
-        const Texture* renderTarget = m_device->GetCurrentBackBuffer();
+		const D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		};
 
-        cmdList->TransitionResource(*renderTarget,
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            D3D12_RESOURCE_STATE_PRESENT);
+		Shader::Blob* const vsBlob = vs->GetBlob();
+		Shader::Blob* const psBlob = ps->GetBlob();
 
-        m_device->EndFrame();
-        m_device->Present();
-    }
+		struct PipelineStateStream
+		{
+			CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE RootSignature;
+			CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT InputLayout;
+			CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY PrimitiveTopology;
+			CD3DX12_PIPELINE_STATE_STREAM_VS VS;
+			CD3DX12_PIPELINE_STATE_STREAM_PS PS;
+			CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
+			CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER Rasterizer;
+			CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC BlendDesc;
+		};
 
-    void WorldRenderer::RenderOpaquePass(const Gfx::RenderView& view)
-    {
-        CommandList* cmdList = m_device->GetGraphicsCommandList();
-        // Currently GfxDevice::Begin takes in a pipeline and passes it to the commandlist (to be set during reset)
-        // Either There has to be a better way to pass the pipeline state
-        // Or we chose to not set any initial state when starting the commandlist
-        RYU_TODO("Fix the pipeline state setting stuff")
-        cmdList->GetNative()->SetPipelineState(*m_opaquePipeline);
+		PipelineStateStream psoStream{};
+		psoStream.RootSignature     = m_rootSignature->GetNative();
+		psoStream.InputLayout       = { inputElementDescs, static_cast<u32>(std::size(inputElementDescs)) };
+		psoStream.PrimitiveTopology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		psoStream.VS                = CD3DX12_SHADER_BYTECODE(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize());
+		psoStream.PS                = CD3DX12_SHADER_BYTECODE(psBlob->GetBufferPointer(), psBlob->GetBufferSize());
+		psoStream.Rasterizer        = m_config.EnableWireframe ? CommonStates::RSWireframe() : CommonStates::RSCullCounterClockwise();
+		psoStream.BlendDesc         = CommonStates::BSOpaque();
+		psoStream.RTVFormats        =
+		{
+			.RTFormats{ DXGI_FORMAT_R8G8B8A8_UNORM },
+			.NumRenderTargets = 1
+		};
 
-        for (const auto& item : view.OpaqueItems)
-        {
-            DrawRenderItem(item, view.CameraData);
-        }
-    }
+		const D3D12_PIPELINE_STATE_STREAM_DESC psoStreamDesc
+		{
+			.SizeInBytes = sizeof(PipelineStateStream),
+			.pPipelineStateSubobjectStream = &psoStream
+		};
 
-    void WorldRenderer::RenderTransparentPass(const Gfx::RenderView& view)
-    {
-        if (view.TransparentItems.empty())
-        {
-            return;
-        }
+		m_opaquePipeline = std::make_unique<PipelineState>(m_device, psoStreamDesc, "Opaque Pipeline State");
+	}
 
-        CommandList* cmdList = m_device->GetGraphicsCommandList();
-        cmdList->GetNative()->SetPipelineState(*m_transparentPipeline);
+	void WorldRenderer::BeginFrame()
+	{
+		RYU_PROFILE_SCOPE();
 
-        for (const auto& item : view.TransparentItems)
-        {
-            DrawRenderItem(item, view.CameraData);
-        }
-    }
+		m_cbPool.ResetFrame(m_currentFrame);
 
-    void WorldRenderer::BindPerFrameData(const CameraData& camera, f32 deltaTime, f32 totalTime)
-    {
-        Buffer* frameCB = m_cbPool.Acquire(sizeof(FrameConstants), m_currentFrame, "FrameCB");
+		CommandList* cmdList = m_device->GetGraphicsCommandList();
+		const Texture* renderTarget = m_device->GetCurrentBackBuffer();
 
-        FrameConstants data
-        {
-            .View           = camera.ViewMatrix,
-            .Projection     = camera.ProjectionMatrix,
-            .ViewProjection = camera.ViewProjectionMatrix,
-            .CameraPosition = { camera.Position.x, camera.Position.y, camera.Position.z, 1.0f },
-            .Time           = { deltaTime, totalTime, 0, 0 }
-        };
+		m_device->BeginFrame(m_opaquePipeline.get());
 
-        m_cbPool.UpdateBuffer(frameCB, &data, sizeof(FrameConstants));
+		cmdList->SetGraphicsRootSignature(*m_rootSignature);
+		cmdList->SetDescriptorHeap(*m_cbvHeap);
 
-        CommandList* cmdList = m_device->GetGraphicsCommandList();
-        cmdList->SetGraphicsConstantBuffer(0, *frameCB);
-    }
+		cmdList->TransitionResource(*renderTarget,
+			D3D12_RESOURCE_STATE_PRESENT,
+			D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-    void WorldRenderer::DrawRenderItem(const RenderItem& item, const CameraData& camera)
-    {
-        Mesh* mesh = m_assetRegistry->Meshes().GetGpu(item.MeshHandle);
-        if (!mesh)
-        {
-            return;
-        }
+		m_device->SetBackBufferRenderTarget(true);
+	}
 
-        ObjectConstants objData
-        {
-            .World               = item.WorldTransform,
-            .WorldViewProjection = item.WorldTransform * camera.ViewProjectionMatrix
-        };
+	void WorldRenderer::EndFrame()
+	{
+		RYU_PROFILE_SCOPE();
 
-        ScopedConstantBuffer objCB(&m_cbPool, m_cbPool.Acquire(sizeof(ObjectConstants), m_currentFrame, "ObjectCB"));
-        m_cbPool.UpdateBuffer(objCB.Get(), &objData, sizeof(ObjectConstants));
+		m_currentFrame++;
+		m_cbPool.Reclaim(m_currentFrame);
 
-        CommandList* cmdList = m_device->GetGraphicsCommandList();
+		CommandList* cmdList = m_device->GetGraphicsCommandList();
+		const Texture* renderTarget = m_device->GetCurrentBackBuffer();
 
-        cmdList->SetGraphicsConstantBuffer(1, *objCB);
+		cmdList->TransitionResource(*renderTarget,
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_PRESENT);
 
-        // Bind mesh and draw
-        mesh->SetPipelineBuffers(*cmdList, 0);
+		m_device->EndFrame();
+		m_device->Present();
+	}
 
-        if (mesh->HasIndexBuffer())
-        {
-            cmdList->DrawMeshIndexedInstanced(*mesh);
-        }
-        else
-        {
-            cmdList->DrawMeshInstanced(*mesh);
-        }
-    }
-    
-    void WorldRenderer::OnResize(u32 width, u32 height)
-    {
-        m_screenWidth = width;
-        m_screenHeight = height;
-        m_device->ResizeBuffers(width, height);
+	void WorldRenderer::RenderOpaquePass(const Gfx::RenderView& view)
+	{
+		RYU_PROFILE_SCOPE();
 
-        // Update default camera viewport
-        m_defaultCamera.ViewportWidth = width;
-        m_defaultCamera.ViewportHeight = height;
-    }
+		CommandList* cmdList = m_device->GetGraphicsCommandList();
+		// TODO: Improve pipeline state management - currently set during BeginFrame
+		cmdList->GetNative()->SetPipelineState(*m_opaquePipeline);
+
+		for (const auto& item : view.OpaqueItems)
+		{
+			DrawRenderItem(item, view.CameraData);
+		}
+	}
+
+	void WorldRenderer::RenderTransparentPass(const Gfx::RenderView& view)
+	{
+		RYU_PROFILE_SCOPE();
+
+		if (view.TransparentItems.empty())
+		{
+			return;
+		}
+
+		CommandList* cmdList = m_device->GetGraphicsCommandList();
+		cmdList->GetNative()->SetPipelineState(*m_transparentPipeline);
+
+		for (const auto& item : view.TransparentItems)
+		{
+			DrawRenderItem(item, view.CameraData);
+		}
+	}
+
+	void WorldRenderer::BindPerFrameData(const CameraData& camera, f32 deltaTime, f32 totalTime)
+	{
+		RYU_PROFILE_SCOPE();
+
+		Buffer* frameCB = m_cbPool.Acquire(sizeof(FrameConstants), m_currentFrame, "FrameCB");
+
+		FrameConstants data
+		{
+			.View           = camera.ViewMatrix,
+			.Projection     = camera.ProjectionMatrix,
+			.ViewProjection = camera.ViewProjectionMatrix,
+			.CameraPosition = { camera.Position.x, camera.Position.y, camera.Position.z, 1.0f },
+			.Time           = { deltaTime, totalTime, 0, 0 }
+		};
+
+		m_cbPool.UpdateBuffer(frameCB, &data, sizeof(FrameConstants));
+
+		CommandList* cmdList = m_device->GetGraphicsCommandList();
+		cmdList->SetGraphicsConstantBuffer(0, *frameCB);
+	}
+
+	void WorldRenderer::DrawRenderItem(const RenderItem& item, const CameraData& camera)
+	{
+		RYU_PROFILE_SCOPE();
+
+		Mesh* mesh = m_assetRegistry->Meshes().GetGpu(item.MeshHandle);
+		if (!mesh)
+		{
+			return;
+		}
+
+		ObjectConstants objData
+		{
+			.World               = item.WorldTransform,
+			.WorldViewProjection = item.WorldTransform * camera.ViewProjectionMatrix
+		};
+
+		ScopedConstantBuffer objCB(&m_cbPool, m_cbPool.Acquire(sizeof(ObjectConstants), m_currentFrame, "ObjectCB"));
+		m_cbPool.UpdateBuffer(objCB.Get(), &objData, sizeof(ObjectConstants));
+
+		CommandList* cmdList = m_device->GetGraphicsCommandList();
+		cmdList->SetGraphicsConstantBuffer(1, *objCB);
+
+		mesh->SetPipelineBuffers(*cmdList, 0);
+
+		if (mesh->HasIndexBuffer())
+		{
+			cmdList->DrawMeshIndexedInstanced(*mesh);
+		}
+		else
+		{
+			cmdList->DrawMeshInstanced(*mesh);
+		}
+	}
+
+	void WorldRenderer::OnResize(u32 width, u32 height)
+	{
+		RYU_PROFILE_SCOPE();
+
+		m_screenWidth  = width;
+		m_screenHeight = height;
+		m_device->ResizeBuffers(width, height);
+
+		// Update default camera matrices and viewport
+		UpdateDefaultCameraProjection();
+	}
 }

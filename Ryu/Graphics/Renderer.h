@@ -19,47 +19,25 @@ namespace Ryu::Gfx
 {
 	class IRendererHook;
 
-	struct ConstantBuffer
-	{
-		Math::Matrix WVP;
-	};
-
 	class Renderer
 	{
 	public:
 		Renderer(HWND window, IRendererHook* hook = nullptr);
 		~Renderer();
 
-		[[nodiscard]] inline Asset::IGpuResourceFactory* GetGpuResourceFactory() const { return m_gpuFactory.get(); }
-		[[nodiscard]] inline Asset::AssetRegistry* GetAssetRegistry() const { return m_assets.get(); }
+		[[nodiscard]] inline Asset::IGpuResourceFactory* GetGpuResourceFactory() { return &m_gpuFactory; }
+		[[nodiscard]] inline Asset::AssetRegistry* GetAssetRegistry() { return &m_assets; }
 		[[nodiscard]] inline ShaderLibrary* GetShaderLibrary() { return &m_shaderLibrary; }
 
-		void Render();
 		void RenderWorld(Game::World& world, const Utils::FrameTimer& frameTimer);
 		void OnResize(u32 w, u32 h);
-
+	
 	private:
-		void CreateResources();
-		void CompileShaders();
-		void CreatePipelineState();
-		void CreateConstantBuffer();
-
-	private:
-		std::unique_ptr<Device>               m_device;
-		std::unique_ptr<GpuResourceFactory>   m_gpuFactory;
-		std::unique_ptr<Asset::AssetRegistry> m_assets;
-		ShaderLibrary                         m_shaderLibrary;
-		WorldRenderer                         m_sceneRenderer;
-		IRendererHook*                        m_hook;
-		std::unique_ptr<RootSignature>        m_rootSignature;
-		std::unique_ptr<PipelineState>        m_pipelineState;
-		std::unique_ptr<DescriptorHeap>       m_cbvHeap;
-
-		std::array<std::unique_ptr<Buffer>, static_cast<u64>(Asset::PrimitiveType::MAX_COUNT)> m_perObjectCBs;
-
-		Camera                          m_camera;
-		ConstantBuffer                  m_cbData{};
-		Shader*                         m_vs;
-		Shader*                         m_ps;
+		std::unique_ptr<Device> m_device;
+		GpuResourceFactory      m_gpuFactory;
+		Asset::AssetRegistry    m_assets;
+		ShaderLibrary           m_shaderLibrary;
+		WorldRenderer           m_worldRenderer;
+		IRendererHook*          m_hook;
 	};
 }

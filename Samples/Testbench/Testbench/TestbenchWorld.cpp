@@ -1,55 +1,94 @@
 #include "Testbench/TestbenchWorld.h"
-#include "Core/Logging/Logger.h"
+
 #include "Asset/Primitives.h"
+#include "Core/Logging/Logger.h"
+#include "Core/Profiling/Profiling.h"
 #include "Engine/Engine.h"
-#include "Game/World/Entity.h"
-#include "Game/Components/TransformComponent.h"
 #include "Game/Components/CameraComponent.h"
 #include "Game/Components/MeshRenderer.h"
+#include "Game/Components/TransformComponent.h"
+#include "Game/World/Entity.h"
 #include <ImGui/imgui.h>
 
 void TestbenchWorld::OnCreate()
 {
+	RYU_PROFILE_SCOPE();
 	RYU_LOG_DEBUG("Testbench World Created");
 	using namespace Ryu;
-	// Create dummy entities
-	Game::Entity camEntity = CreateEntity("Main Camera");
-	Game::Camera& camera = camEntity.AddComponent<Game::Camera>();
-	Game::Transform& camTransform = camEntity.GetComponent<Game::Transform>();
+
+	m_inputManager = Engine::Engine::Get().GetInputManager();
+	
+	// Create camera
+	m_mainCamera = CreateEntity("Main Camera");
+	m_mainCamera.AddComponent<Game::Camera>();
+
+	// Move the camera
+	Game::Transform& camTransform = m_mainCamera.GetComponent<Game::Transform>();
 	camTransform.Position = { 0.0f, 0.0f, -10.0f };
 
-	Game::Entity renderable = CreateEntity("Mesh");
-
-	Game::MeshRenderer& meshRenderer = renderable.AddComponent<Game::MeshRenderer>(
+	// Create mesh
+	m_meshEntity = CreateEntity("Mesh");
+	 m_meshEntity.AddComponent<Game::MeshRenderer>(
 		Engine::Engine::Get().GetRenderer()->GetAssetRegistry(),
 		Asset::PrimitiveType::Cube);
 }
 
 void TestbenchWorld::OnDestroy()
 {
+	RYU_PROFILE_SCOPE();
 	RYU_LOG_DEBUG("Testbench World Destroyed");
 }
 
 f32 t = 0.0f;
 void TestbenchWorld::OnTick(const Ryu::Utils::FrameTimer& timer)
 {
+	RYU_PROFILE_SCOPE();
 	using namespace Ryu;
+	using KC = Ryu::Window::KeyCode;
 
 	m_timer = timer;
-	auto view = GetRegistry().view<Game::Transform, Game::MeshRenderer>();
 
 	t += timer.DeltaTimeF() * 1.5f;
 
-	for (auto&& [entity, transform, renderer] : view.each())
+	// Spin the object
+	Game::Transform& meshTransform = m_meshEntity.GetComponent<Game::Transform>();
+	meshTransform.Rotation = Math::Quaternion::CreateFromYawPitchRoll(Math::Vector3(t, t, t));
+
+	// Update the camera
+	const f32 speed = 10 * timer.DeltaTimeF();
+	Game::Camera& camera = m_mainCamera.GetComponent<Game::Camera>();
+	if (m_inputManager->IsKeyDown(KC::Z))
 	{
-		// Create random rotation
-		transform.Rotation = Math::Quaternion::CreateFromYawPitchRoll(Math::Vector3(t, t, t));
+		camera.FieldOfView -= speed;
+	}
+	if (m_inputManager->IsKeyDown(KC::X))
+	{
+		camera.FieldOfView += speed;
+	}
+	
+	// Move the object around
+	if (m_inputManager->IsKeyDown(KC::ArrowLeft))
+	{
+		meshTransform.Position = { meshTransform.Position.x + speed, meshTransform.Position.y, meshTransform.Position.z };
+	}
+	if (m_inputManager->IsKeyDown(KC::ArrowRight))
+	{
+		meshTransform.Position = { meshTransform.Position.x - speed, meshTransform.Position.y, meshTransform.Position.z };
+	}
+	if (m_inputManager->IsKeyDown(KC::ArrowUp))
+	{
+		meshTransform.Position = { meshTransform.Position.x, meshTransform.Position.y + speed, meshTransform.Position.z };
+	}
+	if (m_inputManager->IsKeyDown(KC::ArrowDown))
+	{
+		meshTransform.Position = { meshTransform.Position.x, meshTransform.Position.y - speed, meshTransform.Position.z };
 	}
 }
 
 #if defined(RYU_WITH_EDITOR)
 void TestbenchWorld::OnImGuiRender()
 {
+	RYU_PROFILE_SCOPE();
 	// Draw debug info overlay
 	{
 		static int location = 1;
@@ -98,12 +137,12 @@ void TestbenchWorld::OnImGuiRender()
 
 			if (ImGui::BeginPopupContextWindow())
 			{
-				if (ImGui::MenuItem("Custom", NULL, location == -1)) location = -1;
-				if (ImGui::MenuItem("Center", NULL, location == -2)) location = -2;
-				if (ImGui::MenuItem("Top-left", NULL, location == 0)) location = 0;
-				if (ImGui::MenuItem("Top-right", NULL, location == 1)) location = 1;
-				if (ImGui::MenuItem("Bottom-left", NULL, location == 2)) location = 2;
-				if (ImGui::MenuItem("Bottom-right", NULL, location == 3)) location = 3;
+				if (ImGui::MenuItem("Custom"      , NULL, location == -1)) location = -1;
+				if (ImGui::MenuItem("Center"      , NULL, location == -2)) location = -2;
+				if (ImGui::MenuItem("Top-left"    , NULL, location ==  0)) location = 0;
+				if (ImGui::MenuItem("Top-right"   , NULL, location ==  1)) location = 1;
+				if (ImGui::MenuItem("Bottom-left" , NULL, location ==  2)) location = 2;
+				if (ImGui::MenuItem("Bottom-right", NULL, location ==  3)) location = 3;
 
 				ImGui::EndPopup();
 			}

@@ -1,10 +1,19 @@
 #pragma once
 #include "Game/World/World.h"
 
+namespace Ryu::Game
+{
+	class Entity;
+	struct Camera;
+	struct Transform;
+}
+
+namespace Ryu::Game { class InputManager; }
+
 class TestbenchWorld : public Ryu::Game::World
 {
 public:
-	TestbenchWorld() : Ryu::Game::World("TestbenchWorld") {}
+	TestbenchWorld() : Ryu::Game::World("Testbench World") {}
 	~TestbenchWorld() = default;
 
 protected:
@@ -17,5 +26,9 @@ protected:
 #endif
 
 private:
-	Ryu::Utils::FrameTimer m_timer;
+	Ryu::Game::InputManager* m_inputManager{ nullptr };
+	Ryu::Utils::FrameTimer    m_timer;
+	Ryu::Game::Entity         m_mainCamera;
+	Ryu::Game::Entity         m_meshEntity;
+	f32 m_speed = 0.0f;
 };

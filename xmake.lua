@@ -68,9 +68,9 @@ add_rules("ExportAPI")
 includes("**/xmake.lua")
 
 
-
--- Build editor
+-- Set configs for testing
 set_config("ryu-build-with-editor", true)
+--set_config("ryu-enable-tracy-profiling", true)
 -- set_config("ryu-unity-build", false)
 
 -- Command line arguments

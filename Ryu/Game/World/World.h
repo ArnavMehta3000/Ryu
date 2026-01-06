@@ -1,8 +1,6 @@
 #pragma once
 #include "Core/Utils/Serializer.h"
 #include "Core/Utils/Timing/FrameTimer.h"
-#include "Application/Event/EventEmitter.h"
-#include "Game/World/WorldEvents.h"
 #include <entt/entity/registry.hpp>
 
 namespace Ryu::Game
@@ -14,7 +12,7 @@ namespace Ryu::Game
 	using EntityHandle     = entt::entity;
 	using EntityHandleType = entt::id_type;
 
-	class World : public Event::EventEmitter
+	class World
 	{
 		friend class Entity;
 		friend class WorldManager;

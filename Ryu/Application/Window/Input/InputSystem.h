@@ -24,6 +24,8 @@ namespace Ryu::Window
 		bool IsMouseButtonReleased(KeyCode button) const;
 		KeyState GetMouseButtonState(KeyCode button) const;
 
+		inline void GetMousePosition(i32& x, i32& y) const { x = m_mouseX; y = m_mouseY; }
+		inline void GetMouseDelta(i32& deltaX, i32& deltaY) const { deltaX = m_mouseDeltaX; deltaY = m_mouseDeltaY; }
 		inline ModifierKeys GetModifierKeys() const { return m_currentModifiers; }
 		bool HasModifier(ModifierKeys modifier) const;
 

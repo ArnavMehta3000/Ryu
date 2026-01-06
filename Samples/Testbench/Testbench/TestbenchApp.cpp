@@ -1,4 +1,5 @@
 #include "Testbench/TestbenchApp.h"
+
 #include "Application/App/Utils/PathManager.h"
 #include "Core/Profiling/Profiling.h"
 #include "Core/Utils/ReflectionSerializer.h"
@@ -12,21 +13,6 @@ using namespace Ryu::Window;
 
 TestbenchApp::TestbenchApp(const std::shared_ptr<Ryu::Window::Window>& window)
 	: App::App(window)
-	, m_keyListener(window->GetDispatcher(), [this](const KeyEvent& e)
-	{
-		if (e.KeyCode == KeyCode::Escape && e.State == KeyState::Released)
-		{
-#if defined(RYU_BUILD_DEBUG) && !defined(RYU_WITH_EDITOR)
-			Quit();  // Only close window from here when we are in debug and not in editor
-#endif
-		}
-
-		if (e.KeyCode == KeyCode::F && e.State == KeyState::Released)
-		{
-			RYU_LOG_INFO("DT: {} | FPS: {} | Total: {:3f} | Frame: {}",
-				m_timer.DeltaTimeF(), m_timer.FPS(), m_timer.TimeSinceStart<std::chrono::seconds>(), m_timer.FrameCount());
-		}
-	})
 {
 }
 
@@ -39,6 +25,11 @@ bool TestbenchApp::OnInit()
 	{
 		RYU_LOG_WARN("Failed to initialize GameInput");
 	}
+
+	// Bind input stuff
+	Game::InputManager* input = Engine::Engine::Get().GetInputManager();
+	input->BindAction("Quit", KeyCode::Escape, [this]{ Quit(); });
+	input->BindAction("ToggleStats", KeyCode::F, [this]{ RYU_LOG_INFO("DT: {} | FPS: {}", m_timer.DeltaTimeF(), m_timer.FPS()); });
 
 	m_worldManager.CreateWorld<TestbenchWorld>();
 
@@ -57,6 +48,7 @@ void TestbenchApp::OnShutdown()
 
 void TestbenchApp::OnTick(const Ryu::Utils::FrameTimer& timer)
 {
+	RYU_PROFILE_SCOPE();
 	m_gameInput.PollKeyboard();
 	m_gameInput.PollMouse();
 
@@ -67,6 +59,7 @@ void TestbenchApp::OnTick(const Ryu::Utils::FrameTimer& timer)
 
 void TestbenchApp::TestSerialization()
 {
+	RYU_PROFILE_SCOPE();
 	Game::World* world = m_worldManager.GetActiveWorld();
 	world->CreateEntity("Player1").GetComponent<Game::Transform>().Position.z = 15.7f;
 	world->CreateEntity("Player2").GetComponent<Game::Transform>().Position.x = 100.2f;

@@ -15,7 +15,6 @@
 
 namespace Ryu::Engine
 {
-	Utils::Stopwatch m_stopwatch;
 	static constexpr f64 MAX_STALL_TIME = 1.5;  // Highest ever delta time allowed
 	static constexpr f64 FALLBACK_DELTA_TIME = 1.0 / 15.0;  // 15 FPS
 
@@ -72,7 +71,11 @@ namespace Ryu::Engine
 		}
 
 		RYU_PROFILE_BOOKMARK("Initialize graphics");
-		m_renderer = std::make_unique<Gfx::Renderer>(m_app->GetWindow()->GetHandle(), rendererHook);
+		auto window = m_app->GetWindow();
+		m_renderer = std::make_unique<Gfx::Renderer>(window->GetHandle(), rendererHook);
+
+		// Init input manager
+		m_inputManager = std::make_unique<Game::InputManager>(window->GetInput(), window->GetDispatcher());
 
 		RYU_LOG_TRACE("Engine initialization completed");
 		return true;
@@ -95,6 +98,7 @@ namespace Ryu::Engine
 		window->Unsubscribe(m_resizeListener);
 		window->Unsubscribe(m_closeListener);
 
+		m_inputManager.reset();
 		m_app.reset();
 		m_renderer.reset();
 
@@ -122,15 +126,17 @@ namespace Ryu::Engine
 			while (m_app->IsRunning())
 			{
 				frameTimer.Tick();
+
 				m_app->ProcessWindowEvents();
+				m_inputManager->Update();
 
 				// Update application
 				m_app->OnTick(frameTimer);
 
 				// Render world if present
-				if (Game::WorldManager* manager = m_app->GetWorldManager())
+				if (Game::WorldManager* manager = m_app->GetWorldManager()) [[likely]]
 				{
-					if (Game::World* world = manager->GetActiveWorld())
+					if (Game::World* world = manager->GetActiveWorld()) [[likely]]
 					{
 						m_renderer->RenderWorld(*world, frameTimer);
 					}
@@ -145,11 +151,6 @@ namespace Ryu::Engine
 		{
 			RYU_LOG_FATAL("Failed to initialize application! Exiting.");
 		}
-	}
-
-	f64 Engine::GetEngineUpTime() 
-	{
-		return m_stopwatch.Elapsed();
 	}
 
 	void Engine::Quit() const noexcept
@@ -167,8 +168,6 @@ namespace Ryu::Engine
 		using namespace Microsoft::WRL::Wrappers;
 
 		RYU_ASSERT(app, "Application cannot be nullptr");
-
-		m_stopwatch.Start();
 
 		RoInitializeWrapper InitializeWinRT(RO_INIT_MULTITHREADED);
 		m_app = app;

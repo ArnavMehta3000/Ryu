@@ -147,6 +147,7 @@ target("RyuGame")
 	set_kind('object')
 	set_group("Ryu/Objects")
 
+	add_files("Game/*.cpp", { unity_group = "Game" })
 	add_files("Game/World/**.cpp", { unity_group = "GameWorld" })
 	add_files("Game/Components/**.cpp", { unity_group = "GameComponents" })
 	add_headerfiles("Game/**.h", "Game/**.inl", { public = true })

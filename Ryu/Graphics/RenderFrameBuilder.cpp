@@ -1,4 +1,4 @@
-#include "Graphics/RenderWorld.h"
+#include "Graphics/RenderFrameBuilder.h"
 #include "Graphics/Camera.h"
 #include "Game/World/World.h"
 #include "Game/Components/CameraComponent.h"
@@ -8,12 +8,12 @@
 
 namespace Ryu::Gfx
 {
-	RenderWorld::RenderWorld(Asset::AssetRegistry* registry)
+	RenderFrameBuilder::RenderFrameBuilder(Asset::AssetRegistry* registry)
 		: m_assetRegistry(registry)
 	{
 	}
 
-	RenderFrame RenderWorld::ExtractRenderData(Game::World& world, f32 deltaTime, f32 TotalTime, u64 frameNumber)
+	RenderFrame RenderFrameBuilder::ExtractRenderData(Game::World& world, f32 deltaTime, f32 TotalTime, u64 frameNumber)
 	{
 		RenderFrame frame{};
 		frame.DeltaTime  = deltaTime;
@@ -25,7 +25,7 @@ namespace Ryu::Gfx
 		CollectCameras(world, cameras);
 
 		// If no camera components exist, we use a default implementation
-		// That's handled at a higher level (SceneRenderer)
+		// That's handled at a higher level (WorldRenderer)
 
         // For each camera, collect visible renderables
         for (const auto& camera : cameras)
@@ -60,7 +60,7 @@ namespace Ryu::Gfx
         return frame;
 	}
 
-    RenderView RenderWorld::ExtractViewForCamera(Game::World& world, const CameraData& camera)
+    RenderView RenderFrameBuilder::ExtractViewForCamera(Game::World& world, const CameraData& camera)
     {
         RenderView view;
         view.CameraData = camera;
@@ -74,7 +74,7 @@ namespace Ryu::Gfx
         return view;
     }
 
-    void RenderWorld::CollectRenderables(Game::World& world, u32 cullingMask, std::vector<RenderItem>& opaqueOut, std::vector<RenderItem>& transparentOut)
+    void RenderFrameBuilder::CollectRenderables(Game::World& world, u32 cullingMask, std::vector<RenderItem>& opaqueOut, std::vector<RenderItem>& transparentOut)
     {
         UNREFERENCED_PARAMETER(transparentOut);
 
@@ -100,7 +100,7 @@ namespace Ryu::Gfx
         }
     }
 
-    void RenderWorld::CollectCameras(Game::World& world, std::vector<CameraData>& camerasOut)
+    void RenderFrameBuilder::CollectCameras(Game::World& world, std::vector<CameraData>& camerasOut)
     {
         auto& registry = world.GetRegistry();
         auto view = registry.view<Game::Transform, Game::Camera>();
@@ -123,7 +123,7 @@ namespace Ryu::Gfx
         });
     }
 
-    CameraData RenderWorld::ExtractCameraData(const Game::Transform& transform, const Game::Camera& camera, u32 screenWidth, u32 screenHeight)
+    CameraData RenderFrameBuilder::ExtractCameraData(const Game::Transform& transform, const Game::Camera& camera, u32 screenWidth, u32 screenHeight)
     {
         CameraData data{};
 
@@ -162,7 +162,7 @@ namespace Ryu::Gfx
         return data;
     }
 
-    RenderItem RenderWorld::CreateRenderItem(const Game::Transform& transform, const Game::MeshRenderer& renderer)
+    RenderItem RenderFrameBuilder::CreateRenderItem(const Game::Transform& transform, const Game::MeshRenderer& renderer)
     {
         return RenderItem
         {
@@ -172,7 +172,7 @@ namespace Ryu::Gfx
         };
     }
 
-    u64 RenderWorld::ComputeSortKey(const RenderItem& item)
+    u64 RenderFrameBuilder::ComputeSortKey(const RenderItem& item)
     {
         // Sort key encoding (64 bits):
         // [63-56] Render layer (8 bits)

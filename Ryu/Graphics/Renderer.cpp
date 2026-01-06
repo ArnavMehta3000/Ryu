@@ -7,6 +7,7 @@
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Graphics/Core/GfxTexture.h"
 #include "Graphics/IRendererHook.h"
+#include "Graphics/RenderFrameBuilder.h"
 
 namespace Ryu::Gfx
 {
@@ -14,7 +15,6 @@ namespace Ryu::Gfx
         : m_device(std::make_unique<Device>(window))
         , m_gpuFactory(std::make_unique<GpuResourceFactory>(m_device.get()))
         , m_assets(std::make_unique<Asset::AssetRegistry>(m_gpuFactory.get()))
-        , m_renderWorld(m_assets.get())
         , m_shaderLibrary("./Shaders/Compiled"sv)
         , m_sceneRenderer(m_device.get(), &m_shaderLibrary, m_assets.get())
         , m_hook(hook)
@@ -229,7 +229,9 @@ namespace Ryu::Gfx
     {
         //m_gpuFactory->ProcessPendingUploads(*m_device->GetGraphicsCommandList());
 
-        const Gfx::RenderFrame frameData = m_renderWorld.ExtractRenderData(
+        RenderFrameBuilder builder(m_assets.get());
+
+        const Gfx::RenderFrame frameData = builder.ExtractRenderData(
             world,
             frameTimer.DeltaTimeF(),
             static_cast<f32>(frameTimer.TimeSinceStart<std::chrono::seconds>()),

@@ -16,20 +16,17 @@ namespace Ryu::Gfx
 	// Camera data extracted from the camera component + transform
 	struct CameraData
 	{
+		// Maybe cache these in the component itself?
+		Math::Viewport Viewport;  // Using the depth values as the clip plane
 		Math::Matrix ViewMatrix;
 		Math::Matrix ProjectionMatrix;
 		Math::Matrix ViewProjectionMatrix;
 		Math::Vector3 Position;
 		Math::Vector3 Forward;
-		f32 NearPlane;
-		f32 FarPlane;
+		f32 NearPlane = 0.1f;
+		f32 FarPlane  = 1000.0f;
 		u32 CullingMask = 0xFFFFFFFF;
-		i32 Priority;
-
-		u32 ViewportX;
-		u32 ViewportY;
-		u32 ViewportWidth;
-		u32 ViewportHeight;
+		u32 Priority    = 0;
 	};
 
 	// Collection of render items for a single camera view

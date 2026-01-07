@@ -17,10 +17,17 @@ void TestbenchWorld::OnCreate()
 	using namespace Ryu;
 
 	m_inputManager = Engine::Engine::Get().GetInputManager();
+	Ryu::Window::WindowSizePos size = Engine::Engine::Get().GetAppWindow()->GetSize();
 	
 	// Create camera
 	m_mainCamera = CreateEntity("Main Camera");
-	m_mainCamera.AddComponent<Game::Camera>();
+	Game::CameraComponent& cam = m_mainCamera.AddComponent<Game::CameraComponent>();
+	// The camera viewport should be set externally somehow
+	// Or should it be a user side thing? (prolly not tbh)
+	cam.Viewport.width         = (f32)size.X;
+	cam.Viewport.height        = (f32)size.Y;
+
+	RYU_TODO("Camera viewport should be controlled by the engine when the window is resized");
 
 	// Move the camera
 	Game::Transform& camTransform = m_mainCamera.GetComponent<Game::Transform>();
@@ -62,18 +69,18 @@ void TestbenchWorld::OnTick(const Ryu::Utils::FrameTimer& timer)
 
 	// Spin the object
 	Game::Transform& meshTransform = m_meshEntity.GetComponent<Game::Transform>();
-	meshTransform.Rotation = Math::Quaternion::CreateFromYawPitchRoll(Math::Vector3(t, t, t));
+	meshTransform.Orientation = Math::Quaternion::CreateFromYawPitchRoll(Math::Vector3(t, t, t));
 
 	// Update the camera
 	const f32 speed = 10 * timer.DeltaTimeF();
-	Game::Camera& camera = m_mainCamera.GetComponent<Game::Camera>();
+	Game::CameraComponent& camera = m_mainCamera.GetComponent<Game::CameraComponent>();
 	if (m_inputManager->IsKeyDown(KC::Z))
 	{
-		camera.FieldOfView -= speed;
+		camera.FovY -= speed;
 	}
 	if (m_inputManager->IsKeyDown(KC::X))
 	{
-		camera.FieldOfView += speed;
+		camera.FovY += speed;
 	}
 	
 	// Move the object around

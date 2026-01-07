@@ -28,9 +28,19 @@ void TestbenchWorld::OnCreate()
 
 	// Create mesh
 	m_meshEntity = CreateEntity("Mesh");
-	 m_meshEntity.AddComponent<Game::MeshRenderer>(
+	m_meshEntity.AddComponent<Game::MeshRenderer>(
 		Engine::Engine::Get().GetRenderer()->GetAssetRegistry(),
 		Asset::PrimitiveType::Cube);
+
+	m_inputManager->BindAction("ToggleWireframe", Ryu::Window::KeyCode::R, []()
+	{
+		Gfx::WorldRenderer* renderer = Engine::Engine::Get().GetRenderer()->GetWorldRenderer();
+		
+		auto config = renderer->GetConfig();
+		config.EnableWireframe = !config.EnableWireframe;
+		
+		renderer->SetConfig(config);
+	});
 }
 
 void TestbenchWorld::OnDestroy()

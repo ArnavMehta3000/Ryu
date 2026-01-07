@@ -46,7 +46,8 @@ namespace Ryu::Gfx
     void Renderer::RenderWorld(Game::World& world, const Utils::FrameTimer& frameTimer)
     {
         RYU_PROFILE_SCOPE();
-        //m_gpuFactory->ProcessPendingUploads(*m_device->GetGraphicsCommandList());
+
+        // There has to be a better way to deal with the dimensions here
         const auto& [w, h] = m_device->GetClientSize();
 
         RenderFrameBuilder builder;
@@ -56,7 +57,7 @@ namespace Ryu::Gfx
             .SetScreenSize(w, h)
             .ExtractRenderData(world, frameTimer);
 
-        m_worldRenderer.RenderFrame(frameData, &m_gpuFactory);
+        m_worldRenderer.RenderFrame(frameData, &m_gpuFactory, m_hook);
     }
 
     void Renderer::OnResize(u32 w, u32 h)

@@ -1,11 +1,12 @@
 #include "Graphics/WorldRenderer.h"
 
-#include "Core/Profiling/Profiling.h"
 #include "Asset/AssetRegistry.h"
 #include "Asset/IGpuResourceFactory.h"
+#include "Core/Profiling/Profiling.h"
 #include "Graphics/CommonStates.h"
 #include "Graphics/Core/GfxCommandList.h"
 #include "Graphics/Core/GfxDevice.h"
+#include "Graphics/IRendererHook.h"
 #include "Graphics/Shader/ShaderLibrary.h"
 #include <span>
 
@@ -92,18 +93,20 @@ namespace Ryu::Gfx
 		m_defaultCamera.ViewportHeight = m_screenHeight;
 	}
 
-	void WorldRenderer::RenderFrame(const Gfx::RenderFrame& frame, Asset::IGpuResourceFactory* gpuFactory)
+	void WorldRenderer::RenderFrame(const Gfx::RenderFrame& frame, Asset::IGpuResourceFactory* gpuFactory, IRendererHook* hook)
 	{
 		RYU_PROFILE_SCOPE();
+
+		CommandList* cmdList = m_device->GetGraphicsCommandList();
 
 		BeginFrame();
 
 		if (gpuFactory)
 		{
-			gpuFactory->ProcessPendingUploads(*m_device->GetGraphicsCommandList());
+			gpuFactory->ProcessPendingUploads(*cmdList);
 		}
 
-		if (frame.Views.empty())
+		if (frame.Views.empty()) [[unlikely]]
 		{
 			// No camera entities - use default camera with empty render list
 			Gfx::RenderView defaultView{ .CameraData = m_defaultCamera };
@@ -116,6 +119,15 @@ namespace Ryu::Gfx
 				RenderView(view);
 			}
 		}
+
+#if defined(RYU_WITH_EDITOR)
+		if (hook)
+		{
+			hook->OnImGuiFrameBegin();
+			hook->OnImGuiRender();
+			hook->OnImGuiFrameEnd(cmdList);
+		}
+#endif
 
 		EndFrame();
 	}

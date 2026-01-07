@@ -1,9 +1,9 @@
 #pragma once
-#include "Graphics/RenderData.h"
-#include "Graphics/Core/GfxRootSignature.h"
-#include "Graphics/Core/GfxPipelineState.h"
-#include "Graphics/Core/GfxDescriptorHeap.h"
 #include "Graphics/ConstantBufferPool.h"
+#include "Graphics/Core/GfxDescriptorHeap.h"
+#include "Graphics/Core/GfxPipelineState.h"
+#include "Graphics/Core/GfxRootSignature.h"
+#include "Graphics/RenderData.h"
 
 namespace Ryu::Asset { class AssetRegistry; class IGpuResourceFactory; }
 
@@ -11,6 +11,7 @@ namespace Ryu::Gfx
 {
 	class Device;
 	class ShaderLibrary;
+	class IRendererHook;
 
 	class WorldRenderer
 	{
@@ -35,7 +36,7 @@ namespace Ryu::Gfx
 		void SetDefaultCamera(const CameraData& camera);
 		[[nodiscard]] inline const CameraData& GetDefaultCamera() const { return m_defaultCamera; }
 
-		void RenderFrame(const Gfx::RenderFrame& frame, Asset::IGpuResourceFactory* gpuFactory);
+		void RenderFrame(const Gfx::RenderFrame& frame, Asset::IGpuResourceFactory* gpuFactory, IRendererHook* hook);
 		void RenderView(const Gfx::RenderView& view);
 
 		void SetConfig(const Config& config);

@@ -28,6 +28,7 @@ namespace Ryu::Gfx
 		[[nodiscard]] inline Asset::IGpuResourceFactory* GetGpuResourceFactory() { return &m_gpuFactory; }
 		[[nodiscard]] inline Asset::AssetRegistry* GetAssetRegistry() { return &m_assets; }
 		[[nodiscard]] inline ShaderLibrary* GetShaderLibrary() { return &m_shaderLibrary; }
+		[[nodiscard]] inline WorldRenderer* GetWorldRenderer() { return &m_worldRenderer; }
 
 		void RenderWorld(Game::World& world, const Utils::FrameTimer& frameTimer);
 		void OnResize(u32 w, u32 h);

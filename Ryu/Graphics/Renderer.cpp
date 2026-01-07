@@ -48,15 +48,9 @@ namespace Ryu::Gfx
         RYU_PROFILE_SCOPE();
 
         // There has to be a better way to deal with the dimensions here
-        const auto& [w, h] = m_device->GetClientSize();
+        RenderFrameBuilder builder(&m_assets);
 
-        RenderFrameBuilder builder;
-
-        const Gfx::RenderFrame frameData = builder
-            .SetAssetRegistry(&m_assets)
-            .SetScreenSize(w, h)
-            .ExtractRenderData(world, frameTimer);
-
+        const Gfx::RenderFrame frameData = builder.ExtractRenderData(world, frameTimer);
         m_worldRenderer.RenderFrame(frameData, &m_gpuFactory, m_hook);
     }
 

@@ -17,6 +17,7 @@ namespace Ryu::Engine
 		~Engine() = default;
 		
 		[[nodiscard]] inline std::shared_ptr<App::App> GetApplication() const { return m_app; }
+		[[nodiscard]] inline std::shared_ptr<Window::Window> GetAppWindow() const { return m_app->GetWindow(); }
 		[[nodiscard]] inline Gfx::Renderer* GetRenderer() const { return m_renderer.get(); }
 		[[nodiscard]] inline Game::InputManager* GetInputManager() { return m_inputManager.get(); }
 		RYU_API void Quit() const noexcept;

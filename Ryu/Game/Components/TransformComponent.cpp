@@ -2,8 +2,8 @@
 
 namespace Ryu::Game
 {
-	Transform::Transform(const SM::Vector3& position, const SM::Quaternion& rotation, const SM::Vector3& scale)
-		: Position(position), Rotation(rotation), Scale(scale)
+	Transform::Transform(const SM::Vector3& position, const SM::Quaternion& orientation, const SM::Vector3& scale)
+		: Position(position), Orientation(orientation), Scale(scale)
 	{
 	}
 

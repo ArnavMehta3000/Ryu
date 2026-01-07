@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <d3d12.h>  // Needed to enable the utility conversion functions in simple math
 #include <SimpleMath/SimpleMath.h>
 #include "Core/Utils/Serializer.h"
 

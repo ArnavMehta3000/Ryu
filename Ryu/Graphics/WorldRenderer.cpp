@@ -51,14 +51,9 @@ namespace Ryu::Gfx
 
 		m_defaultCamera.Position       = Math::Vector3(0.0f, 0.0f, -15.0f);
 		m_defaultCamera.Forward        = Math::Vector3(0.0f, 0.0f, 1.0f);
-		m_defaultCamera.NearPlane      = 0.1f;
-		m_defaultCamera.FarPlane       = 1000.0f;
 		m_defaultCamera.CullingMask    = 0xFFFFFFFF;
 		m_defaultCamera.Priority       = 0;
-		m_defaultCamera.ViewportX      = 0;
-		m_defaultCamera.ViewportY      = 0;
-		m_defaultCamera.ViewportWidth  = m_screenWidth;
-		m_defaultCamera.ViewportHeight = m_screenHeight;
+		m_defaultCamera.Viewport      = Math::Viewport(0.0f, 0.0f, m_screenWidth, m_screenHeight);
 
 		UpdateDefaultCameraProjection();
 	}
@@ -87,10 +82,6 @@ namespace Ryu::Gfx
 
 		m_defaultCamera.ViewProjectionMatrix =
 			m_defaultCamera.ViewMatrix * m_defaultCamera.ProjectionMatrix;
-
-		// Update viewport
-		m_defaultCamera.ViewportWidth = m_screenWidth;
-		m_defaultCamera.ViewportHeight = m_screenHeight;
 	}
 
 	void WorldRenderer::RenderFrame(const Gfx::RenderFrame& frame, Asset::IGpuResourceFactory* gpuFactory, IRendererHook* hook)
@@ -139,18 +130,12 @@ namespace Ryu::Gfx
 		CommandList* cmdList = m_device->GetGraphicsCommandList();
 
 		// Set viewport and scissor based on camera
-		const CD3DX12_VIEWPORT viewport(
-			static_cast<f32>(view.CameraData.ViewportX),
-			static_cast<f32>(view.CameraData.ViewportY),
-			static_cast<f32>(view.CameraData.ViewportWidth),
-			static_cast<f32>(view.CameraData.ViewportHeight),
-			0.0f, 1.0f);
-
+		CD3DX12_VIEWPORT viewport(*view.CameraData.Viewport.Get12());
 		const CD3DX12_RECT scissor(
-			view.CameraData.ViewportX,
-			view.CameraData.ViewportY,
-			view.CameraData.ViewportX + view.CameraData.ViewportWidth,
-			view.CameraData.ViewportY + view.CameraData.ViewportHeight);
+			static_cast<LONG>(view.CameraData.Viewport.x),
+			static_cast<LONG>(view.CameraData.Viewport.y),
+			static_cast<LONG>(view.CameraData.Viewport.x + view.CameraData.Viewport.width),
+			static_cast<LONG>(view.CameraData.Viewport.y + view.CameraData.Viewport.height));
 
 		cmdList->SetViewports(
 			std::span<const CD3DX12_VIEWPORT>(&viewport, 1),

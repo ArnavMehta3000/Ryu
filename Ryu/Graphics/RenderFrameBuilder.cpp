@@ -5,31 +5,10 @@
 #include "Game/Components/MeshRenderer.h"
 #include "Game/Components/TransformComponent.h"
 #include "Game/World/World.h"
-#include "Graphics/Camera.h"
 #include <ranges>
 
 namespace Ryu::Gfx
 {
-	RenderFrameBuilder& RenderFrameBuilder::SetAssetRegistry(Asset::AssetRegistry* registry)
-	{
-		m_assetRegistry = registry;
-		return *this;
-	}
-
-	RenderFrameBuilder& RenderFrameBuilder::SetScreenSize(u32 width, u32 height)
-	{
-		m_config.ScreenWidth = width;
-		m_config.ScreenHeight = height;
-		return *this;
-	}
-
-	f32 RenderFrameBuilder::GetAspectRatio() const
-	{
-		return m_config.ScreenHeight > 0
-			? static_cast<f32>(m_config.ScreenWidth) / static_cast<f32>(m_config.ScreenHeight)
-			: 1.0f;
-	}
-
 	RenderFrame RenderFrameBuilder::ExtractRenderData(Game::World& world, const Utils::FrameTimer& timer)
 	{
 		RYU_PROFILE_SCOPE();
@@ -79,15 +58,15 @@ namespace Ryu::Gfx
 		return frame;
 	}
 
-	RenderView RenderFrameBuilder::ExtractViewForCamera(Game::World& world, const CameraData& camera)
+	RenderView RenderFrameBuilder::ExtractViewForCamera(Game::World& world, const CameraData& cameraData)
 	{
 		RYU_PROFILE_SCOPE();
 
-		RenderView view { .CameraData = camera };
+		RenderView view { .CameraData = cameraData };
 
 		CollectRenderables(
 			world,
-			camera.CullingMask,
+			cameraData.CullingMask,
 			view.OpaqueItems,
 			view.TransparentItems);
 
@@ -125,10 +104,14 @@ namespace Ryu::Gfx
 		RYU_PROFILE_SCOPE();
 
 		auto& registry = world.GetRegistry();
-		auto view = registry.view<Game::Transform, Game::Camera>();
+		auto view = registry.view<Game::Transform, Game::CameraComponent>();
 
 		for (const auto& [entity, transform, camera] : view.each())
 		{
+			// Check if the camera viewport is valid
+			bool isViewportValid = camera.Viewport.width > 0 && camera.Viewport.height > 0;
+			RYU_ASSERT(isViewportValid, "Invalid camera viewport");
+
 			const CameraData camData = ExtractCameraData(transform, camera);
 			camerasOut.push_back(camData);
 		}
@@ -137,14 +120,21 @@ namespace Ryu::Gfx
 		std::ranges::sort(camerasOut, [](const CameraData& a, const CameraData& b) { return a.Priority < b.Priority; });
 	}
 
-	CameraData RenderFrameBuilder::ExtractCameraData(const Game::Transform& transform, const Game::Camera& camera)
+	CameraData RenderFrameBuilder::ExtractCameraData(const Game::Transform& transform, const Game::CameraComponent& camera)
 	{
 		RYU_PROFILE_SCOPE();
-		CameraData data{};
+		CameraData data
+		{
+			.Viewport    = camera.Viewport,
+			.Position    = transform.Position,
+			.NearPlane   = camera.ClipPlane[0],
+			.FarPlane    = camera.ClipPlane[1],
+			.CullingMask = camera.CullingMask,
+			.Priority    = camera.Priority
+		};
 
 		// Position/orientation from entity Transform
-		data.Position     = transform.Position;
-		SM::Matrix rotMat = SM::Matrix::CreateFromQuaternion(transform.Rotation);
+		SM::Matrix rotMat = SM::Matrix::CreateFromQuaternion(transform.Orientation);
 		data.Forward      = SM::Vector3(rotMat._31, rotMat._32, rotMat._33);
 		SM::Vector3 up    = SM::Vector3(rotMat._21, rotMat._22, rotMat._23);
 
@@ -154,37 +144,23 @@ namespace Ryu::Gfx
 			transform.Position + data.Forward,
 			up);
 
-		// Projection from CameraComponent settings using stored screen size
-		const f32 aspect = GetAspectRatio();
-
-		if (camera.Mode == Game::Camera::ProjectionMode::Perspective)
+		if (camera.Mode == Game::CameraComponent::Projection::Perspective)
 		{
 			data.ProjectionMatrix = SM::Matrix::CreatePerspectiveFieldOfView(
-				DirectX::XMConvertToRadians(camera.FieldOfView),
-				aspect,
-				camera.NearPlane,
-				camera.FarPlane);
+				DirectX::XMConvertToRadians(camera.FovY),
+				camera.Viewport.AspectRatio(),
+				data.NearPlane, data.FarPlane);
 		}
 		else
 		{
 			data.ProjectionMatrix = SM::Matrix::CreateOrthographic(
-				camera.OrthoSize * aspect * 2.0f,
-				camera.OrthoSize * 2.0f,
-				camera.NearPlane,
-				camera.FarPlane);
+				camera.OrthoSize[0], camera.OrthoSize[1],
+				data.NearPlane, data.FarPlane);
 		}
 
 		data.ViewProjectionMatrix = data.ViewMatrix * data.ProjectionMatrix;
-		data.NearPlane            = camera.NearPlane;
-		data.FarPlane             = camera.FarPlane;
-		data.CullingMask          = camera.CullingMask;
-		data.Priority             = camera.Priority;
 
 		// NOTE: Viewport is fullscreen (may be different for ImGui in the future?)
-		data.ViewportX      = 0;
-		data.ViewportY      = 0;
-		data.ViewportWidth  = m_config.ScreenWidth;
-		data.ViewportHeight = m_config.ScreenHeight;
 
 		return data;
 	}

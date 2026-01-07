@@ -4,7 +4,6 @@
 namespace Ryu::Game
 {
 	class Entity;
-	struct Camera;
 	struct Transform;
 }
 

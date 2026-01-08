@@ -13,11 +13,14 @@ namespace Ryu::Utils { class FrameTimer; }
 
 namespace Ryu::Gfx
 {
+	class Device;
+
 	// Lightweight builder class that traverses the world and builds a render frame that can be consumed by the WorldRenderer
 	class RenderFrameBuilder
 	{
 	public:
-		RenderFrameBuilder(Asset::AssetRegistry* registry) : m_assetRegistry(registry) {}
+		RenderFrameBuilder(Asset::AssetRegistry* registry, Device* device)
+			: m_assetRegistry(registry), m_device(device) {}
 
 		[[nodiscard]] RenderFrame ExtractRenderData(Game::World& world, const Utils::FrameTimer& timer);
 		[[nodiscard]] RenderView ExtractViewForCamera(Game::World& world, const CameraData& cameraData);
@@ -32,6 +35,7 @@ namespace Ryu::Gfx
 		static u64 ComputeSortKey(const RenderItem& item);
 
 	private:
-		Asset::AssetRegistry* m_assetRegistry = nullptr;
+		Device* m_device{ nullptr };
+		Asset::AssetRegistry* m_assetRegistry{ nullptr };
 	};
 }

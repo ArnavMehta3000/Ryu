@@ -49,11 +49,11 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_defaultCamera.Position       = Math::Vector3(0.0f, 0.0f, -15.0f);
-		m_defaultCamera.Forward        = Math::Vector3(0.0f, 0.0f, 1.0f);
-		m_defaultCamera.CullingMask    = 0xFFFFFFFF;
-		m_defaultCamera.Priority       = 0;
-		m_defaultCamera.Viewport      = Math::Viewport(0.0f, 0.0f, m_screenWidth, m_screenHeight);
+		m_defaultCamera.Position    = Math::Vector3(0.0f, 0.0f, 15.0f);
+		m_defaultCamera.Forward     = Math::Vector3::Forward;
+		m_defaultCamera.CullingMask = 0xFFFFFFFF;
+		m_defaultCamera.Priority    = 0;
+		m_defaultCamera.Viewport    = Math::Viewport(0.0f, 0.0f, static_cast<f32>(m_screenWidth), static_cast<f32>(m_screenHeight));
 
 		UpdateDefaultCameraProjection();
 	}
@@ -184,7 +184,7 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		// TODO: Load shaders from a configurable source instead of hardcoding
+		RYU_TODO("Load shaders from a configurable source instead of hardcoding")
 		Shader* vs = m_shaderLib->GetShader("MeshVS");
 		Shader* ps = m_shaderLib->GetShader("MeshPS");
 
@@ -318,9 +318,9 @@ namespace Ryu::Gfx
 
 		FrameConstants data
 		{
-			.View           = camera.ViewMatrix,
-			.Projection     = camera.ProjectionMatrix,
-			.ViewProjection = camera.ViewProjectionMatrix,
+			.View           = camera.ViewMatrix.Transpose(),
+			.Projection     = camera.ProjectionMatrix.Transpose(),
+			.ViewProjection = camera.ViewProjectionMatrix.Transpose(),
 			.CameraPosition = { camera.Position.x, camera.Position.y, camera.Position.z, 1.0f },
 			.Time           = { deltaTime, totalTime, 0, 0 }
 		};
@@ -343,8 +343,8 @@ namespace Ryu::Gfx
 
 		ObjectConstants objData
 		{
-			.World               = item.WorldTransform,
-			.WorldViewProjection = item.WorldTransform * camera.ViewProjectionMatrix
+			.World               = item.WorldTransform.Transpose(),
+			.WorldViewProjection = (item.WorldTransform * camera.ViewProjectionMatrix).Transpose()
 		};
 
 		ScopedConstantBuffer objCB(&m_cbPool, m_cbPool.Acquire(sizeof(ObjectConstants), m_currentFrame, "ObjectCB"));

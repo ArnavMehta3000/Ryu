@@ -47,8 +47,7 @@ namespace Ryu::Gfx
     {
         RYU_PROFILE_SCOPE();
 
-        // There has to be a better way to deal with the dimensions here
-        RenderFrameBuilder builder(&m_assets);
+        RenderFrameBuilder builder(&m_assets, m_device.get());
 
         const Gfx::RenderFrame frameData = builder.ExtractRenderData(world, frameTimer);
         m_worldRenderer.RenderFrame(frameData, &m_gpuFactory, m_hook);

@@ -5,6 +5,7 @@
 #include "Game/Components/MeshRenderer.h"
 #include "Game/Components/TransformComponent.h"
 #include "Game/World/World.h"
+#include "Graphics/Core/GfxDevice.h"
 #include <ranges>
 
 namespace Ryu::Gfx
@@ -108,10 +109,6 @@ namespace Ryu::Gfx
 
 		for (const auto& [entity, transform, camera] : view.each())
 		{
-			// Check if the camera viewport is valid
-			bool isViewportValid = camera.Viewport.width > 0 && camera.Viewport.height > 0;
-			RYU_ASSERT(isViewportValid, "Invalid camera viewport");
-
 			const CameraData camData = ExtractCameraData(transform, camera);
 			camerasOut.push_back(camData);
 		}
@@ -123,9 +120,19 @@ namespace Ryu::Gfx
 	CameraData RenderFrameBuilder::ExtractCameraData(const Game::Transform& transform, const Game::CameraComponent& camera)
 	{
 		RYU_PROFILE_SCOPE();
+
+		// NOTE: Using the window as the viewport size
+		// Maybe instead pass in the frame dimensions (consideration for ImGui)
+		// Or somehow embedd that information into the camera component
+		auto [width, height] = m_device->GetClientSize();
+
+		// Temporary clamp the size (otherwise we assert inside DirectXMath when creating the projection matrix)
+		// Assertion Assertion failed: !XMScalarNearEqual(AspectRatio, 0.0f, 0.00001f)
+		width  = std::max(width, 10u);
+		height = std::max(height, 10u);
+
 		CameraData data
 		{
-			.Viewport    = camera.Viewport,
 			.Position    = transform.Position,
 			.NearPlane   = camera.ClipPlane[0],
 			.FarPlane    = camera.ClipPlane[1],
@@ -133,35 +140,49 @@ namespace Ryu::Gfx
 			.Priority    = camera.Priority
 		};
 
+		data.Viewport.x = data.Viewport.y = 0.0f;
+		data.Viewport.width  = static_cast<f32>(width);
+		data.Viewport.height = static_cast<f32>(height);
+
 		// Position/orientation from entity Transform
 		SM::Matrix rotMat = SM::Matrix::CreateFromQuaternion(transform.Orientation);
-		data.Forward      = SM::Vector3(rotMat._31, rotMat._32, rotMat._33);
-		SM::Vector3 up    = SM::Vector3(rotMat._21, rotMat._22, rotMat._23);
+		data.Forward      = SM::Vector3::Transform(SM::Vector3::Forward, transform.Orientation);
+		SM::Vector3 up    = SM::Vector3::Transform(SM::Vector3::Up, transform.Orientation);
 
-		// View matrix from transform
-		data.ViewMatrix = SM::Matrix::CreateLookAt(
+		// Create a view matrix from transform
+		data.ViewMatrix = SM::Matrix::CreateLookAt(//DirectX::XMMatrixLookAtLH(
 			transform.Position,
 			transform.Position + data.Forward,
 			up);
 
+		const f32 aspect = data.Viewport.AspectRatio();
+
+		// Build camera matrices
 		if (camera.Mode == Game::CameraComponent::Projection::Perspective)
 		{
-			data.ProjectionMatrix = SM::Matrix::CreatePerspectiveFieldOfView(
-				DirectX::XMConvertToRadians(camera.FovY),
-				camera.Viewport.AspectRatio(),
-				data.NearPlane, data.FarPlane);
+			f32 fov = DirectX::XMConvertToRadians(camera.FovY);
+			if (DirectX::XMScalarNearEqual(fov, 0.0f, 0.00001f * 2.0f))
+			{
+				// Slightly bigger than the above check
+				constexpr f32 updatedFov = 0.000015f * 2.0f;
+				fov = updatedFov;
+			}
+			
+			data.ProjectionMatrix = SM::Matrix::CreatePerspectiveFieldOfView(//DirectX::XMMatrixPerspectiveFovLH(
+				fov, aspect, data.NearPlane, data.FarPlane);
 		}
 		else
 		{
-			data.ProjectionMatrix = SM::Matrix::CreateOrthographic(
-				camera.OrthoSize[0], camera.OrthoSize[1],
+			// OrthoSize[1] is the vertical size; compute horizontal from aspect
+			f32 orthoHeight = camera.OrthoSize[1];
+			f32 orthoWidth = orthoHeight * aspect;
+
+			data.ProjectionMatrix = SM::Matrix::CreateOrthographic(//DirectX::XMMatrixOrthographicLH(
+				orthoWidth, orthoHeight,
 				data.NearPlane, data.FarPlane);
 		}
 
 		data.ViewProjectionMatrix = data.ViewMatrix * data.ProjectionMatrix;
-
-		// NOTE: Viewport is fullscreen (may be different for ImGui in the future?)
-
 		return data;
 	}
 

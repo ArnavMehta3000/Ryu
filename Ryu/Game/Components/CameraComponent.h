@@ -19,8 +19,6 @@ namespace Ryu::Game
 		
 		bool ShouldClear              = true;
 		bool IsEnabled                = true;
-
-		Math::Viewport Viewport;
 	};
 }
 

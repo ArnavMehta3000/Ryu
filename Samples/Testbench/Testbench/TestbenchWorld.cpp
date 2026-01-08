@@ -22,16 +22,11 @@ void TestbenchWorld::OnCreate()
 	// Create camera
 	m_mainCamera = CreateEntity("Main Camera");
 	Game::CameraComponent& cam = m_mainCamera.AddComponent<Game::CameraComponent>();
-	// The camera viewport should be set externally somehow
-	// Or should it be a user side thing? (prolly not tbh)
-	cam.Viewport.width         = (f32)size.X;
-	cam.Viewport.height        = (f32)size.Y;
-
-	RYU_TODO("Camera viewport should be controlled by the engine when the window is resized");
+	cam.Mode = Game::CameraComponent::Projection::Orthographic;
 
 	// Move the camera
 	Game::Transform& camTransform = m_mainCamera.GetComponent<Game::Transform>();
-	camTransform.Position = { 0.0f, 0.0f, -10.0f };
+	camTransform.Position = { 0.0f, 0.0f, 15.0f };
 
 	// Create mesh
 	m_meshEntity = CreateEntity("Mesh");
@@ -47,6 +42,13 @@ void TestbenchWorld::OnCreate()
 		config.EnableWireframe = !config.EnableWireframe;
 		
 		renderer->SetConfig(config);
+	});
+
+	m_inputManager->BindAction("ToggleCameraProjection", Ryu::Window::KeyCode::C, [&cam]()
+	{
+		cam.Mode = cam.Mode == Game::CameraComponent::Projection::Orthographic 
+			? Game::CameraComponent::Projection::Perspective 
+			: Game::CameraComponent::Projection::Orthographic;
 	});
 }
 
@@ -77,28 +79,14 @@ void TestbenchWorld::OnTick(const Ryu::Utils::FrameTimer& timer)
 	if (m_inputManager->IsKeyDown(KC::Z))
 	{
 		camera.FovY -= speed;
+		camera.OrthoSize[0] -= speed;
+		camera.OrthoSize[1] -= speed;
 	}
 	if (m_inputManager->IsKeyDown(KC::X))
 	{
 		camera.FovY += speed;
-	}
-	
-	// Move the object around
-	if (m_inputManager->IsKeyDown(KC::ArrowLeft))
-	{
-		meshTransform.Position = { meshTransform.Position.x + speed, meshTransform.Position.y, meshTransform.Position.z };
-	}
-	if (m_inputManager->IsKeyDown(KC::ArrowRight))
-	{
-		meshTransform.Position = { meshTransform.Position.x - speed, meshTransform.Position.y, meshTransform.Position.z };
-	}
-	if (m_inputManager->IsKeyDown(KC::ArrowUp))
-	{
-		meshTransform.Position = { meshTransform.Position.x, meshTransform.Position.y + speed, meshTransform.Position.z };
-	}
-	if (m_inputManager->IsKeyDown(KC::ArrowDown))
-	{
-		meshTransform.Position = { meshTransform.Position.x, meshTransform.Position.y - speed, meshTransform.Position.z };
+		camera.OrthoSize[0] += speed;
+		camera.OrthoSize[1] += speed;
 	}
 }
 
@@ -151,6 +139,16 @@ void TestbenchWorld::OnImGuiRender()
 			ImGui::Text("FPS: %.2f", m_timer.FPS());
 			ImGui::Text("Total Time: %.2f", m_timer.TimeSinceStart<std::chrono::seconds>());
 			ImGui::Text("Frame Count: %llu", m_timer.FrameCount());
+
+			auto& camTransform = m_mainCamera.GetComponent<Ryu::Game::Transform>();
+			auto eulerRot = camTransform.Orientation.ToEuler();
+			ImGui::Text("Camera fov: %.2f", m_mainCamera.GetComponent<Ryu::Game::CameraComponent>().FovY);
+			ImGui::DragFloat3("Camera Position", &camTransform.Position.x, 0.1f);
+			ImGui::DragFloat3("Camera Rotation", &eulerRot.x, 0.1f);
+			camTransform.Orientation = Ryu::Math::Quaternion::CreateFromYawPitchRoll(eulerRot);
+
+			auto& cubeTransform = m_meshEntity.GetComponent<Ryu::Game::Transform>();
+			ImGui::DragFloat3("Cube Position", &cubeTransform.Position.x, 0.1f);
 
 			if (ImGui::BeginPopupContextWindow())
 			{

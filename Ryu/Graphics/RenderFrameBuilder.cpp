@@ -150,7 +150,7 @@ namespace Ryu::Gfx
 		SM::Vector3 up    = SM::Vector3::Transform(SM::Vector3::Up, transform.Orientation);
 
 		// Create a view matrix from transform
-		data.ViewMatrix = SM::Matrix::CreateLookAt(//DirectX::XMMatrixLookAtLH(
+		data.ViewMatrix = DirectX::XMMatrixLookAtLH(
 			transform.Position,
 			transform.Position + data.Forward,
 			up);
@@ -168,7 +168,7 @@ namespace Ryu::Gfx
 				fov = updatedFov;
 			}
 			
-			data.ProjectionMatrix = SM::Matrix::CreatePerspectiveFieldOfView(//DirectX::XMMatrixPerspectiveFovLH(
+			data.ProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(
 				fov, aspect, data.NearPlane, data.FarPlane);
 		}
 		else
@@ -177,7 +177,7 @@ namespace Ryu::Gfx
 			f32 orthoHeight = camera.OrthoSize[1];
 			f32 orthoWidth = orthoHeight * aspect;
 
-			data.ProjectionMatrix = SM::Matrix::CreateOrthographic(//DirectX::XMMatrixOrthographicLH(
+			data.ProjectionMatrix = DirectX::XMMatrixOrthographicLH(
 				orthoWidth, orthoHeight,
 				data.NearPlane, data.FarPlane);
 		}

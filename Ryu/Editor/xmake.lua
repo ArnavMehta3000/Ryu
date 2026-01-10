@@ -8,9 +8,12 @@ target("RyuEditor")
 		add_rules("win.sdk.application")
 	end
 
+	add_rules("utils.bin2obj", {extensions = { ".otf", ".ttf" }})
+
 	add_includedirs(".")
 	add_files("**.cpp", { unity_group = "Editor" })
 	add_headerfiles("**.h")
+	add_files("Fonts/**.otf", "Fonts/**.ttf")
 
 	add_deps("RyuEngine")
 

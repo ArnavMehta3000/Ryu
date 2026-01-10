@@ -5,19 +5,18 @@ How to use options:
 - rootsig = "" | string to specify root signature define (will also generate a <filename>.rootsig)
 - main = "" | string to specify main function name (default is <type>Main (eg. VSMain | PSMain))
 --]]
+
 rule("RyuOfflineShader")
 	set_extensions(".hlsl", ".hlsli")
 
 	on_build_file(function (target, sourcefile, opt)
 		import("lib.detect.find_tool")
 		import("core.project.depend")
-
-		local dxc = find_tool("dxc", { check = "--help" })
-
-		if dxc == nil then
-			cprint("${bright red}[RyuShader] DXC not found. Failed to compile %s", sourcefile)
-			os.raise("DXC compiler not found")
-		end
+		
+		-- Currently hardcoded this path
+		local DXC_PATH = path.join(os.projectdir(), "External", "DXC", "bin", "x64")
+		local dxc = find_tool("dxc", { check = "--help", paths = { DXC_PATH } })
+		assert(dxc, "DXC not found")
 
 		local config = target:fileconfig(sourcefile)
 		local types = config and config.type or {}
@@ -135,5 +134,20 @@ rule("RyuOfflineShader")
 	        os.rm(buildCache)
 	        cprint("${yellow}[RyuShader] Cleaned dependency cache")
 	    end
+	end)
+rule_end()
+
+
+
+rule("NewShader")
+	set_extensions(".hlsl")
+
+	on_load(function (target)
+		-- Add generated folder as include dir
+		local headerDir = path.join(target:autogendir(), "NewShader")
+		if not os.isdir(headerdir) then
+			os.mkdir(headerdir)
+		end
+		target:add("includedirs", headerdir, { public = true })
 	end)
 rule_end()

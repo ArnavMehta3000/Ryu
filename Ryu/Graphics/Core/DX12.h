@@ -1,12 +1,18 @@
 #pragma once
+#include "Core/Logging/Logger.h"
+#include "Core/Utils/Blob.h"
 #include "Graphics/Core/ComPtr.h"
 #include "Graphics/Core/RHI.h"
-#include "Core/Logging/Logger.h"
 #include <directx/d3dx12.h>
 #include <dxgi1_6.h>
 
+struct IDxcBlobEncoding;
+
 namespace Ryu::Gfx
 {
+	extern ComPtr<IDxcBlobEncoding> CreateDXCBlobFromRyuBlob(const Utils::Blob& blob, u32 codePage = 0 /* DXC_CP_ACP */);
+	extern ComPtr<ID3DBlob> CreateD3DBlobFromRyuBlob(const Utils::Blob& blob);
+	
 	namespace DX12
 	{
 		using Object              = ID3D12Object;

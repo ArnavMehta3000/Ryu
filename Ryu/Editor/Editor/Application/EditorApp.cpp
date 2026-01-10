@@ -5,9 +5,19 @@
 #include "Core/Logging/Logger.h"
 #include "Core/Profiling/Profiling.h"
 #include "Graphics/Core/GfxDevice.h"
+#include "Editor/Application/ImGuiThemes.h"
 #include <ImGui/backends/imgui_impl_win32.h>
 #include <ImGui/backends/imgui_impl_dx12.h>
 #include <ImGui/imgui.h>
+
+extern "C"
+{
+	extern const u8 _binary_HurmitNerdFont_otf_start[];
+	extern const u8 _binary_HurmitNerdFont_otf_end[];
+	
+	extern const u8 _binary_Roboto_ttf_start[];
+	extern const u8 _binary_Roboto_ttf_end[];
+}
 
 namespace Ryu::Editor
 {
@@ -147,7 +157,24 @@ namespace Ryu::Editor
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-		ImGui::StyleColorsDark();
+		// Add fonts
+		io.Fonts->AddFontDefaultVector();
+
+		ImFontConfig fontConfig;
+		fontConfig.FontDataOwnedByAtlas = false;
+
+		[[maybe_unused]] ImFont* hurmitFont = io.Fonts->AddFontFromMemoryTTF(
+			(void*)_binary_HurmitNerdFont_otf_start,
+			(u32)(_binary_HurmitNerdFont_otf_end - _binary_HurmitNerdFont_otf_start), 0.0f, &fontConfig);
+
+		[[maybe_unused]] ImFont* robotoFont = io.Fonts->AddFontFromMemoryTTF(
+			(void*)_binary_Roboto_ttf_start,
+			(u32)(_binary_Roboto_ttf_end - _binary_Roboto_ttf_start), 0.0f, &fontConfig);
+
+		ImGui::PushFont(robotoFont, 0.0f);
+
+
+		SetTheme(ImGuiTheme::CatpuccinMocha);
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.ScaleAllSizes(dpiScale);

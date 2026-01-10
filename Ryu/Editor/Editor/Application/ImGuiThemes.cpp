@@ -1,7 +1,7 @@
 #include "Editor/Application/ImGuiThemes.h"
 #include <ImGui/imgui.h>
 
-namespace Ryu::Editor
+namespace Ryu::Editor::Theme
 {
 	static void SetThemeSimpleDark()
 	{
@@ -356,11 +356,11 @@ namespace Ryu::Editor
 		style.ChildRounding     = 4;
 	}
 
-	void SetTheme(ImGuiTheme theme)
+	void Set(Style theme)
 	{
 		switch (theme)
 		{
-		using enum ImGuiTheme;
+		using enum Style;
 
 		case DefaultDark    : ImGui::StyleColorsDark();    break;
 		case DefaultLight   : ImGui::StyleColorsLight();   break;

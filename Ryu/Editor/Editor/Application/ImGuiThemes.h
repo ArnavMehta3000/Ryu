@@ -1,8 +1,8 @@
 #pragma once
 
-namespace Ryu::Editor
+namespace Ryu::Editor::Theme
 {
-	enum class ImGuiTheme
+	enum class Style
 	{
 		DefaultDark = 0,
 		DefaultLight,
@@ -16,5 +16,5 @@ namespace Ryu::Editor
 		MAX_COUNT
 	};
 
-	void SetTheme(ImGuiTheme theme);
+	void Set(Style theme);
 }

@@ -6,18 +6,11 @@
 #include "Core/Profiling/Profiling.h"
 #include "Graphics/Core/GfxDevice.h"
 #include "Editor/Application/ImGuiThemes.h"
+#include "Editor/Application/ImGuiFonts.h"
 #include <ImGui/backends/imgui_impl_win32.h>
 #include <ImGui/backends/imgui_impl_dx12.h>
 #include <ImGui/imgui.h>
 
-extern "C"
-{
-	extern const u8 _binary_HurmitNerdFont_otf_start[];
-	extern const u8 _binary_HurmitNerdFont_otf_end[];
-	
-	extern const u8 _binary_Roboto_ttf_start[];
-	extern const u8 _binary_Roboto_ttf_end[];
-}
 
 namespace Ryu::Editor
 {
@@ -158,23 +151,33 @@ namespace Ryu::Editor
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		// Add fonts
-		io.Fonts->AddFontDefaultVector();
-
 		ImFontConfig fontConfig;
 		fontConfig.FontDataOwnedByAtlas = false;
+		fontConfig.MergeMode = false;
 
-		[[maybe_unused]] ImFont* hurmitFont = io.Fonts->AddFontFromMemoryTTF(
-			(void*)_binary_HurmitNerdFont_otf_start,
-			(u32)(_binary_HurmitNerdFont_otf_end - _binary_HurmitNerdFont_otf_start), 0.0f, &fontConfig);
+		auto setFontName = [&fontConfig](std::string_view name)
+		{
+			constexpr size_t NAME_SIZE = 40;  // From ImFontConfig			
 
-		[[maybe_unused]] ImFont* robotoFont = io.Fonts->AddFontFromMemoryTTF(
-			(void*)_binary_Roboto_ttf_start,
-			(u32)(_binary_Roboto_ttf_end - _binary_Roboto_ttf_start), 0.0f, &fontConfig);
+			for (size_t i = 0; i < NAME_SIZE; i++)
+			{
+				fontConfig.Name[i] = '\0';
+			}
+			
+			std::memcpy(fontConfig.Name, name.data(), std::min(name.size(), NAME_SIZE));
+		};
+		
+		setFontName("MapleMono");
+		Font::g_editorFonts[std::to_underlying(Font::Style::MapleMono)] = io.Fonts->AddFontFromMemoryTTF(
+			Font::GetFontData(Font::Style::MapleMono), Font::GetFontDataSize(Font::Style::MapleMono), 0.0f, &fontConfig);
 
-		ImGui::PushFont(robotoFont, 0.0f);
+		setFontName("Roboto");
+		Font::g_editorFonts[std::to_underlying(Font::Style::Roboto)] = io.Fonts->AddFontFromMemoryTTF(
+			Font::GetFontData(Font::Style::Roboto), Font::GetFontDataSize(Font::Style::Roboto), 0.0f, &fontConfig);
 
-
-		SetTheme(ImGuiTheme::CatpuccinMocha);
+		setFontName("Hurmit");
+		Font::g_editorFonts[std::to_underlying(Font::Style::Hurmit)] = io.Fonts->AddFontFromMemoryTTF(
+			Font::GetFontData(Font::Style::Hurmit), Font::GetFontDataSize(Font::Style::Hurmit), 0.0f, &fontConfig);
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.ScaleAllSizes(dpiScale);
@@ -193,6 +196,9 @@ namespace Ryu::Editor
 
 		bool success = ImGui_ImplWin32_Init(hWnd);
 		success = ImGui_ImplDX12_Init(&info);
+
+		Theme::Set(Theme::Style::CatpuccinMocha);
+		ImGui::PushFont(Font::g_editorFonts[std::to_underlying(Font::Style::MapleMono)], 14.0f);
 	}
 
 	void EditorApp::OnImGuiFrameBegin()

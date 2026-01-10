@@ -1,4 +1,5 @@
 #include "Graphics/Core/GfxShader.h"
+#include <d3dcompiler.h>
 
 namespace Ryu::Gfx
 {
@@ -16,6 +17,30 @@ namespace Ryu::Gfx
 
 		RYU_LOG_ERROR("Trying to load precompiled shaders, unknown shader type ({}) extracted from name", text);
 		return ShaderType::VertexShader;
+	}
+
+	ComPtr<IDxcBlobEncoding> CreateDXCBlobFromRyuBlob(const Utils::Blob& blob, u32 codePage)
+	{
+		static ComPtr<IDxcUtils> dxcUtils;
+		if (!dxcUtils)
+		{
+			DXCall(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils)));
+		}
+
+				
+		ComPtr<IDxcBlobEncoding> dxcBlob = nullptr;
+		DXCall(dxcUtils->CreateBlob(blob.Data, static_cast<u32>(blob.Size), codePage, &dxcBlob));
+
+		return dxcBlob;
+	}
+
+	ComPtr<ID3DBlob> CreateD3DBlobFromRyuBlob(const Utils::Blob& blob)
+	{
+		ComPtr<ID3DBlob> outBlob;
+		::D3DCreateBlob(blob.Size, &outBlob);
+
+		std::memcpy(outBlob->GetBufferPointer(), blob.Data, blob.Size);
+		return outBlob;
 	}
 
 	Shader::Shader(Shader&& other) noexcept

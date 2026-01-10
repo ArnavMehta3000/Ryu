@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Graphics/Core/DX12.h"
 #include "Graphics/Shader/ShaderType.h"
 #include <filesystem>
@@ -9,7 +10,7 @@ namespace Ryu::Gfx
 	namespace fs = std::filesystem;
 	struct ShaderCompileInfo;
 
-	extern ShaderType GetShaderTypeFromName(std::string_view name);
+	extern ShaderType GetShaderTypeFromName(std::string_view name);	
 
 	class Shader
 	{

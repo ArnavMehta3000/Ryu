@@ -25,12 +25,6 @@ target("RyuCore")
 
     add_options("ryu-log-level", "ryu-enable-tracy-profiling", { public = true })
 
-    add_rules("EnumToHeader", {
-		root = path.join(os.projectdir(), "Ryu", "Enums"),
-		files = { "ServiceErrorType.json" },
-		force = false
-	})
-
 	if get_config("ryu-enable-tracy-profiling") then
 		add_packages("tracy", { public = true })
 	end

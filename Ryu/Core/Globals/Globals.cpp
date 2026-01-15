@@ -1,5 +1,4 @@
 #include "Core/Globals/Globals.h"
-#include "Core/Utils/ServiceLocator.h"
 #include <Windows.h>
 
 namespace Ryu::Globals
@@ -13,11 +12,5 @@ namespace Ryu::Globals
 	bool IsDebuggerAttached()
 	{
 		return ::IsDebuggerPresent();
-	}
-
-	Utils::ServiceLocator& GetServiceLocator()
-	{
-		static Utils::ServiceLocator serviceLocator;
-		return serviceLocator;
 	}
 }

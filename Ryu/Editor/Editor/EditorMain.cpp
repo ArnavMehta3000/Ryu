@@ -13,11 +13,6 @@ RYU_MAIN()
 {
 	RYU_DBG_TRACK_MEM();
 
-	/*SimpleJobTest();
-	TestJobDependencies();
-	TestParallelProcessing();
-	return 0;*/
-
 	try
 	{
 		if (!Engine::Setup())

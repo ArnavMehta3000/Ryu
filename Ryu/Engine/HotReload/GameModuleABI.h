@@ -84,3 +84,94 @@ extern "C"
 
 	__declspec(dllexport) RyuGameModuleAPI* RyuGetGameModuleAPI();
 }
+
+
+namespace Ryu::Engine
+{
+	// A concept to check if a hot-reloadable module has static functions matching the API
+	template <typename T>
+	concept IsHotReloadModule = requires(
+		RyuServices services, RyuGameState state,
+		RyuTickContext ctx, RyuSerializedState data)
+	{
+		{ T::GetModuleInfo()               } -> IsSame<RyuModuleInfo>;
+		{ T::LoadModule(services)          } -> IsSame<bool>;
+		{ T::UnloadModule()                } -> IsSame<void>;
+		{ T::CreateGameState()             } -> IsSame<RyuGameState>;
+		{ T::DestroyGameState(state)       } -> IsSame<void>;
+		{ T::Initialize(state)             } -> IsSame<bool>;
+		{ T::Tick(state, ctx)              } -> IsSame<void>;
+		{ T::Shutdown(state)               } -> IsSame<void>;
+		{ T::GetActiveWorld(state)         } -> IsSame<RyuWorld>;
+
+		{ T::SerializeState(state)         } -> IsSame<RyuSerializedState>;
+		{ T::DeserializeState(state, data) } -> IsSame<bool>;
+		{ T::FreeSerializedState(data)     } -> IsSame<void>;
+	};
+
+	template <typename T>
+	concept ModuleHasEditorSupport = requires
+	{
+		{ T::OnEditorAttach() } -> IsSame<void>;
+		{ T::OnEditorDetach() } -> IsSame<void>;
+		{ T::OnEditorRender() } -> IsSame<void>;
+	};
+
+	template <typename T>
+	constexpr bool ModuleHasEditorAttach = requires { { T::OnEditorAttach() } -> IsSame<void>; };
+
+	template <typename T>
+	constexpr bool ModuleHasEditorDetach = requires { { T::OnEditorDetach() } -> IsSame<void>; };
+
+	template <typename T>
+	constexpr bool ModuleHasEditorRender = requires { { T::OnEditorRender() } -> IsSame<void>; };
+
+	template <typename T>
+	RyuGameModuleAPI CreateModuleAPI()
+	{
+		RyuGameModuleAPI api =
+		{
+			.GetModuleInfo       = T::GetModuleInfo,
+			.LoadModule          = T::LoadModule,
+			.UnloadModule        = T::UnloadModule,
+			.CreateGameState     = T::CreateGameState,
+			.DestroyGameState    = T::DestroyGameState,
+			.Initialize          = T::Initialize,
+			.Tick                = T::Tick,
+			.Shutdown            = T::Shutdown,
+			.GetActiveWorld      = T::GetActiveWorld,
+			.SerializeState      = T::SerializeState,
+			.DeserializeState    = T::DeserializeState,
+			.FreeSerializedState = T::FreeSerializedState,
+			.OnEditorAttach      = nullptr,
+			.OnEditorDetach      = nullptr,
+			.OnEditorRender      = nullptr,
+		};
+
+		if constexpr (ModuleHasEditorAttach<T>) 
+		{
+			api.OnEditorAttach = T::OnEditorAttach;
+		}
+		
+		if constexpr (ModuleHasEditorDetach<T>) 
+		{
+			api.OnEditorDetach = T::OnEditorDetach;
+		}
+		
+		if constexpr (ModuleHasEditorRender<T>) 
+		{
+			api.OnEditorRender = T::OnEditorRender;
+		}
+
+		return api;
+	}
+}
+
+#define RYU_IMPLEMENT_HOT_RELOAD_MODULE(ModuleClassName)                      \
+    static_assert(::Ryu::Engine::IsHotReloadModule<ModuleClassName>);         \
+    extern "C" __declspec(dllexport) RyuGameModuleAPI* RyuGetGameModuleAPI()  \
+    {                                                                         \
+        static RyuGameModuleAPI s_api =                                       \
+            ::Ryu::Engine::CreateModuleAPI<ModuleClassName>();                \
+        return &s_api;                                                        \
+    }

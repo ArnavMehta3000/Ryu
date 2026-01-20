@@ -1,35 +1,34 @@
 #pragma once
-#include "Core/Utils/Timing/FrameTimer.h"
+#include "Application/App/IApplication.h"
 #include "Application/Window/Window.h"
 #include "Core/Logging/Logger.h"
+#include "Core/Utils/Timing/FrameTimer.h"
 
-namespace Ryu::Engine { class Engine; }
-namespace Ryu::Editor { class EditorApp; }
-namespace Ryu::Game   { class World; class WorldManager; }
+namespace Ryu::Engine { class GameModuleHost; }
 
 namespace Ryu::App
 {
-	class App
+	class App : public IApplication
 	{
+		RYU_DISABLE_COPY(App)
 		friend class Engine::Engine;
 		friend class Editor::EditorApp;
+		friend class Engine::GameModuleHost;
 	public:
-		static void InitWindow(Window::Window& window);
-
-		explicit App(std::shared_ptr<Window::Window> window);  // Use existing window
-		explicit App(const Window::Window::Config& config);  // Let the application create the window
+		explicit App(std::shared_ptr<Window::Window> window);
+		explicit App(const Window::Window::Config& config);
 		virtual ~App();
 
-		void Quit();
+		static void InitWindow(Window::Window& window);
 
-		[[nodiscard]] inline std::shared_ptr<Window::Window> GetWindow() const noexcept { return m_window; }
-		[[nodiscard]] inline bool IsRunning() const noexcept { return m_isRunning; }
-		[[nodiscard]] inline virtual Game::WorldManager* GetWorldManager() noexcept { return nullptr; }
+		// Default implementation
+		[[nodiscard]] inline  virtual bool OnInit() override { m_isRunning = true; return true; }
 
-	protected:
-		virtual bool OnInit() = 0;
-		virtual void OnTick(const Utils::FrameTimer&) = 0;
-		virtual void OnShutdown() = 0;
+		[[nodiscard]] inline Window::Window* GetWindow() override { return m_window.get(); }
+		[[nodiscard]] inline bool IsRunning() const override { return m_isRunning; }
+		void RequestQuit() override;
+
+		[[nodiscard]] std::shared_ptr<Window::Window> GetWindowShared() const noexcept { return m_window; }
 
 	private:
 		void ProcessWindowEvents();

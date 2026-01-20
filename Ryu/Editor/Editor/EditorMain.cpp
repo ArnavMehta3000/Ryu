@@ -1,11 +1,13 @@
 #include "Engine/Setup/EngineMain.h"
 #include "Engine/Setup/Setup.h"
+#include "Core/Config/CmdLine.h"
 #include "Editor/Application/EditorApp.h"
 #include <print>
 #include <numeric>
 
 using namespace Ryu;
 using namespace Ryu::Editor;
+using namespace Ryu::Config;
 
 using namespace std::chrono_literals;
 
@@ -21,28 +23,28 @@ RYU_MAIN()
 			return 1;
 		}
 
-		// Create editor window
-		Window::Window::Config windowConfig
+		const EditorConfig editorConfig
 		{
-			.Title             = "Ryu Editor",
-			.CanBorderlessDrag = true,
-			.Type              = Window::WindowType::Windowed,
+			.WindowConfig =
+			{
+				.Title             = "Ryu Editor",
+				.CanBorderlessDrag = true,
+				.Type              = Window::WindowType::Windowed,
+			},
+			.GameModulePath  = CmdLine::Get().GetCVarValue("Game.ModulePath"),
+			.EnableHotReload = true,
 		};
 
-		auto editorWindow = std::make_shared<Window::Window>(windowConfig);
-		App::App::InitWindow(*editorWindow);
-
-		// Create editor application
-		auto editorApp = std::make_shared<Editor::EditorApp>(editorWindow);
-		Engine::Engine::Get().RunApp(editorApp, editorApp.get());
+		auto editorApp = std::make_shared<Editor::EditorApp>(editorConfig);
+		Engine::Engine::Get().RunApp(editorApp.get(), editorApp->GetRendererHook());
 
 		Engine::Shutdown();
 	}
 	catch (const AssertException& e)
 	{
 		RYU_LOG_FATAL("{}", e.what());
-
 		Engine::Shutdown();
+		return 1;
 	}
 
 	return 0;

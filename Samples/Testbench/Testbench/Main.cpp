@@ -17,20 +17,20 @@ RYU_MAIN()
 			return -1;
 		}
 
-		// Create application window
 		Window::Window::Config windowConfig
 		{
+			.Title               = "Testbench",
 			.CanBorderlessResize = true,
 			.CanBorderlessDrag   = true,
 			.Type                = Window::WindowType::Borderless
 		};
 
+		// Create window
 		auto window = std::make_shared<Window::Window>(windowConfig);
 		App::App::InitWindow(*window);
-		auto app = std::make_shared<TestbenchApp>(window);
 
-		auto& engine = Ryu::Engine::Engine::Get();
-		engine.RunApp(app);
+		// Run app
+		Ryu::Engine::Engine::Get().RunApp(std::make_shared<TestbenchApp>(window));
 		return 0;
 	}
 	catch (const AssertException& e)

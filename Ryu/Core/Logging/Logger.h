@@ -1,27 +1,23 @@
 #pragma once
-#include "Core/Common/API.h"
-#include "Core/Common/ObjectMacros.h"
+#include "Core/Utils/Singleton.h"
 #include "Core/Logging/LoggingConfig.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
 #include <spdlog/fmt/fmt.h>
-#include <memory>
 #include <functional>
-#include <unordered_map>
 
 namespace Ryu::Engine { class Engine; }
 
 namespace Ryu::Logging
 {
-	class Logger
+	class Logger : public Utils::Singleton<Logger>
 	{
+		RYU_SINGLETON_DECLARE(Logger);
 		friend class Engine::Engine;
 	public:
 		using OnFatalCallback = std::function<void(LogLevel, const std::string&)>;
-
-		RYU_API Logger();
-		~Logger() = default;
+		~Logger();
 
 		RYU_API void Configure(const LoggingConfig& config);
 		RYU_API void SetRuntimeLogLevel(LogLevel level);
@@ -32,7 +28,7 @@ namespace Ryu::Logging
 		RYU_API bool IsSinkEnabled(const std::string& sinkName) const;
 		inline void SetOnFatalCallback(OnFatalCallback callback) { m_onFatalCallback = std::move(callback); }
 
-		RYU_API std::shared_ptr<spdlog::logger> GetCategoryLogger(std::string_view category);
+		RYU_API spdlog::logger* GetCategoryLogger(std::string_view category);
 
 		RYU_API void Flush();
 
@@ -57,8 +53,11 @@ namespace Ryu::Logging
 		template<typename... Args>
 		void Fatal(std::string_view category, fmt::format_string<Args...> format, Args&&... args);
 
-	private:
 		void Shutdown();
+	
+	private:
+		Logger();
+
 		void CreateSinks(const LoggingConfig& config);
 		void UpdateLoggers();
 		std::string FormatCategoryName(std::string_view category) const;
@@ -75,11 +74,6 @@ namespace Ryu::Logging
 		OnFatalCallback                                                  m_onFatalCallback;
 		std::vector<spdlog::sink_ptr>                                    m_activeSinks;
 	};
-
-	namespace Internal
-	{
-		Logger* GetLoggerInstance();
-	}
 }
 
 #include "Core/Logging/Logger.inl"
@@ -89,10 +83,7 @@ do                                                                              
 {                                                                                                                                    \
 	if constexpr (static_cast<i32>(::Ryu::Logging::LogLevel::Level) >= static_cast<i32>(::Ryu::Logging::COMPILE_TIME_LOG_LEVEL))     \
 	{                                                                                                                                \
-		if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance())                                                            \
-        {                                                                                                                            \
-			logger->Level(RYU_FILE, __VA_ARGS__);                                                                                    \
-		}                                                                                                                            \
+		::Ryu::Logging::Logger::Get().Level(RYU_FILE, __VA_ARGS__);                                                                  \
 	}																																 \
 } while(0)
 
@@ -105,17 +96,11 @@ do                                                                              
 #define RYU_LOG_ERROR(...)                                            \
 do                                                                    \
 {                                                                     \
-    if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance()) \
-	{                                                                 \
-        logger->Error(RYU_FILE, __VA_ARGS__);                         \
-    }                                                                 \
+    ::Ryu::Logging::Logger::Get().Error(RYU_FILE, __VA_ARGS__);       \
 } while(0)
 
 #define RYU_LOG_FATAL(...)                                            \
 do                                                                    \
 {                                                                     \
-    if (auto* logger = ::Ryu::Logging::Internal::GetLoggerInstance()) \
-	{                                                                 \
-        logger->Fatal(RYU_FILE, __VA_ARGS__);                         \
-    }                                                                 \
+	::Ryu::Logging::Logger::Get().Fatal(RYU_FILE, __VA_ARGS__);       \
 } while(0)

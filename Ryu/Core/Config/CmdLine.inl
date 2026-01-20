@@ -32,7 +32,8 @@ namespace Ryu::Config
 		const std::string nameStr(name);
 		if (m_cvars.contains(nameStr))
 		{
-			throw std::runtime_error("CVar with same name found!");
+			::OutputDebugStringA(std::format("Warning: CVar with same name ({}) found!\n", name.data()).c_str());
+			//throw std::runtime_error("CVar with same name found!");
 		}
 
 		m_cvars[nameStr] = cvar;

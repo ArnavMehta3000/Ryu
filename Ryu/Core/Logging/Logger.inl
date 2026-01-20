@@ -10,7 +10,7 @@ namespace Ryu::Logging
 			return;
 		}
 
-		auto logger = GetCategoryLogger(category);
+		spdlog::logger* logger = GetCategoryLogger(category);
 		logger->log(Internal::ToSpdlogLevel(level), format, std::forward<Args>(args)...);
 
 		if (level == LogLevel::Fatal && m_onFatalCallback)

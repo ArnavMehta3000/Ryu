@@ -3,7 +3,7 @@ add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 -- Project name and version
 set_project("Ryu")
-set_version("0.0.3", {build = "%Y%m%d%H%M"})
+set_version("0.0.3", { build = "%Y%m%d%H%M" })
 
 -- Set C/C++ language version
 set_languages("c17", "cxx23")
@@ -69,7 +69,8 @@ includes("**/xmake.lua")
 
 
 -- Set configs for testing
-set_config("ryu-build-with-editor", true)
+--set_config("ryu-build-with-editor", false)
+--set_config("ryu-enable-hot-reload", true)
 --set_config("ryu-enable-tracy-profiling", true)
 -- set_config("ryu-unity-build", false)
 

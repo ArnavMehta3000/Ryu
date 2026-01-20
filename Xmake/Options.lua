@@ -72,3 +72,18 @@ option("ryu-unity-build")
 		cprint(format("(config) Unity build enabled: ${cyan}%s${clear}", option:value()))
 	end)
 option_end()
+
+option("ryu-enable-hot-reload")
+	add_deps("ryu-build-with-editor")
+    set_default(true)
+    set_showmenu(true)
+    set_description("Enable hot-reload for game code (requires editor)")
+
+	after_check(function (option)
+		-- If we are not building with editor, then we also cannot hot-reload
+		if not option:dep("ryu-build-with-editor"):enabled() then
+            option:enable(false)
+        end
+		cprint(format("(config) Hot-reload enabled: ${cyan}%s${clear}", option:value()))
+	end)
+option_end()

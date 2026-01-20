@@ -18,6 +18,8 @@ TestbenchApp::TestbenchApp(const std::shared_ptr<Ryu::Window::Window>& window)
 
 bool TestbenchApp::OnInit()
 {
+	App::OnInit();  // This sets `m_isRunning` to true
+
 	RYU_PROFILE_SCOPE();
 	RYU_LOG_INFO("Initializing Testbench App");
 
@@ -28,7 +30,7 @@ bool TestbenchApp::OnInit()
 
 	// Bind input stuff
 	Game::InputManager* input = Engine::Engine::Get().GetInputManager();
-	input->BindAction("Quit", KeyCode::Escape, [this]{ Quit(); });
+	input->BindAction("Quit", KeyCode::Escape, [this]{ RequestQuit(); });
 	input->BindAction("ToggleStats", KeyCode::F, [this]{ RYU_LOG_INFO("DT: {} | FPS: {}", m_timer.DeltaTimeF(), m_timer.FPS()); });
 
 	m_worldManager.CreateWorld<TestbenchWorld>();

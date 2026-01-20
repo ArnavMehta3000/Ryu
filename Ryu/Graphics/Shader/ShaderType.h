@@ -1,8 +1,17 @@
 #pragma once
-#include <ShaderType.Generated.h>
 
 namespace Ryu::Gfx
 {
+	enum class ShaderType : u8
+	{
+		VertexShader,
+		PixelShader,
+		GeometryShader,
+		HullShader,
+		DomainShader,
+		ComputeShader,
+	};
+
 	inline std::wstring_view GetTargetProfileFromType(ShaderType type)
 	{
 		using enum ShaderType;
@@ -30,6 +39,25 @@ namespace Ryu::Gfx
 		case DomainShader  : return L"DSMain";
 		case ComputeShader : return L"CSMain";
 		default            : return L"main";
+		}
+	}
+}
+
+namespace Ryu
+{
+	template<>
+	inline constexpr std::string_view EnumToString<::Ryu::Gfx::ShaderType>(::Ryu::Gfx::ShaderType value)
+	{
+		switch (value)
+		{
+			using enum ::Ryu::Gfx::ShaderType;
+		case VertexShader  : return "VertexShader";
+		case PixelShader   : return "PixelShader";
+		case GeometryShader: return "GeometryShader";
+		case HullShader    : return "HullShader";
+		case DomainShader  : return "DomainShader";
+		case ComputeShader : return "ComputeShader";
+		default            : return "<UNKNOWN>";
 		}
 	}
 }

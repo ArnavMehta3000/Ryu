@@ -9,6 +9,7 @@
 #include "Core/Utils/Timing/Stopwatch.h"
 #include "Engine/Services/Services.h"
 #include "Game/World/WorldManager.h"
+#include "Graphics/Compiler/ShaderCompiler.h"
 #include "Math/Math.h"
 #include "Memory/New.h"
 #include <DirectXMath.h>
@@ -85,12 +86,14 @@ namespace Ryu::Engine
 			window->GetDispatcher());
 
 		// Register services
+		ServiceLocator::Register(m_currentApp);
 		ServiceLocator::Register(&Logging::Logger::Get());
 		ServiceLocator::Register(&Config::ConfigManager::Get());
 		ServiceLocator::Register(&Config::CmdLine::Get());
 		ServiceLocator::Register(&App::PathManager::Get());
 		ServiceLocator::Register(m_renderer.get());
 		ServiceLocator::Register(m_inputManager.get());
+		ServiceLocator::Register(&Gfx::ShaderCompiler::Get());
 
 		RYU_LOG_TRACE("Engine initialization completed");
 		return true;

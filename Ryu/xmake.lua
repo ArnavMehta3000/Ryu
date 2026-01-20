@@ -1,6 +1,10 @@
 -- Check if we want to do a unity build for all targets
 if has_config("ryu-unity-build") then
-    add_rules("c++.unity_build")
+	add_rules("c++.unity_build")
+end
+
+if has_config("ryu-enable-hot-reload") then
+	add_defines("RYU_HOT_RELOAD")
 end
 
 -------------------- Core Module --------------------
@@ -21,9 +25,9 @@ target("RyuCore")
 
 	add_packages(
 		"spdlog", "uuid_v4", "Elos",
-	 	"toml++", "cli11", "efsw", { public = true })
+		"toml++", "cli11", "efsw", { public = true })
 
-    add_options("ryu-log-level", "ryu-enable-tracy-profiling", { public = true })
+	add_options("ryu-log-level", "ryu-enable-tracy-profiling", { public = true })
 
 	if get_config("ryu-enable-tracy-profiling") then
 		add_packages("tracy", { public = true })
@@ -42,8 +46,8 @@ target("RyuApplication")
 
 	add_deps("RyuCore", "ImGui")
 
-    add_options("ryu-log-level")
-    add_options("ryu-enable-tracy-profiling", { public = true })
+	add_options("ryu-log-level")
+	add_options("ryu-enable-tracy-profiling", { public = true })
 target_end()
 
 -------------------- Math Module --------------------
@@ -128,12 +132,6 @@ target("RyuGraphics")
 
 	add_deps("RyuCore", "RyuMath", "RyuShaders", "ImGui")
 	add_packages("entt", "directx-headers", "directxshadercompiler", { public = true })
-
-	add_rules("EnumToHeader", {
-		root = path.join(os.projectdir(), "Ryu", "Enums"),
-		files = { "ShaderType.json" },
-		force = false
-	})
 target_end()
 
 -------------------- Game Module --------------------
@@ -156,8 +154,8 @@ target("RyuEngine")
 	set_group("Ryu")
 
 	add_files("Engine/**.cpp", { unity_group = "Engine" })
-    add_files("Engine/HotReload/**.cpp", { unity_group = "HotReload" })
-    add_headerfiles("Engine/**.h", { public = true })
+	add_files("Engine/HotReload/**.cpp", { unity_group = "HotReload" })
+	add_headerfiles("Engine/**.h", { public = true })
 
 	add_deps(
 		"RyuCore",

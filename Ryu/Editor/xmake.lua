@@ -19,13 +19,13 @@ target("RyuEditor")
     
     add_defines("RYU_IS_EDITOR")
     
-    -- Hot-reload support
-    if has_config("ryu-enable-hot-reload") then
-        add_defines("RYU_HOT_RELOAD")
-    end
     
     if has_config("ryu-unity-build") then
         add_rules("c++.unity_build")
+    end
+
+    if has_config("ryu-enable-hot-reload") then
+        add_defines("RYU_HOT_RELOAD")
     end
 
     after_build( function(target)

@@ -12,13 +12,12 @@ set_languages("c17", "cxx23")
 add_repositories("Elos https://github.com/ArnavMehta3000/My-Packages.git")
 
 -- Include other xmake scripts
-add_moduledirs("Xmake/Modules")
+--add_moduledirs("Xmake/Modules")
 add_plugindirs("Xmake/Plugins")
 includes("Xmake/Packages.lua")
 includes("Xmake/Options.lua")
 includes("Xmake/Rules/ExportAPI.lua")
 includes("Xmake/Rules/RyuGame.lua")
-includes("Xmake/Rules/EnumToHeader.lua")
 includes("Xmake/Rules/HLSLShader.lua")
 includes("Xmake/Rules/RyuShader.lua")
 
@@ -70,7 +69,7 @@ includes("**/xmake.lua")
 
 -- Set configs for testing
 --set_config("ryu-build-with-editor", false)
---set_config("ryu-enable-hot-reload", true)
+--set_config("ryu-enable-hot-reload", false)
 --set_config("ryu-enable-tracy-profiling", true)
 -- set_config("ryu-unity-build", false)
 

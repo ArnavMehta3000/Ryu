@@ -289,7 +289,7 @@ namespace Ryu::Engine
 		m_state.API.Tick(m_state.GameState, ctx);
 	}
 	
-	void GameModuleHost::Shutdown()
+	void GameModuleHost::Shutdown() const
 	{
 		if (!m_state.IsLoaded || !m_state.GameState)
 		{
@@ -299,17 +299,17 @@ namespace Ryu::Engine
 		m_state.API.Shutdown(m_state.GameState);
 	}
 
-	RyuWorld GameModuleHost::GetActiveWorld()
+	RyuWorldManager GameModuleHost::GetWorldManager() const
 	{
 		if (!m_state.IsLoaded || !m_state.GameState)
 		{
 			return nullptr;
 		}
 
-		return m_state.API.GetActiveWorld(m_state.GameState);
+		return m_state.API.GetWorldManager(m_state.GameState);
 	}
 
-	void GameModuleHost::OnEditorAttach()
+	void GameModuleHost::OnEditorAttach() const
 	{
 		if (m_state.IsLoaded && m_state.GameState && m_state.API.OnEditorAttach)
 		{
@@ -317,7 +317,7 @@ namespace Ryu::Engine
 		}
 	}
 
-	void GameModuleHost::OnEditorDetach()
+	void GameModuleHost::OnEditorDetach() const
 	{
 		if (m_state.IsLoaded && m_state.GameState && m_state.API.OnEditorDetach)
 		{
@@ -325,7 +325,7 @@ namespace Ryu::Engine
 		}
 	}
 
-	void GameModuleHost::OnEditorRender()
+	void GameModuleHost::OnEditorRender() const
 	{
 		if (m_state.IsLoaded && m_state.GameState && m_state.API.OnEditorRender)
 		{
@@ -383,7 +383,7 @@ namespace Ryu::Engine
 			|| !m_state.API.Initialize      
 			|| !m_state.API.Tick            
 			|| !m_state.API.Shutdown        
-			|| !m_state.API.GetActiveWorld)
+			|| !m_state.API.GetWorldManager)
 		{
 			RYU_LOG_ERROR("Game module missing required exports");
 			return false;

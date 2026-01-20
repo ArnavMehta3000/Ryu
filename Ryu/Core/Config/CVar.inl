@@ -50,10 +50,12 @@ namespace Ryu::Config
     template <Internal::CVarAllTypes T>
 	inline std::string CVar<T>::GetAsString() const
 	{
+        auto value = m_cliValue.value_or(m_value);
+
         if constexpr (Internal::CVarVectorType<T>)
         {
             std::string result;
-            for (size_t i = 0; i < m_value.size(); ++i)
+            for (size_t i = 0; i < value.size(); ++i)
             {
                 if (i > 0)
                 {
@@ -62,15 +64,15 @@ namespace Ryu::Config
 
                 if constexpr (IsSame<T, std::vector<std::string>>)
                 {
-                    result += m_value[i];
+                    result += value[i];
                 }
                 else if constexpr (IsSame<T, std::vector<bool>>)
                 {
-                    result += m_value[i] ? "true" : "false";
+                    result += value[i] ? "true" : "false";
                 }
                 else
                 {
-                    result += std::format("{}", m_value[i]);
+                    result += std::format("{}", value[i]);
                 }
             }
 
@@ -80,15 +82,15 @@ namespace Ryu::Config
         {
             if constexpr (IsSame<T, std::string>)
             {
-                return m_value;
+                return value;
             }
             else if constexpr (IsSame<T, bool>)
             {
-                return m_value ? "true" : "false";
+                return value ? "true" : "false";
             }
             else
             {
-                return std::format("{}", m_value);
+                return std::format("{}", value);
             }
         }
 	}

@@ -7,8 +7,6 @@ namespace Ryu::Logging
 {
     namespace fs = std::filesystem;
 
-    Logger s_logger;
-
     std::string LoggingConfig::GetSpdlogPattern() const
     {
         if (!Pattern.CustomPattern.empty())
@@ -41,7 +39,13 @@ namespace Ryu::Logging
     Logger::Logger()
         : m_onFatalCallback([](LogLevel, const std::string&) { std::abort(); })
     {
+        // --> The name of this logger should be the same as `RYU_GAME_LOG_CATEGORY_NAME` from `GameServiecs.h`
+        // Create a default logger for 'Game' category
+
+		std::ignore = GetCategoryLogger("Game");
     }
+
+    Logger::~Logger() { /*spdlog::drop_all();  spdlog::shutdown();*/ }
 
     void Logger::Configure(const LoggingConfig& config)
     {
@@ -119,14 +123,14 @@ namespace Ryu::Logging
         return false;
     }
 
-    std::shared_ptr<spdlog::logger> Logger::GetCategoryLogger(std::string_view category)
+    spdlog::logger* Logger::GetCategoryLogger(std::string_view category)
     {
         std::string categoryName = FormatCategoryName(category);
 
         auto it = m_categoryLoggers.find(categoryName);
         if (it != m_categoryLoggers.end())
         {
-            return it->second;
+            return it->second.get();
         }
 
         // Create new logger for this category
@@ -155,14 +159,17 @@ namespace Ryu::Logging
         m_categoryLoggers[categoryName] = logger;
         spdlog::register_logger(logger);
 
-        return logger;
+        return logger.get();
     }
 
     void Logger::Flush()
     {
         for (auto& [name, logger] : m_categoryLoggers)
         {
-            logger->flush();
+            if (logger)
+            {
+                logger->flush();
+            }
         }
     }
 
@@ -226,17 +233,20 @@ namespace Ryu::Logging
 
     void Logger::Shutdown()
     {
+        spdlog::drop_all();
+
+        m_categoryLoggers.clear();
+        m_activeSinks.clear();
+        m_consoleSink.reset();
+        m_fileSink.reset();
+        m_debugSink.reset();
+
         spdlog::shutdown();
     }
 
     std::string Logger::FormatCategoryName(std::string_view category) const
     {
         return std::string(category);
-    }
-
-    Logger* Internal::GetLoggerInstance()
-    {
-        return &s_logger;
     }
 }
 

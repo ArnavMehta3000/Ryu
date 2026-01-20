@@ -1,9 +1,11 @@
 #include "Engine/Setup/Setup.h"
-#include "Engine/EngineSettings.h"
+
 #include "Core/Config/CmdLine.h"
 #include "Core/Logging/Logger.h"
 #include "Core/Utils/MessageBox.h"
+#include "Engine/EngineSettings.h"
 #include <filesystem>
+#include <wrl/event.h>
 
 namespace Ryu::Engine
 {
@@ -63,6 +65,7 @@ namespace Ryu::Engine
 
 	bool Setup()
 	{
+		::Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
 		if (!Config::CmdLine::Get().ParseCommandLine())
 		{
 			return false;
@@ -104,47 +107,45 @@ namespace Ryu::Engine
 			config.AsyncQueueSize = cv_logAsyncQueueSize;
 
 			// Configure the logger
-			if (auto* logger = Logging::Internal::GetLoggerInstance())
-			{
-				logger->Configure(config);
+			Logging::Logger& logger = Logging::Logger::Get();
+			logger.Configure(config);
 				
-				logger->SetOnFatalCallback([](Logging::LogLevel, const std::string& msg)
-				{
-					Utils::MessageBoxDesc desc;
-					desc.Title        = "Fatal Error";
-					desc.Text         = msg;
-					desc.Flags.Button = Utils::MessagBoxButton::Ok;
-					desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
+			logger.SetOnFatalCallback([](Logging::LogLevel, const std::string& msg)
+			{
+				Utils::MessageBoxDesc desc;
+				desc.Title        = "Fatal Error";
+				desc.Text         = msg;
+				desc.Flags.Button = Utils::MessagBoxButton::Ok;
+				desc.Flags.Icon   = Utils::MessageBoxIcon::Error;
 
-					Utils::ShowMessageBox(desc);
+				Utils::ShowMessageBox(desc);
 					
-					throw Ryu::AssertException("FATAL ERROR", msg);
-				});
+				throw Ryu::AssertException("FATAL ERROR", msg);
+			});
 
-				// Integrate logging with assertion
-				Ryu::AssertManager::SetAssertHandler([](const AssertException& exception)
+			// Integrate logging with assertion
+			Ryu::AssertManager::SetAssertHandler([](const AssertException& exception)
+			{
+				RYU_LOG_ERROR("Assertion failed: {}", exception.Message());
+
+				const auto& trace = exception.GetTrace();
+				if (!trace.empty())
 				{
-					RYU_LOG_ERROR("Assertion failed: {}", exception.Message());
-
-					const auto& trace = exception.GetTrace();
-					if (!trace.empty())
+					std::string stackTraceStr;
+					for (const auto& entry : trace)
 					{
-						std::string stackTraceStr;
-						for (const auto& entry : trace)
-						{
-							stackTraceStr += fmt::format("  {} ({}:{})\n",
-								entry.description(),
-								entry.source_file(),
-								entry.source_line());
-						}
-						RYU_LOG_ERROR("Stack trace:\n{}", stackTraceStr);
+						stackTraceStr += fmt::format("  {} ({}:{})\n",
+							entry.description(),
+							entry.source_file(),
+							entry.source_line());
 					}
+					RYU_LOG_ERROR("Stack trace:\n{}", stackTraceStr);
+				}
 
-					// Still throw the exception to maintain existing behavior
-					// This should be caught by the try-catch in Engine::RunApp
-					throw exception;
-				});
-			}
+				// Still throw the exception to maintain existing behavior
+				// This should be caught by the try-catch in Engine::RunApp
+				throw exception;
+			});
 		}
 
 		return true;
@@ -152,11 +153,11 @@ namespace Ryu::Engine
 
 	void Shutdown()
 	{
+		::Windows::Foundation::Uninitialize();
 		//Config::CmdLine::Get().SaveFileConfig(fs::current_path() / "RyuConfig.toml");
 
-		if (auto* logger = Logging::Internal::GetLoggerInstance())
-		{
-			logger->Flush();
-		}
+		Logging::Logger& logger = Logging::Logger::Get();
+		//logger.Flush();
+		logger.Shutdown();
 	}
 }

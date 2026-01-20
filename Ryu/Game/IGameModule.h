@@ -5,6 +5,7 @@ namespace Ryu::Window { class Window; }
 
 namespace Ryu::Game
 {
+    // Used when statically linking with the editor
 	class RYU_API IGameModule
 	{
 	public:

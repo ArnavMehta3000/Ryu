@@ -1,13 +1,22 @@
 #pragma once
 #include "Application/App/Application.h"
-#include "Application/Event/ListenerHandle.h"
+#include "Engine/HotReload/GameModuleHost.h"
 #include "Core/Utils/Singleton.h"
 #include "Graphics/Renderer.h"
 #include "Game/InputManager.h"
 
 namespace Ryu::Engine
 {
+	struct Services;
 	static void PrintMemoryStats();
+
+	struct EngineConfig
+	{
+		Window::Window::Config Window;
+		fs::path               GameModulePath;
+		bool                   EnableHotReload = false;
+		Gfx::IRendererHook*    RendererHook    = nullptr;
+	};
 
 	class Engine : public Utils::Singleton<Engine>
 	{
@@ -15,12 +24,15 @@ namespace Ryu::Engine
 
 	public:
 		~Engine() = default;
-		
-		[[nodiscard]] inline std::shared_ptr<App::App> GetApplication() const { return m_app; }
-		[[nodiscard]] inline std::shared_ptr<Window::Window> GetAppWindow() const { return m_app->GetWindow(); }
-		[[nodiscard]] inline Gfx::Renderer* GetRenderer() const { return m_renderer.get(); }
-		[[nodiscard]] inline Game::InputManager* GetInputManager() { return m_inputManager.get(); }
-		RYU_API void Quit() const noexcept;
+
+		void RYU_API RunApp(App::IApplication* app, Gfx::IRendererHook* rendererHook = nullptr);
+
+		void RYU_API Quit() const noexcept;
+
+		[[nodiscard]] App::IApplication* GetApplication() const { return m_currentApp; }
+		[[nodiscard]] Window::Window* GetAppWindow() const {  return m_currentApp ? m_currentApp->GetWindow() : nullptr;}
+		[[nodiscard]] Gfx::Renderer* GetRenderer() const { return m_renderer.get(); }
+		[[nodiscard]] Game::InputManager* GetInputManager() { return m_inputManager.get(); }
 
 		void RYU_API RunApp(std::shared_ptr<App::App> app, Gfx::IRendererHook* rendererHook = nullptr);
 
@@ -34,10 +46,14 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
+		// Current application (raw pointer, lifetime managed externally (normally from the main function)
+		App::IApplication* m_currentApp = nullptr;
+
+		// Engine systems
 		std::unique_ptr<Game::InputManager> m_inputManager;
-		std::shared_ptr<App::App>           m_app;
 		std::unique_ptr<Gfx::Renderer>      m_renderer;
 
+		// Event listeners
 		Event::ListenerHandle m_resizeListener;
 		Event::ListenerHandle m_closeListener;
 	};

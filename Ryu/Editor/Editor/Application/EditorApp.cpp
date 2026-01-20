@@ -1,14 +1,15 @@
-#include "EditorApp.h"
+#include "Editor/Application/EditorApp.h"
+
 #include "Core/Config/CVar.h"
-#include "Game/IGameModule.h"
-#include "Game/World/WorldManager.h"
 #include "Core/Logging/Logger.h"
 #include "Core/Profiling/Profiling.h"
-#include "Graphics/Core/GfxDevice.h"
-#include "Editor/Application/ImGuiThemes.h"
 #include "Editor/Application/ImGuiFonts.h"
-#include <ImGui/backends/imgui_impl_win32.h>
+#include "Editor/Application/ImGuiThemes.h"
+#include "Game/IGameModule.h"
+#include "Game/World/WorldManager.h"
+#include "Graphics/Core/GfxDevice.h"
 #include <ImGui/backends/imgui_impl_dx12.h>
+#include <ImGui/backends/imgui_impl_win32.h>
 #include <ImGui/imgui.h>
 
 
@@ -68,14 +69,63 @@ namespace Ryu::Editor
 		}
 	}
 
-	EditorApp::EditorApp(std::shared_ptr<Window::Window> window)
-		: App::App(window)
-		, m_worldManager(nullptr) { }
+	EditorApp::EditorApp(const EditorConfig& config)
+		: m_gameModulePath(config.GameModulePath)
+		, m_hotReloadEnabled(config.EnableHotReload)
+	{
+		RYU_PROFILE_SCOPE();
+
+		// Create and initialize window
+		m_window = std::make_shared<Window::Window>(config.WindowConfig);
+		App::App::InitWindow(*m_window);
+
+		RYU_LOG_DEBUG("EditorApp created with window: {}", config.WindowConfig.Title);
+	}
+
+	EditorApp::~EditorApp() 
+	{
+#if defined(RYU_HOT_RELOAD)
+		if (m_moduleHost)
+		{
+			//m_moduleHost->Unload();
+			//m_moduleHost.reset();
+		}
+#endif
+	}
+
+	Game::WorldManager* EditorApp::GetWorldManager() noexcept
+	{
+#if defined(RYU_HOT_RELOAD)
+		if (m_moduleHost && m_moduleHost->IsLoaded())
+		{
+			// GameModuleHost returns void*, need to cast
+			// The World is obtained through the module's GetActiveWorld
+			RYU_TODO("Proper world manager access through host")
+			return nullptr;  
+		}
+#endif
+
+		if (m_userApp)
+		{
+			return m_userApp->GetWorldManager();
+		}
+
+		return nullptr;
+	}
+
+	void EditorApp::RequestQuit()
+	{
+		m_isRunning = false;
+
+		if (m_window && m_window->IsOpen())
+		{
+			::SendMessage(m_window->GetHandle(), WM_CLOSE, 0, 0);
+		}
+	}
 
 	bool EditorApp::OnInit()
 	{
 		RYU_PROFILE_SCOPE();
-
 		RYU_LOG_TRACE("Initializing editor application");
 
 		if (!LoadGameModule())
@@ -84,46 +134,170 @@ namespace Ryu::Editor
 			return false;
 		}
 
-		RYU_LOG_TRACE("Initializing user application");
-		m_userApp->m_isRunning = m_userApp->OnInit();
-		m_worldManager = GetWorldManager();
-		return m_userApp->m_isRunning;
+		m_isRunning = true;
+		return true;
 	}
 
 	void EditorApp::OnShutdown()
 	{
 		RYU_PROFILE_SCOPE();
+		RYU_LOG_INFO("Shutting down editor application");
 
-		RYU_LOG_TRACE("Shutting down editor application");
+#if defined(RYU_HOT_RELOAD)
+		if (m_moduleHost)
+		{
+			m_moduleHost->Shutdown();
+			m_moduleHost->Unload();
+			m_moduleHost.reset();
+		}
+#endif
 
-		m_userApp->OnShutdown();
-
-		m_userApp.reset();
-
-		RYU_LOG_INFO("Editor application shutdown");
+		if (m_userApp)
+		{
+			m_userApp->OnShutdown();
+			m_userApp.reset();
+		}
 	}
 
 	void EditorApp::OnTick(const Utils::FrameTimer& timer)
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_userApp->OnTick(timer);
+		// Process window events
+		if (m_window) [[likely]]
+		{
+			m_window->Update();
+		}
+
+#if defined(RYU_HOT_RELOAD)
+		// Test a hot-reload
+		if (m_window->GetInput().IsKeyDown(Window::KeyCode::Y) && m_moduleHost) [[unlikely]]
+		{
+			m_moduleHost->Reload();
+		}
+
+		// Hot-reload path: tick through module host
+		if (m_moduleHost && m_moduleHost->IsLoaded())
+		{
+			m_moduleHost->Tick(timer);
+		}
+		else
+#endif
+		// Static linking path: tick user app directly
+		if (m_userApp)
+		{
+			m_userApp->OnTick(timer);
+		}
 	}
+
+#if defined(RYU_HOT_RELOAD)
+	void EditorApp::TriggerReload()
+	{
+		if (m_moduleHost)
+		{
+			auto result = m_moduleHost->Reload();
+			if (!result)
+			{
+				RYU_LOG_ERROR("Hot-reload failed: {}", ToString(result.error()));
+			}
+		}
+	}
+
+	void EditorApp::SetAutoReloadEnabled(bool enabled)
+	{
+		m_hotReloadEnabled = enabled;
+		if (m_moduleHost)
+		{
+			m_moduleHost->EnableAutoReload(enabled);
+		}
+	}
+
+	bool EditorApp::IsAutoReloadEnabled() const
+	{
+		return m_hotReloadEnabled;
+	}
+#endif
 
 	bool EditorApp::LoadGameModule()
 	{
 		RYU_PROFILE_SCOPE();
 
+#if defined(RYU_HOT_RELOAD)
+		// If a game module path is specified, use dynamic loading
+		if (!m_gameModulePath.empty())
+		{
+			return LoadGameModuleDynamic();
+		}
+#endif
+
+		// Fall back to static linking
+		return LoadGameModuleStatic();
+	}
+
+	bool EditorApp::LoadGameModuleStatic()
+	{
+		RYU_PROFILE_SCOPE();
+		RYU_LOG_DEBUG("Loading game module (static linking)");
+
+#if !defined(RYU_HOT_RELOAD)
+		// Use the statically linked CreateGameModule function
 		std::unique_ptr<Game::IGameModule> gm(Game::CreateGameModule());
 		if (gm)
 		{
-			m_userApp = gm->CreateApplication(GetWindow());
-			GetWindow()->SetTitle(fmt::format("Ryu Editor - {}", gm->GetName()));
-			return m_userApp != nullptr;
+			m_userApp = gm->CreateApplication(m_window);
+			if (m_userApp)
+			{
+				m_window->SetTitle(fmt::format("Ryu Editor - {}", gm->GetName()));
+
+				RYU_LOG_TRACE("Initializing user application");
+				m_userApp->m_isRunning = m_userApp->OnInit();
+				return m_userApp->m_isRunning;
+			}
 		}
 
+		RYU_LOG_ERROR("Failed to create game module (static)");
 		return false;
+#else
+		RYU_LOG_WARN("Static linking requested but RYU_HOT_RELOAD is defined");
+		return false;
+#endif
 	}
+
+#if defined(RYU_HOT_RELOAD)
+	bool EditorApp::LoadGameModuleDynamic()
+	{
+		RYU_PROFILE_SCOPE();
+		RYU_LOG_DEBUG("Loading game module dynamically: {}", m_gameModulePath.string());
+
+		m_moduleHost = std::make_unique<Engine::GameModuleHost>();
+
+		auto result = m_moduleHost->Load(m_gameModulePath);
+		if (!result)
+		{
+			RYU_LOG_ERROR("Failed to load game DLL: {}", ToString(result.error()));
+			m_moduleHost.reset();
+			return false;
+		}
+
+		// Enable auto-reload if requested
+		m_moduleHost->EnableAutoReload(m_hotReloadEnabled);
+
+		// Update window title with module name
+		const auto& info = m_moduleHost->GetModuleInfo();
+		m_window->SetTitle(fmt::format("Ryu Editor - {}", info.Name));
+
+		// Initialize the game
+		if (!m_moduleHost->Initialize())
+		{
+			RYU_LOG_ERROR("Game module initialization failed");
+			m_moduleHost->Unload();
+			m_moduleHost.reset();
+			return false;
+		}
+
+		return true;
+	}
+#endif
 
 #if defined(RYU_WITH_EDITOR)
 	void EditorApp::OnImGuiSetup(Gfx::Device* device)
@@ -239,17 +413,58 @@ namespace Ryu::Editor
 	void EditorApp::OnImGuiRender()
 	{
 		if (cv_disableImGui)
-		{
 			return;
-		}
 
 		RYU_PROFILE_SCOPE();
 
 		ImGui::ShowDemoWindow();
 
-		if (Game::WorldManager* manager = m_userApp->GetWorldManager())
+#if defined(RYU_HOT_RELOAD)
+		// Hot-reload UI panel
+		if (ImGui::Begin("Hot Reload"))
 		{
-			manager->OnImGuiRender();
+			if (m_moduleHost && m_moduleHost->IsLoaded())
+			{
+				const auto& info = m_moduleHost->GetModuleInfo();
+				ImGui::Text("Module: %s", info.Name);
+				ImGui::Text("Version: %u.%u.%u",
+					info.Version.Major, info.Version.Minor, info.Version.Patch);
+
+				ImGui::Separator();
+
+				bool autoReload = m_hotReloadEnabled;
+				if (ImGui::Checkbox("Auto Reload", &autoReload))
+				{
+					SetAutoReloadEnabled(autoReload);
+				}
+
+				if (ImGui::Button("Force Reload"))
+				{
+					TriggerReload();
+				}
+			}
+			else
+			{
+				ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "No module loaded");
+			}
+		}
+		ImGui::End();
+
+		// Game's ImGui rendering (hot-reload path)
+		if (m_moduleHost && m_moduleHost->IsLoaded())
+		{
+			m_moduleHost->OnEditorRender();
+			return;  // Don't fall through to static path
+		}
+#endif
+
+		// Static linking path
+		if (m_userApp)
+		{
+			if (Game::WorldManager* manager = m_userApp->GetWorldManager())  [[likely]]
+			{
+				manager->OnImGuiRender();
+			}
 		}
 	}
 

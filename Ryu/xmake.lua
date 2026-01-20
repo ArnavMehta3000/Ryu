@@ -13,7 +13,7 @@ target("RyuCore")
 	add_files("Core/Globals/**.cpp", { unity_group = "Globals" })
 	add_files("Core/Logging/**.cpp", { unity_group = "Logging" })
 	add_files("Core/Utils/**.cpp", { unity_group = "Utilities" })
-	add_headerfiles("Core/**.h", { public = true })
+	add_headerfiles("Core/**.h", "Core/**.inl", { public = true })
 
 	-- Precompiled header
 	set_pcxxheader("Core/RyuPCH.h")
@@ -141,7 +141,7 @@ target("RyuGame")
 	set_kind('object')
 	set_group("Ryu/Objects")
 
-	add_files("Game/*.cpp", { unity_group = "Game" })
+	add_files("Game/*.cpp", "Game/Core/*.cpp", { unity_group = "Game" })
 	add_files("Game/World/**.cpp", { unity_group = "GameWorld" })
 	add_files("Game/Components/**.cpp", { unity_group = "GameComponents" })
 	add_headerfiles("Game/**.h", "Game/**.inl", { public = true })
@@ -156,7 +156,8 @@ target("RyuEngine")
 	set_group("Ryu")
 
 	add_files("Engine/**.cpp", { unity_group = "Engine" })
-	add_headerfiles("Engine/**.h", { public = true })
+    add_files("Engine/HotReload/**.cpp", { unity_group = "HotReload" })
+    add_headerfiles("Engine/**.h", { public = true })
 
 	add_deps(
 		"RyuCore",

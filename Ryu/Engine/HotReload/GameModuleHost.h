@@ -59,13 +59,13 @@ namespace Ryu::Engine
 
 		bool Initialize();
 		void Tick(const Utils::FrameTimer& timer);
-		void Shutdown();
+		void Shutdown() const;
 
-		RyuWorld GetActiveWorld();
+		RyuWorldManager GetWorldManager() const;
 
-		void OnEditorAttach();
-		void OnEditorDetach();
-		void OnEditorRender();
+		void OnEditorAttach() const;
+		void OnEditorDetach() const;
+		void OnEditorRender() const;
 
 		inline const RyuModuleInfo& GetModuleInfo() const noexcept { return m_state.Info; }
 

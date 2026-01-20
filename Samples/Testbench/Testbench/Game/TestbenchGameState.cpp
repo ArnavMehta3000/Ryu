@@ -1,28 +1,34 @@
-#include "Testbench/TestbenchGame.h"
-#include "Testbench/TestbenchWorld.h"
-#include "Game/Core/GameServices.h"
+#include "Testbench/Game/TestbenchGameState.h"
 
-bool TestbenchGame::Initialize()
+#include "Game/Core/GameServices.h"
+#include "Testbench/Game/TestbenchWorld.h"
+
+bool TestbenchGameState::Initialize()
 {
-    RYU_GAME_LOG_INFO("TestbenchGame initializing");
+    RYU_GAME_LOG_INFO("TestbenchGameState initializing");
 
     m_worldManager.CreateWorld<TestbenchWorld>();
 
     return true;
 }
 
-void TestbenchGame::Tick(float deltaTime)
+void TestbenchGameState::Tick(float deltaTime)
 {
     m_totalTime += deltaTime;
     //m_worldManager.Tick(deltaTime);
 }
 
-void TestbenchGame::Shutdown()
+void TestbenchGameState::Shutdown()
 {
-    RYU_GAME_LOG_INFO("TestbenchGame shutting down");
+    RYU_GAME_LOG_INFO("TestbenchGameState shutting down");
 }
 
-//void TestbenchGame::Serialize(Ryu::Game::SerializationBuffer& buffer) const
+void* TestbenchGameState::GetWorldManager()
+{
+    return &m_worldManager;
+}
+
+//void TestbenchGameState::Serialize(Ryu::Game::SerializationBuffer& buffer) const
 //{
 //    buffer.Write(m_totalTime);
 //
@@ -37,7 +43,7 @@ void TestbenchGame::Shutdown()
 //    }
 //}
 //
-//bool TestbenchGame::Deserialize(Ryu::Game::SerializationBuffer& buffer)
+//bool TestbenchGameState::Deserialize(Ryu::Game::SerializationBuffer& buffer)
 //{
 //    if (!buffer.Read(m_totalTime))
 //        return false;

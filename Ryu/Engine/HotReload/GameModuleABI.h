@@ -2,10 +2,10 @@
 
 extern "C"
 {
-	using RyuServices  = void*;
-	using RyuGameState = void*;
-	using RyuWorld     = void*;
-	using RyuEntity    = void*;
+	using RyuServices     = void*;
+	using RyuGameState    = void*;
+	using RyuWorldManager = void*;
+	using RyuEntity       = void*;
 
 	struct RyuModuleVersion
 	{
@@ -24,9 +24,9 @@ extern "C"
 
 	struct RyuSerializedState
 	{
-		const byte* Data;
-		u64 Size;
-		u32 Version;  // State format version
+		const byte* Data = nullptr;
+		u64 Size = 0;
+		u32 Version = 0;  // State format version
 	};
 
 	struct RyuTickContext
@@ -54,7 +54,7 @@ extern "C"
 	using FnTick                = void(*)(RyuGameState state, RyuTickContext ctx);
 	using FnShutdown            = void(*)(RyuGameState state);
 
-	using FnGetActiveWorld      = RyuWorld(*)(RyuGameState state);
+	using FnGetWorldManager     = RyuWorldManager(*)(RyuGameState state);
 
 	using FnOnEditorAttach      = void(*)(RyuGameState state);
 	using FnOnEditorDetach      = void(*)(RyuGameState state);
@@ -71,7 +71,7 @@ extern "C"
 		FnInitialize          Initialize;
 		FnTick                Tick;
 		FnShutdown            Shutdown;
-		FnGetActiveWorld      GetActiveWorld;
+		FnGetWorldManager     GetWorldManager;
 
 		FnSerializeState      SerializeState;
 		FnDeserializeState    DeserializeState;
@@ -102,7 +102,7 @@ namespace Ryu::Engine
 		{ T::Initialize(state)             } -> IsSame<bool>;
 		{ T::Tick(state, ctx)              } -> IsSame<void>;
 		{ T::Shutdown(state)               } -> IsSame<void>;
-		{ T::GetActiveWorld(state)         } -> IsSame<RyuWorld>;
+		{ T::GetWorldManager(state)        } -> IsSame<RyuWorldManager>;
 
 		{ T::SerializeState(state)         } -> IsSame<RyuSerializedState>;
 		{ T::DeserializeState(state, data) } -> IsSame<bool>;
@@ -139,7 +139,7 @@ namespace Ryu::Engine
 			.Initialize          = T::Initialize,
 			.Tick                = T::Tick,
 			.Shutdown            = T::Shutdown,
-			.GetActiveWorld      = T::GetActiveWorld,
+			.GetWorldManager     = T::GetWorldManager,
 			.SerializeState      = T::SerializeState,
 			.DeserializeState    = T::DeserializeState,
 			.FreeSerializedState = T::FreeSerializedState,
@@ -166,6 +166,36 @@ namespace Ryu::Engine
 		return api;
 	}
 }
+
+// This macro will add the boiler-plate functions that are required for setup
+#define RYU_DECLARE_HOT_RELOAD_MODULE_GAME_STATE(GameStateClass)                 \
+	private:                                                                     \
+		static inline std::unique_ptr<::Ryu::Game::GameServices> s_services;     \
+	                                                                             \
+	public:                                                                      \
+		static bool LoadModule(RyuServices services)                             \
+		{                                                                        \
+			s_services = std::make_unique<::Ryu::Game::GameServices>(services);  \
+			::Ryu::Game::Internal::g_services = s_services.get();                \
+			return true;                                                         \
+		}                                                                        \
+																			     \
+		static void UnloadModule()                                               \
+		{                                                                        \
+			::Ryu::Game::Internal::g_services = nullptr;                         \
+			s_services.reset();                                                  \
+		}                                                                        \
+																			     \
+		static RyuGameState CreateGameState()                                    \
+		{                                                                        \
+			return new GameStateClass();                                         \
+		}                                                                        \
+                                                                                 \
+		static void DestroyGameState(RyuGameState state)                         \
+		{                                                                        \
+			delete static_cast<GameStateClass*>(state);                          \
+		}                                                                    
+
 
 #define RYU_IMPLEMENT_HOT_RELOAD_MODULE(ModuleClassName)                      \
     static_assert(::Ryu::Engine::IsHotReloadModule<ModuleClassName>);         \

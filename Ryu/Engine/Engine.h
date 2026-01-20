@@ -46,7 +46,7 @@ namespace Ryu::Engine
 		void OnAppResize(u32 width, u32 height) const noexcept;
 
 	private:
-		// Current application (raw pointer, lifetime managed externally (normally from the main function)
+		// Current application (raw pointer, lifetime managed externally (normally from the main function))
 		App::IApplication* m_currentApp = nullptr;
 
 		// Engine systems

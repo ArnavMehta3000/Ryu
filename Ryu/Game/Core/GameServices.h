@@ -15,7 +15,7 @@ namespace Ryu::Game
 		template<typename... Args>
 		void LogTrace(std::string_view category, fmt::format_string<Args...> format, Args&&... args)
 		{
-			auto* svc = static_cast<Engine::Services*>(m_services);
+			auto* svc = GetEngineServices();
 			if (svc && svc->Logger)
 			{
 				svc->Logger->Trace(category, format, std::forward<Args>(args)...);
@@ -25,7 +25,7 @@ namespace Ryu::Game
 		template<typename... Args>
 		void LogDebug(std::string_view category, fmt::format_string<Args...> format, Args&&... args)
 		{
-			auto* svc = static_cast<Engine::Services*>(m_services);
+			auto* svc = GetEngineServices();
 			if (svc && svc->Logger)
 			{
 				svc->Logger->Debug(category, format, std::forward<Args>(args)...);
@@ -35,7 +35,7 @@ namespace Ryu::Game
 		template<typename... Args>
 		void LogInfo(std::string_view category, fmt::format_string<Args...> format, Args&&... args)
 		{
-			auto* svc = static_cast<Engine::Services*>(m_services);
+			auto* svc = GetEngineServices();
 			if (svc && svc->Logger)
 			{
 				svc->Logger->Info(category, format, std::forward<Args>(args)...);
@@ -45,7 +45,7 @@ namespace Ryu::Game
 		template<typename... Args>
 		void LogWarn(std::string_view category, fmt::format_string<Args...> format, Args&&... args)
 		{
-			auto* svc = static_cast<Engine::Services*>(m_services);
+			auto* svc = GetEngineServices();
 			if (svc && svc->Logger)
 			{
 				svc->Logger->Warn(category, format, std::forward<Args>(args)...);
@@ -55,7 +55,7 @@ namespace Ryu::Game
 		template<typename... Args>
 		void LogError(std::string_view category, fmt::format_string<Args...> format, Args&&... args)
 		{
-			auto* svc = static_cast<Engine::Services*>(m_services);
+			auto* svc = GetEngineServices();
 			if (svc && svc->Logger)
 			{
 				svc->Logger->Error(category, format, std::forward<Args>(args)...);
@@ -65,12 +65,24 @@ namespace Ryu::Game
 		template<typename... Args>
 		void LogFatal(std::string_view category, fmt::format_string<Args...> format, Args&&... args)
 		{
-			auto* svc = static_cast<Engine::Services*>(m_services);
+			auto* svc = GetEngineServices();
 			if (svc && svc->Logger)
 			{
 				svc->Logger->Fatal(category, format, std::forward<Args>(args)...);
 			}
 		}
+
+		Logging::Logger* GetLogger() const;
+		Config::ConfigManager* GetConfigManager() const;
+		Config::CmdLine* GetCmdLine() const;
+		App::PathManager* GetPathManager() const;
+		Gfx::Renderer* GetRenderer() const;
+		Gfx::ShaderCompiler* GetShaderCompiler() const;
+		Game::InputManager* GetInputManager() const;
+		App::IApplication* GetApplication() const;
+
+	private:
+		inline Engine::Services* GetEngineServices() const { return static_cast<Engine::Services*>(m_services); }
 
 	private:
 		RyuServices m_services;

@@ -21,6 +21,14 @@ namespace Ryu::Engine
         return s_initialized ? &s_services : nullptr;
     }*/
 
+    void ServiceLocator::Register(App::IApplication* app)
+    {
+		if (s_initialized)
+		{
+			s_services.App = app;
+		}
+    }
+
     void ServiceLocator::Register(Logging::Logger* service)
     {
         if (s_initialized)

@@ -2,7 +2,7 @@
 
 namespace Ryu::Logging { class Logger; }
 namespace Ryu::Config  { class ConfigManager; class CmdLine; }
-namespace Ryu::App     { class PathManager; }
+namespace Ryu::App { class PathManager; class IApplication; }
 namespace Ryu::Gfx     { class Renderer; class ShaderCompiler; }
 namespace Ryu::Game    { class InputManager; }
 namespace Ryu::Memory  { class Allocator; }

@@ -6,7 +6,7 @@
 #include "Engine/Engine.h"
 #include "Game/Components/TransformComponent.h"
 #include "Game/World/Entity.h"
-#include "Testbench/TestbenchWorld.h"
+#include "Testbench/Game/TestbenchWorld.h"
 
 using namespace Ryu;
 using namespace Ryu::Window;

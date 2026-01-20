@@ -98,10 +98,7 @@ namespace Ryu::Editor
 #if defined(RYU_HOT_RELOAD)
 		if (m_moduleHost && m_moduleHost->IsLoaded())
 		{
-			// GameModuleHost returns void*, need to cast
-			// The World is obtained through the module's GetActiveWorld
-			RYU_TODO("Proper world manager access through host")
-			return nullptr;  
+			return static_cast<Game::WorldManager*>(m_moduleHost->GetWorldManager());
 		}
 #endif
 

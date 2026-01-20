@@ -5,6 +5,7 @@ namespace Ryu::Engine
 {
 	struct Services
 	{
+		App::IApplication*     App            = nullptr;
 		Logging::Logger*       Logger         = nullptr;
 		Config::ConfigManager* Config         = nullptr;
 		Config::CmdLine*       CmdLine        = nullptr;
@@ -23,6 +24,7 @@ namespace Ryu::Engine
 
 		inline static Services* Get() { return s_initialized ? &s_services : nullptr; }
 
+		static void Register(App::IApplication* app);
 		static void Register(Logging::Logger* logger);
 		static void Register(Config::ConfigManager* config);
 		static void Register(Config::CmdLine* cmdLine);

@@ -1,5 +1,6 @@
 #pragma once
 #include "Game/World/World.h"
+#include "Game/World/Entity.h"
 
 namespace Ryu::Game
 {

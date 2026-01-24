@@ -24,7 +24,7 @@ option("ryu-log-level")
 		if define ~= "default" then
 			option:add("defines", define, { public = true })
 		end
-		cprint(format("(config) Compile-time log level: ${cyan}%s${clear}", value))
+		-- cprint(format("(config) Compile-time log level: ${cyan}%s${clear}", value))
 	end)
 option_end()
 
@@ -34,9 +34,9 @@ option("ryu-throw-on-fail-hresult")
 	set_description("Assert on failure of HRESULT")
 	set_category("root Ryu/Graphics")
 
-	after_check(function (option)
-		cprint(format("(config) Throw on failure of HRESULT: ${cyan}%s${clear}", option:value()))
-	end)
+	-- after_check(function (option)
+	-- 	cprint(format("(config) Throw on failure of HRESULT: ${cyan}%s${clear}", option:value()))
+	-- end)
 option_end()
 
 option("ryu-enable-tracy-profiling")
@@ -45,10 +45,10 @@ option("ryu-enable-tracy-profiling")
 	set_description("Enable profiling")
 	set_category("root Ryu/Profiling")
 	add_defines("RYU_PROFILING_ENABLED", "TRACY_ENABLE")
-	
-	after_check(function (option)
-		cprint(format("(config) Tracy profiling enabled: ${cyan}%s${clear}", option:value()))
-	end)
+
+	-- after_check(function (option)
+	-- 	cprint(format("(config) Tracy profiling enabled: ${cyan}%s${clear}", option:value()))
+	-- end)
 option_end()
 
 option("ryu-build-with-editor")
@@ -57,9 +57,9 @@ option("ryu-build-with-editor")
     set_category("root Ryu/Game")
     set_description("Enable the game editor")
 
-	after_check(function (option)
-		cprint(format("(config) Game editor enabled: ${cyan}%s${clear}", option:value()))
-	end)
+	-- after_check(function (option)
+	-- 	cprint(format("(config) Game editor enabled: ${cyan}%s${clear}", option:value()))
+	-- end)
 option_end()
 
 option("ryu-unity-build")
@@ -68,14 +68,14 @@ option("ryu-unity-build")
     set_category("root Ryu/Build")
     set_description("Compile using unity build")
 
-	after_check(function (option)
-		cprint(format("(config) Unity build enabled: ${cyan}%s${clear}", option:value()))
-	end)
+	-- after_check(function (option)
+	-- 	cprint(format("(config) Unity build enabled: ${cyan}%s${clear}", option:value()))
+	-- end)
 option_end()
 
 option("ryu-enable-hot-reload")
 	add_deps("ryu-build-with-editor")
-    set_default(true)
+    set_default(false)
     set_showmenu(true)
     set_description("Enable hot-reload for game code (requires editor)")
 
@@ -84,6 +84,6 @@ option("ryu-enable-hot-reload")
 		if not option:dep("ryu-build-with-editor"):enabled() then
             option:enable(false)
         end
-		cprint(format("(config) Hot-reload enabled: ${cyan}%s${clear}", option:value()))
+		-- cprint(format("(config) Hot-reload enabled: ${cyan}%s${clear}", option:value()))
 	end)
 option_end()

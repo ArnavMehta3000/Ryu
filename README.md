@@ -20,19 +20,17 @@ Ryu Engine is an experimentation playground for making game engines<br>
 
 ## Configuration
 
-`--ryu-build-with-editor=[y|n]` Build the editor, the game project will be linked statically with the editor
+`--ryu-build-with-editor=[y|n]` Enable the game editor
 
 `--ryu-throw-on-fail-hresult=[y|n]` Assert on failure of HRESULT (default: y)
 
-`--ryu-enable-tracy-profiling=[y|n]` Enable profiling via tracy (default: n)
+`--ryu-enable-tracy-profiling=[y|n]` Enable profiling via Tracy (default: n)
 
-`--ryu-log-info-enabled=[y|n]` Compile time switch to enable info verbosity logs (default: y)
+`--ryu-unity-build=[y|n]` Compile using unity build (default: y)
 
-`--ryu-log-warn-enabled=[y|n]` Compile time switch to enable warn verbosity logs (default: y)
+`--ryu-log-level=RYU-LOG-LEVEL` Set the log level
 
-`--ryu-log-debug-enabled=[y|n]` Compile time switch to enable debug verbosity logs (default: y)
-
-`--ryu-log-trace-enabled=[y|n]` Compile time switch to enable trace verbosity logs (default: y)
+`--ryu-enable-hot-reload=[y|n]` Enable hot-reload for game code (requires editor) (default: n)
 
 These configs can be set using the project generator in extended mode or the following command:
 

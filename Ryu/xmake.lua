@@ -13,7 +13,7 @@ target("RyuCore")
 	set_kind("object")
 
 	add_includedirs(".", { public = true })
-	add_files("Core/Config//**.cpp", { unity_group = "Config" })
+	add_files("Core/Config/**.cpp", { unity_group = "Config" })
 	add_files("Core/Globals/**.cpp", { unity_group = "Globals" })
 	add_files("Core/Logging/**.cpp", { unity_group = "Logging" })
 	add_files("Core/Utils/**.cpp", { unity_group = "Utilities" })
@@ -132,6 +132,29 @@ target("RyuGraphics")
 
 	add_deps("RyuCore", "RyuMath", "RyuShaders", "ImGui")
 	add_packages("entt", "directx-headers", "directxshadercompiler", { public = true })
+target_end()
+
+-------------------- Test NVRHI based renderer --------------------
+target("RyuRenderer")
+	set_kind("object")
+	set_group("Ryu/Objects")
+
+	add_files("Renderer/**.cpp", { unity_group = "Renderer" })
+	add_headerfiles("Renderer/**.h", { public = true })
+	add_deps("RyuGraphics", "RyuCore", "RyuMath", "ImGui")
+
+	add_deps("NVRHI")
+	if has_config("nvrhi-dx11") then
+		add_deps("NVRHI-D3D11")
+	end
+
+	if has_config("nvrhi-dx12") then
+		add_deps("NVRHI-D3D12")
+	end
+
+	if has_config("nvrhi-vulkan") then
+		add_deps("NVRHI-Vulkan")
+	end
 target_end()
 
 -------------------- Game Module --------------------

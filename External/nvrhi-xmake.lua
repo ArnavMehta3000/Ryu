@@ -40,7 +40,7 @@ target("NVRHI")
 		add_files("NVRHI/src/validation/**.cpp")
 		add_headerfiles("NVRHI/include/nvrhi/validation.h", "NVRHI/src/validation/**.h")
 	end
-	
+
 	if has_config("nvrhi-aftermath") then
 		add_defines("NVRHI_WITH_AFTERMATH=1")
 		-- Note: Need to add the Aftermath SDK path manually
@@ -62,12 +62,14 @@ if is_plat("windows") and has_config("nvrhi-dx11") then
 
 		-- Add D3D11 sources to main nvrhi target
 		target("NVRHI")
-	
+
 			add_files("NVRHI/src/d3d11/**.cpp")
 			add_headerfiles("NVRHI/include/nvrhi/d3d11.h", "NVRHI/src/d3d11/**.h")
 
+			add_defines("NVRHI_HAS_D3D11", { public = true })
+
 			add_syslinks("d3d11", "dxguid")
-			
+
 			if has_config("nvrhi-nvapi") then
 				add_defines("NVRHI_D3D11_WITH_NVAPI=1")
 				add_links("nvapi")
@@ -82,12 +84,14 @@ if is_plat("windows") and has_config("nvrhi-dx11") then
 			set_kind("static")
 
 			add_files("NVRHI/src/d3d11/**.cpp")
-			add_headerfiles("NVRHI/include/nvrhi/d3d11.h", "NVRHI/src/d3d11/**.h")            
-			
+			add_headerfiles("NVRHI/include/nvrhi/d3d11.h", "NVRHI/src/d3d11/**.h")
+
+			add_defines("NVRHI_HAS_D3D11", { public = true })
+
 			add_includedirs("NVRHI/include")
 
 			add_syslinks("d3d11", "dxguid")
-			
+
 			if has_config("nvrhi-nvapi") then
 				add_defines("NVRHI_D3D11_WITH_NVAPI=1")
 				add_links("nvapi")
@@ -110,12 +114,14 @@ if is_plat("windows") and has_config("nvrhi-dx12") then
 		target("NVRHI")
 			add_files("NVRHI/src/d3d12/**.cpp")
 			add_headerfiles("NVRHI/include/nvrhi/d3d12.h", "NVRHI/src/d3d12/**.h")
-			
+
+			add_defines("NVRHI_HAS_D3D12", { public = true })
+
 			add_syslinks("d3d12")
-			
+
 			-- DirectX-Headers
 			add_includedirs("NVRHI/thirdparty/DirectX-Headers/include", { public = true })
-			
+
 			if has_config("nvrhi-rtxmu") then
 				add_defines("NVRHI_WITH_RTXMU=1")
 				add_deps("rtxmu")
@@ -126,7 +132,7 @@ if is_plat("windows") and has_config("nvrhi-dx12") then
 			else
 				add_defines("NVRHI_D3D12_WITH_DXR12_OPACITY_MICROMAP=0")
 			end
-			
+
 			if has_config("nvrhi-nvapi") then
 				add_defines("NVRHI_D3D12_WITH_NVAPI=1")
 				add_links("nvapi")
@@ -142,13 +148,15 @@ if is_plat("windows") and has_config("nvrhi-dx12") then
 
 			add_files("NVRHI/src/d3d12/**.cpp")
 			add_headerfiles("NVRHI/include/nvrhi/d3d12.h", "NVRHI/src/d3d12/**.h")
-			
+
+			add_defines("NVRHI_HAS_D3D12", { public = true })
+
 			add_includedirs("NVRHI/include")
 			add_syslinks("d3d12")
-			
+
 			-- DirectX-Headers
 			add_includedirs("NVRHI/thirdparty/DirectX-Headers/include", { public = true })
-			
+
 			if has_config("nvrhi-rtxmu") then
 				add_defines("NVRHI_WITH_RTXMU=1")
 				add_deps("rtxmu")
@@ -159,7 +167,7 @@ if is_plat("windows") and has_config("nvrhi-dx12") then
 			else
 				add_defines("NVRHI_D3D12_WITH_DXR12_OPACITY_MICROMAP=0")
 			end
-			
+
 			if has_config("nvrhi-nvapi") then
 				add_defines("NVRHI_D3D12_WITH_NVAPI=1")
 				add_links("nvapi")
@@ -182,14 +190,16 @@ if has_config("nvrhi-vulkan") then
         target("NVRHI")
 			add_files("NVRHI/src/vulkan/**.cpp")
 			add_headerfiles("NVRHI/include/nvrhi/vulkan.h", "NVRHI/src/vulkan/**.h")
-			
+
+			add_defines("NVRHI_HAS_VULKAN", { public = true })
+
 			add_syslinks("vulkan")
 			add_includedirs("NVRHI/thirdparty/Vulkan-Headers/include", { public = true })
-            
+
             if is_plat("windows") then
                 add_defines("VK_USE_PLATFORM_WIN32_KHR", "NOMINMAX")
             end
-                        
+
             if has_config("nvrhi-rtxmu") then
                 add_defines("NVRHI_WITH_RTXMU=1")
                 add_deps("rtxmu")
@@ -202,16 +212,18 @@ if has_config("nvrhi-vulkan") then
 
 			add_files("NVRHI/src/vulkan/**.cpp")
 			add_headerfiles("NVRHI/include/nvrhi/vulkan.h", "NVRHI/src/vulkan/**.h")
-			
+
+			add_defines("NVRHI_HAS_VULKAN", { public = true })
+
 			add_syslinks("vulkan")
 			add_includedirs("NVRHI/thirdparty/Vulkan-Headers/include", { public = true })
-            
+
             add_includedirs("NVRHI/include")
-            
+
             if is_plat("windows") then
                 add_defines("VK_USE_PLATFORM_WIN32_KHR", "NOMINMAX")
             end
-            
+
             if has_config("nvrhi-rtxmu") then
                 add_defines("NVRHI_WITH_RTXMU=1")
                 add_deps("rtxmu")

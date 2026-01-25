@@ -82,16 +82,7 @@ namespace Ryu::Editor
 		RYU_LOG_DEBUG("EditorApp created with window: {}", config.WindowConfig.Title);
 	}
 
-	EditorApp::~EditorApp() 
-	{
-#if defined(RYU_HOT_RELOAD)
-		if (m_moduleHost)
-		{
-			//m_moduleHost->Unload();
-			//m_moduleHost.reset();
-		}
-#endif
-	}
+	EditorApp::~EditorApp() {}
 
 	Game::WorldManager* EditorApp::GetWorldManager() noexcept
 	{
@@ -451,10 +442,8 @@ namespace Ryu::Editor
 		if (m_moduleHost && m_moduleHost->IsLoaded())
 		{
 			m_moduleHost->OnEditorRender();
-			return;  // Don't fall through to static path
 		}
-#endif
-
+#else
 		// Static linking path
 		if (m_userApp)
 		{
@@ -463,6 +452,7 @@ namespace Ryu::Editor
 				manager->OnImGuiRender();
 			}
 		}
+#endif
 	}
 
 	void EditorApp::OnImGuiShutdown()

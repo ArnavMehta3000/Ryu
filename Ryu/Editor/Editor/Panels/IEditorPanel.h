@@ -10,6 +10,7 @@ namespace Ryu::Editor
 	{
 	public:
 		IEditorPanel(EditorApp* app) : m_editorApp(app) {}
+		virtual ~IEditorPanel() {}
 
 		virtual void OnImGuiRender() = 0;
 

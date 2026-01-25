@@ -149,6 +149,8 @@ namespace Ryu::Editor
 			m_userApp->OnShutdown();
 			m_userApp.reset();
 		}
+
+		m_editorPanels.clear();
 	}
 
 	void EditorApp::InitEditorPanels()
@@ -420,7 +422,7 @@ namespace Ryu::Editor
 
 		RYU_PROFILE_SCOPE();
 
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 
 #if defined(RYU_HOT_RELOAD)
 		// Game's ImGui rendering (hot-reload path)

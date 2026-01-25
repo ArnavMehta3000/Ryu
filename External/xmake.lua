@@ -1,3 +1,5 @@
+includes("nvrhi-xmake.lua")
+
 -------------------- Simple Math --------------------
 target("SimpleMath")
 	set_group("Ryu/External")

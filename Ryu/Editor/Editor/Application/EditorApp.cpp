@@ -5,6 +5,8 @@
 #include "Core/Profiling/Profiling.h"
 #include "Editor/Application/ImGuiFonts.h"
 #include "Editor/Application/ImGuiThemes.h"
+#include "Editor/Panels/OutlinerPanel.h"
+#include "Editor/Panels/HotReloadPanel.h"
 #include "Game/IGameModule.h"
 #include "Game/World/WorldManager.h"
 #include "Graphics/Core/GfxDevice.h"
@@ -122,6 +124,8 @@ namespace Ryu::Editor
 			return false;
 		}
 
+		InitEditorPanels();
+
 		m_isRunning = true;
 		return true;
 	}
@@ -145,6 +149,17 @@ namespace Ryu::Editor
 			m_userApp->OnShutdown();
 			m_userApp.reset();
 		}
+	}
+
+	void EditorApp::InitEditorPanels()
+	{
+		Game::World* world = GetWorldManager() ? GetWorldManager()->GetActiveWorld() : nullptr;
+		m_editorPanels[OutlinerPanel::Name] = std::make_unique<OutlinerPanel>(this, world);
+
+		// Add hot-reload panel
+#if defined (RYU_HOT_RELOAD)
+		m_editorPanels[HotReloadPanel::Name] = std::make_unique<HotReloadPanel>(this, m_moduleHost.get());
+#endif
 	}
 
 	void EditorApp::OnTick(const Utils::FrameTimer& timer)
@@ -408,36 +423,6 @@ namespace Ryu::Editor
 		ImGui::ShowDemoWindow();
 
 #if defined(RYU_HOT_RELOAD)
-		// Hot-reload UI panel
-		if (ImGui::Begin("Hot Reload"))
-		{
-			if (m_moduleHost && m_moduleHost->IsLoaded())
-			{
-				const auto& info = m_moduleHost->GetModuleInfo();
-				ImGui::Text("Module: %s", info.Name);
-				ImGui::Text("Version: %u.%u.%u",
-					info.Version.Major, info.Version.Minor, info.Version.Patch);
-
-				ImGui::Separator();
-
-				bool autoReload = m_hotReloadEnabled;
-				if (ImGui::Checkbox("Auto Reload", &autoReload))
-				{
-					SetAutoReloadEnabled(autoReload);
-				}
-
-				if (ImGui::Button("Force Reload"))
-				{
-					TriggerReload();
-				}
-			}
-			else
-			{
-				ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "No module loaded");
-			}
-		}
-		ImGui::End();
-
 		// Game's ImGui rendering (hot-reload path)
 		if (m_moduleHost && m_moduleHost->IsLoaded())
 		{
@@ -453,6 +438,11 @@ namespace Ryu::Editor
 			}
 		}
 #endif
+
+		for (auto& [name, panel] : m_editorPanels)
+		{
+			panel->OnImGuiRender();
+		}
 	}
 
 	void EditorApp::OnImGuiShutdown()

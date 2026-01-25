@@ -1,4 +1,5 @@
 #pragma once
+#include "Editor/Panels/IEditorPanel.h"
 #include "Graphics/IRendererHook.h"
 #include "Graphics/Core/GfxDescriptorHeap.h"
 #include "Application/App/Application.h"
@@ -45,8 +46,16 @@ namespace Ryu::Editor
 		void OnTick(const Utils::FrameTimer& timer) override;
 		void OnShutdown() override;
 
+		void InitEditorPanels();
+
 		// Shared pointer to user app, or nullptr if using DLL loading
 		[[nodiscard]] std::shared_ptr<App::App> GetUserApp() const { return m_userApp; }
+
+		template <typename T> requires std::is_base_of_v<IEditorPanel, T>
+		T* GetEditorPanel(std::string_view panelName) 
+		{
+			return m_editorPanels.contains(panelName) ? static_cast<T*>(m_editorPanels[panelName].get()) : nullptr;
+		}
 
 #if defined(RYU_HOT_RELOAD)
 		void TriggerReload();
@@ -71,6 +80,9 @@ namespace Ryu::Editor
 #endif
 
 	private:
+		using PanelMap = std::unordered_map<std::string_view, std::unique_ptr<IEditorPanel>>;
+		PanelMap m_editorPanels;
+
 		std::shared_ptr<Window::Window> m_window;
 		bool m_isRunning = false;
 

@@ -141,19 +141,19 @@ target("RyuRenderer")
 
 	add_files("Renderer/**.cpp", { unity_group = "Renderer" })
 	add_headerfiles("Renderer/**.h", { public = true })
-	add_deps("RyuGraphics", "RyuCore", "RyuMath", "ImGui")
+	add_deps("RyuGraphics", "RyuCore", "RyuMath", "ImGui", { public = true })
 
 	add_deps("NVRHI")
 	if has_config("nvrhi-dx11") then
-		add_deps("NVRHI-D3D11")
+		add_deps("NVRHI-D3D11", { public = true })
 	end
 
 	if has_config("nvrhi-dx12") then
-		add_deps("NVRHI-D3D12")
+		add_deps("NVRHI-D3D12", { public = true })
 	end
 
 	if has_config("nvrhi-vulkan") then
-		add_deps("NVRHI-Vulkan")
+		add_deps("NVRHI-Vulkan", { public = true })
 	end
 target_end()
 
@@ -186,6 +186,7 @@ target("RyuEngine")
 		"RyuMath",
 		"RyuGame",
 		"RyuAsset",
+		"RyuRenderer",
 		"RyuThreading",
 		"RyuMemory",
 		"RyuGraphics",

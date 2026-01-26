@@ -5,6 +5,7 @@
 #include <nvrhi/nvrhi.h>
 #include <dxgi1_6.h>
 #include <d3dcommon.h>
+#include <list>
 
 namespace Ryu::Graphics
 {
@@ -63,13 +64,15 @@ namespace Ryu::Graphics
 		void message(nvrhi::MessageSeverity severity, const char* messageText) override;
 	};
 
+	class IRenderPass;
+
 	class DeviceManager
 	{
 	public:
 		static DeviceManager* Create(API api);
 		virtual ~DeviceManager() = default;
 
-		const DeviceCreateInfo& GetDeviceCreateInfo();
+		const DeviceCreateInfo& GetDeviceCreateInfo() const { return m_createInfo; }
 		u32 GetFrameIndex() const { return m_frameIndex; }
 		nvrhi::ITexture* GetDepthBuffer() const { return m_depthBuffer; }
 		nvrhi::IFramebuffer* GetCurrentFramebuffer(bool withDepth = true);
@@ -77,6 +80,11 @@ namespace Ryu::Graphics
 
 		bool CreateDeviceAndSwapChain(const DeviceCreateInfo& info, HWND window);  // Create device dependent objects
 		bool CreateInstance(const InstanceCreateInfo& info);                       // Create device independent objects
+		void UpdateWindowSize();  // Call to check internal window size and fire resize if neeeded
+
+		void AddRenderPassToFront(IRenderPass* renderPass);
+		void AddRenderPassToBack(IRenderPass* renderPass);
+		void RemoveRenderPass(IRenderPass* renderPass);
 
 	public:  // Public API
 		virtual API GetAPI() const = 0;
@@ -125,5 +133,24 @@ namespace Ryu::Graphics
 		std::vector<nvrhi::FramebufferHandle> m_swapChainFramebuffers;
 		std::vector<nvrhi::FramebufferHandle> m_swapChainWithDepthFramebuffers;
 		nvrhi::TextureHandle                  m_depthBuffer;
+		std::list<IRenderPass*>               m_renderPasses;  // non-owning
+	};
+
+	class IRenderPass
+	{
+	public:
+		IRenderPass(DeviceManager* deviceManager) : m_deviceManager(deviceManager) {}
+		virtual ~IRenderPass() = default;
+
+		virtual bool SupportsDepthBuffer() { return true; }
+		virtual void Render(nvrhi::IFramebuffer* framebuffer) {}
+		virtual void BackBufferResizing() {}
+		virtual void BackBufferResized(const u32 width, const u32 height, const u32 sampleCount) {}
+
+		DeviceManager* GetDeviceManager() const { return m_deviceManager;                  }
+		nvrhi::IDevice* GetDevice() const       { return m_deviceManager->GetDevice();     }
+		u32 GetFrameIndex() const               { return m_deviceManager->GetFrameIndex(); }
+	private:
+		DeviceManager* m_deviceManager;
 	};
 };

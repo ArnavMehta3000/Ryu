@@ -7,6 +7,8 @@
 
 namespace Ryu::Graphics
 {
+	DeviceManagerDX12::DeviceManagerDX12() = default;
+
 	std::string DeviceManagerDX12::GetAdapterName(const DXGI_ADAPTER_DESC& desc)
 	{
 		return Ryu::Utils::ToNarrowStr(desc.Description);

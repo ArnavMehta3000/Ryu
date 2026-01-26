@@ -148,7 +148,7 @@ namespace Ryu::Engine
 				if (Game::World* world = manager->GetActiveWorld()) [[likely]]
 				{
 					m_renderer->RenderWorld(*world, frameTimer);
-				}
+				}\
 			}
 
 			appWindow->ProcessEventQueue();

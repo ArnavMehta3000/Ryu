@@ -68,7 +68,7 @@ if is_plat("windows") and has_config("nvrhi-dx11") then
 
 			add_defines("NVRHI_HAS_D3D11", { public = true })
 
-			add_syslinks("d3d11", "dxguid")
+			add_syslinks("d3d11", "dxguid", "dxgi")
 
 			if has_config("nvrhi-nvapi") then
 				add_defines("NVRHI_D3D11_WITH_NVAPI=1")
@@ -90,7 +90,7 @@ if is_plat("windows") and has_config("nvrhi-dx11") then
 
 			add_includedirs("NVRHI/include")
 
-			add_syslinks("d3d11", "dxguid")
+			add_syslinks("d3d11", "dxguid", "dxgi")
 
 			if has_config("nvrhi-nvapi") then
 				add_defines("NVRHI_D3D11_WITH_NVAPI=1")
@@ -117,7 +117,7 @@ if is_plat("windows") and has_config("nvrhi-dx12") then
 
 			add_defines("NVRHI_HAS_D3D12", { public = true })
 
-			add_syslinks("d3d12")
+			add_syslinks("d3d12", "dxgi", "dxguid")
 
 			-- DirectX-Headers
 			add_includedirs("NVRHI/thirdparty/DirectX-Headers/include", { public = true })
@@ -152,7 +152,7 @@ if is_plat("windows") and has_config("nvrhi-dx12") then
 			add_defines("NVRHI_HAS_D3D12", { public = true })
 
 			add_includedirs("NVRHI/include")
-			add_syslinks("d3d12")
+			add_syslinks("d3d12", "dxgi", "dxguid")
 
 			-- DirectX-Headers
 			add_includedirs("NVRHI/thirdparty/DirectX-Headers/include", { public = true })

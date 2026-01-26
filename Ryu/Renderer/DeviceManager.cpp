@@ -1,6 +1,7 @@
 #include "Renderer/DeviceManager.h"
 #include "Renderer/DeviceManagerDX12.h"
 #include "Core/Logging/Logger.h"
+#include <nvrhi/utils.h>
 
 #if defined(_WIN32)
 extern "C"
@@ -23,6 +24,7 @@ namespace Ryu::Graphics
 		case Ryu::Graphics::API::DirectX12: return Create_DX12();
 		case Ryu::Graphics::API::DirectX11:
 		case Ryu::Graphics::API::Vulkan:
+			nvrhi::utils::NotSupported();
 		default: return nullptr;
 		}
 	}
@@ -73,6 +75,8 @@ namespace Ryu::Graphics
 		m_createInfo.BackBufferWidth = 0;
 		m_createInfo.BackBufferHeight = 0;
 
+		UpdateWindowSize();
+
 		return true;
 	}
 	
@@ -85,6 +89,35 @@ namespace Ryu::Graphics
 
 		m_instanceCreated = CreateInstanceInternal();
 		return m_instanceCreated;
+	}
+
+	void DeviceManager::UpdateWindowSize()
+	{
+		RECT rc{};
+		::GetClientRect(m_hWnd, &rc);
+
+		i32 width = rc.right - rc.left;
+		i32 height = rc.bottom - rc.top;
+
+		if (width == 0 || height == 0)
+		{
+			RYU_LOG_DEBUG("Tried to resize but window ({}x{})is minimizes", width, height);
+			return;
+		}
+
+		if (m_createInfo.BackBufferWidth != width
+			|| m_createInfo.BackBufferHeight != height)
+		{
+			BackBufferResizing();
+
+			m_createInfo.BackBufferWidth = width;
+			m_createInfo.BackBufferHeight = height;
+
+			ResizeSwapChain();
+			BackBufferResized();
+		}
+
+		m_createInfo.EnableVSync = m_requestedVSync;
 	}
 	
 	void DefaultMessageCallback::message(nvrhi::MessageSeverity severity, const char* messageText)
@@ -147,6 +180,35 @@ namespace Ryu::Graphics
 		RYU_ASSERT(waitSuccess, "Wait for idle failed");
 	}
 
+	void DeviceManager::AddRenderPassToFront(IRenderPass* renderPass)
+	{
+		m_renderPasses.remove(renderPass);
+		m_renderPasses.push_front(renderPass);
+
+		renderPass->BackBufferResizing();
+		renderPass->BackBufferResized(
+			m_createInfo.BackBufferWidth,
+			m_createInfo.BackBufferHeight,
+			m_createInfo.SwapChainSampleCount);
+	}
+
+	void DeviceManager::AddRenderPassToBack(IRenderPass* renderPass)
+	{
+		m_renderPasses.remove(renderPass);
+		m_renderPasses.push_back(renderPass);
+
+		renderPass->BackBufferResizing();
+		renderPass->BackBufferResized(
+			m_createInfo.BackBufferWidth,
+			m_createInfo.BackBufferHeight,
+			m_createInfo.SwapChainSampleCount);
+	}
+
+	void DeviceManager::RemoveRenderPass(IRenderPass* renderPass)
+	{
+		m_renderPasses.remove(renderPass);
+	}
+
 	void DeviceManager::BackBufferResizing()
 	{
 		m_swapChainFramebuffers.clear();
@@ -159,7 +221,13 @@ namespace Ryu::Graphics
 	{
 		CreateDepthBuffer();
 
-		//TODO: Handle render pass resizing
+		for (IRenderPass* pass : m_renderPasses)
+		{
+			pass->BackBufferResized(
+				m_createInfo.BackBufferWidth,
+				m_createInfo.BackBufferHeight,
+				m_createInfo.SwapChainSampleCount);
+		}
 
 		u32 backBufferCount = GetBackBufferCount();
 		m_swapChainFramebuffers.resize(backBufferCount);
@@ -210,6 +278,10 @@ namespace Ryu::Graphics
 	
 	void DeviceManager::Render()
 	{
-		//TODO: Handle render pass rendering
+		for (IRenderPass* pass : m_renderPasses)
+		{
+			nvrhi::IFramebuffer* buffer = GetCurrentFramebuffer(pass->SupportsDepthBuffer());
+			pass->Render(buffer);
+		}
 	}
 }

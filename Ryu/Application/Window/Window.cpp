@@ -155,13 +155,21 @@ namespace Ryu::Window
 	void Window::Destroy()
 	{
 		RYU_PROFILE_SCOPE();
-		RYU_ASSERT(m_hwnd, Internal::g_windowNotCreatedError);
 		if (m_hwnd)
 		{
 			m_input.Shutdown();
 			s_windowMap.erase(m_hwnd);
 			::DestroyWindow(m_hwnd);
 			m_hwnd = nullptr;
+		}
+	}
+
+	void Window::RequestClose()
+	{
+		if (m_hwnd)
+		{
+			m_shouldClose = true;
+			::SendMessage(m_hwnd, WM_CLOSE, 0, 0);
 		}
 	}
 

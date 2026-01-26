@@ -72,6 +72,7 @@ namespace Ryu::Window
 
 		bool Create();
 		void Destroy();
+		void RequestClose();
 		void Show() const;
 		void Hide() const;
 		void Update();

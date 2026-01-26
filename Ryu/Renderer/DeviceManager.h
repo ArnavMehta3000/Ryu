@@ -145,7 +145,10 @@ namespace Ryu::Graphics
 		virtual bool SupportsDepthBuffer() { return true; }
 		virtual void Render(nvrhi::IFramebuffer* framebuffer) {}
 		virtual void BackBufferResizing() {}
-		virtual void BackBufferResized(const u32 width, const u32 height, const u32 sampleCount) {}
+		virtual void BackBufferResized(
+			[[maybe_unused]] const u32 width, 
+			[[maybe_unused]] const u32 height, 
+			[[maybe_unused]] const u32 sampleCount) {}
 
 		DeviceManager* GetDeviceManager() const { return m_deviceManager;                  }
 		nvrhi::IDevice* GetDevice() const       { return m_deviceManager->GetDevice();     }

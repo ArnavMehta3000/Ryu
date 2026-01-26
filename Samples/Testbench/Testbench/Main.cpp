@@ -48,20 +48,21 @@ bool TestNVRHI()
 
 	DeviceCreateInfo info{};
 	info.DepthBufferFormat = nvrhi::Format::D32;
-	info.EnableWarningsAsErrors
-		= info.EnableNvrhiValidationLayer
+	info.EnableWarningsAsErrors = false;
+	info.EnableNvrhiValidationLayer
 		= info.EnableDebugRuntime
 		= info.EnableGPUValidationDX12 = true;
+	info.LogBufferLifetime = true;
 
 
 	Event::ScopedListener<Window::ResizeEvent> resizeListener(window->GetDispatcher(),
-		[&devMan](const Window::ResizeEvent& e)
+		[&devMan](const Window::ResizeEvent&)
 		{
 			devMan->UpdateWindowSize();
 		});
 
 	Event::ScopedListener<Window::KeyEvent> keyListener(window->GetDispatcher(),
-		[&window](const Window::KeyEvent& e)
+		[&window](const Window::KeyEvent&)
 		{
 			window->RequestClose();
 		});

@@ -9,18 +9,14 @@
 
 namespace Ryu::Graphics
 {
-	struct InstanceCreateInfo
+	struct DeviceCreateInfo
 	{
-		bool EnableDebugRuntime      = false;
-		bool EnableGPUValidationDX12 = false;
-		bool EnableWarningsAsErrors  = false;
-		bool IsHeadless              = false;
-		bool LogBufferLifetime       = false;
-		bool EnableHeapDirectlyIndexedDX12 = false;
-	};
-
-	struct DeviceCreateInfo : public InstanceCreateInfo
-	{
+		bool EnableDebugRuntime                  = false;
+		bool EnableGPUValidationDX12             = false;
+		bool EnableWarningsAsErrors              = false;
+		bool IsHeadless                          = false;
+		bool LogBufferLifetime                   = false;
+		bool EnableHeapDirectlyIndexedDX12       = false;
 		u32 BackBufferWidth                      = 0;
 		u32 BackBufferHeight                     = 0;
 		u32 RefreshRate                          = 0;
@@ -79,12 +75,16 @@ namespace Ryu::Graphics
 		nvrhi::IFramebuffer* GetFramebuffer(uint32_t index, bool withDepth = true);
 
 		bool CreateDeviceAndSwapChain(const DeviceCreateInfo& info, HWND window);  // Create device dependent objects
-		bool CreateInstance(const InstanceCreateInfo& info);                       // Create device independent objects
-		void UpdateWindowSize();  // Call to check internal window size and fire resize if neeeded
+		bool CreateInstance();                                                     // Create device independent objects
+		void UpdateWindowSize();                                                   // Call to check internal window size and fire resize if neeeded
 
 		void AddRenderPassToFront(IRenderPass* renderPass);
 		void AddRenderPassToBack(IRenderPass* renderPass);
 		void RemoveRenderPass(IRenderPass* renderPass);
+
+		bool PreRender();
+		void RenderPasses();
+		bool PostRender();
 
 	public:  // Public API
 		virtual API GetAPI() const = 0;
@@ -100,8 +100,6 @@ namespace Ryu::Graphics
 		virtual void ReportLiveObjects() {}
 
 		virtual void Shutdown();
-
-		void MAIN_RUN();
 
 	protected:
 		DeviceManager() {}
@@ -143,7 +141,7 @@ namespace Ryu::Graphics
 		virtual ~IRenderPass() = default;
 
 		virtual bool SupportsDepthBuffer() { return true; }
-		virtual void Render(nvrhi::IFramebuffer* framebuffer) {}
+		virtual void Render([[maybe_unused]] nvrhi::IFramebuffer* framebuffer) {}
 		virtual void BackBufferResizing() {}
 		virtual void BackBufferResized(
 			[[maybe_unused]] const u32 width, 

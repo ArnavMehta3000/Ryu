@@ -56,7 +56,7 @@ namespace Ryu::Graphics
 		m_createInfo.IsHeadless = false;
 		m_requestedVSync        = info.EnableVSync;
 
-		if (!CreateInstance(m_createInfo))
+		if (!CreateInstance())
 		{
 			return false;
 		}
@@ -80,7 +80,7 @@ namespace Ryu::Graphics
 		return true;
 	}
 	
-	bool DeviceManager::CreateInstance([[maybe_unused]] const InstanceCreateInfo& info)
+	bool DeviceManager::CreateInstance()
 	{
 		if (m_instanceCreated)
 		{
@@ -96,8 +96,8 @@ namespace Ryu::Graphics
 		RECT rc{};
 		::GetClientRect(m_hWnd, &rc);
 
-		i32 width = rc.right - rc.left;
-		i32 height = rc.bottom - rc.top;
+		u32 width  = static_cast<u32>(rc.right - rc.left);
+		u32 height = static_cast<u32>(rc.bottom - rc.top);
 
 		if (width == 0 || height == 0)
 		{
@@ -143,41 +143,41 @@ namespace Ryu::Graphics
 		m_instanceCreated = false;
 	}
 
-	void DeviceManager::MAIN_RUN()
+	bool DeviceManager::PreRender()
 	{
-		// Animate Render Present -> bool
+		if (m_frameIndex > 0 || !m_skipRenderOnFirstFrame)
 		{
-			if (m_frameIndex > 0 || !m_skipRenderOnFirstFrame)
+			if (BeginFrame())
 			{
-				if (BeginFrame())
+				// First time renderin this loop, m_frameIndex is 1 for m_skipRenderOnFirstFrame, 0 otherwise
+				u32 frameindex = m_frameIndex;
+				if (m_skipRenderOnFirstFrame)
 				{
-					// First time renderin this loop, m_frameIndex is 1 for m_skipRenderOnFirstFrame, 0 otherwise
-					u32 frameindex = m_frameIndex;
-
-					if (m_skipRenderOnFirstFrame)
-					{
-						frameindex--;
-					}
-
-					Render();
-					bool presentSuccess = Present();
-
-					if (!presentSuccess)
-					{
-						return /*false*/;
-					}
+					frameindex--;
 				}
+
+				// Use local frameIndex to fire renderer events
+				return true;
 			}
+		}
+	}
 
-			// NOTE: Run this in the main loop in Engine
-			std::this_thread::sleep_for(std::chrono::milliseconds(0));
+	void DeviceManager::RenderPasses()
+	{
+		Render();
+	}
 
-			GetDevice()->runGarbageCollection();
-			++m_frameIndex;
+	bool DeviceManager::PostRender()
+	{
+		if (!Present())
+		{
+			return false;
 		}
 
-		[[maybe_unused]] bool waitSuccess = GetDevice()->waitForIdle();
-		RYU_ASSERT(waitSuccess, "Wait for idle failed");
+		GetDevice()->runGarbageCollection();
+		++m_frameIndex;
+
+		return GetDevice()->waitForIdle();
 	}
 
 	void DeviceManager::AddRenderPassToFront(IRenderPass* renderPass)

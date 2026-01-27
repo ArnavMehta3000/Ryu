@@ -11,8 +11,8 @@ using namespace Ryu::Graphics;
 class ClearPass : public IRenderPass
 {
 public:
-	ClearPass(DeviceManager* deviceManager)
-		: IRenderPass(deviceManager) 
+	ClearPass(DeviceManager* deviceManager, nvrhi::Color clearColor)
+		: IRenderPass(deviceManager), m_clearColor(clearColor)
 	{
 		m_cmdList = GetDevice()->createCommandList();
 	}
@@ -20,17 +20,18 @@ public:
 	void Render(nvrhi::IFramebuffer* framebuffer) override
 	{
 		m_cmdList->open();
-		nvrhi::utils::ClearColorAttachment(m_cmdList, framebuffer, 0, nvrhi::Color(0.15f));
+		nvrhi::utils::ClearColorAttachment(m_cmdList, framebuffer, 0, m_clearColor);
 		m_cmdList->close();
 
 		GetDevice()->executeCommandList(m_cmdList);
 	}
 
 private:
+	nvrhi::Color m_clearColor;
 	nvrhi::CommandListHandle m_cmdList;
 };
 
-bool TestNVRHI()
+static bool TestNVRHI()
 {
 	// Create window
 	Window::Window::Config windowConfig
@@ -62,21 +63,30 @@ bool TestNVRHI()
 		});
 
 	Event::ScopedListener<Window::KeyEvent> keyListener(window->GetDispatcher(),
-		[&window](const Window::KeyEvent&)
+		[&window](const Window::KeyEvent& e)
 		{
-			window->RequestClose();
+			if (e.KeyCode == Window::KeyCode::Escape)
+				window->RequestClose();
 		});
 
 	if (devMan->CreateDeviceAndSwapChain(info, *window))
 	{
-		ClearPass pass(devMan.get());
-
+		ClearPass pass(devMan.get(), nvrhi::Color(0.015f));
 		devMan->AddRenderPassToBack(&pass);
 
 		while (window->IsOpen() && window->GetHandle())
 		{
 			window->Update();
-			devMan->MAIN_RUN();
+			
+			// Begin frame, check for resize
+			if (devMan->PreRender())
+			{
+				devMan->RenderPasses();
+
+				// Checks if present or wait failed
+				[[maybe_unused]] bool result = devMan->PostRender();
+			}
+
 			window->ProcessEventQueue();
 		}
 	}

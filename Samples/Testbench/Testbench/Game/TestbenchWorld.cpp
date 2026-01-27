@@ -63,7 +63,6 @@ void TestbenchWorld::OnDestroy()
 	RYU_LOG_DEBUG("Testbench World Destroyed");
 }
 
-f32 t = 0.0f;
 void TestbenchWorld::OnTick(const Ryu::Utils::FrameTimer& timer)
 {
 	RYU_PROFILE_SCOPE();
@@ -72,6 +71,7 @@ void TestbenchWorld::OnTick(const Ryu::Utils::FrameTimer& timer)
 
 	m_timer = timer;
 
+	static f32 t = 0.0f;
 	t += timer.DeltaTimeF() * 1.5f;
 
 	// Spin the object

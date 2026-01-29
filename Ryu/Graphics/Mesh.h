@@ -1,5 +1,4 @@
 #pragma once
-#include "Graphics/Core/GfxBuffer.h"
 
 namespace Ryu::Gfx
 {
@@ -24,9 +23,9 @@ namespace Ryu::Gfx
 		Mesh() = default;
 		Mesh(Device* device, const Buffer::Desc& vbDesc, const Buffer::Desc* ibDesc);
 
-		[[nodiscard]] inline bool HasIndexBuffer() const         { return m_indexBuffer != nullptr; }
-		[[nodiscard]] inline Buffer* GetVertexBuffer() const     { return m_vertexBuffer.get();     }
-		[[nodiscard]] inline Buffer* GetIndexBuffer() const      { return m_indexBuffer.get();      }
+		[[nodiscard]] inline bool HasIndexBuffer() const         { return false; /*m_indexBuffer != nullptr;*/ }
+		[[nodiscard]] inline Buffer* GetVertexBuffer() const     { return nullptr; /*m_vertexBuffer.get();*/     }
+		[[nodiscard]] inline Buffer* GetIndexBuffer() const      { return nullptr; /*m_indexBuffer.get();*/      }
 		[[nodiscard]] inline const DrawInfo& GetDrawInfo() const { return m_drawInfo;               }
 		[[nodiscard]] inline DrawInfo& GetDrawInfo()             { return m_drawInfo;               }
 		inline void SetDrawInfo(const DrawInfo& info)            { m_drawInfo = info;               }
@@ -36,7 +35,7 @@ namespace Ryu::Gfx
 
 	private:
 		DrawInfo m_drawInfo;
-		std::unique_ptr<Buffer> m_vertexBuffer;
-		std::unique_ptr<Buffer> m_indexBuffer;
+		//std::unique_ptr<Buffer> m_vertexBuffer;
+		//std::unique_ptr<Buffer> m_indexBuffer;
 	};
 }

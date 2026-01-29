@@ -1,7 +1,6 @@
 #pragma once
 #include "Asset/AssetData.h"
 #include "Graphics/Core/DX12.h"
-#include "Graphics/Core/GfxTexture.h"
 #include "Graphics/Mesh.h"
 #include "Asset/IGpuResourceFactory.h"
 #include <queue>

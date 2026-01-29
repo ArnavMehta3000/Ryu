@@ -5,7 +5,6 @@
 #include "Game/World/World.h"
 #include "Graphics/CommonStates.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
-#include "Graphics/Core/GfxTexture.h"
 #include "Graphics/IRendererHook.h"
 #include "Graphics/RenderFrameBuilder.h"
 

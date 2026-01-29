@@ -104,7 +104,8 @@ target("RyuAsset")
 	add_headerfiles("Asset/**.h", "Asset/**.inl", { public = true })
 
 	add_deps("RyuCore", "STB", "TinyOBJ", { public = true })
-	add_packages("directx-headers", "directxshadercompiler", { public = true })
+	add_packages("directxshadercompiler", { public = true })
+	add_packages("directx-headers", { public = false })
 
 target_end()
 
@@ -144,11 +145,13 @@ target("RyuGraphics")
 	end
 
 	add_deps("RyuCore", "RyuMath", "RyuShaders", "ImGui")
-	add_packages("entt", "directx-headers", "directxshadercompiler", { public = true })
+	add_packages("entt", "directxshadercompiler", { public = true })
+	add_packages("directx-headers", { public = false })
 target_end()
 
 -------------------- Test NVRHI based renderer --------------------
 target("RyuRenderer")
+	set_enabled(false)
 	set_kind("object")
 	set_group("Ryu/Objects")
 
@@ -181,7 +184,8 @@ target("RyuGame")
 	add_headerfiles("Game/**.h", "Game/**.inl", { public = true })
 
 	add_deps("RyuCore", "RyuMath")
-	add_packages("entt", "directx-headers", { public = true })
+	add_packages("entt", { public = true })
+	add_packages("directx-headers", { public = false })
 target_end()
 
 -- Engine (also the module where the final linking step takes place)
@@ -199,7 +203,7 @@ target("RyuEngine")
 		"RyuMath",
 		"RyuGame",
 		"RyuAsset",
-		"RyuRenderer",
+		--"RyuRenderer",
 		"RyuThreading",
 		"RyuMemory",
 		"RyuGraphics",

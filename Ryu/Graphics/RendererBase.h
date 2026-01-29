@@ -3,6 +3,7 @@
 #include <d3dcommon.h>
 #include <dxgi1_6.h>
 #include <optional>
+#include <functional>
 
 namespace Ryu::Gfx
 {
@@ -76,6 +77,18 @@ namespace Ryu::Gfx
         , public nvrhi::IMessageCallback
     {
     public:
+        struct PipelineCallbacks
+        {
+            std::function<void(RendererBase&, u32)> BeforeFrame   = nullptr;
+            std::function<void(RendererBase&, u32)> BeforeAnimate = nullptr;
+            std::function<void(RendererBase&, u32)> AfterAnimate  = nullptr;
+            std::function<void(RendererBase&, u32)> BeforeRender  = nullptr;
+            std::function<void(RendererBase&, u32)> AfterRender   = nullptr;
+            std::function<void(RendererBase&, u32)> BeforePresent = nullptr;
+            std::function<void(RendererBase&, u32)> AfterPresent  = nullptr;
+        };
+
+    public:
         static RendererBase* Create(nvrhi::GraphicsAPI api = nvrhi::GraphicsAPI::D3D12);
         virtual ~RendererBase() = default;
 
@@ -90,6 +103,14 @@ namespace Ryu::Gfx
 
         [[nodiscard]] nvrhi::IFramebuffer* GetCurrentFrameBuffer(bool withDepth = true);
 		[[nodiscard]] nvrhi::IFramebuffer* GetFrameBuffer(u32 index, bool withDepth = true);
+
+        bool PreRender();
+        void DoRenderPasses();
+        bool PostRender();
+
+        void AddRenderPassToFront(IRenderPass* renderPass);
+        void AddRenderPassToBack(IRenderPass* renderPass);
+        void RemoveRenderPass(IRenderPass* renderPass);
 
     protected:
         RendererBase() {}

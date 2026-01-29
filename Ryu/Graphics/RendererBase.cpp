@@ -59,6 +59,34 @@ namespace Ryu::Gfx
 
 		m_instanceCreated = false;
 	}
+
+	void RendererBase::Resize()
+	{
+		// NOTE: Here I am reszing the back buffer to the size of the window. This may change with ImGui viewports
+
+		RECT rc{};
+		::GetClientRect(m_hWnd, &rc);
+
+		u32 width = static_cast<u32>(rc.right - rc.left);
+		u32 height = static_cast<u32>(rc.bottom - rc.top);
+
+		if (width == 0 || height == 0)
+		{
+			RYU_LOG_DEBUG("Tried to resize but window ({}x{}) is minimized", width, height);
+			return;
+		}
+
+		const auto& [currentWidth, currentHeight] = m_initInfo.BackBufferSize;
+		if (currentWidth != width || currentHeight != height)
+		{
+			BackBufferResizeBegin();
+
+			m_initInfo.BackBufferSize = { width, height };
+
+			ResizeSwapChain();
+			BackBufferResizeEnd();
+		}
+	}
 	
 	nvrhi::IFramebuffer* RendererBase::GetCurrentFrameBuffer(bool withDepth)
 	{
@@ -78,6 +106,65 @@ namespace Ryu::Gfx
 		}
 
 		return nullptr;
+	}
+
+	bool RendererBase::PreRender()
+	{
+		return BeginFrame();
+	}
+
+	void RendererBase::DoRenderPasses()
+	{
+		for (IRenderPass* pass : m_renderPasses)
+		{
+			nvrhi::IFramebuffer* buffer = GetCurrentFrameBuffer(pass->SupportsDepthBuffer());
+			pass->OnRender(buffer);
+		}
+	}
+
+	bool RendererBase::PostRender()
+	{
+		if (!Present())
+		{
+			RYU_LOG_ERROR("Present failed!");
+			return false;
+		}
+
+		GetDevice()->runGarbageCollection();
+		++m_frameIndex;
+
+		if (!GetDevice()->waitForIdle())
+		{
+			RYU_LOG_ERROR("Wait for idle failed!");
+			return false;
+		}
+
+		return true;
+	}
+
+	void RendererBase::AddRenderPassToFront(IRenderPass* renderPass)
+	{
+		m_renderPasses.remove(renderPass);
+		m_renderPasses.push_front(renderPass);
+
+		const auto& [width, height] = m_initInfo.BackBufferSize;
+		renderPass->OnBackBufferResizeBegin();
+		renderPass->OnBackBufferResizeEnd(width, height, m_initInfo.SwapChainSampleCount);
+	}
+
+	void RendererBase::AddRenderPassToBack(IRenderPass* renderPass)
+	{
+		m_renderPasses.remove(renderPass);
+		m_renderPasses.push_back(renderPass);
+
+		const auto& [width, height] = m_initInfo.BackBufferSize;
+		renderPass->OnBackBufferResizeBegin();
+		renderPass->OnBackBufferResizeEnd(width, height, m_initInfo.SwapChainSampleCount);
+	}
+
+	void RendererBase::RemoveRenderPass(IRenderPass* renderPass)
+	{
+		m_renderPasses.remove(renderPass);
 	}
 
 	bool RendererBase::CreateInstance()

@@ -98,7 +98,7 @@ namespace Ryu::Gfx
 		CreateSwapChain();
 		CreateFrameResources(false);
 
-		m_featureSupport.Init(m_device.Get());
+		//m_featureSupport.Init(m_device.Get());
 	}
 	
 	std::pair<u32, u32> Device::GetClientSize() const

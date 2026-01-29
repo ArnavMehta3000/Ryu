@@ -1,4 +1,7 @@
 #pragma once
+#define D3DX12_NO_STATE_OBJECT_HELPERS
+#define D3DX12_NO_CHECK_FEATURE_SUPPORT_CLASS
+
 #include "Core/Logging/Logger.h"
 #include "Core/Utils/Blob.h"
 #include "Graphics/Core/ComPtr.h"

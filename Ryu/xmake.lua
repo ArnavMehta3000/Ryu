@@ -130,6 +130,19 @@ target("RyuGraphics")
 	-- add_files("Graphics/Shaders/**.hlsl")
 	-- add_rules("HLSLShader", { root = "Engine" })
 
+	add_deps("NVRHI")
+	if has_config("nvrhi-dx11") then
+		add_deps("NVRHI-D3D11", { public = true })
+	end
+
+	if has_config("nvrhi-dx12") then
+		add_deps("NVRHI-D3D12", { public = true })
+	end
+
+	if has_config("nvrhi-vulkan") then
+		add_deps("NVRHI-Vulkan", { public = true })
+	end
+
 	add_deps("RyuCore", "RyuMath", "RyuShaders", "ImGui")
 	add_packages("entt", "directx-headers", "directxshadercompiler", { public = true })
 target_end()
@@ -193,7 +206,7 @@ target("RyuEngine")
 		{ public = true }
 	)
 
-	add_links(
+	add_syslinks(
 		"user32",
 		"Dwmapi",
 		"d3d12",

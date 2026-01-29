@@ -34,7 +34,7 @@ namespace Ryu::Graphics
 		nvrhi::IMessageCallback* MessageCallback = nullptr;
 
 		DXGI_USAGE SwapChainUsage                = DXGI_USAGE_SHADER_INPUT | DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		D3D_FEATURE_LEVEL FeatureLevel           = D3D_FEATURE_LEVEL_11_1;		
+		D3D_FEATURE_LEVEL FeatureLevel           = D3D_FEATURE_LEVEL_11_1;
 	};
 
 	struct AdapterInfo

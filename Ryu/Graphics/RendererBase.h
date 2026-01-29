@@ -1,13 +1,11 @@
 #pragma once
-#include <nvrhi/nvrhi.h>
+#include "Graphics/IRenderPass.h"
 #include <d3dcommon.h>
 #include <dxgi1_6.h>
 #include <optional>
 
 namespace Ryu::Gfx
 {
-    class IRenderPass;
-
     struct RendererInitInfo
     {
         bool EnableDebugRuntime         : 1 = false;
@@ -109,8 +107,9 @@ namespace Ryu::Gfx
         u32                                   m_frameIndex       = 0;
         HWND                                  m_hWnd             = nullptr;
         bool                                  m_instanceCreated  = false;
-        std::vector<nvrhi::FramebufferHandle> m_swapChainFramebuffers;
-        std::vector<nvrhi::FramebufferHandle> m_swapChainWithDepthFramebuffers;
+        std::vector<nvrhi::FramebufferHandle> m_swapChainFrameBuffers;
+        std::vector<nvrhi::FramebufferHandle> m_swapChainWithDepthFrameBuffers;
         nvrhi::TextureHandle                  m_depthBuffer;
+        std::list<IRenderPass*>               m_renderPasses;  // non-owning
     };
 }

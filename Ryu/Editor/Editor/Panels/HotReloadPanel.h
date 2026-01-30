@@ -8,10 +8,11 @@ namespace Ryu::Editor
 	class HotReloadPanel : public IEditorPanel
 	{
 	public:
-		static constexpr std::string_view Name{ "Hot Reload" };
+		static constexpr auto Name = "Hot Reload" ;
 
 	public:
 		HotReloadPanel(EditorApp* app, Engine::GameModuleHost* gameModuleHost);
+		~HotReloadPanel() override = default;
 
 		void OnImGuiRender() override;
 

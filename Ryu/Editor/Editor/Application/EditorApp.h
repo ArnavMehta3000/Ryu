@@ -80,7 +80,7 @@ namespace Ryu::Editor
 #endif
 
 	private:
-		using PanelMap = std::unordered_map<std::string_view, std::unique_ptr<IEditorPanel>>;
+		using PanelMap = std::unordered_map<std::string, std::unique_ptr<IEditorPanel>>;
 		PanelMap m_editorPanels;
 
 		std::shared_ptr<Window::Window> m_window;

@@ -3,6 +3,8 @@
 #include "Core/Utils/StringConv.h"
 #include <fstream>
 
+#define DXCall(X) X
+
 namespace Ryu::Gfx
 {
 	static constexpr std::wstring_view g_shaderCSOExt = L".cso";
@@ -369,3 +371,4 @@ namespace Ryu::Gfx
 		return hash;
 	}
 }
+#undef DXCall

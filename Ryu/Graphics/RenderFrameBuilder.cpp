@@ -5,7 +5,6 @@
 #include "Game/Components/MeshRenderer.h"
 #include "Game/Components/TransformComponent.h"
 #include "Game/World/World.h"
-#include "Graphics/Core/GfxDevice.h"
 #include <ranges>
 
 namespace Ryu::Gfx
@@ -124,7 +123,7 @@ namespace Ryu::Gfx
 		// NOTE: Using the window as the viewport size
 		// Maybe instead pass in the frame dimensions (consideration for ImGui)
 		// Or somehow embedd that information into the camera component
-		auto [width, height] = m_device->GetClientSize();
+		auto [width, height] = std::make_pair<u32, u32>(1280, 720);//m_device->GetClientSize();
 
 		// Temporary clamp the size (otherwise we assert inside DirectXMath when creating the projection matrix)
 		// Assertion Assertion failed: !XMScalarNearEqual(AspectRatio, 0.0f, 0.00001f)

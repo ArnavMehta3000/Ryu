@@ -6,11 +6,11 @@ namespace Ryu::Gfx
 		: m_device(device)
 		, m_maxFramesBeforeReclaim(maxFramesforeReclaim)
 	{
-		constexpr u32 commonSizes[] = { 256, 512, 1024, 2048, 4096, 8192, 16384 };
-		for (u32 size : commonSizes)
-		{
-			//m_pools[size] = std::make_unique<ResourcePool<Buffer>>(16, maxFramesforeReclaim);
-		}
+		//constexpr u32 commonSizes[] = { 256, 512, 1024, 2048, 4096, 8192, 16384 };
+		//for (u32 size : commonSizes)
+		//{
+		//	//m_pools[size] = std::make_unique<ResourcePool<Buffer>>(16, maxFramesforeReclaim);
+		//}
 	}
 
 	Buffer* ConstantBufferPool::Acquire(u32 sizeInBytes, u64 currentFrame, const std::string& name)
@@ -77,11 +77,11 @@ namespace Ryu::Gfx
 
 	void ConstantBufferPool::ResetFrame(u64 currentFrame)
 	{
-		for (auto& [size, pool] : m_pools)
-		{
-			pool->ResetFrame(currentFrame);
-		}
-	}
+		//for (auto& [size, pool] : m_pools)
+		//{
+		//	pool->ResetFrame(currentFrame);
+		//}
+	}	//
 
 	std::vector<ConstantBufferPool::PoolStats> ConstantBufferPool::GetStats() const
 	{

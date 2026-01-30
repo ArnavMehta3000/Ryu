@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/Core/DX12.h"
+#include "Graphics/Core/ComPtr.h"
 #include "Graphics/Shader/ShaderType.h"
 #include "Core/Utils/Singleton.h"
 #include <filesystem>

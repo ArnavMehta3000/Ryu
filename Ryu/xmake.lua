@@ -105,8 +105,6 @@ target("RyuAsset")
 
 	add_deps("RyuCore", "STB", "TinyOBJ", { public = true })
 	add_packages("directxshadercompiler", { public = true })
-	add_packages("directx-headers", { public = false })
-
 target_end()
 
 -------------------- Shaders Module --------------------
@@ -146,7 +144,6 @@ target("RyuGraphics")
 
 	add_deps("RyuCore", "RyuMath", "RyuShaders", "ImGui")
 	add_packages("entt", "directxshadercompiler", { public = true })
-	add_packages("directx-headers", { public = false })
 target_end()
 
 -------------------- Test NVRHI based renderer --------------------
@@ -185,7 +182,6 @@ target("RyuGame")
 
 	add_deps("RyuCore", "RyuMath")
 	add_packages("entt", { public = true })
-	add_packages("directx-headers", { public = false })
 target_end()
 
 -- Engine (also the module where the final linking step takes place)

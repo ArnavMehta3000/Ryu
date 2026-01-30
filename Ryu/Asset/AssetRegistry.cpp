@@ -6,8 +6,8 @@
 namespace Ryu::Asset
 {
 	AssetRegistry::AssetRegistry(IGpuResourceFactory* gpuFactory)
-		: m_meshCache(gpuFactory)
-		, m_textureCache(gpuFactory)
+		//: m_meshCache(gpuFactory)
+		//, m_textureCache(gpuFactory)
 	{
 		RYU_PROFILE_SCOPE();
 		RegisterDefaultLoaders();
@@ -25,41 +25,41 @@ namespace Ryu::Asset
 		return m_primitives[index];
 	}
 
-	Gfx::Mesh* AssetRegistry::GetPrimitiveGpu(PrimitiveType type)
+	/*Gfx::Mesh* AssetRegistry::GetPrimitiveGpu(PrimitiveType type)
 	{
 		RYU_PROFILE_SCOPE();
 		return m_meshCache.GetGpu(GetPrimitive(type));
-	}
+	}*/
 
 	void AssetRegistry::LoadAll()
 	{
 		RYU_PROFILE_SCOPE();
-		m_meshCache.ForEach([this](MeshHandle handle, const MeshCache::Entry&)
-		{
-			std::ignore = m_meshCache.GetGpu(handle);
-		});
-
-		m_textureCache.ForEach([this](TextureHandle handle, const TextureCache::Entry&)
-		{
-			std::ignore = m_textureCache.GetGpu(handle);
-		});
+		//m_meshCache.ForEach([this](MeshHandle handle, const MeshCache::Entry&)
+		//{
+		//	std::ignore = m_meshCache.GetGpu(handle);
+		//});
+		//
+		//m_textureCache.ForEach([this](TextureHandle handle, const TextureCache::Entry&)
+		//{
+		//	std::ignore = m_textureCache.GetGpu(handle);
+		//});
 	}
 
 	void AssetRegistry::InvalidateAll()
 	{
 		RYU_PROFILE_SCOPE();
-		m_meshCache.InvalidateAll();
-		m_textureCache.InvalidateAll();
+		//m_meshCache.InvalidateAll();
+		//m_textureCache.InvalidateAll();
 	}
 
 	void AssetRegistry::RegisterDefaultLoaders()
 	{
 		RYU_PROFILE_SCOPE();
-		m_meshCache.RegisterLoader(".obj", OBJLoader::Load);
+		//m_meshCache.RegisterLoader(".obj", OBJLoader::Load);
 
-		m_textureCache.RegisterLoader(".png", ImageLoader::Load);
-		m_textureCache.RegisterLoader(".jpg", ImageLoader::Load);
-		m_textureCache.RegisterLoader(".jpeg", ImageLoader::Load);
+		//m_textureCache.RegisterLoader(".png", ImageLoader::Load);
+		//m_textureCache.RegisterLoader(".jpg", ImageLoader::Load);
+		//m_textureCache.RegisterLoader(".jpeg", ImageLoader::Load);
 		//m_textureCache.RegisterLoader(".dds", ImageLoader::Load);
 	}
 
@@ -67,11 +67,11 @@ namespace Ryu::Asset
 	{
 		RYU_PROFILE_SCOPE();
 		// Register all built-in primitives
-		m_primitives[static_cast<u64>(PrimitiveType::Triangle)] = m_meshCache.Register("Primitive:Triangle", Primitives::CreateTriangle());
-		m_primitives[static_cast<u64>(PrimitiveType::Cube)]     = m_meshCache.Register("Primitive:Cube", Primitives::CreateCube());
-		m_primitives[static_cast<u64>(PrimitiveType::Plane)]    = m_meshCache.Register("Primitive:Plane", Primitives::CreatePlane());
-		m_primitives[static_cast<u64>(PrimitiveType::Sphere)]   = m_meshCache.Register("Primitive:Sphere", Primitives::CreateSphere());
-		m_primitives[static_cast<u64>(PrimitiveType::Cylinder)] = m_meshCache.Register("Primitive:Cylinder", Primitives::CreateCylinder());
-		m_primitives[static_cast<u64>(PrimitiveType::Cone)]     = m_meshCache.Register("Primitive:Cone", Primitives::CreateCone());
+		//m_primitives[static_cast<u64>(PrimitiveType::Triangle)] = m_meshCache.Register("Primitive:Triangle", Primitives::CreateTriangle());
+		//m_primitives[static_cast<u64>(PrimitiveType::Cube)]     = m_meshCache.Register("Primitive:Cube", Primitives::CreateCube());
+		//m_primitives[static_cast<u64>(PrimitiveType::Plane)]    = m_meshCache.Register("Primitive:Plane", Primitives::CreatePlane());
+		//m_primitives[static_cast<u64>(PrimitiveType::Sphere)]   = m_meshCache.Register("Primitive:Sphere", Primitives::CreateSphere());
+		//m_primitives[static_cast<u64>(PrimitiveType::Cylinder)] = m_meshCache.Register("Primitive:Cylinder", Primitives::CreateCylinder());
+		//m_primitives[static_cast<u64>(PrimitiveType::Cone)]     = m_meshCache.Register("Primitive:Cone", Primitives::CreateCone());
 	}
 }

@@ -286,11 +286,11 @@ namespace Ryu::Asset
 		// See GpuResourceFactory implementation
 		if constexpr (IsSame<TAssetData, MeshData>)
 		{
-			entry.GpuResource = m_gpuFactory->CreateMesh(*entry.CpuData, name);
+			//entry.GpuResource = m_gpuFactory->CreateMesh(*entry.CpuData, name);
 		}
 		else if constexpr (IsSame<TAssetData, TextureData>)
 		{
-			entry.GpuResource = m_gpuFactory->CreateTexture(*entry.CpuData, name);
+			//entry.GpuResource = m_gpuFactory->CreateTexture(*entry.CpuData, name);
 		}
 
 		if (entry.GpuResource)

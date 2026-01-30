@@ -1,16 +1,19 @@
 #pragma once
-#include "Graphics/Core/GfxShader.h"
 #include <span>
+#include <filesystem>
+
 
 namespace Ryu::Gfx
 {
+	namespace fs = std::filesystem;
+
 	struct PrecompiledShaderInfo;
 	struct ShaderCompileInfo;
 
 	class ShaderLibrary
 	{
 	public:
-		using ShaderMap = std::unordered_map<std::string, Shader>;
+		//using ShaderMap = std::unordered_map<std::string, Shader>;
 
 	public:
 		ShaderLibrary(const fs::path& precompiledPath);
@@ -18,17 +21,17 @@ namespace Ryu::Gfx
 		// Uses the shader compiler to compile at runtime
 		bool Compile(const ShaderCompileInfo& info);
 
-		Shader* GetShader(const std::string& name);
+		//Shader* GetShader(const std::string& name);
 
-		u64 GetShaderCount() const { return m_shaders.size(); }
-		auto begin() { return m_shaders.begin(); }
-		auto end() { return m_shaders.end(); }
+		//u64 GetShaderCount() const { return m_shaders.size(); }
+		//auto begin() { return m_shaders.begin(); }
+		//auto end() { return m_shaders.end(); }
 
 	private:
 		void StorePrecompiledShaders(std::span<PrecompiledShaderInfo> infos);
 
 	private:
 		fs::path m_precompiledPath;
-		ShaderMap m_shaders;
+		//ShaderMap m_shaders;
 	};
 }

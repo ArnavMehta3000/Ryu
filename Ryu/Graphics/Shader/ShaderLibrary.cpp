@@ -71,104 +71,104 @@ namespace Ryu::Gfx
 
 	bool ShaderLibrary::Compile(const ShaderCompileInfo& info)
 	{
-		ShaderCompiler& compiler = ShaderCompiler::Get();
+		//ShaderCompiler& compiler = ShaderCompiler::Get();
 
-		if (auto compileResult = compiler.Compile(info))
-		{
-			ShaderCompileResult& result = compileResult.value();
+		//if (auto compileResult = compiler.Compile(info))
+		//{
+		//	ShaderCompileResult& result = compileResult.value();
 
-			Shader shader{};
-			shader.m_name = result.Name;
-			shader.m_type = info.Type;
-			shader.m_source = Shader::CompilationSource::Precompiled;
+		//	Shader shader{};
+		//	shader.m_name = result.Name;
+		//	shader.m_type = info.Type;
+		//	shader.m_source = Shader::CompilationSource::Precompiled;
 
-			shader.m_blob.Attach(result.ShaderBlob.Detach());
-			shader.m_reflectionBlob.Attach(result.ReflectionBlob.Detach());
-			
-			// Add to shader map
-			if (m_shaders.contains(shader.m_name))
-			{
-				RYU_LOG_WARN("Shader with name {} already exists. Overwriting", info.Name);
-			}
-			m_shaders[shader.m_name] = std::move(shader);
+		//	shader.m_blob.Attach(result.ShaderBlob.Detach());
+		//	shader.m_reflectionBlob.Attach(result.ReflectionBlob.Detach());
+		//	
+		//	// Add to shader map
+		//	if (m_shaders.contains(shader.m_name))
+		//	{
+		//		RYU_LOG_WARN("Shader with name {} already exists. Overwriting", info.Name);
+		//	}
+		//	m_shaders[shader.m_name] = std::move(shader);
 
-			return true;
-		}
-		else
-		{
-			RYU_LOG_ERROR("Failed to compile shader: {} | {}", info.FilePath.string(), compileResult.error());
-		}
+		//	return true;
+		//}
+		//else
+		//{
+		//	RYU_LOG_ERROR("Failed to compile shader: {} | {}", info.FilePath.string(), compileResult.error());
+		//}
 		
 		return false;
 	}
 
-	Shader* ShaderLibrary::GetShader(const std::string& name)
+	/*Shader* ShaderLibrary::GetShader(const std::string& name)
 	{
 		return m_shaders.contains(name) ? &m_shaders[name] : nullptr;		
-	}
+	}*/
 	
 	void ShaderLibrary::StorePrecompiledShaders(std::span<PrecompiledShaderInfo> infos)
 	{
-		static IDxcUtils* utils = ShaderCompiler::Get().GetUtils();
+		//static IDxcUtils* utils = ShaderCompiler::Get().GetUtils();
 
-		if (!utils)
-		{
-			RYU_LOG_ERROR("Failed to get DXC Utils");
-			return;
-		}
-				
-		for (const auto& info : infos)
-		{
-			// Source path has to be valid to even consider the rest of the data
-			if (Utils::ReadDataResult srcReadResult = Utils::ReadData(info.SourcePath))
-			{
-				ComPtr<IDxcBlobEncoding> srcBlob;
-				{
-					const std::vector<byte>& srcData = srcReadResult.value();
-					DXCall(utils->CreateBlob(srcData.data(), (u32)srcData.size(), DXC_CP_ACP, &srcBlob));
-				}
+		//if (!utils)
+		//{
+		//	RYU_LOG_ERROR("Failed to get DXC Utils");
+		//	return;
+		//}
+		//		
+		//for (const auto& info : infos)
+		//{
+		//	// Source path has to be valid to even consider the rest of the data
+		//	if (Utils::ReadDataResult srcReadResult = Utils::ReadData(info.SourcePath))
+		//	{
+		//		ComPtr<IDxcBlobEncoding> srcBlob;
+		//		{
+		//			const std::vector<byte>& srcData = srcReadResult.value();
+		//			DXCall(utils->CreateBlob(srcData.data(), (u32)srcData.size(), DXC_CP_ACP, &srcBlob));
+		//		}
 
-				Shader shader{};
-				shader.m_name    = info.Name;
-				shader.m_type    = GetShaderTypeFromName(info.Name);
-				shader.m_source  = Shader::CompilationSource::Precompiled;
-				shader.m_blob.Attach(srcBlob.Detach());
+		//		Shader shader{};
+		//		shader.m_name    = info.Name;
+		//		shader.m_type    = GetShaderTypeFromName(info.Name);
+		//		shader.m_source  = Shader::CompilationSource::Precompiled;
+		//		shader.m_blob.Attach(srcBlob.Detach());
 
-				// Check for reflection data
-				if (Utils::ReadDataResult reflReadResult = Utils::ReadData(info.ReflectionPath))
-				{
-					const std::vector<byte>& reflData = reflReadResult.value();
+		//		// Check for reflection data
+		//		if (Utils::ReadDataResult reflReadResult = Utils::ReadData(info.ReflectionPath))
+		//		{
+		//			const std::vector<byte>& reflData = reflReadResult.value();
 
-					ComPtr<IDxcBlobEncoding> reflBlob;
-					{
-						DXCall(utils->CreateBlob(reflData.data(), u32(reflData.size()), DXC_CP_ACP, &reflBlob));
-						shader.m_reflectionBlob.Swap(reflBlob);
-					}
-				}
-				else
-				{
-					RYU_LOG_DEBUG("No reflection data forund for shader ({})", info.Name);
-				}
+		//			ComPtr<IDxcBlobEncoding> reflBlob;
+		//			{
+		//				DXCall(utils->CreateBlob(reflData.data(), u32(reflData.size()), DXC_CP_ACP, &reflBlob));
+		//				shader.m_reflectionBlob.Swap(reflBlob);
+		//			}
+		//		}
+		//		else
+		//		{
+		//			RYU_LOG_DEBUG("No reflection data forund for shader ({})", info.Name);
+		//		}
 
-				// Check for root signature data
-				if (Utils::ReadDataResult rootSigReadResult = Utils::ReadData(info.RootSigPath))
-				{
-					const std::vector<byte>& rootSigData = rootSigReadResult.value();
+		//		// Check for root signature data
+		//		if (Utils::ReadDataResult rootSigReadResult = Utils::ReadData(info.RootSigPath))
+		//		{
+		//			const std::vector<byte>& rootSigData = rootSigReadResult.value();
 
-					ComPtr<IDxcBlobEncoding> rootSigBlob;
-					{
-						DXCall(utils->CreateBlob(rootSigData.data(), u32(rootSigData.size()), DXC_CP_ACP, &rootSigBlob));
-						shader.m_rootSignatureBlob.Swap(rootSigBlob);
-					}
-				}
-				
-				// Add to shader map
-				if (m_shaders.contains(shader.m_name))
-				{
-					RYU_LOG_WARN("Shader with name {} already exists. Overwriting", info.Name);
-				}
-				m_shaders[shader.m_name] = std::move(shader);
-			}
-		}
+		//			ComPtr<IDxcBlobEncoding> rootSigBlob;
+		//			{
+		//				DXCall(utils->CreateBlob(rootSigData.data(), u32(rootSigData.size()), DXC_CP_ACP, &rootSigBlob));
+		//				shader.m_rootSignatureBlob.Swap(rootSigBlob);
+		//			}
+		//		}
+		//		
+		//		// Add to shader map
+		//		//if (m_shaders.contains(shader.m_name))
+		//		//{
+		//		//	RYU_LOG_WARN("Shader with name {} already exists. Overwriting", info.Name);
+		//		//}
+		//		//m_shaders[shader.m_name] = std::move(shader);
+		//	}
+		//}
 	}
 }

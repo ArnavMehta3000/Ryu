@@ -1,20 +1,19 @@
 #pragma once
 #include "Asset/AssetData.h"
-#include "Graphics/Core/DX12.h"
-#include "Graphics/Mesh.h"
 #include "Asset/IGpuResourceFactory.h"
 #include <queue>
+#include <dxgi1_6.h>
 
 namespace Ryu::Gfx
 {
 	class GpuResourceFactory : public Asset::IGpuResourceFactory
 	{
 	public:
-        explicit GpuResourceFactory(Device* device);
+        //explicit GpuResourceFactory(Device* device);
 
-        std::unique_ptr<Gfx::Mesh> CreateMesh(const Asset::MeshData& data, std::string_view name) override;
-		std::unique_ptr<Gfx::Texture> CreateTexture(const Asset::TextureData& data, std::string_view name) override;
-		void ProcessPendingUploads(Gfx::CommandList& cmdList) override;
+        //std::unique_ptr<Gfx::Mesh> CreateMesh(const Asset::MeshData& data, std::string_view name) override;
+		//std::unique_ptr<Gfx::Texture> CreateTexture(const Asset::TextureData& data, std::string_view name) override;
+		//void ProcessPendingUploads(Gfx::CommandList& cmdList) override;
 
     private:
         static DXGI_FORMAT ConvertFormat(Asset::TextureData::Format format)
@@ -37,19 +36,19 @@ namespace Ryu::Gfx
     private:
         struct PendingMeshUpload
         {
-            Mesh* Mesh;
+            //Mesh* Mesh;
             std::vector<Asset::MeshData::Vertex> Vertices;
             std::vector<u32> Indices;
         };
 
         struct PendingTextureUpload
         {
-            Texture* Texture;
+            //Texture* Texture;
             std::vector<byte> Data;
             u32 RowPitch;
         };
 
-        Device*                          m_device;
+        //Device*                          m_device;
         std::queue<PendingMeshUpload>    m_pendingMeshUploads;
         std::queue<PendingTextureUpload> m_pendingTextureUploads;
 	};

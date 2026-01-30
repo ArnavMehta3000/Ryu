@@ -1,5 +1,5 @@
 #pragma once
-#include <directx/d3dx12.h>
+#include <nvrhi/thirdparty/DirectX-Headers/include/directx/d3dx12.h>
 
 namespace Ryu::Gfx::CommonStates
 {

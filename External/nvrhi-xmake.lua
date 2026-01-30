@@ -1,15 +1,18 @@
 
-option("nvrhi-shared",     { default = false, description = "Build NVRHI as a shared library"                           })
-option("nvrhi-validation", { default = true,  description = "Build NVRHI with validation layer"                         })
+option("nvrhi-shared",     { default = false,  description = "Build NVRHI as a shared library"                           })
+option("nvrhi-validation", { default = true,   description = "Build NVRHI with validation layer"                         })
 option("nvrhi-vulkan",     { default = false,  description = "Build the NVRHI Vulkan backend"                            })
-option("nvrhi-rtxmu",      { default = false, description = "Use RTXMU for acceleration structure management"           })
-option("nvrhi-aftermath",  { default = false, description = "Include Aftermath support (requires NSight Aftermath SDK)" })
+option("nvrhi-rtxmu",      { default = false,  description = "Use RTXMU for acceleration structure management"           })
+option("nvrhi-aftermath",  { default = false,  description = "Include Aftermath support (requires NSight Aftermath SDK)" })
 
 if is_plat("windows") then
-	option("nvrhi-nvapi",                  { default = false, description = "Include NVAPI support (requires NVAPI SDK)"      })
+	option("nvrhi-nvapi",                  { default = false,  description = "Include NVAPI support (requires NVAPI SDK)"      })
 	option("nvrhi-dx11",                   { default = false,  description = "Build the NVRHI D3D11 backend"                   })
-	option("nvrhi-dx12",                   { default = true,  description = "Build the NVRHI D3D12 backend"                   })
-	option("nvrhi-dx12_opacity_micromap",  { default = true,  description = "Use D3D12 native Opacity Micromaps from DXR 1.2" })
+	option("nvrhi-dx12",                   { default = true,   description = "Build the NVRHI D3D12 backend"                   })
+	option("nvrhi-dx12_opacity_micromap",  { default = true,   description = "Use D3D12 native Opacity Micromaps from DXR 1.2" })
+
+	-- Use external headers instead of the ones distributed with NVRHI
+	add_requires("directx-headers v1.618.2", { optional= true })
 end
 
 
@@ -120,7 +123,7 @@ if is_plat("windows") and has_config("nvrhi-dx12") then
 			add_syslinks("d3d12", "dxgi", "dxguid")
 
 			-- DirectX-Headers
-			add_includedirs("NVRHI/thirdparty/DirectX-Headers/include", { public = true })
+			add_packages("directx-headers", { public = true })
 
 			if has_config("nvrhi-rtxmu") then
 				add_defines("NVRHI_WITH_RTXMU=1")
@@ -155,7 +158,7 @@ if is_plat("windows") and has_config("nvrhi-dx12") then
 			add_syslinks("d3d12", "dxgi", "dxguid")
 
 			-- DirectX-Headers
-			add_includedirs("NVRHI/thirdparty/DirectX-Headers/include", { public = true })
+			add_packages("directx-headers", { public = true })
 
 			if has_config("nvrhi-rtxmu") then
 				add_defines("NVRHI_WITH_RTXMU=1")

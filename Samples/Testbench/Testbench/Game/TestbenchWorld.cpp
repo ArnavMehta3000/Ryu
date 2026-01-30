@@ -34,26 +34,26 @@ void TestbenchWorld::OnCreate()
 	camTransform.Position = { 0.0f, 0.0f, 15.0f };
 
 	// Create mesh
-	m_meshEntity = CreateEntity("Mesh");
+	/*m_meshEntity = CreateEntity("Mesh");
 	m_meshEntity.AddComponent<Game::MeshRenderer>(
 		Runtime::GetRenderer()->GetAssetRegistry(),
-		Asset::PrimitiveType::Sphere);
+		Asset::PrimitiveType::Sphere);*/
 
 	m_inputManager->BindAction("ToggleWireframe", Ryu::Window::KeyCode::R, []()
 	{
-		Gfx::WorldRenderer* renderer = Runtime::GetRenderer()->GetWorldRenderer();
+		/*Gfx::WorldRenderer* renderer = Runtime::GetRenderer()->GetWorldRenderer();
 		
 		auto config = renderer->GetConfig();
 		config.EnableWireframe = !config.EnableWireframe;
 		
-		renderer->SetConfig(config);
+		renderer->SetConfig(config);*/
 	});
 
 	m_inputManager->BindAction("ToggleCameraProjection", Ryu::Window::KeyCode::C, [&cam]()
 	{
-		cam.Mode = cam.Mode == Game::CameraComponent::Projection::Orthographic 
+		/*cam.Mode = cam.Mode == Game::CameraComponent::Projection::Orthographic 
 			? Game::CameraComponent::Projection::Perspective 
-			: Game::CameraComponent::Projection::Orthographic;
+			: Game::CameraComponent::Projection::Orthographic;*/
 	});
 }
 
@@ -75,8 +75,8 @@ void TestbenchWorld::OnTick(const Ryu::Utils::FrameTimer& timer)
 	t += timer.DeltaTimeF() * 1.5f;
 
 	// Spin the object
-	Game::Transform& meshTransform = m_meshEntity.GetComponent<Game::Transform>();
-	meshTransform.Orientation = Math::Quaternion::CreateFromYawPitchRoll(Math::Vector3(t, t, t));
+	//Game::Transform& meshTransform = m_meshEntity.GetComponent<Game::Transform>();
+	//meshTransform.Orientation = Math::Quaternion::CreateFromYawPitchRoll(Math::Vector3(t, t, t));
 
 	// Update the camera
 	const f32 speed = 10 * timer.DeltaTimeF();
@@ -96,9 +96,6 @@ void TestbenchWorld::OnTick(const Ryu::Utils::FrameTimer& timer)
 }
 
 #if defined(RYU_WITH_EDITOR)
-
-
-
 void TestbenchWorld::OnImGuiRender()
 {
 	RYU_PROFILE_SCOPE();

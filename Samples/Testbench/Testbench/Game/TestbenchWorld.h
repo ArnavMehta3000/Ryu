@@ -29,6 +29,6 @@ private:
 	Ryu::Game::InputManager* m_inputManager{ nullptr };
 	Ryu::Utils::FrameTimer    m_timer;
 	Ryu::Game::Entity         m_mainCamera;
-	Ryu::Game::Entity         m_meshEntity;
+	//Ryu::Game::Entity         m_meshEntity;
 	f32 m_speed = 0.0f;
 };

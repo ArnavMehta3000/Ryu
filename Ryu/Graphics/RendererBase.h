@@ -80,8 +80,6 @@ namespace Ryu::Gfx
         struct PipelineCallbacks
         {
             std::function<void(RendererBase&, u32)> BeforeFrame   = nullptr;
-            std::function<void(RendererBase&, u32)> BeforeAnimate = nullptr;
-            std::function<void(RendererBase&, u32)> AfterAnimate  = nullptr;
             std::function<void(RendererBase&, u32)> BeforeRender  = nullptr;
             std::function<void(RendererBase&, u32)> AfterRender   = nullptr;
             std::function<void(RendererBase&, u32)> BeforePresent = nullptr;

@@ -9,7 +9,7 @@ namespace Ryu::Gfx
 	public:
 		struct DrawInfo
 		{
-			D3D_PRIMITIVE_TOPOLOGY Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			//D3D_PRIMITIVE_TOPOLOGY Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			u32 VertexCountPerInstance      = 0;
 			u32 IndexCountPerInstance       = 0;
 			u32 InstanceCount               = 0;
@@ -21,11 +21,11 @@ namespace Ryu::Gfx
 
 	public:
 		Mesh() = default;
-		Mesh(Device* device, const Buffer::Desc& vbDesc, const Buffer::Desc* ibDesc);
+		//Mesh(Device* device, const Buffer::Desc& vbDesc, const Buffer::Desc* ibDesc);
 
 		[[nodiscard]] inline bool HasIndexBuffer() const         { return false; /*m_indexBuffer != nullptr;*/ }
-		[[nodiscard]] inline Buffer* GetVertexBuffer() const     { return nullptr; /*m_vertexBuffer.get();*/     }
-		[[nodiscard]] inline Buffer* GetIndexBuffer() const      { return nullptr; /*m_indexBuffer.get();*/      }
+		//[[nodiscard]] inline Buffer* GetVertexBuffer() const     { return nullptr; /*m_vertexBuffer.get();*/     }
+		//[[nodiscard]] inline Buffer* GetIndexBuffer() const      { return nullptr; /*m_indexBuffer.get();*/      }
 		[[nodiscard]] inline const DrawInfo& GetDrawInfo() const { return m_drawInfo;               }
 		[[nodiscard]] inline DrawInfo& GetDrawInfo()             { return m_drawInfo;               }
 		inline void SetDrawInfo(const DrawInfo& info)            { m_drawInfo = info;               }

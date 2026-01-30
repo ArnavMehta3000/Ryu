@@ -1,7 +1,6 @@
 #pragma once
 #include "Asset/AssetData.h"
 #include "Graphics/Mesh.h"
-#include "Graphics/Core/GfxTexture.h"
 
 namespace Ryu::Gfx
 {

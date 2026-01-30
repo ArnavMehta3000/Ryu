@@ -4,8 +4,6 @@
 #include "Asset/IGpuResourceFactory.h"
 #include "Core/Profiling/Profiling.h"
 #include "Graphics/CommonStates.h"
-#include "Graphics/Core/GfxCommandList.h"
-#include "Graphics/Core/GfxDevice.h"
 #include "Graphics/IRendererHook.h"
 #include "Graphics/Shader/ShaderLibrary.h"
 #include <span>
@@ -37,7 +35,7 @@ namespace Ryu::Gfx
 		, m_shaderLib(shaderLib)
 		, m_assetRegistry(registry)
 		, m_config(config)
-		, m_cbPool(device, FRAME_BUFFER_COUNT)
+		//, m_cbPool(device, FRAME_BUFFER_COUNT)
 	{
 		RYU_PROFILE_SCOPE();
 
@@ -88,13 +86,13 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		CommandList* cmdList = m_device->GetGraphicsCommandList();
+		//CommandList* cmdList = m_device->GetGraphicsCommandList();
 
 		BeginFrame();
 
 		if (gpuFactory)
 		{
-			gpuFactory->ProcessPendingUploads(*cmdList);
+			//gpuFactory->ProcessPendingUploads(*cmdList);
 		}
 
 		if (frame.Views.empty()) [[unlikely]]
@@ -127,7 +125,7 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		CommandList* cmdList = m_device->GetGraphicsCommandList();
+		//CommandList* cmdList = m_device->GetGraphicsCommandList();
 
 		// Set viewport and scissor based on camera
 		CD3DX12_VIEWPORT viewport(*view.CameraData.Viewport.Get12());
@@ -137,9 +135,9 @@ namespace Ryu::Gfx
 			static_cast<LONG>(view.CameraData.Viewport.x + view.CameraData.Viewport.width),
 			static_cast<LONG>(view.CameraData.Viewport.y + view.CameraData.Viewport.height));
 
-		cmdList->SetViewports(
+		/*cmdList->SetViewports(
 			std::span<const CD3DX12_VIEWPORT>(&viewport, 1),
-			std::span<const CD3DX12_RECT>(&scissor, 1));
+			std::span<const CD3DX12_RECT>(&scissor, 1));*/
 
 		// TODO: Pass timing info through RenderFrame
 		BindPerFrameData(view.CameraData, 0.0f, 0.0f);
@@ -170,12 +168,12 @@ namespace Ryu::Gfx
 		RYU_PROFILE_SCOPE();
 
 		u32 totalDescriptors = m_config.MaxConstantBuffers + 1; // +1 for frame CB
-		m_cbvHeap = std::make_unique<DescriptorHeap>(
+		/*m_cbvHeap = std::make_unique<DescriptorHeap>(
 			m_device,
 			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
 			totalDescriptors,
 			true,
-			"Scene CBV Heap");
+			"Scene CBV Heap");*/
 
 		CreatePipelineState();
 	}
@@ -185,13 +183,13 @@ namespace Ryu::Gfx
 		RYU_PROFILE_SCOPE();
 
 		RYU_TODO("Load shaders from a configurable source instead of hardcoding")
-		Shader* vs = m_shaderLib->GetShader("MeshVS");
-		Shader* ps = m_shaderLib->GetShader("MeshPS");
+		//Shader* vs = m_shaderLib->GetShader("MeshVS");
+		//Shader* ps = m_shaderLib->GetShader("MeshPS");
 
-		RYU_ASSERT(vs && vs->IsValid(), "Failed to get valid vertex shader!");
-		RYU_ASSERT(ps && ps->IsValid(), "Failed to get valid pixel shader!");
+		//RYU_ASSERT(vs && vs->IsValid(), "Failed to get valid vertex shader!");
+		//RYU_ASSERT(ps && ps->IsValid(), "Failed to get valid pixel shader!");
 
-		m_rootSignature = std::make_unique<RootSignature>(m_device, vs->GetRootSignature(), "Root Signature");
+		//m_rootSignature = std::make_unique<RootSignature>(m_device, vs->GetRootSignature(), "Root Signature");
 
 		const D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
 		{
@@ -201,8 +199,8 @@ namespace Ryu::Gfx
 			{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
 
-		Shader::Blob* const vsBlob = vs->GetBlob();
-		Shader::Blob* const psBlob = ps->GetBlob();
+		//Shader::Blob* const vsBlob = vs->GetBlob();
+		//Shader::Blob* const psBlob = ps->GetBlob();
 
 		struct PipelineStateStream
 		{
@@ -217,11 +215,11 @@ namespace Ryu::Gfx
 		};
 
 		PipelineStateStream psoStream{};
-		psoStream.RootSignature     = m_rootSignature->GetNative();
+		//psoStream.RootSignature     = m_rootSignature->GetNative();
 		psoStream.InputLayout       = { inputElementDescs, static_cast<u32>(std::size(inputElementDescs)) };
 		psoStream.PrimitiveTopology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		psoStream.VS                = CD3DX12_SHADER_BYTECODE(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize());
-		psoStream.PS                = CD3DX12_SHADER_BYTECODE(psBlob->GetBufferPointer(), psBlob->GetBufferSize());
+		//psoStream.VS                = CD3DX12_SHADER_BYTECODE(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize());
+		//psoStream.PS                = CD3DX12_SHADER_BYTECODE(psBlob->GetBufferPointer(), psBlob->GetBufferSize());
 		psoStream.Rasterizer        = m_config.EnableWireframe ? CommonStates::RSWireframe() : CommonStates::RSCullCounterClockwise();
 		psoStream.BlendDesc         = CommonStates::BSOpaque();
 		psoStream.RTVFormats        =
@@ -236,14 +234,14 @@ namespace Ryu::Gfx
 			.pPipelineStateSubobjectStream = &psoStream
 		};
 
-		m_opaquePipeline = std::make_unique<PipelineState>(m_device, psoStreamDesc, "Opaque Pipeline State");
+		//m_opaquePipeline = std::make_unique<PipelineState>(m_device, psoStreamDesc, "Opaque Pipeline State");
 	}
 
 	void WorldRenderer::BeginFrame()
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_cbPool.ResetFrame(m_currentFrame);
+		/*m_cbPool.ResetFrame(m_currentFrame);
 
 		CommandList* cmdList = m_device->GetGraphicsCommandList();
 		const Texture* renderTarget = m_device->GetCurrentBackBuffer();
@@ -257,14 +255,14 @@ namespace Ryu::Gfx
 			D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-		m_device->SetBackBufferRenderTarget(true);
+		m_device->SetBackBufferRenderTarget(true);*/
 	}
 
 	void WorldRenderer::EndFrame()
 	{
 		RYU_PROFILE_SCOPE();
 
-		m_currentFrame++;
+		/*m_currentFrame++;
 		m_cbPool.Reclaim(m_currentFrame);
 
 		CommandList* cmdList = m_device->GetGraphicsCommandList();
@@ -275,16 +273,16 @@ namespace Ryu::Gfx
 			D3D12_RESOURCE_STATE_PRESENT);
 
 		m_device->EndFrame();
-		m_device->Present();
+		m_device->Present();*/
 	}
 
 	void WorldRenderer::RenderOpaquePass(const Gfx::RenderView& view)
 	{
 		RYU_PROFILE_SCOPE();
 
-		CommandList* cmdList = m_device->GetGraphicsCommandList();
+		//CommandList* cmdList = m_device->GetGraphicsCommandList();
 		// TODO: Improve pipeline state management - currently set during BeginFrame
-		cmdList->GetNative()->SetPipelineState(*m_opaquePipeline);
+		//cmdList->GetNative()->SetPipelineState(*m_opaquePipeline);
 
 		for (const auto& item : view.OpaqueItems)
 		{
@@ -301,8 +299,8 @@ namespace Ryu::Gfx
 			return;
 		}
 
-		CommandList* cmdList = m_device->GetGraphicsCommandList();
-		cmdList->GetNative()->SetPipelineState(*m_transparentPipeline);
+		//CommandList* cmdList = m_device->GetGraphicsCommandList();
+		//cmdList->GetNative()->SetPipelineState(*m_transparentPipeline);
 
 		for (const auto& item : view.TransparentItems)
 		{
@@ -314,7 +312,7 @@ namespace Ryu::Gfx
 	{
 		RYU_PROFILE_SCOPE();
 
-		Buffer* frameCB = m_cbPool.Acquire(sizeof(FrameConstants), m_currentFrame, "FrameCB");
+		/*Buffer* frameCB = m_cbPool.Acquire(sizeof(FrameConstants), m_currentFrame, "FrameCB");
 
 		FrameConstants data
 		{
@@ -328,14 +326,14 @@ namespace Ryu::Gfx
 		m_cbPool.UpdateBuffer(frameCB, &data, sizeof(FrameConstants));
 
 		CommandList* cmdList = m_device->GetGraphicsCommandList();
-		cmdList->SetGraphicsConstantBuffer(0, *frameCB);
+		cmdList->SetGraphicsConstantBuffer(0, *frameCB);*/
 	}
 
 	void WorldRenderer::DrawRenderItem(const RenderItem& item, const CameraData& camera)
 	{
 		RYU_PROFILE_SCOPE();
 
-		Mesh* mesh = m_assetRegistry->Meshes().GetGpu(item.MeshHandle);
+		/*Mesh* mesh = m_assetRegistry->Meshes().GetGpu(item.MeshHandle);
 		if (!mesh)
 		{
 			return;
@@ -362,7 +360,7 @@ namespace Ryu::Gfx
 		else
 		{
 			cmdList->DrawMeshInstanced(*mesh);
-		}
+		}*/
 	}
 
 	void WorldRenderer::OnResize(u32 width, u32 height)
@@ -371,7 +369,7 @@ namespace Ryu::Gfx
 
 		m_screenWidth  = width;
 		m_screenHeight = height;
-		m_device->ResizeBuffers(width, height);
+		//m_device->ResizeBuffers(width, height);
 
 		// Update default camera matrices and viewport
 		UpdateDefaultCameraProjection();

@@ -1,15 +1,16 @@
 #pragma once
-#include "Graphics/Core/GfxResourcePool.h"
-#include "Graphics/Core/GfxBuffer.h"
 #include <map>
 
 namespace Ryu::Gfx
 {
+	class Buffer;
+	class Device;
+
 	// Specialized constant buffer pool with size-based buckets
 	class ConstantBufferPool
 	{
 	public:
-		using BufferPoolMap = std::map<u32, std::unique_ptr<ResourcePool<Buffer>>>;
+		//using BufferPoolMap = std::map<u32, std::unique_ptr<ResourcePool<Buffer>>>;
 
 		struct PoolStats
 		{
@@ -20,7 +21,7 @@ namespace Ryu::Gfx
 		};
 
 	public:
-		ConstantBufferPool(Device* device, u32 maxFramesforeReclaim = FRAME_BUFFER_COUNT);
+		ConstantBufferPool(Device* device, u32 maxFramesforeReclaim = 2);
 		Buffer* Acquire(u32 sizeInBytes, u64 currentFrame, const std::string& name = "PooledCB");
 		void Release(Buffer* buffer);
 		void UpdateBuffer(Buffer* buffer, const void* data, u32 sizeInBytes, bool unmap = true);
@@ -30,13 +31,13 @@ namespace Ryu::Gfx
 		void Clear();
 
 	private:
-		ResourcePool<Buffer>& GetOrCreatePool(u32 size);
+		//ResourcePool<Buffer>& GetOrCreatePool(u32 size);
 
 	private:
 		Device*       m_device = nullptr;
-		BufferPoolMap m_pools;
+		//BufferPoolMap m_pools;
 		u32           m_maxFramesBeforeReclaim = 0;
 	};
 
-	using ScopedConstantBuffer = ScopedPooledResource<Buffer, ConstantBufferPool>;
+	//using ScopedConstantBuffer = ScopedPooledResource<Buffer, ConstantBufferPool>;
 }

@@ -2,14 +2,14 @@
 
 namespace Ryu::Gfx
 {
-	Mesh::Mesh(Device* device, const Buffer::Desc& vbDesc, const Buffer::Desc* ibDesc)
-	{
-		/*m_vertexBuffer = std::make_unique<Buffer>(device, vbDesc);
-		if (ibDesc)
-		{
-			m_indexBuffer = std::make_unique<Buffer>(device, *ibDesc);
-		}*/
-	}
+	//Mesh::Mesh(Device* device, const Buffer::Desc& vbDesc, const Buffer::Desc* ibDesc)
+	//{
+	//	/*m_vertexBuffer = std::make_unique<Buffer>(device, vbDesc);
+	//	if (ibDesc)
+	//	{
+	//		m_indexBuffer = std::make_unique<Buffer>(device, *ibDesc);
+	//	}*/
+	//}
 	
 	void Mesh::UploadBufferData(const CommandList& cmdList, void* vbData, void* ibData)
 	{

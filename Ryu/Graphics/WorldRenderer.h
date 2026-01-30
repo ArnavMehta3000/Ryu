@@ -1,8 +1,5 @@
 #pragma once
 #include "Graphics/ConstantBufferPool.h"
-#include "Graphics/Core/GfxDescriptorHeap.h"
-#include "Graphics/Core/GfxPipelineState.h"
-#include "Graphics/Core/GfxRootSignature.h"
 #include "Graphics/RenderData.h"
 
 namespace Ryu::Asset { class AssetRegistry; class IGpuResourceFactory; }
@@ -63,11 +60,11 @@ namespace Ryu::Gfx
 		Asset::AssetRegistry*           m_assetRegistry = nullptr;
 		Config                          m_config{};
 
-		std::unique_ptr<RootSignature>  m_rootSignature;
-		std::unique_ptr<PipelineState>  m_opaquePipeline;
-		std::unique_ptr<PipelineState>  m_transparentPipeline;
-		std::unique_ptr<DescriptorHeap> m_cbvHeap;
-		ConstantBufferPool              m_cbPool;
+		//std::unique_ptr<RootSignature>  m_rootSignature;
+		//std::unique_ptr<PipelineState>  m_opaquePipeline;
+		//std::unique_ptr<PipelineState>  m_transparentPipeline;
+		//std::unique_ptr<DescriptorHeap> m_cbvHeap;
+		//ConstantBufferPool              m_cbPool;
 
 		CameraData                      m_defaultCamera{};
 		u32                             m_screenWidth   = 1920;

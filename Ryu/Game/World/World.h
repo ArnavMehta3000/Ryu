@@ -21,8 +21,10 @@ namespace Ryu::Game
 
 		Entity CreateEntity(const std::string& name = "");
 		void DestroyEntity(Entity& entity);
+		void DestroyEntity(EntityHandle handle);
 		void DestroyEntityImmediate(const Entity& entity);
-		Entity GetEntityByHandle(EntityHandle handle);
+		void DestroyEntityImmediate(EntityHandle handle);
+		Entity GetEntityFromHandle(EntityHandle handle);
 
 		u64 GetEntityCount() const;
 		void ProcessPendingDestructions();

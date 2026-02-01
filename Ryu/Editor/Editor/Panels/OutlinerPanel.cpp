@@ -33,7 +33,7 @@ namespace Ryu::Editor
 
 	Game::Entity OutlinerPanel::GetSelectedEntity() const
 	{
-		return m_world ? m_world->GetEntityByHandle(m_selectedEntity) : Game::Entity();
+		return m_world ? m_world->GetEntityFromHandle(m_selectedEntity) : Game::Entity();
 	}
 
 	void OutlinerPanel::DrawOutliner(Game::Registry& registry)
@@ -83,7 +83,7 @@ namespace Ryu::Editor
 		const std::string UUID = metadata.GetUUIDPretty();
 		const std::string nodeId = metadata.Name + "##" + UUID;
 
-		bool nodeOpen = ImGui::TreeNodeEx(nodeId.c_str(), flags);
+		ImGui::TreeNodeEx(nodeId.c_str(), flags);
 
 		// Handle entity selection
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
@@ -102,8 +102,7 @@ namespace Ryu::Editor
 		{
 			if (ImGui::MenuItem("Delete"))
 			{
-				Game::Entity e = m_world->GetEntityByHandle(entity);
-				m_world->DestroyEntity(e);
+				m_world->DestroyEntity(entity);
 			}
 			ImGui::EndPopup();
 		}

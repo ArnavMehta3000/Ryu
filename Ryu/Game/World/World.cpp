@@ -35,6 +35,12 @@ namespace Ryu::Game
 		}
 	}
 
+	void World::DestroyEntity(EntityHandle handle)
+	{
+		Entity e = GetEntityFromHandle(handle);
+		DestroyEntity(e);
+	}
+
 	void World::DestroyEntityImmediate(const Entity& entity)
 	{
 		if (entity.IsValid() && entity.GetWorld() == this)
@@ -47,14 +53,20 @@ namespace Ryu::Game
 		}
 	}
 
-	Entity World::GetEntityByHandle(EntityHandle handle)
+	void World::DestroyEntityImmediate(EntityHandle handle)
+	{
+		Entity e = GetEntityFromHandle(handle);
+		DestroyEntityImmediate(e);
+	}
+
+	Entity World::GetEntityFromHandle(EntityHandle handle)
 	{
 		if (m_registry.valid(handle))
 		{
 			return Entity(handle, this);
 		}
 
-		RYU_LOG_WARN("Tried to get entity with an invalid handle (id:{})", (EntityHandleType)handle);
+		RYU_LOG_WARN("Tried to get entity with an invalid handle (id:{})", static_cast<EntityHandleType>(handle));
 		return Entity();
 	}
 

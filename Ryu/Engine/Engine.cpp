@@ -130,9 +130,18 @@ namespace Ryu::Engine
 		frameTimer.SetMaxDeltaTime(FALLBACK_DELTA_TIME);
 
 		RYU_ASSERT(m_currentApp, "No application to run!");
-		Window::Window* appWindow = m_currentApp->GetWindow();
+		if (!m_currentApp) 
+		{
+			RYU_LOG_ERROR("No application to run!");
+			return;
+		}
 
-		RYU_ASSERT(appWindow, "Application must have a valid window");
+		Window::Window* appWindow = m_currentApp->GetWindow();
+		if (!appWindow)
+		{
+			RYU_LOG_ERROR("Application has no window!");
+			return;
+		}
 
 		while (m_currentApp->IsRunning())
 		{

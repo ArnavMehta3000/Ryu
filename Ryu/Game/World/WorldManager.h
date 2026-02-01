@@ -22,10 +22,6 @@ namespace Ryu::Game
 
 		void OnTick(const Utils::FrameTimer& timer);
 
-#if defined(RYU_WITH_EDITOR)
-		void OnImGuiRender();  // Should be called by the editor
-#endif
-
 	private:
 		void InitWorld();
 		void ShutdownWorld();

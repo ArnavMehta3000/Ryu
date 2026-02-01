@@ -6,6 +6,7 @@
 #include "Editor/Application/ImGuiFonts.h"
 #include "Editor/Application/ImGuiThemes.h"
 #include "Editor/Panels/ComponentPanels/CameraComponentPanel.h"
+#include "Editor/Panels/ComponentPanels/MeshRendererPanel.h"
 #include "Editor/Panels/ComponentPanels/TransformComponentPanel.h"
 #include "Editor/Panels/EntityDetailsPanel.h"
 #include "Editor/Panels/HotReloadPanel.h"
@@ -166,6 +167,7 @@ namespace Ryu::Editor
 
 		entityDetails->RegisterComponentPanel<Game::Transform>(std::make_unique<TransformComponentPanel>());
 		entityDetails->RegisterComponentPanel<Game::CameraComponent>(std::make_unique<CameraComponentPanel>(), true);
+		entityDetails->RegisterComponentPanel<Game::MeshRenderer>(std::make_unique<MeshRendererPanel>(), true);
 
 
 		// Add hot-reload panel
@@ -432,22 +434,13 @@ namespace Ryu::Editor
 
 		RYU_PROFILE_SCOPE();
 
-		ImGui::ShowDemoWindow();
+		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
 #if defined(RYU_HOT_RELOAD)
 		// Game's ImGui rendering (hot-reload path)
 		if (m_moduleHost && m_moduleHost->IsLoaded())
 		{
 			m_moduleHost->OnEditorRender();
-		}
-#else
-		// Static linking path
-		if (m_userApp)
-		{
-			if (Game::WorldManager* manager = m_userApp->GetWorldManager())  [[likely]]
-			{
-				manager->OnImGuiRender();
-			}
 		}
 #endif
 

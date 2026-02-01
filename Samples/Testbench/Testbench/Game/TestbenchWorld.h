@@ -21,10 +21,6 @@ protected:
 	void OnDestroy() override;
 	void OnTick(const Ryu::Utils::FrameTimer& timer) override;
 
-#if defined(RYU_WITH_EDITOR)
-	void OnImGuiRender() override;
-#endif
-
 private:
 	Ryu::Game::InputManager* m_inputManager{ nullptr };
 	Ryu::Utils::FrameTimer    m_timer;

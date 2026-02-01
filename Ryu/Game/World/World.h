@@ -48,10 +48,6 @@ namespace Ryu::Game
 		virtual void OnDestroy();
 		virtual void OnTick(const Utils::FrameTimer& timer);
 
-#if defined(RYU_WITH_EDITOR)
-		virtual void OnImGuiRender();  // Should be invoked by WorldManager
-#endif
-
 	private:
 		WorldManager*             m_worldManager = nullptr;
 		std::string               m_name;

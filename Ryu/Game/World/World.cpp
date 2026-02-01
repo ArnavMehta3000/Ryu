@@ -111,8 +111,4 @@ namespace Ryu::Game
 	void World::OnDestroy() { }
 
 	void World::OnTick(const Utils::FrameTimer&) { }
-
-#if defined(RYU_WITH_EDITOR)
-	void World::OnImGuiRender() { }
-#endif
 }

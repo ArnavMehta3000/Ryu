@@ -19,16 +19,6 @@ namespace Ryu::Game
 		}
 	}
 
-#if defined(RYU_WITH_EDITOR)
-	void WorldManager::OnImGuiRender()
-	{
-		if (m_activeWorld)
-		{
-			m_activeWorld->OnImGuiRender();
-		}
-	}
-#endif
-
 	void WorldManager::InitWorld()
 	{
 		if (m_activeWorld)

@@ -5,6 +5,7 @@
 #include "Core/Profiling/Profiling.h"
 #include "Editor/Application/ImGuiFonts.h"
 #include "Editor/Application/ImGuiThemes.h"
+#include "Editor/Panels/AssetsPanel.h"
 #include "Editor/Panels/ComponentPanels/CameraComponentPanel.h"
 #include "Editor/Panels/ComponentPanels/MeshRendererPanel.h"
 #include "Editor/Panels/ComponentPanels/TransformComponentPanel.h"
@@ -12,13 +13,12 @@
 #include "Editor/Panels/HotReloadPanel.h"
 #include "Editor/Panels/MenuBarPanel.h"
 #include "Editor/Panels/OutlinerPanel.h"
+#include "Engine/Engine.h"
 #include "Game/IGameModule.h"
 #include "Game/World/WorldManager.h"
-#include "Graphics/Core/GfxDevice.h"
 #include <ImGui/backends/imgui_impl_dx12.h>
 #include <ImGui/backends/imgui_impl_win32.h>
 #include <ImGui/imgui.h>
-
 
 namespace Ryu::Editor
 {
@@ -159,6 +159,7 @@ namespace Ryu::Editor
 	void EditorApp::InitEditorPanels()
 	{
 		Game::World* world = GetWorldManager() ? GetWorldManager()->GetActiveWorld() : nullptr;
+		Gfx::Renderer* renderer = Engine::Engine::Get().GetRenderer();
 
 		// Menu bar panel
 		m_editorPanels[MenuBarPanel::Name] = std::make_unique<MenuBarPanel>(this);
@@ -174,6 +175,9 @@ namespace Ryu::Editor
 		entityDetails->RegisterComponentPanel<Game::Transform>(std::make_unique<TransformComponentPanel>());
 		entityDetails->RegisterComponentPanel<Game::CameraComponent>(std::make_unique<CameraComponentPanel>(), true);
 		entityDetails->RegisterComponentPanel<Game::MeshRenderer>(std::make_unique<MeshRendererPanel>(), true);
+
+		// Assets panel
+		m_editorPanels[AssetsPanel::Name] = std::make_unique<AssetsPanel>(this, renderer->GetAssetRegistry());
 
 
 		// Add hot-reload panel

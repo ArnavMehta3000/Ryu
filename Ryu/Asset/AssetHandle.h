@@ -44,3 +44,17 @@ struct std::hash<Ryu::Asset::AssetHandle<T>>
 		return std::hash<Ryu::Asset::AssetId>{}(h.id);
 	}
 };
+
+RYU_ENUM_TO_STRING(Ryu::Asset::AssetState,
+{
+	switch (value)
+	{
+		using enum Ryu::Asset::AssetState;
+	case Unloaded: return "Unloaded";
+	case Loading:  return "Loading";
+	case Loaded:   return "Loaded";
+	case Ready:    return "Ready";
+	case Failed:   return "Failed";
+	default:       return "Unknown";
+	}
+})

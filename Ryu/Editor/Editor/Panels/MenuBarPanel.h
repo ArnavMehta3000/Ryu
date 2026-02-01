@@ -3,9 +3,6 @@
 
 namespace Ryu::Editor
 {
-	class OutlinerPanel;
-	class EntityDetailsPanel;
-
 	class MenuBarPanel : public IEditorPanel
 	{
 	public:
@@ -13,6 +10,7 @@ namespace Ryu::Editor
 
 	public:
 		using IEditorPanel::IEditorPanel;
+		virtual ~MenuBarPanel() override = default;
 
 		void OnImGuiRender() override;
 
@@ -20,7 +18,8 @@ namespace Ryu::Editor
 		void CachePanels();
 
 	private:
-		OutlinerPanel* m_outliner = nullptr;
-		EntityDetailsPanel* m_entityDetails = nullptr;
+		class OutlinerPanel* m_outliner = nullptr;
+		class EntityDetailsPanel* m_entityDetails = nullptr;
+		class AssetsPanel* m_assetsPanel = nullptr;
 	};
 }

@@ -22,6 +22,7 @@ namespace Ryu::Asset
 			AssetState                    State = AssetState::Unloaded;
 			u32                           RefCount = 0;
 			bool                          IsProcedural = false;  // Generated, not loaded from disk
+			std::string                   DisplayName;
 		};
 
 	public:

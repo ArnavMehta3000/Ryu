@@ -50,9 +50,9 @@ namespace Ryu::Editor
 		[[nodiscard]] std::shared_ptr<App::App> GetUserApp() const { return m_userApp; }
 
 		template <typename T> requires std::is_base_of_v<IEditorPanel, T>
-		T* GetEditorPanel(const char* panelName) 
+		T* GetEditorPanel() 
 		{
-			return m_editorPanels.contains(panelName) ? static_cast<T*>(m_editorPanels[panelName].get()) : nullptr;
+			return m_editorPanels.contains(T::Name) ? static_cast<T*>(m_editorPanels[T::Name].get()) : nullptr;
 		}
 
 #if defined(RYU_HOT_RELOAD)

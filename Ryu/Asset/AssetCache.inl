@@ -29,7 +29,8 @@ namespace Ryu::Asset
 		{
 			.SourcePath   = path,
 			.State        = AssetState::Unloaded,
-			.IsProcedural = false
+			.IsProcedural = false,
+			.DisplayName  = path.filename().string()
 		};
 
 		m_entries[id] = std::move(entry);
@@ -56,6 +57,7 @@ namespace Ryu::Asset
 		   .SourcePath   = name,
 		   .State        = AssetState::Loaded,  // CPU data already provided
 		   .IsProcedural = true,
+		   .DisplayName  = std::string(name)
 		};
 
 		m_entries[id] = std::move(entry);

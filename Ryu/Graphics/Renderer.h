@@ -32,7 +32,7 @@ namespace Ryu::Gfx
 
 		void RenderWorld(Game::World& world, const Utils::FrameTimer& frameTimer);
 		void OnResize(u32 w, u32 h);
-	
+			
 	private:
 		std::unique_ptr<Device> m_device;
 		GpuResourceFactory      m_gpuFactory;

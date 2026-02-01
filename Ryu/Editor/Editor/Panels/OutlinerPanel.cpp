@@ -24,19 +24,23 @@ namespace Ryu::Editor
 	void OutlinerPanel::OnImGuiRender()
 	{
 		ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
-		if (ImGui::Begin("Outliner##OutlinerPanel", &m_isOpen, ImGuiWindowFlags_None))
+		
+		if (IsOpen)
 		{
-			if (!m_world)  [[unlikely]]
+			if (ImGui::Begin("Outliner##OutlinerPanel", &IsOpen, ImGuiWindowFlags_None))
 			{
-				// No world loaded
-				ImGui::Text("No world loaded");
+				if (!m_world) [[unlikely]]
+				{
+					// No world loaded
+					ImGui::Text("No world loaded");
+				}
+				else
+				{
+					DrawOutliner(m_world->GetRegistry());
+				}
 			}
-			else
-			{
-				DrawOutliner(m_world->GetRegistry());
-			}
+			ImGui::End();
 		}
-		ImGui::End();
 
 		// Since this function is called once per frame, handle event queue here
 		// ProcessEventQueue();  // Commented this since I don't plan to use queued events with ImGui here

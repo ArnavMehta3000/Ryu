@@ -15,7 +15,12 @@ namespace Ryu::Editor
 	
 	void EntityDetailsPanel::OnImGuiRender()
 	{
-		if (ImGui::Begin("Entity Details##EntityDetailsPanel", &m_isOpen))
+		if (!IsOpen)
+		{
+			return;
+		}
+
+		if (ImGui::Begin("Entity Details##EntityDetailsPanel", &IsOpen))
 		{
 			if (m_selectedEntity = m_outlinerPanel->GetSelectedEntity(); m_selectedEntity.IsValid())
 			{

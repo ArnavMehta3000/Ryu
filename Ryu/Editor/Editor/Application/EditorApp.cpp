@@ -10,6 +10,7 @@
 #include "Editor/Panels/ComponentPanels/TransformComponentPanel.h"
 #include "Editor/Panels/EntityDetailsPanel.h"
 #include "Editor/Panels/HotReloadPanel.h"
+#include "Editor/Panels/MenuBarPanel.h"
 #include "Editor/Panels/OutlinerPanel.h"
 #include "Game/IGameModule.h"
 #include "Game/World/WorldManager.h"
@@ -158,10 +159,15 @@ namespace Ryu::Editor
 	void EditorApp::InitEditorPanels()
 	{
 		Game::World* world = GetWorldManager() ? GetWorldManager()->GetActiveWorld() : nullptr;
+
+		// Menu bar panel
+		m_editorPanels[MenuBarPanel::Name] = std::make_unique<MenuBarPanel>(this);
 		
+		// Outliner panel
 		m_editorPanels[OutlinerPanel::Name] = std::make_unique<OutlinerPanel>(this, world);
 		OutlinerPanel* outliner = static_cast<OutlinerPanel*>(m_editorPanels[OutlinerPanel::Name].get());
 
+		// Entity details panel
 		m_editorPanels[EntityDetailsPanel::Name] = std::make_unique<EntityDetailsPanel>(this, outliner);
 		EntityDetailsPanel* entityDetails = static_cast<EntityDetailsPanel*>(m_editorPanels[EntityDetailsPanel::Name].get());
 

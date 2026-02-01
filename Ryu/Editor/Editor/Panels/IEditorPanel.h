@@ -12,13 +12,13 @@ namespace Ryu::Editor
 		IEditorPanel(EditorApp* app) : m_editorApp(app) {}
 		virtual ~IEditorPanel() {}
 
-		inline bool IsOpen() const { return m_isOpen; }
-		inline void SetOpen(bool isOpen) { m_isOpen = isOpen; }
-
 		virtual void OnImGuiRender() = 0;
 
 	protected:
-		bool m_isOpen = true;
+		[[nodiscard]] inline EditorApp* GetEditorApp() const { return m_editorApp; }
+
+	public:
+		bool IsOpen = true;
 
 	private:
 		EditorApp* m_editorApp = nullptr;

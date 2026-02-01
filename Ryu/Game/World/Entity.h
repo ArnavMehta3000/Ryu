@@ -6,6 +6,7 @@ namespace Ryu::Game
 {
 	constexpr auto InvalidEntityHandle = entt::null;
 
+	// Lightweight wrapper around World and entt entity
 	class Entity
 	{
 		friend class World;

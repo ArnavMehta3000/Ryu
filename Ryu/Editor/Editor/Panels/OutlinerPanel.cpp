@@ -1,11 +1,19 @@
 #include "Editor/Panels/OutlinerPanel.h"
-#include "Game/World/Entity.h"
 #include "Game/Components/EntityMetadata.h"
 #include <ImGui/imgui.h>
-#include <ranges>
 
 namespace Ryu::Editor
 {
+	OutlinerPanel::OnEntitySelectedEvent::OnEntitySelectedEvent() : m_world(nullptr), m_handle(Game::InvalidEntityHandle) { };
+
+	OutlinerPanel::OnEntitySelectedEvent::OnEntitySelectedEvent(Game::World* world, Ryu::Game::EntityHandle handle) : m_world(world), m_handle(handle) { }
+	
+	Game::Entity OutlinerPanel::OnEntitySelectedEvent::GetEntity()
+	{
+		return m_world ? m_world->GetEntityFromHandle(m_handle) : Game::Entity();
+	}
+
+
 	OutlinerPanel::OutlinerPanel(EditorApp* app, Game::World* world)
 		: IEditorPanel(app)
 		, m_world(world)
@@ -29,6 +37,9 @@ namespace Ryu::Editor
 			}
 		}
 		ImGui::End();
+
+		// Since this function is called once per frame, handle event queue here
+		// ProcessEventQueue();  // Commented this since I don't plan to use queued events with ImGui here
 	}
 
 	Game::Entity OutlinerPanel::GetSelectedEntity() const
@@ -88,13 +99,13 @@ namespace Ryu::Editor
 		// Handle entity selection
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
 		{
-			m_selectedEntity = entity;
+			SelectEntity(entity);
 		}
 
 		// Context menu for entity
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		{
-			m_selectedEntity = entity;
+			SelectEntity(entity);
 			ImGui::OpenPopup("Entity Context Menu##OutlinerPanel");
 		}
 
@@ -106,10 +117,13 @@ namespace Ryu::Editor
 			}
 			ImGui::EndPopup();
 		}
-
-		if (ImGui::IsItemHovered())
+	}
+	
+	void OutlinerPanel::SelectEntity(Game::EntityHandle entity)
+	{
+		if (m_selectedEntity != entity)
 		{
-			ImGui::SetTooltip("Entity ID: %s", UUID.c_str());
-		}
+			m_selectedEntity = entity;
+		}		
 	}
 }

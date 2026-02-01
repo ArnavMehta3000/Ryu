@@ -41,6 +41,13 @@ namespace Ryu::Game
         metadata.Flags.reset();
     }
 
+    EntityFlag Entity::GetFlags() const
+    {
+        WorldCheck();
+		const auto& metadata = m_world->GetRegistry().get<EntityMetadata>(m_handle);
+		return static_cast<EntityFlag>(metadata.Flags.to_ulong());
+    }
+
     void Entity::MarkForDestroy()
     {
         SetFlag(EntityFlag::MarkedForDestroy, true);

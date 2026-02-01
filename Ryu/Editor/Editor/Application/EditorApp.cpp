@@ -7,6 +7,7 @@
 #include "Editor/Application/ImGuiThemes.h"
 #include "Editor/Panels/HotReloadPanel.h"
 #include "Editor/Panels/OutlinerPanel.h"
+#include "Editor/Panels/EntityDetailsPanel.h"
 #include "Game/IGameModule.h"
 #include "Game/World/WorldManager.h"
 #include "Graphics/Core/GfxDevice.h"
@@ -155,6 +156,9 @@ namespace Ryu::Editor
 	{
 		Game::World* world = GetWorldManager() ? GetWorldManager()->GetActiveWorld() : nullptr;
 		m_editorPanels[OutlinerPanel::Name] = std::make_unique<OutlinerPanel>(this, world);
+
+		OutlinerPanel* outliner = static_cast<OutlinerPanel*>(m_editorPanels[OutlinerPanel::Name].get());
+		m_editorPanels[EntityDetailsPanel::Name] = std::make_unique<EntityDetailsPanel>(this, outliner);
 
 		// Add hot-reload panel
 #if defined (RYU_HOT_RELOAD)

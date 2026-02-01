@@ -8,6 +8,7 @@ namespace Ryu::Game
 {
 	struct MeshRenderer
 	{
+		static constexpr auto ComponentName = "Mesh Renderer";
 		RYU_ENABLE_REFLECTION(MeshRenderer)
 	public:
 		MeshRenderer();

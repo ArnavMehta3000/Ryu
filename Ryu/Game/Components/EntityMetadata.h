@@ -20,6 +20,7 @@ namespace Ryu::Game
 	// Every entity is going to have this as a component
 	struct EntityMetadata
 	{
+		static constexpr auto ComponentName = "Entity Metadata";
 		RYU_ENABLE_REFLECTION(EntityMetadata);
 	
 	public:

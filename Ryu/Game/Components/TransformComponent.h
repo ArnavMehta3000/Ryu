@@ -6,6 +6,7 @@ namespace Ryu::Game
 {
 	struct Transform
 	{
+		static constexpr auto ComponentName = "Transform";
 		RYU_ENABLE_REFLECTION(Transform)
 
 	public:

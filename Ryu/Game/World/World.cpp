@@ -66,7 +66,7 @@ namespace Ryu::Game
 			return Entity(handle, this);
 		}
 
-		RYU_LOG_WARN("Tried to get entity with an invalid handle (id:{})", static_cast<EntityHandleType>(handle));
+		//RYU_LOG_WARN("Tried to get entity with an invalid handle (id:{})", static_cast<EntityHandleType>(handle));
 		return Entity();
 	}
 

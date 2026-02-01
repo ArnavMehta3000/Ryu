@@ -1,15 +1,28 @@
 #pragma once
 #include "Editor/Panels/IEditorPanel.h"
-#include "Game/World/World.h"
+#include "Game/World/Entity.h"
 
-namespace Ryu::Game { struct EntityMetadata; }
+namespace Ryu::Game { class Entity;  struct EntityMetadata; }
 
 namespace Ryu::Editor
 {
-	class OutlinerPanel : public IEditorPanel
+	class OutlinerPanel 
+		: public IEditorPanel
 	{
 	public:
 		static constexpr auto Name = "Outliner";
+
+		struct OnEntitySelectedEvent : Event::Event
+		{
+			OnEntitySelectedEvent();
+			OnEntitySelectedEvent(Game::World* world, Ryu::Game::EntityHandle handle);
+			
+			Game::Entity GetEntity();
+
+		private:
+			Game::EntityHandle m_handle;
+			Game::World* m_world;
+		};
 
 	public:
 		OutlinerPanel(EditorApp* app, Game::World* world);
@@ -24,6 +37,7 @@ namespace Ryu::Editor
 	private:
 		void DrawOutliner(Game::Registry& registry);
 		void DrawEntityNode(Game::Registry& registry, Game::EntityHandle entity, const Game::EntityMetadata& metadata);
+		void SelectEntity(Game::EntityHandle entity);
 
 	private:
 		Game::World* m_world;

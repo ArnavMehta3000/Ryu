@@ -1,26 +1,14 @@
 #include "Editor/Panels/EntityDetailsPanel.h"
 #include "Game/Components/EntityMetadata.h"
-#include "Game/Components/TransformComponent.h"
 #include <ImGui/imgui.h>
+#include <ranges>
 
 namespace Ryu::Editor
 {
-	class TransformComponentPanel : public ComponentPanel<Game::Transform>
-	{
-	public:
-		void DrawComponentUI(Game::Transform& component, Game::Entity )
-		{
-			ImGui::DragFloat3("Position", &component.Position.x, 0.1f, ImGuiSliderFlags_ColorMarkers);
-			//ImGui::DragFloat3("Rotation", &component.rotation, 0.1f, ImGuiSliderFlags_ColorMarkers);
-			ImGui::DragFloat3("Scale", &component.Scale.x, 0.1f, 0.01f, ImGuiSliderFlags_ColorMarkers);
-		}
-	};
-
 	EntityDetailsPanel::EntityDetailsPanel(EditorApp* app, OutlinerPanel* outlinerPanel)
 		: IEditorPanel(app)
 		, m_outlinerPanel(outlinerPanel)
 	{
-		RegisterComponentPanel<Game::Transform>(std::make_unique<TransformComponentPanel>());
 	}
 	
 	EntityDetailsPanel::~EntityDetailsPanel() = default;
@@ -93,13 +81,40 @@ namespace Ryu::Editor
 	void EntityDetailsPanel::DrawEntityMetadata()
 	{
 		if (!m_selectedEntity.IsValid())
-		{
 			return;
+
+		auto& metadata = m_selectedEntity.GetComponent<Game::EntityMetadata>();
+
+		static bool isRenaming = false;
+		static std::array<char, 256> nameBuffer{};
+
+		if (isRenaming)
+		{
+			ImGui::SetKeyboardFocusHere();
+			if (ImGui::InputText("##RenameEntity", nameBuffer.data(), nameBuffer.size(),
+				ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
+			{
+				metadata.Name = nameBuffer.data();
+				isRenaming = false;
+			}
+
+			if (ImGui::IsKeyPressed(ImGuiKey_Escape) ||
+				(!ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)))
+			{
+				isRenaming = false;
+			}
+		}
+		else
+		{
+			ImGui::Text("Entity: %s", metadata.Name.c_str());
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+			{
+				isRenaming = true;
+				std::ranges::fill(nameBuffer, '\0');
+				std::ranges::copy(metadata.Name, nameBuffer.begin());
+			}
 		}
 
-		const auto& metadata = m_selectedEntity.GetComponent<Game::EntityMetadata>();
-		
-		ImGui::Text("Entity: %s", metadata.Name.c_str());
 		ImGui::TextDisabled("UUID: %s", metadata.GetUUIDPretty().c_str());
 	}
 	
@@ -114,12 +129,14 @@ namespace Ryu::Editor
 
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed;
 
-		bool nodeOpen = ImGui::CollapsingHeader(componentName, flags);
-		if (nodeOpen)
+		if (panel->HasComponent(m_selectedEntity))
 		{
-			ImGui::Indent();
-			panel->OnImGuiRender(m_selectedEntity);
-			ImGui::Unindent();
+			if (ImGui::CollapsingHeader(componentName, flags))
+			{
+				ImGui::Indent();
+				panel->OnImGuiRender(m_selectedEntity);
+				ImGui::Unindent();
+			}
 		}
 	}
 	
@@ -130,7 +147,8 @@ namespace Ryu::Editor
 			return;
 		}
 
-		if (ImGui::Button("Add Component##EntityDetailsPanel", ImVec2(-1, 0)))
+		// Don't open the add component popup if no components are registered
+		if (ImGui::Button("Add Component##EntityDetailsPanel", ImVec2(-1, 0)) && m_availableComponents.size() > 0)
 		{
 			ImGui::OpenPopup("AddComponentPopup##EntityDetailsPanel");
 		}

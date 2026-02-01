@@ -15,6 +15,7 @@ namespace Ryu::Editor
 		virtual const char* GetComponentName() const = 0;
 		virtual u64 GetComponentTypeHash() const = 0;
 		virtual bool CanHandle(u64 componentTypeHash) const = 0;
+		virtual bool HasComponent(const Game::Entity& e) const = 0;
 	};
 
 	template <typename T>
@@ -29,7 +30,8 @@ namespace Ryu::Editor
 
 		inline const char* GetComponentName() const override { return ComponentType::ComponentName; }
 		inline u64 GetComponentTypeHash() const override { return typeid(ComponentType).hash_code(); }
-		inline bool CanHandle(u64 componentTypeHash) const override { return componentTypeHash == GetComponentTypeHash(); }
+		inline bool CanHandle(u64 componentTypeHash) const override { return componentTypeHash == GetComponentTypeHash(); }		
+		inline bool HasComponent(const Game::Entity& e) const override { return e.HasComponent<ComponentType>(); }
 
 		void OnImGuiRender(Game::Entity entity) override
 		{

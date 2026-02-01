@@ -1,5 +1,5 @@
 #pragma once
-#include "Editor/Panels/ComponentPanel.h"
+#include "Editor/Panels/ComponentPanels/ComponentPanel.h"
 #include "Editor/Panels/OutlinerPanel.h"
 
 namespace Ryu::Editor
@@ -18,10 +18,18 @@ namespace Ryu::Editor
 
 		void RegisterComponentType(const std::string& componentName, ComponentFactory factory);
 
-		template <typename ComponentType>
-		void RegisterComponentPanel(std::unique_ptr<IComponentPanel> panel)
+		template <HasComponentName ComponentType>
+		void RegisterComponentPanel(std::unique_ptr<IComponentPanel> panel, bool registerTypeForCreation = false)
 		{
 			m_componentPanels[typeid(ComponentType).hash_code()] = std::move(panel);
+
+			if (registerTypeForCreation)
+			{
+				RegisterComponentType(ComponentType::ComponentName, [](Game::Entity& e)
+				{
+					std::ignore = e.AddComponent<ComponentType>();
+				});
+			}
 		}
 
 		inline Game::Entity GetSelectedEntity() const { return m_outlinerPanel->GetSelectedEntity(); }

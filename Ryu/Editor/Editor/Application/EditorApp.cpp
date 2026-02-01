@@ -5,9 +5,11 @@
 #include "Core/Profiling/Profiling.h"
 #include "Editor/Application/ImGuiFonts.h"
 #include "Editor/Application/ImGuiThemes.h"
+#include "Editor/Panels/ComponentPanels/CameraComponentPanel.h"
+#include "Editor/Panels/ComponentPanels/TransformComponentPanel.h"
+#include "Editor/Panels/EntityDetailsPanel.h"
 #include "Editor/Panels/HotReloadPanel.h"
 #include "Editor/Panels/OutlinerPanel.h"
-#include "Editor/Panels/EntityDetailsPanel.h"
 #include "Game/IGameModule.h"
 #include "Game/World/WorldManager.h"
 #include "Graphics/Core/GfxDevice.h"
@@ -155,10 +157,16 @@ namespace Ryu::Editor
 	void EditorApp::InitEditorPanels()
 	{
 		Game::World* world = GetWorldManager() ? GetWorldManager()->GetActiveWorld() : nullptr;
+		
 		m_editorPanels[OutlinerPanel::Name] = std::make_unique<OutlinerPanel>(this, world);
-
 		OutlinerPanel* outliner = static_cast<OutlinerPanel*>(m_editorPanels[OutlinerPanel::Name].get());
+
 		m_editorPanels[EntityDetailsPanel::Name] = std::make_unique<EntityDetailsPanel>(this, outliner);
+		EntityDetailsPanel* entityDetails = static_cast<EntityDetailsPanel*>(m_editorPanels[EntityDetailsPanel::Name].get());
+
+		entityDetails->RegisterComponentPanel<Game::Transform>(std::make_unique<TransformComponentPanel>());
+		entityDetails->RegisterComponentPanel<Game::CameraComponent>(std::make_unique<CameraComponentPanel>(), true);
+
 
 		// Add hot-reload panel
 #if defined (RYU_HOT_RELOAD)

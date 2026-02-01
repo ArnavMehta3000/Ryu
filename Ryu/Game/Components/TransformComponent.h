@@ -9,7 +9,6 @@ namespace Ryu::Game
 		static constexpr auto ComponentName = "Transform";
 		RYU_ENABLE_REFLECTION(Transform)
 
-	public:
 		Transform(const SM::Vector3& position, const SM::Quaternion& orientation, const SM::Vector3& scale);
 		Transform(const SM::Vector3& position);
 		Transform(const SM::Vector3& position, const SM::Quaternion& rotation);

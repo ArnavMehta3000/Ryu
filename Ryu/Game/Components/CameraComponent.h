@@ -4,6 +4,8 @@ namespace Ryu::Game
 {
 	struct CameraComponent
 	{
+		static constexpr auto ComponentName = "Camera";
+
 		enum class Projection { Perspective, Orthographic };
 
 		Projection Mode               = Projection::Perspective;
@@ -16,9 +18,6 @@ namespace Ryu::Game
 		
 		u32 CullingMask               = 0xFFFFFFFF;
 		u32 Priority                  = 0;
-		
-		bool ShouldClear              = true;
-		bool IsEnabled                = true;
 	};
 }
 

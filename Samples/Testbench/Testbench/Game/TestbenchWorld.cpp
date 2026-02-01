@@ -22,7 +22,6 @@ void TestbenchWorld::OnCreate()
 	using Runtime = RYU_RUNTIME();
 
 	m_inputManager = Runtime::GetInputManager();
-	Ryu::Window::WindowSizePos size = Runtime::GetApplication()->GetWindow()->GetSize();
 	
 	// Create camera
 	m_mainCamera = CreateEntity("Main Camera");

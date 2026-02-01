@@ -36,8 +36,8 @@ namespace Ryu::Window
 		case WM_GETMINMAXINFO:
 		{
 			LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
-			lpMMI->ptMinTrackSize.x = static_cast<LONG>(m_config.WindowMinSize.X);
-			lpMMI->ptMinTrackSize.y = static_cast<LONG>(m_config.WindowMinSize.Y);
+			lpMMI->ptMinTrackSize.x = static_cast<LONG>(m_config.WindowMinSize.first);
+			lpMMI->ptMinTrackSize.y = static_cast<LONG>(m_config.WindowMinSize.second);
 			break;
 		}
 

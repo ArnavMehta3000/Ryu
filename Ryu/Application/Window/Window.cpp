@@ -19,36 +19,36 @@ namespace Ryu::Window
 		static constexpr auto g_windowAlreadyCreatedError = "Trying to create already created window.";
 
 		// Updates the window size from the cvars (if needed)
-		void UpdateWindowDimensions(WindowSizePos& current)
+		void UpdateWindowDimensions(std::pair<i32, i32>& current)
 		{
 			const i32 winWidth = cv_winWidth.Get();
 			const i32 winHeight = cv_winHeight.Get();
 
 			if (winWidth != -1)
 			{
-				current.Width = winWidth;
+				current.first = winWidth;
 			}
 
 			if (winHeight != -1)
 			{
-				current.Height = winHeight;
+				current.second= winHeight;
 			}
 		}
 
 		// Updates the window position from the cvars (if needed)
-		void UpdateWindowPosition(WindowSizePos& current, const WindowSizePos size)
+		void UpdateWindowPosition(std::pair<i32, i32>& current, const std::pair<i32, i32> size)
 		{
 			const i32 winPosX = cv_winPosX.Get();
 			const i32 winPosY = cv_winPosY.Get();
 
 			if (winPosX != CW_USEDEFAULT)
 			{
-				current.X = winPosX;
+				current.first = winPosX;
 			}
 
 			if (winPosY != CW_USEDEFAULT)
 			{
-				current.Y = winPosY;
+				current.second = winPosY;
 			}
 
 			// If no position cmdline arguments are passed in, then assume that the user may have set the position via the config struct
@@ -56,13 +56,13 @@ namespace Ryu::Window
 			// Since Internal::UpdateWindowPosition will not change the position value if cmdline doesn't override it
 
 			// Center on screen
-			if (current.X == CW_USEDEFAULT && current.Y == CW_USEDEFAULT)
+			if (current.first == CW_USEDEFAULT && current.second == CW_USEDEFAULT)
 			{
 				const HDC screenDC = ::GetDC(nullptr);
 				current =
 				{
-					.X = ::GetDeviceCaps(screenDC, HORZRES) / 2 - size.Width / 2,
-					.Y = ::GetDeviceCaps(screenDC, VERTRES) / 2 - size.Height / 2
+					::GetDeviceCaps(screenDC, HORZRES) / 2 - size.first / 2,
+					::GetDeviceCaps(screenDC, VERTRES) / 2 - size.second/ 2
 				};
 				::ReleaseDC(nullptr, screenDC);
 			}
@@ -78,8 +78,8 @@ namespace Ryu::Window
 
 	Window::Window(const Window::Config& config)
 		: m_config(config)
-		, m_prevSize({ config.WindowSize.Width, config.WindowSize.Height })
-		, m_currentSize({ config.WindowSize.Width, config.WindowSize.Height })
+		, m_prevSize({ config.WindowSize.first, config.WindowSize.second })
+		, m_currentSize({ config.WindowSize.first, config.WindowSize.second })
 	{
 		RYU_PROFILE_SCOPE();
 		::SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
@@ -109,7 +109,7 @@ namespace Ryu::Window
 		Internal::UpdateWindowDimensions(m_config.WindowSize);
 
 		// Calculate new window size based on style
-		RECT windowRect{ 0, 0, static_cast<LONG>(m_config.WindowSize.Width), static_cast<LONG>(m_config.WindowSize.Height) };
+		RECT windowRect{ 0, 0, static_cast<LONG>(m_config.WindowSize.first), static_cast<LONG>(m_config.WindowSize.second) };
 		::AdjustWindowRectEx(&windowRect, style, FALSE, 0);
 
 		const i32 windowWidth  = windowRect.right - windowRect.left;
@@ -124,7 +124,7 @@ namespace Ryu::Window
 			s_className,
 			windowTitle.c_str(),
 			style,
-			m_config.WindowPos.X, m_config.WindowPos.Y,
+			m_config.WindowPos.first, m_config.WindowPos.second,
 			windowWidth, windowHeight,
 			nullptr,  // Parent
 			nullptr,  // Menu
@@ -318,7 +318,7 @@ namespace Ryu::Window
 		// Only fire resize event if size changed
 		if (m_currentSize != m_prevSize)
 		{
-			Emit(ResizeEvent(m_hwnd, m_currentSize.Width, m_currentSize.Height));
+			Emit(ResizeEvent(m_hwnd, m_currentSize.first, m_currentSize.second));
 			m_prevSize = m_currentSize;
 		}
 	}

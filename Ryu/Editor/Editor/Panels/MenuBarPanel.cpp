@@ -30,6 +30,8 @@ namespace Ryu::Editor
 	
 	void MenuBarPanel::CachePanels()
 	{
+		RYU_PROFILE_SCOPE();
+
 		// Only re-cache if any panel is missing
 		if (m_outliner && m_entityDetails)
 		{

@@ -1,4 +1,6 @@
 #include "Editor/Panels/OutlinerPanel.h"
+
+#include "Core/Profiling/Profiling.h"
 #include "Game/Components/EntityMetadata.h"
 #include <ImGui/imgui.h>
 
@@ -23,24 +25,27 @@ namespace Ryu::Editor
 	
 	void OutlinerPanel::OnImGuiRender()
 	{
+		RYU_PROFILE_SCOPE();
+		if (!IsOpen)
+		{
+			return; 
+		}
+
 		ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
 		
-		if (IsOpen)
+		if (ImGui::Begin("Outliner##OutlinerPanel", &IsOpen, ImGuiWindowFlags_None))
 		{
-			if (ImGui::Begin("Outliner##OutlinerPanel", &IsOpen, ImGuiWindowFlags_None))
+			if (!m_world) [[unlikely]]
 			{
-				if (!m_world) [[unlikely]]
-				{
-					// No world loaded
-					ImGui::Text("No world loaded");
-				}
-				else
-				{
-					DrawOutliner(m_world->GetRegistry());
-				}
+				// No world loaded
+				ImGui::Text("No world loaded");
 			}
-			ImGui::End();
+			else
+			{
+				DrawOutliner(m_world->GetRegistry());
+			}
 		}
+		ImGui::End();
 
 		// Since this function is called once per frame, handle event queue here
 		// ProcessEventQueue();  // Commented this since I don't plan to use queued events with ImGui here
@@ -53,6 +58,8 @@ namespace Ryu::Editor
 
 	void OutlinerPanel::DrawOutliner(Game::Registry& registry)
 	{
+		RYU_PROFILE_SCOPE();
+
 		// Get all entities
 		auto view = registry.view<Game::EntityMetadata>();		
 		ImGui::BeginChild("EntityList##OutlinerPanel");
@@ -87,6 +94,8 @@ namespace Ryu::Editor
 	
 	void OutlinerPanel::DrawEntityNode([[maybe_unused]] Game::Registry& registry, Game::EntityHandle entity, const Game::EntityMetadata& metadata)
 	{
+		RYU_PROFILE_SCOPE();
+
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 		// Highlight selected entity

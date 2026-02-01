@@ -1,4 +1,6 @@
 #include "Editor/Panels/EntityDetailsPanel.h"
+
+#include "Core/Profiling/Profiling.h"
 #include "Game/Components/EntityMetadata.h"
 #include <ImGui/imgui.h>
 #include <ranges>
@@ -15,6 +17,8 @@ namespace Ryu::Editor
 	
 	void EntityDetailsPanel::OnImGuiRender()
 	{
+		RYU_PROFILE_SCOPE();
+
 		if (!IsOpen)
 		{
 			return;
@@ -45,6 +49,8 @@ namespace Ryu::Editor
 	
 	std::vector<IComponentPanel*> EntityDetailsPanel::GetComponentPanelsForSelectedEntity()
 	{
+		RYU_PROFILE_SCOPE();
+
 		std::vector<IComponentPanel*> panels;
 		if (!m_selectedEntity.IsValid())
 		{
@@ -65,6 +71,8 @@ namespace Ryu::Editor
 
 	void EntityDetailsPanel::DrawComponents()
 	{
+		RYU_PROFILE_SCOPE();
+
 		if (!m_selectedEntity.IsValid())
 		{
 			return;
@@ -85,6 +93,8 @@ namespace Ryu::Editor
 
 	void EntityDetailsPanel::DrawEntityMetadata()
 	{
+		RYU_PROFILE_SCOPE();
+
 		if (!m_selectedEntity.IsValid())
 			return;
 
@@ -125,6 +135,8 @@ namespace Ryu::Editor
 	
 	void EntityDetailsPanel::DrawComponentPanel(IComponentPanel* panel)
 	{
+		RYU_PROFILE_SCOPE();
+
 		if (!m_selectedEntity.IsValid())
 		{
 			return;
@@ -147,6 +159,8 @@ namespace Ryu::Editor
 	
 	void EntityDetailsPanel::DrawAddComponentButton()
 	{
+		RYU_PROFILE_SCOPE();
+
 		if (!m_selectedEntity.IsValid())
 		{
 			return;

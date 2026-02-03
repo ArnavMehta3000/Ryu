@@ -18,18 +18,18 @@ namespace Ryu::Asset
 	template<typename T>
 	struct AssetHandle
 	{
-		AssetId id = INVALID_ASSET_ID;
+		AssetId Id = INVALID_ASSET_ID;
 
 		constexpr AssetHandle() = default;
-		constexpr explicit AssetHandle(AssetId id) : id(id) {}
+		constexpr explicit AssetHandle(AssetId id) : Id(id) {}
 
 		// For use with entt::hashed_string
 		constexpr explicit AssetHandle(const char* str)
-			: id(std::hash<std::string_view>{}(str))
+			: Id(std::hash<std::string_view>{}(str))
 		{
 		}
 
-		[[nodiscard]] constexpr bool IsValid() const { return id != INVALID_ASSET_ID; }
+		[[nodiscard]] constexpr bool IsValid() const { return Id != INVALID_ASSET_ID; }
 		constexpr explicit operator bool() const { return IsValid(); }
 		constexpr bool operator==(const AssetHandle&) const = default;
 		constexpr auto operator<=>(const AssetHandle&) const = default;
@@ -41,7 +41,7 @@ struct std::hash<Ryu::Asset::AssetHandle<T>>
 {
 	size_t operator()(const Ryu::Asset::AssetHandle<T>& h) const noexcept
 	{
-		return std::hash<Ryu::Asset::AssetId>{}(h.id);
+		return std::hash<Ryu::Asset::AssetId>{}(h.Id);
 	}
 };
 
@@ -55,6 +55,6 @@ RYU_ENUM_TO_STRING(Ryu::Asset::AssetState,
 	case Loaded:   return "Loaded";
 	case Ready:    return "Ready";
 	case Failed:   return "Failed";
-	default:       return "Unknown";
+	default:       return "<Unknown>";
 	}
 })

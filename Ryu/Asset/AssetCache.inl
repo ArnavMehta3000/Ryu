@@ -85,7 +85,7 @@ namespace Ryu::Asset
 
 		std::unique_lock lock(m_mutex);
 
-		Entry* entry = FindEntry(handle.id);
+		Entry* entry = FindEntry(handle.Id);
 		if (!entry)
 		{
 			return nullptr;
@@ -138,7 +138,7 @@ namespace Ryu::Asset
 
 		std::unique_lock lock(m_mutex);
 
-		Entry* entry = FindEntry(handle.id);
+		Entry* entry = FindEntry(handle.Id);
 		if (!entry)
 		{
 			return nullptr;
@@ -166,7 +166,7 @@ namespace Ryu::Asset
 		RYU_PROFILE_SCOPE();
 		std::shared_lock lock(m_mutex);
 
-		if (const Entry* entry = FindEntry(handle.id))
+		if (const Entry* entry = FindEntry(handle.Id))
 		{
 			return entry->State;
 		}
@@ -180,7 +180,7 @@ namespace Ryu::Asset
 		RYU_PROFILE_SCOPE();
 		std::unique_lock lock(m_mutex);
 
-		if (Entry* entry = FindEntry(handle.id))
+		if (Entry* entry = FindEntry(handle.Id))
 		{
 			++entry->RefCount;
 		}
@@ -192,7 +192,7 @@ namespace Ryu::Asset
 		RYU_PROFILE_SCOPE();
 		std::unique_lock lock(m_mutex);
 
-		Entry* entry = FindEntry(handle.id);
+		Entry* entry = FindEntry(handle.Id);
 		if (!entry || entry->RefCount == 0)
 			return;
 
@@ -207,7 +207,7 @@ namespace Ryu::Asset
 		RYU_PROFILE_SCOPE();
 		std::unique_lock lock(m_mutex);
 
-		Entry* entry = FindEntry(handle.id);
+		Entry* entry = FindEntry(handle.Id);
 		if (!entry || entry->IsProcedural)
 		{
 			return;

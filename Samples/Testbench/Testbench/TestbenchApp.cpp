@@ -38,7 +38,7 @@ bool TestbenchApp::OnInit()
 
 	m_worldManager.CreateWorld<TestbenchWorld>();
 
-	TestSerialization();
+	//TestSerialization();
 
 	return true;
 }

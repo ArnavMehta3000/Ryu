@@ -11,7 +11,7 @@ namespace Ryu::Editor
 		void DrawComponentUI(Game::MeshRenderer& component, Game::Entity)
 		{
 			ImGui::Checkbox("Is Visible##MeshRendererPanel", &component.IsVisible);
-			ImGui::Text("Asset ID: %llu", component.MeshHandle.id);
+			ImGui::Text("Asset ID: %llu", component.MeshHandle.Id);
 		}
 	};
 }

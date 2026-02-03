@@ -149,20 +149,20 @@ namespace Ryu::Editor
 				if (!PassesFilter(entry.DisplayName, isEngine)) return;
 
 				ImGui::TableNextRow();
-				ImGui::PushID(static_cast<int>(handle.id));
+				ImGui::PushID(static_cast<int>(handle.Id));
 
 				// Name column
 				ImGui::TableNextColumn();
-				bool isSelected = (m_selectedAsset == handle.id);
+				bool isSelected = (m_selectedAsset == handle.Id);
 				if (ImGui::Selectable(entry.DisplayName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
 				{
-					m_selectedAsset = handle.id;
+					m_selectedAsset = handle.Id;
 				}
 
 				// Drag source
 				if (ImGui::BeginDragDropSource())
 				{
-					ImGui::SetDragDropPayload("Mesh", &handle.id, sizeof(Asset::AssetId));
+					ImGui::SetDragDropPayload("Mesh", &handle.Id, sizeof(Asset::AssetId));
 					ImGui::Text("Mesh: %s", entry.DisplayName.c_str());
 					ImGui::EndDragDropSource();
 				}
@@ -175,7 +175,7 @@ namespace Ryu::Editor
 					if (ImGui::MenuItem("Copy Handle ID"))
 					{
 						char buf[32];
-						snprintf(buf, sizeof(buf), "%llu", static_cast<unsigned long long>(handle.id));
+						snprintf(buf, sizeof(buf), "%llu", static_cast<unsigned long long>(handle.Id));
 						ImGui::SetClipboardText(buf);
 					}
 					if (!isEngine && ImGui::MenuItem("Delete")) { /* TODO */ }
@@ -210,20 +210,20 @@ namespace Ryu::Editor
 				if (!PassesFilter(entry.DisplayName, isEngine)) return;
 
 				ImGui::TableNextRow();
-				ImGui::PushID(static_cast<int>(handle.id));
+				ImGui::PushID(static_cast<int>(handle.Id));
 
 				// Name column
 				ImGui::TableNextColumn();
-				bool isSelected = (m_selectedAsset == handle.id);
+				bool isSelected = (m_selectedAsset == handle.Id);
 				if (ImGui::Selectable(entry.DisplayName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
 				{
-					m_selectedAsset = handle.id;
+					m_selectedAsset = handle.Id;
 				}
 
 				// Drag source
 				if (ImGui::BeginDragDropSource())
 				{
-					ImGui::SetDragDropPayload("Texture", &handle.id, sizeof(Asset::AssetId));
+					ImGui::SetDragDropPayload("Texture", &handle.Id, sizeof(Asset::AssetId));
 					ImGui::Text("Texture: %s", entry.DisplayName.c_str());
 					ImGui::EndDragDropSource();
 				}
@@ -236,7 +236,7 @@ namespace Ryu::Editor
 					if (ImGui::MenuItem("Copy Handle ID"))
 					{
 						char buf[32];
-						snprintf(buf, sizeof(buf), "%llu", static_cast<unsigned long long>(handle.id));
+						snprintf(buf, sizeof(buf), "%llu", static_cast<unsigned long long>(handle.Id));
 						ImGui::SetClipboardText(buf);
 					}
 					if (!isEngine && ImGui::MenuItem("Delete"))

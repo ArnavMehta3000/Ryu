@@ -43,7 +43,6 @@ namespace Ryu::Asset
 		// Get CPU data - loads on demand
 		[[nodiscard]] const TAssetData* GetCpu(AssetHandle<TAssetData> handle);
 
-		// Get asset state
 		[[nodiscard]] AssetState GetState(AssetHandle<TAssetData> handle) const;
 
 		void AddRef(AssetHandle<TAssetData> handle);

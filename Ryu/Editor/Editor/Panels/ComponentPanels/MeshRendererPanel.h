@@ -22,7 +22,7 @@ namespace Ryu::Editor
             ImGui::Text("%s", meshLabel);
             ImGui::SameLine();
 
-
+            // Display name
             if (component.MeshHandle.IsValid())
             {
                 std::string_view name = component.GetAssetRegistry()->Meshes().GetEntry(component.MeshHandle)->Name;

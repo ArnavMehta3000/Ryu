@@ -146,7 +146,7 @@ namespace Ryu::Editor
 			m_assetRegistry->Meshes().ForEach([this](Asset::MeshHandle handle, const Asset::MeshCache::Entry& entry)
 			{
 				bool isEngine = entry.IsProcedural;
-				if (!PassesFilter(entry.DisplayName, isEngine)) return;
+				if (!PassesFilter(entry.Name, isEngine)) return;
 
 				ImGui::TableNextRow();
 				ImGui::PushID(static_cast<int>(handle.Id));
@@ -154,7 +154,7 @@ namespace Ryu::Editor
 				// Name column
 				ImGui::TableNextColumn();
 				bool isSelected = (m_selectedAsset == handle.Id);
-				if (ImGui::Selectable(entry.DisplayName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
+				if (ImGui::Selectable(entry.Name.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
 				{
 					m_selectedAsset = handle.Id;
 				}
@@ -163,14 +163,14 @@ namespace Ryu::Editor
 				if (ImGui::BeginDragDropSource())
 				{
 					ImGui::SetDragDropPayload("Mesh", &handle.Id, sizeof(Asset::AssetId));
-					ImGui::Text("Mesh: %s", entry.DisplayName.c_str());
+					ImGui::Text("Mesh: %s", entry.Name.c_str());
 					ImGui::EndDragDropSource();
 				}
 
 				// Context menu
 				if (ImGui::BeginPopupContextItem())
 				{
-					ImGui::TextDisabled("%s", entry.DisplayName.c_str());
+					ImGui::TextDisabled("%s", entry.Name.c_str());
 					ImGui::Separator();
 					if (ImGui::MenuItem("Copy Handle ID"))
 					{
@@ -207,7 +207,7 @@ namespace Ryu::Editor
 			m_assetRegistry->Textures().ForEach([this](Asset::TextureHandle handle, const Asset::TextureCache::Entry& entry)
 			{
 				bool isEngine = entry.IsProcedural;
-				if (!PassesFilter(entry.DisplayName, isEngine)) return;
+				if (!PassesFilter(entry.Name, isEngine)) return;
 
 				ImGui::TableNextRow();
 				ImGui::PushID(static_cast<int>(handle.Id));
@@ -215,7 +215,7 @@ namespace Ryu::Editor
 				// Name column
 				ImGui::TableNextColumn();
 				bool isSelected = (m_selectedAsset == handle.Id);
-				if (ImGui::Selectable(entry.DisplayName.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
+				if (ImGui::Selectable(entry.Name.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
 				{
 					m_selectedAsset = handle.Id;
 				}
@@ -224,14 +224,14 @@ namespace Ryu::Editor
 				if (ImGui::BeginDragDropSource())
 				{
 					ImGui::SetDragDropPayload("Texture", &handle.Id, sizeof(Asset::AssetId));
-					ImGui::Text("Texture: %s", entry.DisplayName.c_str());
+					ImGui::Text("Texture: %s", entry.Name.c_str());
 					ImGui::EndDragDropSource();
 				}
 
 				// Context menu
 				if (ImGui::BeginPopupContextItem())
 				{
-					ImGui::TextDisabled("%s", entry.DisplayName.c_str());
+					ImGui::TextDisabled("%s", entry.Name.c_str());
 					ImGui::Separator();
 					if (ImGui::MenuItem("Copy Handle ID"))
 					{
@@ -286,19 +286,18 @@ namespace Ryu::Editor
 			return false;
 		}
 		
-		std::string searchStr(s_searchBuffer.data(), s_searchBuffer.size());
-
-		if (!searchStr.empty())
+		// Search filter — use strlen to get actual string length
+		const char* searchCStr = s_searchBuffer.data();
+		if (searchCStr[0] != '\0')
 		{
-			std::string displayLower = displayName;
-			std::string searchLower = searchStr;
-			std::transform(displayLower.begin(), displayLower.end(), displayLower.begin(), ::tolower);
+			std::string nameLower = displayName;
+			std::string searchLower(searchCStr);  // Stops at null terminator
+
+			std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
 			std::transform(searchLower.begin(), searchLower.end(), searchLower.begin(), ::tolower);
-			
-			if (displayLower.find(searchLower) == std::string::npos)
-			{
+
+			if (nameLower.find(searchLower) == std::string::npos)
 				return false;
-			}
 		}
 
 		return true;

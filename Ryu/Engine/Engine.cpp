@@ -8,6 +8,7 @@
 #include "Core/Profiling/Profiling.h"
 #include "Core/Utils/Timing/Stopwatch.h"
 #include "Engine/Services/Services.h"
+#include "Game/Components/MeshRenderer.h"
 #include "Game/World/WorldManager.h"
 #include "Graphics/Compiler/ShaderCompiler.h"
 #include "Math/Math.h"
@@ -78,7 +79,9 @@ namespace Ryu::Engine
 		Window::Window* window = m_currentApp->GetWindow();
 		RYU_ASSERT(window != nullptr, "Application must have a valid window");
 
+		// Init renderer & cache asset registry in mesh renderer
 		m_renderer = std::make_unique<Gfx::Renderer>(window->GetHandle(), rendererHook);
+		Game::MeshRenderer::m_assetRegistry = m_renderer->GetAssetRegistry();
 
 		// Init input manager
 		m_inputManager = std::make_unique<Game::InputManager>(
@@ -105,13 +108,11 @@ namespace Ryu::Engine
 		RYU_PROFILE_BOOKMARK("Begin Shutdown");
 
 		// Unsubscribe listeners
-		if (m_currentApp)
+		Window::Window* window = m_currentApp->GetWindow();
+		if (m_currentApp && window)
 		{
-			if (Window::Window* window = m_currentApp->GetWindow())
-			{
-				window->Unsubscribe(m_resizeListener);
-				window->Unsubscribe(m_closeListener);
-			}
+			window->Unsubscribe(m_resizeListener);
+			window->Unsubscribe(m_closeListener);
 		}
 
 		m_inputManager.reset();

@@ -6,11 +6,13 @@
 
 namespace Ryu::Asset
 {
-    std::optional<std::unique_ptr<MeshData>> OBJLoader::Load(const fs::path& path)
+    std::unique_ptr<MeshData> OBJLoader::Load(const fs::path& path)
     {
         std::ifstream ifs(path);
         if (ifs.fail())
-            return std::nullopt;
+        {
+            return nullptr;
+        }
 
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -21,7 +23,7 @@ namespace Ryu::Asset
 
         if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, &ifs, &mtlReader))
         {
-            return std::nullopt;
+            return nullptr;
         }
 
         auto mesh = std::make_unique<MeshData>();

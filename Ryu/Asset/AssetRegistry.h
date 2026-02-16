@@ -28,7 +28,6 @@ namespace Ryu::Asset
 
 		void LoadAll();  // Force load
 		void InvalidateAll();
-		void RegisterDefaultLoaders();
 
 	private:
 		void RegisterPrimitives();

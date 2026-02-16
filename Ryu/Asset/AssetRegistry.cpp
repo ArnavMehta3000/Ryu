@@ -10,7 +10,6 @@ namespace Ryu::Asset
 		, m_textureCache(gpuFactory)
 	{
 		RYU_PROFILE_SCOPE();
-		RegisterDefaultLoaders();
 		RegisterPrimitives();
 	}
 
@@ -50,17 +49,6 @@ namespace Ryu::Asset
 		RYU_PROFILE_SCOPE();
 		m_meshCache.InvalidateAll();
 		m_textureCache.InvalidateAll();
-	}
-
-	void AssetRegistry::RegisterDefaultLoaders()
-	{
-		RYU_PROFILE_SCOPE();
-		m_meshCache.RegisterLoader(".obj", OBJLoader::Load);
-
-		m_textureCache.RegisterLoader(".png", ImageLoader::Load);
-		m_textureCache.RegisterLoader(".jpg", ImageLoader::Load);
-		m_textureCache.RegisterLoader(".jpeg", ImageLoader::Load);
-		//m_textureCache.RegisterLoader(".dds", ImageLoader::Load);
 	}
 
 	void AssetRegistry::RegisterPrimitives()

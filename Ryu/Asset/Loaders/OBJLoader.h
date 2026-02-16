@@ -8,6 +8,6 @@ namespace Ryu::Asset
     class OBJLoader
     {
     public:
-        static std::optional<std::unique_ptr<MeshData>> Load(const fs::path& path);
+        static std::unique_ptr<MeshData> Load(const fs::path& path);
     };
 }

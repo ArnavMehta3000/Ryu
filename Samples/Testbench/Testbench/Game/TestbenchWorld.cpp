@@ -34,9 +34,8 @@ void TestbenchWorld::OnCreate()
 
 	// Create mesh
 	m_meshEntity = CreateEntity("Mesh");
-	m_meshEntity.AddComponent<Game::MeshRenderer>(
-		Runtime::GetRenderer()->GetAssetRegistry(),
-		Asset::PrimitiveType::Sphere);
+	Game::MeshRenderer& mr = m_meshEntity.AddComponent<Game::MeshRenderer>();
+	mr.MeshHandle = mr.GetAssetRegistry()->GetPrimitive(Asset::PrimitiveType::Sphere);
 
 	m_inputManager->BindAction("ToggleWireframe", Ryu::Window::KeyCode::R, []()
 	{

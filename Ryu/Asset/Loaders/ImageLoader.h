@@ -8,7 +8,7 @@ namespace Ryu::Asset
     class ImageLoader
     {
     public:
-        static std::optional<std::unique_ptr<TextureData>> Load(const fs::path& path);
+        static std::unique_ptr<TextureData> Load(const fs::path& path);
     };
 
     using JPGLoader = ImageLoader;

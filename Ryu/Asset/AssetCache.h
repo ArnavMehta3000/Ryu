@@ -19,10 +19,10 @@ namespace Ryu::Asset
 			std::unique_ptr<TAssetData>   CpuData;
 			std::unique_ptr<TGpuResource> GpuResource;
 			fs::path                      SourcePath;
+			std::string                   Name;
 			AssetState                    State = AssetState::Unloaded;
 			u32                           RefCount = 0;
-			bool                          IsProcedural = false;  // Generated, not loaded from disk
-			std::string                   DisplayName;
+			bool                          IsProcedural = false;
 		};
 
 	public:
@@ -37,24 +37,26 @@ namespace Ryu::Asset
 		// Register procedural asset with string ID
 		[[nodiscard]] AssetHandle<TAssetData> Register(std::string_view name, std::unique_ptr<TAssetData> data);
 
-		// Get GPU resource - loads/creates on demand
+		// Get CPU/GPU data - loads on demand
 		[[nodiscard]] TGpuResource* GetGpu(AssetHandle<TAssetData> handle);
-
-		// Get CPU data - loads on demand
 		[[nodiscard]] const TAssetData* GetCpu(AssetHandle<TAssetData> handle);
 
-		[[nodiscard]] AssetState GetState(AssetHandle<TAssetData> handle) const;
+		[[nodiscard]] const Entry* const GetEntry(AssetHandle<TAssetData> handle) const { return FindEntry(handle.Id); }
+
+		// Force load without accessing
+		void EnsureCpuLoaded(AssetHandle<TAssetData> handle);
+		void EnsureGpuReady(AssetHandle<TAssetData> handle);
 
 		void AddRef(AssetHandle<TAssetData> handle);
 		void Release(AssetHandle<TAssetData> handle);
 
+		[[nodiscard]] AssetState GetState(AssetHandle<TAssetData> handle) const;
 		void Invalidate(AssetHandle<TAssetData> handle);
 		void InvalidateAll();
 
-		void RegisterLoader(const std::string& extension, LoadFunc<TAssetData> loader);
-
+		// Func is void(AssetHandle<TAssetData> handle, const Entry& entry)
 		template<typename Func>
-		void ForEach(Func&& func) const
+		inline void ForEach(Func&& func) const
 		{
 			std::shared_lock lock(m_mutex);
 			for (const auto& [id, entry] : m_entries)
@@ -65,6 +67,7 @@ namespace Ryu::Asset
 
 	private:
 		[[nodiscard]] AssetId GenerateId(const fs::path& path) const;
+		[[nodiscard]] AssetId GenerateId(std::string_view name) const;
 		[[nodiscard]] Entry* FindEntry(AssetId id);
 		[[nodiscard]] const Entry* FindEntry(AssetId id) const;
 
@@ -75,7 +78,6 @@ namespace Ryu::Asset
 		mutable std::shared_mutex              m_mutex;
 		std::unordered_map<AssetId, Entry>     m_entries;
 		std::unordered_map<fs::path, AssetId>  m_pathToId;
-		AssetLoaderRegistry<TAssetData>        m_loaderRegistry;
 		IGpuResourceFactory*                   m_gpuFactory;
 	};
 }

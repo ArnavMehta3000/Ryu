@@ -5,7 +5,7 @@
 
 namespace Ryu::Asset
 {
-    std::optional<std::unique_ptr<TextureData>> ImageLoader::Load(const fs::path& path)
+    std::unique_ptr<TextureData> ImageLoader::Load(const fs::path& path)
     {
         i32 width = 0, height = 0, channels = 0;
         ::stbi_set_flip_vertically_on_load(true);
@@ -35,6 +35,6 @@ namespace Ryu::Asset
         }
 
         RYU_LOG_WARN("Failed to load image {}", path.string());
-        return std::nullopt;
+        return nullptr;
     }
 }
